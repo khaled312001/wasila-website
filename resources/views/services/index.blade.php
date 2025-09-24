@@ -66,7 +66,7 @@
                                 <span class="text-xl font-bold text-accent">{{ number_format($service->price, 2) }} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
                             </div>
                             
-                            <a href="{{ route('orders.create') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
+                            <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
                                class="btn-primary text-white px-6 py-2 rounded-lg font-semibold w-full text-center block hover:shadow-lg transition duration-300">
                                 {{ app()->getLocale() === 'ar' ? 'اطلب الآن' : 'Order Now' }}
                             </a>

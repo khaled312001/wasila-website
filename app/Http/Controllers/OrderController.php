@@ -13,7 +13,7 @@ use MyFatoorah\LaravelPackage\MyFatoorah;
 
 class OrderController extends Controller
 {
-    public function create(Request $request)
+    public function checkout(Request $request)
     {
         // Get service data from URL parameters
         $serviceId = $request->get('service_id');
@@ -27,31 +27,7 @@ class OrderController extends Controller
                 ->with('error', app()->getLocale() === 'ar' ? 'يرجى اختيار خدمة أولاً' : 'Please select a service first');
         }
         
-        return view('orders.create', compact('serviceId', 'serviceName', 'servicePrice', 'serviceDescription'));
-    }
-    
-    public function payment(Request $request)
-    {
-        // Get service data from URL parameters
-        $serviceId = $request->get('service_id');
-        $serviceName = $request->get('service_name');
-        $servicePrice = $request->get('service_price');
-        $serviceQuantity = $request->get('service_quantity');
-        $customerName = $request->get('customer_name');
-        $customerEmail = $request->get('customer_email');
-        $customerPhone = $request->get('customer_phone');
-        $customerAddress = $request->get('customer_address');
-        
-        // If no service data provided, redirect to services
-        if (!$serviceId || !$serviceName || !$servicePrice) {
-            return redirect()->route('services')
-                ->with('error', app()->getLocale() === 'ar' ? 'يرجى اختيار خدمة أولاً' : 'Please select a service first');
-        }
-        
-        return view('orders.payment', compact(
-            'serviceId', 'serviceName', 'servicePrice', 'serviceQuantity',
-            'customerName', 'customerEmail', 'customerPhone', 'customerAddress'
-        ));
+        return view('orders.checkout', compact('serviceId', 'serviceName', 'servicePrice', 'serviceDescription'));
     }
     
     public function store(Request $request)
