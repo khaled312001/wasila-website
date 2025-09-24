@@ -20,14 +20,8 @@
 
 @push('styles')
 <style>
-    /* Contact Form Success/Error Animations */
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-    
-    @keyframes slideInUp {
+    /* Beautiful animations */
+    @keyframes fadeInUp {
         from {
             opacity: 0;
             transform: translateY(30px);
@@ -38,201 +32,154 @@
         }
     }
     
-    @keyframes bounce {
-        0%, 20%, 53%, 80%, 100% {
-            transform: translate3d(0,0,0);
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
         }
-        40%, 43% {
-            transform: translate3d(0, -10px, 0);
-        }
-        70% {
-            transform: translate3d(0, -5px, 0);
-        }
-        90% {
-            transform: translate3d(0, -2px, 0);
+        to {
+            opacity: 1;
+            transform: translateX(0);
         }
     }
     
-    .contact-success-animation {
-        animation: slideInUp 0.6s ease-out, bounce 0.8s ease-out 0.6s;
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
     }
     
-    .contact-error-animation {
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .fade-in-up { animation: fadeInUp 0.8s ease-out; }
+    .slide-in-left { animation: slideInLeft 0.8s ease-out; }
+    .slide-in-right { animation: slideInRight 0.8s ease-out; }
+    .pulse-animation { animation: pulse 2s infinite; }
+    .float-animation { animation: float 3s ease-in-out infinite; }
+    
+    /* Beautiful gradients */
+    .hero-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .card-gradient {
+        background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    }
+    
+    .button-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.3s ease;
+    }
+    
+    .button-gradient:hover {
+        background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Beautiful cards */
+    .beautiful-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .beautiful-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Form styling */
+    .form-input {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(102, 126, 234, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+        background: rgba(255, 255, 255, 1);
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: scale(1.02);
+    }
+    
+    /* Quantity buttons */
+    .quantity-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.2s ease;
+    }
+    
+    .quantity-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .quantity-btn:active {
+        transform: scale(0.95);
+    }
+    
+    /* Success message */
+    .success-message {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         animation: slideInUp 0.6s ease-out;
     }
     
-    /* Enhanced button loading state */
-    .btn-loading {
-        position: relative;
-        overflow: hidden;
+    /* Loading animation */
+    .loading-spinner {
+        animation: spin 1s linear infinite;
     }
     
-    .btn-loading::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        animation: loading 1.5s infinite;
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
     
-    @keyframes loading {
-        0% { left: -100%; }
-        100% { left: 100%; }
-    }
-</style>
-<style>
-    /* Force button colors with maximum specificity */
-    .btn-primary, .btn-accent, 
-    a.btn-primary, a.btn-accent,
-    button.btn-primary, button.btn-accent,
-    .inline-block.btn-primary, .inline-block.btn-accent {
-        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
-        color: white !important;
-        border: none !important;
-        text-decoration: none !important;
-        font-weight: 600 !important;
-        padding: 0.75rem 2rem !important;
-        border-radius: 0.5rem !important;
-        display: inline-block !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3) !important;
-    }
-    
-    .btn-accent, a.btn-accent, button.btn-accent,
-    .inline-block.btn-accent {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3) !important;
-    }
-    
-    /* Hover effects */
-    .btn-primary:hover, .btn-accent:hover,
-    a.btn-primary:hover, a.btn-accent:hover,
-    button.btn-primary:hover, button.btn-accent:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
-        color: white !important;
-    }
-    
-    /* Override any white backgrounds */
-    .bg-white.btn-primary, .bg-white.btn-accent,
-    a.bg-white.btn-primary, a.bg-white.btn-accent {
-        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
-    }
-    
-    .bg-white.btn-accent, a.bg-white.btn-accent {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-    }
-    
-    /* Ensure text is always white */
-    .btn-primary, .btn-accent,
-    a.btn-primary, a.btn-accent,
-    button.btn-primary, button.btn-accent,
-    .btn-primary *, .btn-accent *,
-    a.btn-primary *, a.btn-accent *,
-    button.btn-primary *, button.btn-accent * {
-        color: white !important;
-    }
-    
-    /* Optimized font sizes for better readability */
-    h1 {
-        font-size: 2.5rem !important;
-        line-height: 1.2 !important;
-    }
-    
-    @media (min-width: 768px) {
-        h1 {
-            font-size: 3rem !important;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        h1 {
-            font-size: 3.5rem !important;
-        }
-    }
-    
-    h2 {
-        font-size: 2rem !important;
-        line-height: 1.3 !important;
-    }
-    
-    @media (min-width: 768px) {
-        h2 {
-            font-size: 2.5rem !important;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        h2 {
-            font-size: 3rem !important;
-        }
-    }
-    
-    h3 {
-        font-size: 1.5rem !important;
-        line-height: 1.3 !important;
-    }
-    
-    @media (min-width: 768px) {
-        h3 {
-            font-size: 1.75rem !important;
-        }
-    }
-    
-    @media (min-width: 1024px) {
-        h3 {
-            font-size: 2rem !important;
-        }
-    }
-    
-    p {
-        font-size: 1rem !important;
-        line-height: 1.6 !important;
-    }
-    
-    @media (min-width: 768px) {
-        p {
-            font-size: 1.125rem !important;
-        }
-    }
-    
-    /* Remove SVG from buttons and make text normal */
-    .btn-primary svg, .btn-accent svg,
-    a.btn-primary svg, a.btn-accent svg,
-    button.btn-primary svg, button.btn-accent svg {
-        display: none !important;
-    }
-    
-    /* Make button text normal colored */
-    .btn-primary, .btn-accent,
-    a.btn-primary, a.btn-accent,
-    button.btn-primary, button.btn-accent {
-        color: white !important;
-        font-weight: 600 !important;
-        text-decoration: none !important;
-    }
-    
-    /* Remove flex from button spans */
-    .btn-primary span, .btn-accent span,
-    a.btn-primary span, a.btn-accent span,
-    button.btn-primary span, button.btn-accent span {
-        display: inline !important;
+    /* Background patterns */
+    .bg-pattern {
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
     }
 </style>
 @endpush
 
 @section('content')
-<!-- Order Header -->
-<section class="gradient-bg text-white py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+<!-- Hero Section -->
+<section class="hero-gradient text-white py-20 relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 bg-pattern"></div>
+    
+    <!-- Floating Elements -->
+    <div class="absolute top-10 left-10 w-20 h-20 bg-white bg-opacity-10 rounded-full float-animation"></div>
+    <div class="absolute top-20 right-20 w-16 h-16 bg-white bg-opacity-10 rounded-full float-animation" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-20 left-1/4 w-12 h-12 bg-white bg-opacity-10 rounded-full float-animation" style="animation-delay: 2s;"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center fade-in-up">
+            <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-8 pulse-animation">
+                <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 {{ app()->getLocale() === 'ar' ? 'طلب خدمة' : 'Order Service' }}
             </h1>
-            <p class="text-lg md:text-xl lg:text-2xl mb-8 text-gray-200 max-w-4xl mx-auto">
+            <p class="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
                 {{ app()->getLocale() === 'ar' 
                     ? 'املأ البيانات التالية لطلب الخدمة المطلوبة'
                     : 'Fill in the following information to order the required service' }}
@@ -241,36 +188,70 @@
     </div>
 </section>
 
-<!-- Order Form -->
-<section class="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-    <!-- Background Elements -->
-    <div class="absolute inset-0 opacity-5">
-        <div class="absolute top-20 left-10 w-72 h-72 bg-primary-light rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div class="absolute top-40 right-10 w-72 h-72 bg-accent rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="animation-delay: 2s;"></div>
-        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-primary-medium rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="animation-delay: 4s;"></div>
-    </div>
-    
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
-            <!-- Service Info Card -->
-            <div class="bg-gradient-to-r from-primary-light to-primary-medium p-8 text-white relative overflow-hidden">
-                <div class="absolute inset-0 bg-white opacity-10"></div>
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-bold mb-2" id="service-title">
-                                {{ app()->getLocale() === 'ar' ? 'اختر خدمة' : 'Select Service' }}
-                            </h2>
-                            <p class="text-white/90 text-lg" id="service-description">
-                                {{ app()->getLocale() === 'ar' ? 'يرجى اختيار الخدمة المطلوبة' : 'Please select the required service' }}
-                            </p>
+<!-- Order Form Section -->
+<section class="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Service Summary Card -->
+            <div class="lg:col-span-1">
+                <div class="beautiful-card rounded-3xl p-8 sticky top-8 slide-in-left">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
                         </div>
-                        <div class="text-right">
-                            <div class="text-3xl md:text-4xl font-bold" id="service-price">
-                                {{ app()->getLocale() === 'ar' ? '0.00 ريال' : '0.00 SAR' }}
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2" id="service-title">
+                            {{ app()->getLocale() === 'ar' ? 'ملخص الطلب' : 'Order Summary' }}
+                        </h3>
+                        <p class="text-gray-600" id="service-description">
+                            {{ app()->getLocale() === 'ar' ? 'تفاصيل الخدمة المطلوبة' : 'Service details' }}
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                {{ app()->getLocale() === 'ar' ? 'الخدمة' : 'Service' }}
+                            </label>
+                            <input type="text" id="service_name" readonly 
+                                   class="form-input w-full px-4 py-3 rounded-xl text-gray-800 font-medium">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                {{ app()->getLocale() === 'ar' ? 'الكمية' : 'Quantity' }}
+                            </label>
+                            <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse">
+                                <button type="button" onclick="decreaseQuantity()" 
+                                        class="quantity-btn w-12 h-12 rounded-xl text-white flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                    </svg>
+                                </button>
+                                <input type="number" id="quantity" name="quantity" min="1" value="1" 
+                                       class="w-24 text-center px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent font-bold text-lg" 
+                                       onchange="updateTotal()">
+                                <button type="button" onclick="increaseQuantity()" 
+                                        class="quantity-btn w-12 h-12 rounded-xl text-white flex items-center justify-center">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </button>
                             </div>
-                            <div class="text-white/90 text-sm md:text-base" id="service-quantity">
-                                {{ app()->getLocale() === 'ar' ? 'الكمية: 1' : 'Quantity: 1' }}
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl p-6 text-white">
+                            <div class="text-center">
+                                <p class="text-sm opacity-90 mb-2" id="service-quantity">
+                                    {{ app()->getLocale() === 'ar' ? 'الكمية: 1' : 'Quantity: 1' }}
+                                </p>
+                                <p class="text-3xl font-bold" id="total_price">
+                                    {{ app()->getLocale() === 'ar' ? '0.00 ريال' : '0.00 SAR' }}
+                                </p>
+                                <p class="text-sm opacity-90 mt-1">
+                                    {{ app()->getLocale() === 'ar' ? 'المبلغ الإجمالي' : 'Total Amount' }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -278,152 +259,128 @@
             </div>
 
             <!-- Order Form -->
-            <div class="p-8 md:p-12">
-                <form id="orderForm" method="POST" action="{{ route('orders.store') }}" class="space-y-8">
-                    @csrf
-                    <input type="hidden" id="service_id" name="service_id">
-                    
-                    <!-- Service Selection -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                        <!-- Left Column - Service Details -->
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-lg md:text-xl font-bold text-primary-dark mb-4">
-                                    {{ app()->getLocale() === 'ar' ? 'تفاصيل الطلب' : 'Order Details' }}
-                                </label>
-                                
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="block text-base md:text-lg font-semibold text-primary-dark mb-3">
-                                            {{ app()->getLocale() === 'ar' ? 'الخدمة المطلوبة' : 'Required Service' }}
-                                        </label>
-                                        <input type="text" id="service_name" readonly 
-                                               class="w-full px-4 py-4 border border-gray-300 rounded-xl bg-gray-50 text-primary-dark font-semibold text-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent transition duration-200">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-base md:text-lg font-semibold text-primary-dark mb-3">
-                                            {{ app()->getLocale() === 'ar' ? 'الكمية' : 'Quantity' }}
-                                        </label>
-                                        <div class="flex items-center space-x-4 rtl:space-x-reverse">
-                                            <button type="button" onclick="decreaseQuantity()" 
-                                                    class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-light to-primary-medium hover:from-primary-medium hover:to-primary-dark text-white flex items-center justify-center transition duration-300 transform hover:scale-105 shadow-lg">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                                                </svg>
-                                            </button>
-                                            <input type="number" id="quantity" name="quantity" min="1" value="1" 
-                                                   class="w-24 text-center px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-medium focus:border-transparent font-bold text-lg" 
-                                                   onchange="updateTotal()">
-                                            <button type="button" onclick="increaseQuantity()" 
-                                                    class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-light to-primary-medium hover:from-primary-medium hover:to-primary-dark text-white flex items-center justify-center transition duration-300 transform hover:scale-105 shadow-lg">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-base md:text-lg font-semibold text-primary-dark mb-3">
-                                            {{ app()->getLocale() === 'ar' ? 'المبلغ الإجمالي' : 'Total Amount' }}
-                                        </label>
-                                        <div class="bg-gradient-to-r from-primary-light to-primary-medium text-white rounded-xl p-6 shadow-lg">
-                                            <div class="text-3xl md:text-4xl font-bold" id="total_price">
-                                                {{ app()->getLocale() === 'ar' ? '0.00 ريال' : '0.00 SAR' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column - Customer Information -->
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-semibold text-primary-dark mb-3">
-                                    {{ app()->getLocale() === 'ar' ? 'معلومات العميل' : 'Customer Information' }}
-                                </label>
-                                
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-primary-dark mb-2">
-                                            {{ app()->getLocale() === 'ar' ? 'الاسم الكامل' : 'Full Name' }} <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" name="customer_name" required 
-                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent transition duration-200"
-                                               placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name' }}">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-primary-dark mb-2">
-                                            {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }} <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="email" name="customer_email" required 
-                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent transition duration-200"
-                                               placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email address' }}">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-primary-dark mb-2">
-                                            {{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }} <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="tel" name="customer_phone" required 
-                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent transition duration-200"
-                                               placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-primary-dark mb-2">
-                                            {{ app()->getLocale() === 'ar' ? 'العنوان' : 'Address' }} <span class="text-red-500">*</span>
-                                        </label>
-                                        <textarea name="customer_address" rows="4" required 
-                                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent transition duration-200 resize-none"
-                                                  placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل عنوانك الكامل' : 'Enter your complete address' }}"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="lg:col-span-2">
+                <div class="beautiful-card rounded-3xl p-8 slide-in-right">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                            {{ app()->getLocale() === 'ar' ? 'معلومات العميل' : 'Customer Information' }}
+                        </h2>
+                        <p class="text-gray-600 text-lg">
+                            {{ app()->getLocale() === 'ar' 
+                                ? 'يرجى ملء جميع البيانات المطلوبة لإتمام الطلب'
+                                : 'Please fill in all required information to complete your order' }}
+                        </p>
                     </div>
 
-                    <!-- Payment Information -->
-                    <div class="border-t border-gray-200 pt-6">
-                        <div class="flex items-center justify-center space-x-3 rtl:space-x-reverse mb-4">
-                            <svg class="w-6 h-6 text-primary-medium" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-sm font-medium text-primary-dark">
-                                {{ app()->getLocale() === 'ar' ? 'دفع آمن ومحمي بواسطة ماي فاتورة' : 'Secure payment protected by MyFatoorah' }}
-                            </span>
-                        </div>
+                    <form id="orderForm" method="POST" action="{{ route('orders.store') }}" class="space-y-8">
+                        @csrf
+                        <input type="hidden" id="service_id" name="service_id">
                         
-                        <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse">
-                            <img src="{{ asset('images/myfatoorah-logo.png') }}" alt="MyFatoorah" class="h-8" onerror="this.style.display='none'">
-                            <span class="text-xs text-gray-500">
-                                {{ app()->getLocale() === 'ar' ? 'مدعوم من' : 'Powered by' }} MyFatoorah
-                            </span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                    {{ app()->getLocale() === 'ar' ? 'الاسم الكامل' : 'Full Name' }} 
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="customer_name" required 
+                                       class="form-input w-full px-6 py-4 rounded-xl text-lg"
+                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name' }}">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                    {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }} 
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" name="customer_email" required 
+                                       class="form-input w-full px-6 py-4 rounded-xl text-lg"
+                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email address' }}">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                    {{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone Number' }} 
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <input type="tel" name="customer_phone" required 
+                                       class="form-input w-full px-6 py-4 rounded-xl text-lg"
+                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-lg font-semibold text-gray-700 mb-3">
+                                    {{ app()->getLocale() === 'ar' ? 'العنوان' : 'Address' }} 
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <textarea name="customer_address" rows="4" required 
+                                          class="form-input w-full px-6 py-4 rounded-xl text-lg resize-none"
+                                          placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل عنوانك الكامل' : 'Enter your complete address' }}"></textarea>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 pt-6">
-                        <a href="{{ route('services') }}" 
-                           class="flex-1 px-6 py-3 border border-primary-medium text-primary-medium rounded-lg hover:bg-primary-light hover:text-white transition duration-300 text-center font-semibold">
-                            {{ app()->getLocale() === 'ar' ? 'العودة للخدمات' : 'Back to Services' }}
-                        </a>
-                        <button type="submit" 
-                                class="flex-1 btn-primary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition duration-300 flex items-center justify-center space-x-2 rtl:space-x-reverse">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                            <span>{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب والدفع' : 'Confirm Order & Pay' }}</span>
-                        </button>
-                    </div>
-                </form>
+                        <!-- Payment Information -->
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-200">
+                            <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="text-center">
+                                    <h3 class="text-lg font-semibold text-gray-800">
+                                        {{ app()->getLocale() === 'ar' ? 'دفع آمن ومحمي' : 'Secure Payment' }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">
+                                        {{ app()->getLocale() === 'ar' ? 'بواسطة ماي فاتورة' : 'Powered by MyFatoorah' }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-center space-x-4 rtl:space-x-reverse">
+                                <img src="{{ asset('images/myfatoorah-logo.png') }}" alt="MyFatoorah" class="h-8" onerror="this.style.display='none'">
+                                <span class="text-sm text-gray-500">
+                                    {{ app()->getLocale() === 'ar' ? 'مدعوم من' : 'Powered by' }} MyFatoorah
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                            <a href="{{ route('services') }}" 
+                               class="flex-1 px-8 py-4 border-2 border-purple-500 text-purple-500 rounded-xl hover:bg-purple-500 hover:text-white transition duration-300 text-center font-semibold text-lg">
+                                {{ app()->getLocale() === 'ar' ? 'العودة للخدمات' : 'Back to Services' }}
+                            </a>
+                            <button type="submit" 
+                                    class="flex-1 button-gradient text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center space-x-3 rtl:space-x-reverse">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب والدفع' : 'Confirm Order & Pay' }}</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Success Message -->
+<div id="successMessage" class="hidden fixed top-4 right-4 z-50 max-w-md">
+    <div class="success-message text-white p-6 rounded-2xl shadow-2xl">
+        <div class="flex items-center space-x-4 rtl:space-x-reverse">
+            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div>
+                <h4 class="font-bold text-lg">{{ app()->getLocale() === 'ar' ? 'تم إرسال الطلب بنجاح!' : 'Order submitted successfully!' }}</h4>
+                <p class="text-sm opacity-90">{{ app()->getLocale() === 'ar' ? 'سيتم توجيهك لصفحة الدفع' : 'You will be redirected to the payment page' }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -453,11 +410,8 @@ function getServiceFromUrl() {
         document.getElementById('service_name').value = serviceName;
         document.getElementById('service-title').textContent = serviceName;
         document.getElementById('service-description').textContent = serviceDescription || '';
-        document.getElementById('service-price').textContent = currentPrice.toFixed(2) + ' {{ app()->getLocale() === "ar" ? "ريال" : "SAR" }}';
         
         // Update total price initially
-        updateTotal();
-        
         updateTotal();
     } else {
         // Redirect to services if no service data
@@ -487,15 +441,23 @@ function updateTotal() {
     
     document.getElementById('total_price').textContent = total.toFixed(2) + ' {{ app()->getLocale() === "ar" ? "ريال" : "SAR" }}';
     document.getElementById('service-quantity').textContent = '{{ app()->getLocale() === "ar" ? "الكمية" : "Quantity" }}: ' + quantity;
-    
-    // Update service price display
-    document.getElementById('service-price').textContent = total.toFixed(2) + ' {{ app()->getLocale() === "ar" ? "ريال" : "SAR" }}';
 }
 
-// Form validation
+function showSuccessMessage() {
+    const message = document.getElementById('successMessage');
+    message.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        message.classList.add('hidden');
+    }, 5000);
+}
+
+// Form validation and submission
 document.getElementById('orderForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
     if (!currentService) {
-        e.preventDefault();
         alert('{{ app()->getLocale() === "ar" ? "يرجى اختيار خدمة أولاً" : "Please select a service first" }}');
         return false;
     }
@@ -503,4 +465,35 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     // Show loading state
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ app()->getLocale() === "ar" ? "جاري المعالجة..." : "Processing
+    submitBtn.innerHTML = `
+        <svg class="w-6 h-6 loading-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span>{{ app()->getLocale() === "ar" ? "جاري المعالجة..." : "Processing..." }}</span>
+    `;
+    submitBtn.disabled = true;
+    
+    // Show success message
+    showSuccessMessage();
+    
+    // Redirect to payment page after a short delay
+    setTimeout(() => {
+        const formData = new FormData(this);
+        const params = new URLSearchParams();
+        
+        // Add form data to URL parameters
+        for (let [key, value] of formData.entries()) {
+            params.append(key, value);
+        }
+        
+        // Redirect to payment page
+        window.location.href = '{{ route("orders.payment") }}?' + params.toString();
+    }, 1000);
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    getServiceFromUrl();
+});
+</script>
+@endpush

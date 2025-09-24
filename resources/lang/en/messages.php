@@ -95,9 +95,7 @@ return [
     'error_sending_message' => 'An error occurred while sending the message. Please try again or contact us directly.',
     'sending' => 'Sending...',
     'quick_links' => 'Quick Links',
-    'privacy_policy' => 'Privacy Policy',
-    'terms_of_service' => 'Terms of Service',
-    'refund_policy' => 'Refund Policy',
+  
     'all_rights_reserved' => 'All rights reserved.',
     'saudi_arabia' => 'Saudi Arabia',
     'wasila_charity_project_image' => 'Wasila Charity Project Image',

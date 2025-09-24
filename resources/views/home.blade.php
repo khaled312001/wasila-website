@@ -1,16 +1,20 @@
 @extends('layouts.app')
 
-@section('title', __('messages.site_title'))
+@section('title', app()->getLocale() === 'ar' ? 'وسيلة - مشروع خيري اجتماعي' : 'Wasila - Social Charity Project')
 
 @push('head')
 <x-seo 
-    title="{{ __('messages.site_title') }}"
-    description="{{ __('messages.site_description') }}"
-    keywords="{{ __('messages.site_keywords') }}"
+    title="{{ app()->getLocale() === 'ar' ? 'وسيلة - منصة الخير والتبرعات' : 'Wasila - Charity and Donation Platform' }}"
+    description="{{ app()->getLocale() === 'ar' 
+        ? 'منصة وسيلة الخيرية للتبرعات والخدمات الإنسانية. نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية في المملكة العربية السعودية.'
+        : 'Wasila charity platform for donations and humanitarian services. We work on distributing water and care products to mosques, distributing food meals and chairs for the elderly, and other humanitarian services in Saudi Arabia.' }}"
+    keywords="{{ app()->getLocale() === 'ar' 
+        ? 'وسيلة, خير, تبرعات, خدمات إنسانية, منصة خيرية, السعودية, الرياض, مساعدات, إغاثة, تطوع, مشروع خيري, جمعية خيرية, توزيع مياه, مساجد, وجبات طعام, كبار السن'
+        : 'wasila, charity, donations, humanitarian services, charity platform, saudi arabia, riyadh, aid, relief, volunteer, charity project, charity organization, water distribution, mosques, food meals, elderly' }}"
     image="{{ asset('images/logo-arabic.png') }}"
     url="{{ url('/') }}"
     type="website"
-    author="{{ __('messages.site_author') }}"
+    author="وسيلة الخيرية"
 />
 @endpush
 
@@ -226,17 +230,21 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                {{ app()->getLocale() === 'ar' ? 'وسيلة - ' : 'Wasila - ' }}{{ __('messages.hero_subtitle') }}
+                {{ app()->getLocale() === 'ar' 
+                    ? 'وسيلة - مشروع خيري اجتماعي' 
+                    : 'Wasila - Social Charity Project' }}
             </h1>
             <p class="text-lg md:text-xl lg:text-2xl mb-8 text-gray-200 max-w-4xl mx-auto">
-                {{ __('messages.hero_description') }}
+                {{ app()->getLocale() === 'ar' 
+                    ? 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية'
+                    : 'We work on distributing water and care products to mosques, distributing food meals and chairs for the elderly, and other humanitarian services' }}
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" class="btn-primary text-white px-8 py-3 rounded-lg font-semibold inline-block">
-                    {{ __('messages.browse_services') }}
+                <a href="{{ route('services') }}" class="btn-primary text-white px-8 py-3 rounded-lg font-semibold inline-block">
+                    {{ app()->getLocale() === 'ar' ? 'تصفح الخدمات' : 'Browse Services' }}
                 </a>
                 <a href="#about" class="btn-accent text-white px-8 py-3 rounded-lg font-semibold inline-block">
-                    {{ __('messages.learn_more') }}
+                    {{ app()->getLocale() === 'ar' ? 'تعرف علينا' : 'Learn More' }}
                 </a>
             </div>
         </div>
@@ -261,10 +269,12 @@
                 </svg>
             </div>
             <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-dark mb-6">
-                {{ __('messages.premium_services') }}
+                {{ app()->getLocale() === 'ar' ? 'خدماتنا المتميزة' : 'Our Premium Services' }}
             </h2>
             <p class="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-                {{ __('messages.premium_services_description') }}
+                {{ app()->getLocale() === 'ar' 
+                    ? 'نقدم مجموعة شاملة ومتنوعة من الخدمات الخيرية والاجتماعية المصممة خصيصاً لخدمة المجتمع وتحقيق أقصى تأثير إيجابي'
+                    : 'We provide a comprehensive and diverse range of charitable and social services designed specifically to serve the community and achieve maximum positive impact' }}
             </p>
         </div>
         
@@ -276,7 +286,7 @@
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
                     <span class="bg-gradient-to-r from-accent to-primary-medium text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
-                        {{ __('messages.premium') }}
+                        {{ app()->getLocale() === 'ar' ? 'خدمة متميزة' : 'Premium' }}
                     </span>
                 </div>
                 
@@ -284,7 +294,7 @@
                 <div class="relative overflow-hidden">
                     @if($service->image)
                     <img src="{{ asset('storage/' . $service->image) }}" 
-                         alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" 
+                         alt="{{ $service->name_ar }} - خدمة خيرية من وسيلة" 
                          class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500" 
                          loading="lazy">
                     @else
@@ -326,12 +336,12 @@
                                 {{ number_format($service->price, 2) }}
                             </span>
                             <span class="text-sm md:text-base text-gray-500">
-                                {{ __('messages.saudi_riyal') }}
+                                {{ app()->getLocale() === 'ar' ? 'ريال سعودي' : 'Saudi Riyal' }}
                             </span>
                         </div>
-                        <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" 
+                        <a href="{{ route('services') }}" 
                            class="bg-gradient-to-r from-primary-medium to-primary-dark text-white px-6 py-3 rounded-xl font-semibold hover:from-primary-dark hover:to-accent transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                            {{ __('messages.order_now') }}
+                            {{ app()->getLocale() === 'ar' ? 'اطلب الآن' : 'Order Now' }}
                         </a>
                     </div>
                 </div>
@@ -348,14 +358,16 @@
                 <div class="absolute inset-0 bg-white opacity-10"></div>
                 <div class="relative z-10">
                     <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
-                        {{ __('messages.discover_more_services') }}
+                        {{ app()->getLocale() === 'ar' ? 'اكتشف المزيد من خدماتنا' : 'Discover More of Our Services' }}
                     </h3>
                     <p class="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-                        {{ __('messages.discover_more_description') }}
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'تصفح مجموعتنا الكاملة من الخدمات الخيرية والاجتماعية المصممة لخدمة المجتمع'
+                            : 'Browse our complete collection of charitable and social services designed to serve the community' }}
                     </p>
-                    <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" 
+                    <a href="{{ route('services') }}" 
                        class="inline-flex items-center bg-white text-primary-dark px-8 py-4 rounded-xl font-bold text-lg md:text-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        <span>{{ __('messages.view_all_services') }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'عرض جميع الخدمات' : 'View All Services' }}</span>
                         <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                         </svg>
@@ -372,10 +384,12 @@
                 </svg>
             </div>
             <h3 class="text-2xl md:text-3xl font-bold text-primary-dark mb-4">
-                {{ __('messages.services_coming_soon') }}
+                {{ app()->getLocale() === 'ar' ? 'خدماتنا قادمة قريباً' : 'Our Services Coming Soon' }}
             </h3>
             <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                {{ __('messages.services_coming_soon_description') }}
+                {{ app()->getLocale() === 'ar' 
+                    ? 'نعمل حالياً على إعداد مجموعة شاملة من الخدمات الخيرية والاجتماعية لخدمتكم'
+                    : 'We are currently preparing a comprehensive set of charitable and social services to serve you' }}
             </p>
         </div>
         @endif
@@ -388,29 +402,33 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
                 <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-dark mb-6">
-                    {{ __('messages.about_title') }}
+                    {{ app()->getLocale() === 'ar' ? 'من نحن' : 'About Us' }}
                 </h2>
                 <p class="text-base md:text-lg text-gray-600 mb-6">
-                    {{ __('messages.about_description') }}
+                    {{ app()->getLocale() === 'ar' 
+                        ? 'وسيلة هو مشروع خيري اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع. نحن نؤمن بأهمية العمل الخيري والتكافل الاجتماعي في بناء مجتمع أفضل.'
+                        : 'Wasila is a social charity project aimed at providing various humanitarian services to the community. We believe in the importance of charitable work and social solidarity in building a better society.' }}
                 </p>
                 <p class="text-base md:text-lg text-gray-600 mb-8">
-                    {{ __('messages.about_mission') }}
+                    {{ app()->getLocale() === 'ar' 
+                        ? 'نعمل على توزيع المياه النقية، منتجات العناية بالمساجد، وجبات الطعام للمحتاجين، وكراسي كبار السن، وغيرها من الخدمات التي تساهم في رفاهية المجتمع.'
+                        : 'We work on distributing pure water, mosque care products, food meals for the needy, chairs for the elderly, and other services that contribute to community welfare.' }}
                 </p>
                 <div class="grid grid-cols-2 gap-6">
                     <div class="text-center">
                         <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">500+</div>
-                        <div class="text-sm md:text-base text-gray-600">{{ __('messages.services_provided') }}</div>
+                        <div class="text-sm md:text-base text-gray-600">{{ app()->getLocale() === 'ar' ? 'خدمة مقدمة' : 'Services Provided' }}</div>
                     </div>
                     <div class="text-center">
                         <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">1000+</div>
-                        <div class="text-sm md:text-base text-gray-600">{{ __('messages.beneficiaries') }}</div>
+                        <div class="text-sm md:text-base text-gray-600">{{ app()->getLocale() === 'ar' ? 'مستفيد' : 'Beneficiaries' }}</div>
                     </div>
                 </div>
             </div>
             <div class="relative">
-                <img src="{{ asset('images/1.png') }}" alt="{{ __('messages.wasila_charity_project_image') }}" class="rounded-lg shadow-lg" loading="lazy">
+                <img src="{{ asset('images/1.png') }}" alt="{{ app()->getLocale() === 'ar' ? 'صورة توضيحية لمشروع وسيلة الخيري' : 'Wasila Charity Project Image' }}" class="rounded-lg shadow-lg" loading="lazy">
                 <div class="absolute -bottom-6 -right-6 bg-accent text-white p-4 rounded-lg">
-                    <div class="text-lg md:text-xl font-bold">{{ __('messages.working_for_community') }}</div>
+                    <div class="text-lg md:text-xl font-bold">{{ app()->getLocale() === 'ar' ? 'نعمل من أجل المجتمع' : 'Working for Community' }}</div>
                 </div>
             </div>
         </div>
@@ -422,7 +440,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
             <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-dark mb-4">
-                {{ __('messages.why_choose_wasila') }}
+                {{ app()->getLocale() === 'ar' ? 'لماذا تختار وسيلة؟' : 'Why Choose Wasila?' }}
             </h2>
         </div>
         
@@ -434,10 +452,12 @@
                     </svg>
                 </div>
                 <h3 class="text-lg md:text-xl font-semibold text-primary-dark mb-3">
-                    {{ __('messages.diverse_services') }}
+                    {{ app()->getLocale() === 'ar' ? 'خدمات متنوعة' : 'Diverse Services' }}
                 </h3>
                 <p class="text-sm md:text-base text-gray-600">
-                    {{ __('messages.diverse_services_description') }}
+                    {{ app()->getLocale() === 'ar' 
+                        ? 'نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية'
+                        : 'We provide a wide range of charitable and social services' }}
                 </p>
             </div>
             
@@ -448,10 +468,12 @@
                     </svg>
                 </div>
                 <h3 class="text-lg md:text-xl font-semibold text-primary-dark mb-3">
-                    {{ __('messages.expert_team') }}
+                    {{ app()->getLocale() === 'ar' ? 'فريق متخصص' : 'Expert Team' }}
                 </h3>
                 <p class="text-sm md:text-base text-gray-600">
-                    {{ __('messages.expert_team_description') }}
+                    {{ app()->getLocale() === 'ar' 
+                        ? 'فريق من المتخصصين في العمل الخيري والاجتماعي'
+                        : 'A team of specialists in charitable and social work' }}
                 </p>
             </div>
             
@@ -462,10 +484,12 @@
                     </svg>
                 </div>
                 <h3 class="text-lg md:text-xl font-semibold text-primary-dark mb-3">
-                    {{ __('messages.positive_impact') }}
+                    {{ app()->getLocale() === 'ar' ? 'تأثير إيجابي' : 'Positive Impact' }}
                 </h3>
                 <p class="text-sm md:text-base text-gray-600">
-                    {{ __('messages.positive_impact_description') }}
+                    {{ app()->getLocale() === 'ar' 
+                        ? 'نساهم في إحداث تأثير إيجابي في المجتمع'
+                        : 'We contribute to making a positive impact in the community' }}
                 </p>
             </div>
         </div>
@@ -473,8 +497,233 @@
 </section>
 
 <!-- Contact Section -->
-@include('components.contact-section')
-
+<section id="contact" class="py-20 bg-gradient-blue relative overflow-hidden">
+    <div class="container relative">
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <div class="icon icon-lg mx-auto">
+                <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                </svg>
+            </div>
+            <h2 class="text-gray-800 mb-6">
+                {{ app()->getLocale() === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
+            </h2>
+            <p class="text-gray-700 max-w-4xl mx-auto">
+                {{ app()->getLocale() === 'ar' 
+                    ? 'نحن هنا لمساعدتك في أي استفسار أو طلب خدمة. تواصل معنا وسنكون سعداء لخدمتك'
+                    : 'We are here to help you with any inquiry or service request. Contact us and we will be happy to serve you' }}
+            </p>
+        </div>
+        
+        <!-- Contact Content Grid -->
+        <div class="row mb-16">
+            <!-- Contact Information Card -->
+            <div class="col col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="icon icon-lg mx-auto">
+                            <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-gray-800 mb-4">
+                            {{ app()->getLocale() === 'ar' ? 'معلومات الاتصال' : 'Contact Information' }}
+                        </h3>
+                        <p class="text-gray-600 mb-6">
+                            {{ app()->getLocale() === 'ar' 
+                                ? 'تواصل معنا عبر القنوات التالية'
+                                : 'Contact us through the following channels' }}
+                        </p>
+                        
+                        <!-- Email -->
+                        <div class="contact-item">
+                            <div class="contact-icon email">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                </svg>
+                            </div>
+                            <div class="contact-info">
+                                <h4>{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email' }}</h4>
+                                <a href="mailto:info@wasila.org">info@wasila.org</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div class="contact-item">
+                            <div class="contact-icon phone">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                </svg>
+                            </div>
+                            <div class="contact-info">
+                                <h4>{{ app()->getLocale() === 'ar' ? 'رقم الهاتف' : 'Phone' }}</h4>
+                                <a href="tel:+966XXXXXXXXX">+966 XX XXX XXXX</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="contact-item">
+                            <div class="contact-icon location">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="contact-info">
+                                <h4>{{ app()->getLocale() === 'ar' ? 'الموقع' : 'Location' }}</h4>
+                                <p>{{ app()->getLocale() === 'ar' ? 'المملكة العربية السعودية' : 'Saudi Arabia' }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Working Hours -->
+                        <div class="contact-item">
+                            <div class="contact-icon clock">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="contact-info">
+                                <h4>{{ app()->getLocale() === 'ar' ? 'ساعات العمل' : 'Working Hours' }}</h4>
+                                <p>{{ app()->getLocale() === 'ar' ? '8:00 ص - 6:00 م' : '8:00 AM - 6:00 PM' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Form Card -->
+            <div class="col col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="icon icon-lg mx-auto">
+                            <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-gray-800 mb-4">
+                            {{ app()->getLocale() === 'ar' ? 'أرسل لنا رسالة' : 'Send us a Message' }}
+                        </h3>
+                        <p class="text-gray-600 mb-6">
+                            {{ app()->getLocale() === 'ar' 
+                                ? 'املأ النموذج أدناه وسنتواصل معك قريباً'
+                                : 'Fill out the form below and we will contact you soon' }}
+                        </p>
+                        
+                        <form id="contactForm" method="POST" action="{{ route('contact.store') }}">
+                            @csrf
+                            <div class="row">
+                                <div class="col col-6 mb-4">
+                                    <input type="text" name="name" placeholder="{{ app()->getLocale() === 'ar' ? 'الاسم الكامل' : 'Full Name' }}" 
+                                           class="form-control" required>
+                                </div>
+                                <div class="col col-6 mb-4">
+                                    <input type="email" name="email" placeholder="{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني' : 'Email Address' }}" 
+                                           class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-6 mb-4">
+                                    <input type="tel" name="phone" placeholder="{{ app()->getLocale() === 'ar' ? 'رقم الهاتف (اختياري)' : 'Phone (Optional)' }}" 
+                                           class="form-control">
+                                </div>
+                                <div class="col col-6 mb-4">
+                                    <input type="text" name="subject" placeholder="{{ app()->getLocale() === 'ar' ? 'الموضوع (اختياري)' : 'Subject (Optional)' }}" 
+                                           class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <textarea name="message" placeholder="{{ app()->getLocale() === 'ar' ? 'اكتب رسالتك هنا...' : 'Write your message here...' }}" 
+                                          class="form-control" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-full">
+                                {{ app()->getLocale() === 'ar' ? 'إرسال الرسالة' : 'Send Message' }}
+                            </button>
+                        </form>
+                        
+                        <!-- Success/Error Messages -->
+                        <div id="contactMessage" class="mt-6 d-none">
+                            <div id="contactSuccess" class="d-none">
+                                <div class="d-flex align-center p-4 rounded-lg" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac; color: #166534;">
+                                    <div class="icon icon-sm" style="background-color: #10b981; margin-left: 1rem;">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold mb-1">{{ app()->getLocale() === 'ar' ? 'تم إرسال رسالتك بنجاح!' : 'Message sent successfully!' }}</p>
+                                        <p class="text-sm">{{ app()->getLocale() === 'ar' ? 'شكراً لك على تواصلك معنا. سنتواصل معك في أقرب وقت ممكن.' : 'Thank you for contacting us. We will get back to you as soon as possible.' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="contactError" class="d-none">
+                                <div class="d-flex align-center p-4 rounded-lg" style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px solid #fca5a5; color: #dc2626;">
+                                    <div class="icon icon-sm" style="background-color: #ef4444; margin-left: 1rem;">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold mb-1">{{ app()->getLocale() === 'ar' ? 'حدث خطأ!' : 'Error occurred!' }}</p>
+                                        <p class="text-sm">{{ app()->getLocale() === 'ar' ? 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى أو التواصل معنا مباشرة.' : 'An error occurred while sending the message. Please try again or contact us directly.' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map Section -->
+        <div class="card">
+            <div class="card-header text-center">
+                <div class="icon icon-lg mx-auto">
+                    <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h3 class="text-gray-800 mb-4">
+                    {{ app()->getLocale() === 'ar' ? 'موقعنا' : 'Our Location' }}
+                </h3>
+                <p class="text-gray-600">
+                    {{ app()->getLocale() === 'ar' ? 'الرياض، المملكة العربية السعودية' : 'Riyadh, Saudi Arabia' }}
+                </p>
+            </div>
+            
+            <!-- Interactive Map -->
+            <div class="map-container">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.5!2d46.6753!3d24.7136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2ee2b5b5b5b5b5%3A0x3e2ee2b5b5b5b5b5!2sRiyadh%2C%20Saudi%20Arabia!5e0!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s" 
+                    width="100%" 
+                    height="100%" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+                
+                <!-- Map Overlay with Location Info -->
+                <div class="map-overlay">
+                    <div class="location-marker">
+                        <div class="marker-icon">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="marker-info">
+                            <h5>{{ app()->getLocale() === 'ar' ? 'وسيلة الخيرية' : 'Wasila Charity' }}</h5>
+                            <p>{{ app()->getLocale() === 'ar' ? 'الرياض، السعودية' : 'Riyadh, Saudi Arabia' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
 
 @push('scripts')
@@ -515,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            {{ __('messages.sending') }}
+            {{ app()->getLocale() === "ar" ? "جاري الإرسال..." : "Sending..." }}
         `;
         submitButton.disabled = true;
         submitButton.classList.add('btn-loading');

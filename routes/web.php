@@ -13,6 +13,7 @@ Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/services', [ServiceController::class, 'publicIndex'])->name('services');
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::get('/orders/payment', [OrderController::class, 'payment'])->name('orders.payment');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
@@ -30,6 +31,7 @@ Route::group(['prefix' => 'en', 'middleware' => ['web', 'setlocale:en']], functi
     Route::get('/', [HomeController::class, 'index'])->name('home.en');
     Route::get('/services', [ServiceController::class, 'publicIndex'])->name('services.en');
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create.en');
+    Route::get('/orders/payment', [OrderController::class, 'payment'])->name('orders.payment.en');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store.en');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show.en');
     Route::get('/orders/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation.en');
