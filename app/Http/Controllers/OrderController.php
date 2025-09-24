@@ -9,7 +9,9 @@ use App\Models\Service;
 use App\Helpers\SettingsHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use MyFatoorah\LaravelPackage\MyFatoorah;
+use MyFatoorah\Library\MyFatoorah;
+use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
+use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
 
 class OrderController extends Controller
 {
@@ -34,11 +36,24 @@ class OrderController extends Controller
     {
         $request->validate([
             'service_id' => 'required|exists:services,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1|max:100',
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
             'customer_address' => 'required|string',
+            'payment_method' => 'required|in:card,bank,cod',
+            // Credit card fields (optional)
+            'card_number' => 'nullable|string|max:20',
+            'cardholder_name' => 'nullable|string|max:255',
+            'expiry_date' => 'nullable|string|max:10',
+            'cvv' => 'nullable|string|max:4',
+            // Bank transfer fields (optional)
+            'bank_name' => 'nullable|string|max:255',
+            'account_number' => 'nullable|string|max:50',
+            'transfer_reference' => 'nullable|string|max:50',
+            // COD fields (optional)
+            'delivery_time' => 'nullable|string|max:50',
+            'delivery_notes' => 'nullable|string|max:500'
         ]);
         
         try {
@@ -46,6 +61,42 @@ class OrderController extends Controller
             
             $service = Service::findOrFail($request->service_id);
             $totalAmount = $service->price * $request->quantity;
+            
+            // تحديد طريقة الدفع
+            $paymentMethod = '';
+            switch($request->payment_method) {
+                case 'card':
+                    $paymentMethod = 'Credit/Debit Card';
+                    break;
+                case 'bank':
+                    $paymentMethod = 'Bank Transfer';
+                    break;
+                case 'cod':
+                    $paymentMethod = 'Cash on Delivery';
+                    break;
+            }
+            
+            // جمع معلومات الدفع الإضافية
+            $paymentDetails = [];
+            if ($request->payment_method === 'card') {
+                $paymentDetails = [
+                    'card_number' => $request->card_number,
+                    'cardholder_name' => $request->cardholder_name,
+                    'expiry_date' => $request->expiry_date,
+                    'cvv' => $request->cvv
+                ];
+            } elseif ($request->payment_method === 'bank') {
+                $paymentDetails = [
+                    'bank_name' => $request->bank_name,
+                    'account_number' => $request->account_number,
+                    'transfer_reference' => $request->transfer_reference
+                ];
+            } elseif ($request->payment_method === 'cod') {
+                $paymentDetails = [
+                    'delivery_time' => $request->delivery_time,
+                    'delivery_notes' => $request->delivery_notes
+                ];
+            }
             
             $order = Order::create([
                 'customer_name' => $request->customer_name,
@@ -55,6 +106,8 @@ class OrderController extends Controller
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
                 'payment_status' => 'pending',
+                'payment_method' => $paymentMethod,
+                'payment_details' => json_encode($paymentDetails),
             ]);
             
             OrderItem::create([
@@ -67,79 +120,14 @@ class OrderController extends Controller
             
             DB::commit();
             
-            // إنشاء جلسة دفع مع MyFatoorah
-            $paymentData = [
-                'CustomerName' => $request->customer_name,
-                'CustomerEmail' => $request->customer_email,
-                'CustomerMobile' => $request->customer_phone,
-                'InvoiceValue' => $totalAmount,
-                'DisplayCurrencyIso' => SettingsHelper::get('myfatoorah_currency', 'SAR'),
-                'MobileCountryCode' => '+966',
-                'CustomerAddress' => [
-                    'Address' => $request->customer_address,
-                    'City' => 'الرياض',
-                    'Country' => 'SA'
-                ],
-                'InvoiceItems' => [
-                    [
-                        'ItemName' => $service->name_ar,
-                        'Quantity' => $request->quantity,
-                        'UnitPrice' => $service->price,
-                        'Weight' => 0,
-                        'Width' => 0,
-                        'Height' => 0,
-                        'Depth' => 0
-                    ]
-                ],
-                'CallBackUrl' => route('payment.callback'),
-                'ErrorUrl' => route('payment.error'),
-                'Language' => 'ar',
-                'CustomerReference' => $order->order_number,
-                'UserDefinedField' => $order->id,
-                'InvoiceDisplayValue' => $totalAmount,
-                'InvoiceDescription' => 'طلب خدمة من وسيلة الخيرية - ' . $service->name_ar
-            ];
-            
-            try {
-                $apiKey = SettingsHelper::get('myfatoorah_api_key');
-                $isTest = SettingsHelper::get('myfatoorah_is_test', '1') == '1';
-                
-                if (!$apiKey) {
-                    throw new \Exception('يرجى إعداد مفتاح API لبوابة الدفع أولاً');
-                }
-                
-                $myfatoorah = new MyFatoorah($apiKey, $isTest);
-                $paymentUrl = $myfatoorah->sendPayment($paymentData);
-                
-                // تحديث حالة الطلب
-                $order->update([
-                    'payment_reference' => $paymentUrl,
-                    'status' => 'payment_pending'
-                ]);
-                
-                return redirect($paymentUrl);
-            } catch (\Exception $paymentException) {
-                // في حالة فشل الدفع، احتفظ بالطلب ولكن أضف ملاحظة
-                $order->update([
-                    'notes' => 'فشل في إنشاء جلسة الدفع: ' . $paymentException->getMessage(),
-                    'status' => 'payment_failed'
-                ]);
-                
-                return redirect()->route('orders.confirmation')
-                    ->with('error', 'تم إنشاء الطلب بنجاح، ولكن حدث خطأ في معالجة الدفع. يرجى التواصل معنا لإكمال عملية الدفع.')
-                    ->with('order_data', [
-                        'order_number' => $order->order_number,
-                        'service_name' => $service->name_ar,
-                        'service_price' => $service->price,
-                        'service_quantity' => $request->quantity,
-                        'customer_name' => $request->customer_name,
-                        'customer_email' => $request->customer_email,
-                        'customer_phone' => $request->customer_phone,
-                        'customer_address' => $request->customer_address,
-                        'total_amount' => $totalAmount,
-                        'payment_status' => 'failed'
-                    ]);
-            }
+            // إرجاع استجابة JSON للطلب المكتمل
+            return response()->json([
+                'success' => true,
+                'message' => app()->getLocale() === 'ar' ? 'تم تأكيد طلبك بنجاح! سوف نتواصل معك قريباً' : 'Your order has been confirmed successfully! We will contact you soon',
+                'order_number' => $order->order_number,
+                'payment_method' => $paymentMethod,
+                'total_amount' => $totalAmount
+            ]);
                 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -179,7 +167,6 @@ class OrderController extends Controller
     public function paymentCallback(Request $request)
     {
         try {
-            $myfatoorah = new MyFatoorah();
             $paymentId = $request->input('paymentId');
             
             if (!$paymentId) {
@@ -187,7 +174,17 @@ class OrderController extends Controller
                     ->with('error', 'لم يتم العثور على معرف الدفع. يرجى التواصل معنا.');
             }
             
-            $paymentStatus = $myfatoorah->getPaymentStatus($paymentId);
+            $apiKey = SettingsHelper::get('myfatoorah_api_key');
+            $isTest = SettingsHelper::get('myfatoorah_is_test', '1') == '1';
+            
+            $mfConfig = [
+                'apiKey'      => $apiKey,
+                'isTest'      => $isTest,
+                'countryCode' => SettingsHelper::get('myfatoorah_currency', 'SAU'),
+            ];
+            
+            $mfObj = new MyFatoorahPaymentStatus($mfConfig);
+            $paymentStatus = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
             
             if (!$paymentStatus) {
                 return redirect()->route('home')

@@ -21,6 +21,12 @@ Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function
     Route::get('/payment/callback', [OrderController::class, 'paymentCallback'])->name('payment.callback');
     Route::get('/payment/error', [OrderController::class, 'paymentError'])->name('payment.error');
     
+    // MyFatoorah routes
+    Route::get('/myfatoorah', [App\Http\Controllers\MyFatoorahController::class, 'index'])->name('myfatoorah.index');
+    Route::get('/myfatoorah/checkout', [App\Http\Controllers\MyFatoorahController::class, 'checkout'])->name('myfatoorah.checkout');
+    Route::get('/myfatoorah/callback', [App\Http\Controllers\MyFatoorahController::class, 'callback'])->name('myfatoorah.callback');
+    Route::post('/myfatoorah/webhook', [App\Http\Controllers\MyFatoorahController::class, 'webhook'])->name('myfatoorah.webhook');
+    
     // Contact form
     Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store');
 });
@@ -37,6 +43,12 @@ Route::group(['prefix' => 'en', 'middleware' => ['web', 'setlocale:en']], functi
     // Payment routes
     Route::get('/payment/callback', [OrderController::class, 'paymentCallback'])->name('payment.callback.en');
     Route::get('/payment/error', [OrderController::class, 'paymentError'])->name('payment.error.en');
+    
+    // MyFatoorah routes
+    Route::get('/myfatoorah', [App\Http\Controllers\MyFatoorahController::class, 'index'])->name('myfatoorah.index.en');
+    Route::get('/myfatoorah/checkout', [App\Http\Controllers\MyFatoorahController::class, 'checkout'])->name('myfatoorah.checkout.en');
+    Route::get('/myfatoorah/callback', [App\Http\Controllers\MyFatoorahController::class, 'callback'])->name('myfatoorah.callback.en');
+    Route::post('/myfatoorah/webhook', [App\Http\Controllers\MyFatoorahController::class, 'webhook'])->name('myfatoorah.webhook.en');
     
     // Contact form
     Route::post('/contact', [ContactMessageController::class, 'store'])->name('contact.store.en');

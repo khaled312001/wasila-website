@@ -587,7 +587,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             display: flex;
-            items-center: center;
+            align-items: center;
             justify-content: center;
         }
         
@@ -630,7 +630,7 @@
             position: absolute;
             inset: 0;
             display: flex;
-            items-center: center;
+            align-items: center;
             justify-content: center;
             z-index: 3;
             opacity: 0;
@@ -1370,78 +1370,67 @@
             <div class="absolute bottom-0 right-1/2 w-96 h-96 bg-accent rounded-full translate-x-48 translate-y-48"></div>
         </div>
         
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8 relative">
             <!-- Enhanced Header -->
-            <div class="text-center mb-16">
-                <div class="inline-block mb-4">
-                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-accent/10 text-accent">
-                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
+            <div class="text-center mb-12">
+                <div class="inline-block mb-3">
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-accent/10 text-accent animate-pulse">
+                        <svg class="w-3 h-3 ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         مميزاتنا
                     </span>
                 </div>
-                <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-primary-dark mb-6" >
-                    <span >
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-dark mb-4 animate-fade-in-up">
                         لماذا تختار وسيلة؟
-                    </span>
                 </h2>
-                <p class="text-2xl md:text-3xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
                     نتميز بتقديم خدمات خيرية متميزة مع ضمان الجودة والشفافية في جميع أعمالنا
                 </p>
             </div>
             
             <!-- Enhanced Features Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="feature-card group text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                    <div class="relative mb-6">
-                        <div class="w-20 h-20 bg-gradient-to-br from-primary-light to-primary-medium rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
-                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="feature-card group text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 hover:scale-105 animate-fade-in-up animation-delay-300 border border-white/20">
+                    <div class="relative mb-4">
+                      
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center animate-bounce">
+                            <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-bold text-primary-dark mb-4 group-hover:text-primary-medium transition-colors duration-300">خدمات متنوعة</h3>
-                    <p class="text-lg md:text-xl text-gray-600 leading-relaxed">نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">خدمات متنوعة</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ</p>
                 </div>
                 
-                <div class="feature-card group text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                    <div class="relative mb-6">
-                        <div class="w-20 h-20 bg-gradient-to-br from-primary-medium to-primary-dark rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
-                            </svg>
-                        </div>
-                        <div class="absolute -top-2 -right-2 w-6 h-6 bg-accent rounded-full flex items-center justify-center">
-                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Card 2 -->
+                <div class="feature-card group text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 hover:scale-105 animate-fade-in-up animation-delay-500 border border-white/20">
+                    <div class="relative mb-4">
+                       
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-accent rounded-full flex items-center justify-center animate-bounce animation-delay-100">
+                            <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-bold text-primary-dark mb-4 group-hover:text-primary-medium transition-colors duration-300">فريق متخصص</h3>
-                    <p class="text-lg md:text-xl text-gray-600 leading-relaxed">فريق من المتخصصين في العمل الخيري والاجتماعي مع خبرة واسعة في مجال خدمة المجتمع</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">فريق متخصص</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">فريق من المتخصصين في العمل الخيري والاجتماعي مع خبرة واسعة في مجال خدمة المجتمع</p>
                 </div>
                 
-                <div class="feature-card group text-center p-8 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
-                    <div class="relative mb-6">
-                        <div class="w-20 h-20 bg-gradient-to-br from-accent to-yellow-500 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                            </svg>
-                        </div>
-                        <div class="absolute -top-2 -right-2 w-6 h-6 bg-primary-medium rounded-full flex items-center justify-center">
-                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Card 3 -->
+                <div class="feature-card group text-center p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-700 transform hover:-translate-y-3 hover:scale-105 animate-fade-in-up animation-delay-700 border border-white/20">
+                    <div class="relative mb-4">
+                       
+                        <div class="absolute -top-1 -right-1 w-5 h-5 bg-primary-medium rounded-full flex items-center justify-center animate-bounce animation-delay-200">
+                            <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-3xl md:text-4xl font-bold text-primary-dark mb-4 group-hover:text-primary-medium transition-colors duration-300">تأثير إيجابي</h3>
-                    <p class="text-lg md:text-xl text-gray-600 leading-relaxed">نساهم في إحداث تأثير إيجابي في المجتمع مع تقديم تقارير دورية عن المشاريع والأنشطة</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">تأثير إيجابي</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">نساهم في إحداث تأثير إيجابي في المجتمع مع تقديم تقارير دورية عن المشاريع والأنشطة</p>
                 </div>
             </div>
         </div>
@@ -1509,14 +1498,7 @@
             </div>
             
             <!-- View More Button -->
-            <div class="text-center mt-12">
-                <button class="modern-btn text-white px-10 py-5 rounded-2xl font-bold text-xl flex items-center mx-auto group">
-                    <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                    </svg>
-                    عرض المزيد من الصور
-                </button>
-            </div>
+           
         </div>
     </section>
     
@@ -1566,34 +1548,32 @@
     </div>
 
     <!-- Enhanced Contact Section -->
-    <section id="contact" class="py-20 bg-gradient-to-br from-primary-dark via-primary-medium to-primary-light relative overflow-hidden">
+    <section id="contact" class="py-20 bg-gradient-to-br from-[#0a2540] via-[#1e3a8a] to-[#fbbf24] relative overflow-hidden">
         <!-- Background Pattern -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-0 left-0 w-96 h-96 bg-accent rounded-full -translate-x-48 -translate-y-48"></div>
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-48 translate-y-48"></div>
+        <div class="absolute inset-0 opacity-20 pointer-events-none">
+            <div class="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-[#fbbf24] via-[#f59e42] to-[#1e3a8a] rounded-full -translate-x-48 -translate-y-48 blur-2xl"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tr from-[#fffbe6] via-[#fbbf24] to-[#1e3a8a] rounded-full translate-x-48 translate-y-48 blur-2xl"></div>
         </div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <!-- Enhanced Header -->
             <div class="text-center mb-16">
                 <div class="inline-block mb-4">
-                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-accent/20 text-accent">
-                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-[#fbbf24]/30 via-[#1e3a8a]/20 to-[#f59e42]/30 text-[#fbbf24] shadow-lg">
+                        <svg class="w-6 h-6 mr-2 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                         </svg>
-                        تواصل معنا
+                        <span class="font-bold">تواصل معنا</span>
                     </span>
                 </div>
-                <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
+                <h2 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#fffbe6] via-[#fbbf24] to-[#1e3a8a] mb-6 drop-shadow-lg">
                     <span class="relative inline-block">
-                        <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white via-accent to-yellow-300 font-black text-5xl md:text-6xl lg:text-7xl glow-text">
-                            تواصل معنا
-                        </span>
-                        <span class="absolute inset-0 bg-gradient-to-r from-white/20 via-accent/20 to-yellow-300/20 blur-xl transform scale-110"></span>
+                        <span class="relative z-10 font-black glow-text">تواصل معنا</span>
+                        <span class="absolute inset-0 bg-gradient-to-r from-[#fffbe6]/30 via-[#fbbf24]/20 to-[#1e3a8a]/20 blur-2xl scale-110"></span>
                     </span>
                 </h2>
-                <p class="text-2xl md:text-3xl text-gray-200 max-w-4xl mx-auto leading-relaxed">
+                <p class="text-lg text-[#f3f4f6] font-medium drop-shadow">
                     نحن هنا لمساعدتك في أي استفسار أو طلب خدمة. تواصل معنا وسنكون سعداء لخدمتك
                 </p>
             </div>
@@ -1601,71 +1581,71 @@
             <!-- Enhanced Contact Grid - Single Container -->
             <div class="max-w-6xl mx-auto">
                 <!-- Single Modern Contact Container -->
-                <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-12 border border-white/20 shadow-2xl">
+                <div class="bg-gradient-to-br from-[#1e3a8a]/80 via-[#fbbf24]/10 to-[#fffbe6]/10 backdrop-blur-2xl rounded-3xl p-12 border border-[#fbbf24]/30 shadow-2xl">
                     <!-- Contact Content Grid -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
                         <!-- Contact Information -->
                         <div>
-                            <h3 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">{{ __('messages.contact_title') }}</h3>
+                            <h3 class="text-3xl font-bold text-[#fbbf24] mb-8">{{ __('messages.contact_title') }}</h3>
                             
                             <div class="space-y-6">
                             <!-- Email -->
                             <div class="flex items-center group">
-                                <div class="w-16 h-16 bg-gradient-to-r from-primary-light to-accent rounded-2xl flex items-center justify-center ml-4 group-hover:scale-110 transition-transform duration-300">
+                                <div class="w-16 h-16 bg-gradient-to-br from-[#fbbf24] via-[#f59e42] to-[#1e3a8a] rounded-2xl flex items-center justify-center ml-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-white mb-1">البريد الإلكتروني</h4>
-                                    <p class="text-gray-300 text-lg">{{ \App\Helpers\SettingsHelper::contactEmail() }}</p>
+                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">البريد الإلكتروني</h4>
+                                    <p class="text-[#fbbf24] text-lg font-bold">{{ \App\Helpers\SettingsHelper::contactEmail() }}</p>
                                 </div>
                             </div>
                             
                             <!-- Phone -->
                             <div class="flex items-center group">
-                                <div class="w-16 h-16 bg-gradient-to-r from-accent to-yellow-400 rounded-2xl flex items-center justify-center ml-4 group-hover:scale-110 transition-transform duration-300">
+                                <div class="w-16 h-16 bg-gradient-to-br from-[#1e3a8a] via-[#fbbf24] to-[#f59e42] rounded-2xl flex items-center justify-center ml-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-white mb-1">الهاتف</h4>
-                                    <p class="text-gray-300 text-lg">{{ \App\Helpers\SettingsHelper::contactPhone() }}</p>
+                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">الهاتف</h4>
+                                    <p class="text-[#fbbf24] text-lg font-bold">{{ \App\Helpers\SettingsHelper::contactPhone() }}</p>
                                 </div>
                             </div>
                             
                             <!-- Location -->
                             <div class="flex items-center group">
-                                <div class="w-16 h-16 bg-gradient-to-r from-primary-medium to-primary-light rounded-2xl flex items-center justify-center ml-4 group-hover:scale-110 transition-transform duration-300">
+                                <div class="w-16 h-16 bg-gradient-to-br from-[#fbbf24] via-[#fffbe6] to-[#1e3a8a] rounded-2xl flex items-center justify-center ml-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-white mb-1">العنوان</h4>
-                                    <p class="text-gray-300 text-lg">{{ \App\Helpers\SettingsHelper::address() }}</p>
+                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">العنوان</h4>
+                                    <p class="text-[#fbbf24] text-lg font-bold">{{ \App\Helpers\SettingsHelper::address() }}</p>
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Social Media Links -->
-                        <div class="mt-8 pt-8 border-t border-white/20">
-                            <h4 class="text-xl font-semibold text-white mb-4 text-center">تابعنا على</h4>
+                        <div class="mt-8 pt-8 border-t border-[#fbbf24]/30">
+                            <h4 class="text-xl font-semibold text-[#fbbf24] mb-4 text-center">تابعنا على</h4>
                             <div class="flex justify-center space-x-4 space-x-reverse">
-                                <a href="#" class="w-12 h-12 bg-gradient-to-r from-primary-light to-accent rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300">
+                                <a href="#" class="w-12 h-12 bg-gradient-to-br from-[#1e3a8a] via-[#fbbf24] to-[#f59e42] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg">
                                     <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
                                     </svg>
                                 </a>
-                                <a href="#" class="w-12 h-12 bg-gradient-to-r from-accent to-yellow-400 rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300">
+                                <a href="#" class="w-12 h-12 bg-gradient-to-br from-[#fbbf24] via-[#f59e42] to-[#1e3a8a] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg">
                                     <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
                                     </svg>
                                 </a>
-                                <a href="#" class="w-12 h-12 bg-gradient-to-r from-primary-medium to-primary-light rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300">
-                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <a href="#" class="w-12 h-12 bg-gradient-to-br from-[#fffbe6] via-[#fbbf24] to-[#1e3a8a] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg">
+                                    <svg class="w-6 h-6 text-[#1e3a8a]" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
                                     </svg>
                                 </a>
@@ -1674,24 +1654,46 @@
                         </div>
                         
                         <!-- Contact Form -->
-                        <div>
-                        <h3 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">أرسل لنا رسالة</h3>
-                        <form class="space-y-6" id="contactForm">
+                        <div class="w-full max-w-4xl mx-auto">
+                        <h3 class="text-3xl md:text-4xl font-bold text-[#fbbf24] mb-8 text-center">أرسل لنا رسالة</h3>
+                        
+                        <!-- Success Message -->
+                        <div id="contactSuccess" class="hidden mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Error Message -->
+                        <div id="contactError" class="hidden mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span>حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.</span>
+                            </div>
+                        </div>
+                        
+                        <form class="space-y-6" id="contactForm" method="POST" action="{{ route('contact.store') }}">
+                            @csrf
                             <div class="relative">
-                                <input type="text" placeholder="الاسم الكامل" required
-                                       class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-300 backdrop-blur-sm">
+                                <input type="text" name="name" placeholder="الاسم الكامل" required
+                                       class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                    <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                                     </svg>
                                 </div>
                             </div>
                             
                             <div class="relative">
-                                <input type="email" placeholder="البريد الإلكتروني" required
-                                       class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-300 backdrop-blur-sm">
+                                <input type="email" name="email" placeholder="البريد الإلكتروني" required
+                                       class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                    <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                                     </svg>
@@ -1699,27 +1701,38 @@
                             </div>
                             
                             <div class="relative">
-                                <input type="tel" placeholder="رقم الهاتف" required
-                                       class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-300 backdrop-blur-sm">
+                                <input type="tel" name="phone" placeholder="رقم الهاتف" required
+                                       class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                    <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
                                     </svg>
                                 </div>
                             </div>
                             
                             <div class="relative">
-                                <textarea rows="5" placeholder="اكتب رسالتك هنا..." required
-                                          class="w-full px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-300 backdrop-blur-sm resize-none"></textarea>
+                                <input type="text" name="subject" placeholder="الموضوع (اختياري)"
+                                       class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                                    <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 001 1h6a1 1 0 001-1V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <textarea name="message" rows="5" placeholder="اكتب رسالتك هنا..." required
+                                          class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm resize-none font-medium shadow-lg"></textarea>
                                 <div class="absolute top-4 right-4">
-                                    <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
                                     </svg>
                                 </div>
                             </div>
                             
-                            <button type="submit" class="w-full modern-btn text-white px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center group">
-                                <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="currentColor" viewBox="0 0 20 20">
+                            <button type="submit" class="w-full bg-gradient-to-r from-[#fbbf24] via-[#f59e42] to-[#1e3a8a] text-white px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center group shadow-xl hover:from-[#1e3a8a] hover:to-[#fbbf24] transition-all duration-300">
+                                <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1 text-[#fffbe6]" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
                                 </svg>
                                 <span>إرسال الرسالة</span>
@@ -1728,68 +1741,7 @@
                     </div>
                 </div>
                 
-                <!-- Interactive Map -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl h-full">
-                        <h3 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">موقعنا</h3>
-                        
-                        <!-- Map Container -->
-                        <div class="relative rounded-2xl overflow-hidden shadow-2xl">
-                            <div id="map" class="w-full h-80 bg-gradient-to-br from-primary-light/20 to-accent/20 flex items-center justify-center">
-                                <!-- Map Placeholder -->
-                                <div class="text-center text-white">
-                                    <div class="w-20 h-20 bg-gradient-to-r from-primary-light to-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                    <h4 class="text-xl font-semibold mb-2">المملكة العربية السعودية</h4>
-                                    <p class="text-gray-300">الرياض، المملكة العربية السعودية</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Map Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                            
-                            <!-- Map Controls -->
-                            <div class="absolute top-4 right-4 flex flex-col space-y-2">
-                                <button onclick="zoomIn()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-300">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                                <button onclick="zoomOut()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-300">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            
-                            <!-- Location Pin -->
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                                    <div class="w-3 h-3 bg-white rounded-full"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Map Info -->
-                        <div class="mt-6 space-y-3">
-                            <div class="flex items-center text-white">
-                                <svg class="w-5 h-5 text-accent ml-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="text-lg">الرياض، المملكة العربية السعودية</span>
-                            </div>
-                            <div class="flex items-center text-gray-300">
-                                <svg class="w-5 h-5 text-accent ml-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>ساعات العمل: 8:00 ص - 6:00 م</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
             </div>
         </div>
     </section>
@@ -2232,6 +2184,10 @@
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Hide previous messages
+            document.getElementById('contactSuccess').classList.add('hidden');
+            document.getElementById('contactError').classList.add('hidden');
+            
             // Add loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
@@ -2245,21 +2201,55 @@
             `;
             submitBtn.disabled = true;
             
-            // Simulate form submission
-            setTimeout(() => {
-                submitBtn.innerHTML = `
-                    <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    <span>تم الإرسال بنجاح!</span>
-                `;
-                
-                setTimeout(() => {
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Send AJAX request
+            fetch('{{ route("contact.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    document.getElementById('contactSuccess').classList.remove('hidden');
+                    
+                    // Reset form
+                    this.reset();
+                    
+                    // Reset button
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
-                    this.reset();
-                }, 2000);
-            }, 2000);
+                    
+                    // Scroll to success message
+                    document.getElementById('contactSuccess').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    throw new Error(data.message || 'حدث خطأ أثناء إرسال الرسالة');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Show error message
+                document.getElementById('contactError').classList.remove('hidden');
+                
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Scroll to error message
+                document.getElementById('contactError').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
         });
     </script>
 </body>
