@@ -1,0 +1,56 @@
+{
+    "name": "وسيلة - منصة الخير والتبرعات",
+    "short_name": "وسيلة",
+    "description": "منصة وسيلة الخيرية للتبرعات والخدمات الإنسانية. نساعد في ربط المحتاجين بالمتبرعين لبناء مجتمع أفضل.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#08788B",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo-arabic.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo-arabic.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo-arabic.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/images/logo-arabic.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "categories": ["charity", "social", "lifestyle", "utilities"],
+    "lang": "ar",
+    "dir": "rtl",
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "screenshots": [
+        {
+            "src": "/images/logo-arabic.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ]
+}
