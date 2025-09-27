@@ -19,6 +19,7 @@
 @endpush
 
 @push('styles')
+<link href="{{ asset('css/landing-custom.css') }}" rel="stylesheet">
 <style>
     /* Contact Form Success/Error Animations */
     @keyframes pulse {
@@ -226,24 +227,27 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="gradient-bg text-white py-20">
+<section class="hero-section text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+        <div class="hero-content text-center">
+            <h1 class="hero-title">
                 {{ app()->getLocale() === 'ar' 
                     ? 'وسيلة - مشروع خيري اجتماعي' 
                     : 'Wasila - Social Charity Project' }}
             </h1>
-            <p class="text-lg md:text-xl lg:text-2xl mb-8 text-gray-200 max-w-4xl mx-auto">
+            <p class="hero-subtitle max-w-4xl mx-auto">
                 {{ app()->getLocale() === 'ar' 
                     ? 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية'
                     : 'We work on distributing water and care products to mosques, distributing food meals and chairs for the elderly, and other humanitarian services' }}
             </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('services') }}" class="btn-primary text-white px-8 py-3 rounded-lg font-semibold inline-block">
+            <div class="hero-buttons flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ route('services') }}" class="btn-primary-enhanced">
                     {{ app()->getLocale() === 'ar' ? 'تصفح الخدمات' : 'Browse Services' }}
                 </a>
-                <a href="#about" class="btn-accent text-white px-8 py-3 rounded-lg font-semibold inline-block">
+                <a href="{{ route('portfolio') }}" class="btn-secondary-enhanced">
+                    {{ app()->getLocale() === 'ar' ? 'أعمالنا' : 'Our Work' }}
+                </a>
+                <a href="#about" class="btn-primary-enhanced">
                     {{ app()->getLocale() === 'ar' ? 'تعرف علينا' : 'Learn More' }}
                 </a>
             </div>
@@ -252,7 +256,7 @@
 </section>
 
 <!-- Services Preview Section -->
-<section class="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
+<section class="services-section">
     <!-- Background Elements -->
     <div class="absolute inset-0 opacity-5">
         <div class="absolute top-20 left-10 w-72 h-72 bg-primary-light rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
@@ -268,7 +272,7 @@
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-dark mb-6">
+            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-dark mb-6">
                 {{ app()->getLocale() === 'ar' ? 'خدماتنا المتميزة' : 'Our Premium Services' }}
             </h2>
             <p class="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -282,7 +286,7 @@
         <!-- Services Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             @foreach($services as $index => $service)
-            <div class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden border border-gray-100">
+            <div class="service-card group relative">
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
                     <span class="bg-gradient-to-r from-accent to-primary-medium text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
@@ -313,19 +317,19 @@
                 <!-- Content Section -->
                 <div class="p-8">
                     <!-- Service Icon -->
-                    <div class="w-12 h-12 bg-gradient-to-r from-primary-light to-primary-medium rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div class="service-icon">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     
                     <!-- Service Title -->
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">
+                    <h3 class="service-title">
                         {{ $service->name }}
                     </h3>
                     
                     <!-- Service Description -->
-                    <p class="text-base md:text-lg text-gray-600 mb-6 line-clamp-3 leading-relaxed">
+                    <p class="service-description">
                         {{ $service->description }}
                     </p>
                     
@@ -340,7 +344,7 @@
                             </span>
                         </div>
                         <a href="{{ route('services') }}" 
-                           class="bg-gradient-to-r from-primary-medium to-primary-dark text-white px-6 py-3 rounded-xl font-semibold hover:from-primary-dark hover:to-accent transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                           class="btn-primary-enhanced">
                             {{ app()->getLocale() === 'ar' ? 'اطلب الآن' : 'Order Now' }}
                         </a>
                     </div>
@@ -357,7 +361,7 @@
             <div class="bg-gradient-to-r from-primary-light to-primary-medium rounded-2xl p-8 md:p-12 relative overflow-hidden">
                 <div class="absolute inset-0 bg-white opacity-10"></div>
                 <div class="relative z-10">
-                    <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+                    <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4">
                         {{ app()->getLocale() === 'ar' ? 'اكتشف المزيد من خدماتنا' : 'Discover More of Our Services' }}
                     </h3>
                     <p class="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
@@ -366,11 +370,8 @@
                             : 'Browse our complete collection of charitable and social services designed to serve the community' }}
                     </p>
                     <a href="{{ route('services') }}" 
-                       class="inline-flex items-center bg-white text-primary-dark px-8 py-4 rounded-xl font-bold text-lg md:text-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                       class="btn-primary-enhanced">
                         <span>{{ app()->getLocale() === 'ar' ? 'عرض جميع الخدمات' : 'View All Services' }}</span>
-                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                        </svg>
                     </a>
                 </div>
             </div>
@@ -383,7 +384,7 @@
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <h3 class="text-2xl md:text-3xl font-bold text-primary-dark mb-4">
+            <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-4">
                 {{ app()->getLocale() === 'ar' ? 'خدماتنا قادمة قريباً' : 'Our Services Coming Soon' }}
             </h3>
             <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
@@ -397,39 +398,39 @@
 </section>
 
 <!-- About Section -->
-<section id="about" class="py-16 bg-gray-50">
+<section id="about" class="about-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-                <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-dark mb-6">
-                    {{ app()->getLocale() === 'ar' ? 'من نحن' : 'About Us' }}
-                </h2>
-                <p class="text-base md:text-lg text-gray-600 mb-6">
-                    {{ app()->getLocale() === 'ar' 
-                        ? 'وسيلة هو مشروع خيري اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع. نحن نؤمن بأهمية العمل الخيري والتكافل الاجتماعي في بناء مجتمع أفضل.'
-                        : 'Wasila is a social charity project aimed at providing various humanitarian services to the community. We believe in the importance of charitable work and social solidarity in building a better society.' }}
-                </p>
-                <p class="text-base md:text-lg text-gray-600 mb-8">
-                    {{ app()->getLocale() === 'ar' 
-                        ? 'نعمل على توزيع المياه النقية، منتجات العناية بالمساجد، وجبات الطعام للمحتاجين، وكراسي كبار السن، وغيرها من الخدمات التي تساهم في رفاهية المجتمع.'
-                        : 'We work on distributing pure water, mosque care products, food meals for the needy, chairs for the elderly, and other services that contribute to community welfare.' }}
-                </p>
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="text-center">
-                        <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">500+</div>
-                        <div class="text-sm md:text-base text-gray-600">{{ app()->getLocale() === 'ar' ? 'خدمة مقدمة' : 'Services Provided' }}</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">1000+</div>
-                        <div class="text-sm md:text-base text-gray-600">{{ app()->getLocale() === 'ar' ? 'مستفيد' : 'Beneficiaries' }}</div>
-                    </div>
+        <div class="about-content">
+            <h2 class="about-title">
+                {{ app()->getLocale() === 'ar' ? 'من نحن' : 'About Us' }}
+            </h2>
+            <p class="about-description">
+                {{ app()->getLocale() === 'ar' 
+                    ? 'وسيلة هو مشروع خيري اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع. نحن نؤمن بأهمية العمل الخيري والتكافل الاجتماعي في بناء مجتمع أفضل.'
+                    : 'Wasila is a social charity project aimed at providing various humanitarian services to the community. We believe in the importance of charitable work and social solidarity in building a better society.' }}
+            </p>
+            <p class="about-description">
+                {{ app()->getLocale() === 'ar' 
+                    ? 'نعمل على توزيع المياه النقية، منتجات العناية بالمساجد، وجبات الطعام للمحتاجين، وكراسي كبار السن، وغيرها من الخدمات التي تساهم في رفاهية المجتمع.'
+                    : 'We work on distributing pure water, mosque care products, food meals for the needy, chairs for the elderly, and other services that contribute to community welfare.' }}
+            </p>
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">500+</div>
+                    <div class="text-sm md:text-base text-gray-600">{{ app()->getLocale() === 'ar' ? 'خدمة مقدمة' : 'Services Provided' }}</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">1000+</div>
+                    <div class="text-sm md:text-base text-gray-600">{{ app()->getLocale() === 'ar' ? 'مستفيد' : 'Beneficiaries' }}</div>
                 </div>
             </div>
-            <div class="relative">
-                <img src="{{ asset('images/1.png') }}" alt="{{ app()->getLocale() === 'ar' ? 'صورة توضيحية لمشروع وسيلة الخيري' : 'Wasila Charity Project Image' }}" class="rounded-lg shadow-lg" loading="lazy">
-                <div class="absolute -bottom-6 -right-6 bg-accent text-white p-4 rounded-lg">
-                    <div class="text-lg md:text-xl font-bold">{{ app()->getLocale() === 'ar' ? 'نعمل من أجل المجتمع' : 'Working for Community' }}</div>
-                </div>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ route('services') }}" class="btn-primary-enhanced">
+                    {{ app()->getLocale() === 'ar' ? 'تصفح خدماتنا' : 'Browse Our Services' }}
+                </a>
+                <a href="#contact" class="btn-secondary-enhanced">
+                    {{ app()->getLocale() === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
+                </a>
             </div>
         </div>
     </div>
@@ -439,7 +440,7 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-dark mb-4">
+            <h2 class="text-xl md:text-2xl lg:text-3xl font-bold text-primary-dark mb-4">
                 {{ app()->getLocale() === 'ar' ? 'لماذا تختار وسيلة؟' : 'Why Choose Wasila?' }}
             </h2>
         </div>
@@ -497,25 +498,17 @@
 </section>
 
 <!-- Contact Section -->
-<section id="contact" class="py-20 bg-gradient-blue relative overflow-hidden">
-    <div class="container relative">
-        <!-- Section Header -->
-        <div class="text-center mb-16">
-            <div class="icon icon-lg mx-auto">
-                <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                </svg>
-            </div>
-            <h2 class="text-gray-800 mb-6">
+<section id="contact" class="contact-section">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="contact-content">
+            <h2 class="contact-title">
                 {{ app()->getLocale() === 'ar' ? 'تواصل معنا' : 'Contact Us' }}
             </h2>
-            <p class="text-gray-700 max-w-4xl mx-auto">
+            <p class="text-lg text-white/90 mb-8 max-w-3xl mx-auto text-center">
                 {{ app()->getLocale() === 'ar' 
                     ? 'نحن هنا لمساعدتك في أي استفسار أو طلب خدمة. تواصل معنا وسنكون سعداء لخدمتك'
                     : 'We are here to help you with any inquiry or service request. Contact us and we will be happy to serve you' }}
             </p>
-        </div>
         
         <!-- Contact Content Grid -->
         <div class="row mb-16">

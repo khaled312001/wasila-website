@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Service extends Model
 {
@@ -29,6 +30,11 @@ class Service extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function orders(): HasManyThrough
+    {
+        return $this->hasManyThrough(Order::class, OrderItem::class, 'service_id', 'id', 'id', 'order_id');
     }
 
     public function getNameAttribute()

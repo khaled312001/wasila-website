@@ -22,7 +22,7 @@ class AnalyticsController extends Controller
         $stats = [
             'total_orders' => Order::count(),
             'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
-            'total_users' => User::count(),
+            'total_users' => Order::distinct('customer_email')->count('customer_email'),
             'total_services' => Service::count(),
             'pending_orders' => Order::where('status', 'pending')->count(),
             'completed_orders' => Order::where('status', 'completed')->count(),
@@ -32,8 +32,8 @@ class AnalyticsController extends Controller
         $monthlyRevenue = Order::where('payment_status', 'paid')
             ->where('created_at', '>=', now()->subMonths(12))
             ->select(
-                DB::raw('strftime("%Y", created_at) as year'),
-                DB::raw('strftime("%m", created_at) as month'),
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
                 DB::raw('SUM(total_amount) as total')
             )
             ->groupBy('year', 'month')
@@ -56,7 +56,7 @@ class AnalyticsController extends Controller
         // Daily orders for the selected period
         $dailyOrders = Order::whereBetween('created_at', [$startDate, $endDate])
             ->select(
-                DB::raw('date(created_at) as date'),
+                DB::raw('DATE(created_at) as date'),
                 DB::raw('COUNT(*) as count'),
                 DB::raw('SUM(CASE WHEN payment_status = "paid" THEN total_amount ELSE 0 END) as revenue')
             )
@@ -71,11 +71,11 @@ class AnalyticsController extends Controller
             ->groupBy('payment_method')
             ->get();
 
-        // Customer acquisition over time
-        $customerAcquisition = User::whereBetween('created_at', [$startDate, $endDate])
+        // Customer acquisition over time (using orders instead of users)
+        $customerAcquisition = Order::whereBetween('created_at', [$startDate, $endDate])
             ->select(
-                DB::raw('date(created_at) as date'),
-                DB::raw('COUNT(*) as count')
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(DISTINCT customer_email) as count')
             )
             ->groupBy('date')
             ->orderBy('date')
@@ -100,7 +100,7 @@ class AnalyticsController extends Controller
         $startDate = now()->subDays($dateRange)->startOfDay();
         $endDate = now()->endOfDay();
 
-        $orders = Order::with(['orderItems.service', 'user'])
+        $orders = Order::with(['orderItems.service'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->get();
 

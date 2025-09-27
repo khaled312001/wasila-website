@@ -497,11 +497,11 @@
             opacity: 1;
         }
         
-        .slide-1 { background-image: url('{{ asset('images/1.png') }}'); }
-        .slide-2 { background-image: url('{{ asset('images/2.png') }}'); }
-        .slide-3 { background-image: url('{{ asset('images/3.png') }}'); }
-        .slide-4 { background-image: url('{{ asset('images/4.png') }}'); }
-        .slide-5 { background-image: url('{{ asset('images/5.png') }}'); }
+        .slide-1 { background-image: url("{{ asset('images/1.png') }}"); }
+        .slide-2 { background-image: url("{{ asset('images/2.png') }}"); }
+        .slide-3 { background-image: url("{{ asset('images/3.png') }}"); }
+        .slide-4 { background-image: url("{{ asset('images/4.png') }}"); }
+        .slide-5 { background-image: url("{{ asset('images/5.png') }}"); }
         
         /* Enhanced Navigation Styles */
         .nav-link:hover .nav-link-underline {
@@ -1102,12 +1102,12 @@
                 <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 animate-slide-in-left">
                     <span class="relative inline-block">
                         <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white via-primary-light to-accent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
-                            {{ __('messages.hero_title') }}
+                            {{ \App\Models\Setting::get('hero_title_ar', 'وسيلة - مشروع خيري اجتماعي') }}
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-white/20 via-primary-light/20 to-accent/20 blur-xl transform scale-110"></span>
                     </span>
                     <br>
-                    <span class="text-3xl md:text-4xl lg:text-5xl font-light animate-slide-in-right">{{ __('messages.hero_subtitle') }}</span>
+                    <span class="text-3xl md:text-4xl lg:text-5xl font-light animate-slide-in-right">{{ \App\Models\Setting::get('hero_subtitle_ar', 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية') }}</span>
                 </h1>
                 <p class="text-2xl md:text-3xl lg:text-4xl mb-8 text-gray-200 max-w-5xl mx-auto animate-fade-in-delay">
                     {{ __('messages.hero_description') }}
@@ -1273,7 +1273,7 @@
                     <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-primary-dark mb-8">
                         <span class="relative inline-block">
                             <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
-                                {{ __('messages.about_title') }}
+                                {{ \App\Models\Setting::get('about_title_ar', 'من نحن') }}
                             </span>
                             <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
                         </span>
@@ -1281,23 +1281,23 @@
                     
                     <div class="space-y-6">
                         <p class="text-2xl md:text-3xl text-gray-600 leading-relaxed">
-                            {{ __('messages.about_description') }}
+                            {{ \App\Models\Setting::get('about_description_ar', 'وسيلة هو مشروع خيري اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع.') }}
                         </p>
                         
                         <p class="text-xl md:text-2xl text-gray-600 leading-relaxed">
-                            {{ __('messages.about_mission') }}
+                            {{ \App\Models\Setting::get('about_mission_ar', 'نعمل على توزيع المياه النقية، منتجات العناية بالمساجد، وجبات الطعام للمحتاجين، وكراسي كبار السن، وغيرها من الخدمات التي تساهم في رفاهية المجتمع.') }}
                         </p>
                     </div>
                     
                     <!-- Enhanced Stats -->
                     <div class="grid grid-cols-2 gap-6 my-8">
                         <div class="text-center p-6 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300">
-                            <div class="text-5xl md:text-6xl font-bold text-primary-medium mb-2">500+</div>
-                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ __('messages.services_provided') }}</div>
+                            <div class="text-5xl md:text-6xl font-bold text-primary-medium mb-2">{{ \App\Models\Setting::get('stat1_number', '500+') }}</div>
+                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ \App\Models\Setting::get('stat1_label_ar', 'خدمة مقدمة') }}</div>
                         </div>
                         <div class="text-center p-6 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300">
-                            <div class="text-5xl md:text-6xl font-bold text-accent mb-2">1000+</div>
-                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ __('messages.beneficiaries') }}</div>
+                            <div class="text-5xl md:text-6xl font-bold text-accent mb-2">{{ \App\Models\Setting::get('stat2_number', '1000+') }}</div>
+                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ \App\Models\Setting::get('stat2_label_ar', 'مستفيد') }}</div>
                         </div>
                     </div>
                     
@@ -1382,10 +1382,10 @@
                     </span>
                 </div>
                 <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-dark mb-4 animate-fade-in-up">
-                        لماذا تختار وسيلة؟
+                        {{ \App\Models\Setting::get('why_choose_title_ar', 'لماذا تختار وسيلة؟') }}
                 </h2>
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
-                    نتميز بتقديم خدمات خيرية متميزة مع ضمان الجودة والشفافية في جميع أعمالنا
+                    {{ \App\Models\Setting::get('why_choose_subtitle_ar', 'نتميز بتقديم خدمات خيرية متميزة مع ضمان الجودة والشفافية في جميع أعمالنا') }}
                 </p>
             </div>
             
@@ -1401,8 +1401,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">خدمات متنوعة</h3>
-                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get('feature1_title_ar', 'خدمات متنوعة') }}</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get('feature1_description_ar', 'نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ') }}</p>
                 </div>
                 
                 <!-- Card 2 -->
@@ -1415,8 +1415,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">فريق متخصص</h3>
-                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">فريق من المتخصصين في العمل الخيري والاجتماعي مع خبرة واسعة في مجال خدمة المجتمع</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get('feature2_title_ar', 'فريق متخصص') }}</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get('feature2_description_ar', 'فريق من المتخصصين في العمل الخيري والاجتماعي مع خبرة واسعة في مجال خدمة المجتمع') }}</p>
                 </div>
                 
                 <!-- Card 3 -->
@@ -1429,8 +1429,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">تأثير إيجابي</h3>
-                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">نساهم في إحداث تأثير إيجابي في المجتمع مع تقديم تقارير دورية عن المشاريع والأنشطة</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get('feature3_title_ar', 'تأثير إيجابي') }}</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get('feature3_description_ar', 'نساهم في إحداث تأثير إيجابي في المجتمع مع تقديم تقارير دورية عن المشاريع والأنشطة') }}</p>
                 </div>
             </div>
         </div>
@@ -1452,13 +1452,13 @@
                         <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
                         </svg>
-                        معرض الصور
+                        أعمالنا
                     </span>
                 </div>
                 <h2 class="text-4xl md:text-5xl font-bold text-primary-dark mb-6">
                     <span class="relative inline-block">
                         <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-5xl md:text-6xl lg:text-7xl glow-text">
-                            معرض الصور
+                            أعمالنا
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
                     </span>
@@ -1470,31 +1470,92 @@
             
             <!-- Enhanced Gallery Grid -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-                @for($i = 1; $i <= 12; $i++)
-                <div class="gallery-item group cursor-pointer" onclick="openLightbox({{ $i }})">
-                    <div class="relative overflow-hidden rounded-2xl shadow-lg">
-                        <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة توضيحية {{ $i }} لمشروع وسيلة الخيري" 
-                             class="w-full h-40 object-cover transition-transform duration-500">
-                        
-                        <!-- Enhanced Overlay -->
-                        <div class="gallery-overlay">
-                            <div class="text-center text-white">
-                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 backdrop-blur-sm">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                @php
+                    $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->take(12)->get();
+                @endphp
+                
+                @if($portfolioItems->count() > 0)
+                    @foreach($portfolioItems as $index => $item)
+                    <div class="gallery-item group cursor-pointer" data-media-index="{{ $index + 1 }}" data-media-type="{{ $item->type }}" data-media-path="{{ $item->file_path }}" data-media-title="{{ $item->title_ar }}" onclick="openLightboxFromData(this)">
+                        <div class="relative overflow-hidden rounded-2xl shadow-lg">
+                            @if($item->type === 'image')
+                                <img src="{{ $item->file_path }}" alt="{{ $item->title_ar }}" 
+                                     class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
+                            @else
+                                <video class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110" muted>
+                                    <source src="{{ $item->file_path }}" type="video/mp4">
+                                </video>
+                                <!-- Video Play Overlay -->
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                        <svg class="w-8 h-8 text-primary-dark ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <!-- Enhanced Overlay -->
+                            <div class="gallery-overlay">
+                                <div class="text-center text-white">
+                                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 backdrop-blur-sm">
+                                        @if($item->type === 'image')
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm font-medium">{{ $item->type === 'image' ? 'عرض الصورة' : 'تشغيل الفيديو' }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Media Type Badge -->
+                            <div class="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
+                                @if($item->type === 'image')
+                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                    </svg>
+                                @else
+                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
                                     </svg>
-                                </div>
-                                <p class="text-sm font-medium">عرض الصورة</p>
+                                @endif
                             </div>
                         </div>
-                        
-                        <!-- Image Number Badge -->
-                        <div class="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
-                            <span class="text-white text-xs font-bold">{{ $i }}</span>
+                    </div>
+                    @endforeach
+                @else
+                    <!-- Fallback to static images if no portfolio items -->
+                    @for($i = 1; $i <= 12; $i++)
+                    <div class="gallery-item group cursor-pointer" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')">
+                        <div class="relative overflow-hidden rounded-2xl shadow-lg">
+                            <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة توضيحية {{ $i }} لمشروع وسيلة الخيري" 
+                                 class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
+                            
+                            <!-- Enhanced Overlay -->
+                            <div class="gallery-overlay">
+                                <div class="text-center text-white">
+                                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2 backdrop-blur-sm">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm font-medium">عرض الصورة</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Image Number Badge -->
+                            <div class="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
+                                <span class="text-white text-xs font-bold">{{ $i }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                @endfor
+                    @endfor
+                @endif
             </div>
             
             <!-- View More Button -->
@@ -1513,36 +1574,73 @@
             </button>
             
             <!-- Previous Button -->
-            <button onclick="previousImage()" class="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors duration-300 z-20 bg-black/50 rounded-full p-3 backdrop-blur-sm hover:bg-black/70">
+            <button onclick="previousMedia()" class="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors duration-300 z-20 bg-black/50 rounded-full p-3 backdrop-blur-sm hover:bg-black/70">
                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
             </button>
             
             <!-- Next Button -->
-            <button onclick="nextImage()" class="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors duration-300 z-20 bg-black/50 rounded-full p-3 backdrop-blur-sm hover:bg-black/70">
+            <button onclick="nextMedia()" class="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors duration-300 z-20 bg-black/50 rounded-full p-3 backdrop-blur-sm hover:bg-black/70">
                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                 </svg>
             </button>
             
-            <!-- Main Image Container -->
+            <!-- Main Media Container -->
             <div class="relative max-w-5xl max-h-full flex items-center justify-center">
-                <img id="lightbox-image" src="" alt="صورة معرض وسيلة الخيرية" class="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-300">
+                <!-- Image Display -->
+                <img id="lightbox-image" src="" alt="صورة معرض وسيلة الخيرية" class="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-300 hidden">
                 
-                <!-- Image Counter -->
+                <!-- Video Display -->
+                <video id="lightbox-video" controls class="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-300 hidden">
+                    <source src="" type="video/mp4">
+                    متصفحك لا يدعم تشغيل الفيديو
+                </video>
+                
+                <!-- Media Counter -->
                 <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full backdrop-blur-sm">
-                    <span id="image-counter">1 / 12</span>
+                    <span id="media-counter">1 / 12</span>
+                </div>
+                
+                <!-- Media Title -->
+                <div class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg backdrop-blur-sm max-w-md text-center">
+                    <span id="media-title">عنوان المحتوى</span>
                 </div>
             </div>
             
             <!-- Thumbnail Navigation -->
-            <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2 space-x-reverse max-w-4xl overflow-x-auto pb-2">
-                @for($i = 1; $i <= 12; $i++)
-                <button onclick="goToImage({{ $i }})" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
-                    <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" class="w-full h-full object-cover">
-                </button>
-                @endfor
+            <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2 space-x-reverse max-w-4xl overflow-x-auto pb-2">
+                @php
+                    $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->take(12)->get();
+                @endphp
+                
+                @if($portfolioItems->count() > 0)
+                    @foreach($portfolioItems as $index => $item)
+                    <button data-media-index="{{ $index + 1 }}" data-media-type="{{ $item->type }}" data-media-path="{{ $item->file_path }}" data-media-title="{{ $item->title_ar }}" onclick="goToMediaFromData(this)" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
+                        @if($item->type === 'image')
+                            <img src="{{ $item->file_path }}" alt="{{ $item->title_ar }}" class="w-full h-full object-cover">
+                        @else
+                            <div class="w-full h-full bg-gray-800 flex items-center justify-center relative">
+                                <video class="w-full h-full object-cover" muted>
+                                    <source src="{{ $item->file_path }}" type="video/mp4">
+                                </video>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        @endif
+                    </button>
+                    @endforeach
+                @else
+                    @for($i = 1; $i <= 12; $i++)
+                    <button onclick="goToMedia({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
+                        <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" class="w-full h-full object-cover">
+                    </button>
+                    @endfor
+                @endif
             </div>
         </div>
     </div>
@@ -1820,7 +1918,7 @@
             // Show loading indicator
             const link = event.target;
             const originalText = link.textContent;
-            link.textContent = locale === 'ar' ? '{{ __('messages.loading') }}' : '{{ __('messages.loading') }}';
+            link.textContent = 'جاري التحميل...';
             
             // Create form to submit language change
             const form = document.createElement('form');
@@ -1939,25 +2037,49 @@
         }
         
         // Enhanced Lightbox Functions
-        let currentImageIndex = 1;
-        const totalImages = 12;
+        let currentMediaIndex = 1;
+        let currentMediaType = 'image';
+        const totalMedia = 12;
         
-        function openLightbox(imageNumber) {
-            currentImageIndex = imageNumber;
+        function openLightbox(mediaNumber, mediaType, mediaPath, mediaTitle) {
+            currentMediaIndex = mediaNumber;
+            currentMediaType = mediaType;
             const lightbox = document.getElementById('lightbox');
             const lightboxImage = document.getElementById('lightbox-image');
-            const imageCounter = document.getElementById('image-counter');
+            const lightboxVideo = document.getElementById('lightbox-video');
+            const mediaCounter = document.getElementById('media-counter');
+            const mediaTitleElement = document.getElementById('media-title');
             
-            lightboxImage.src = `{{ asset('images/') }}/${imageNumber}.png`;
-            lightboxImage.alt = `صورة ${imageNumber}`;
-            imageCounter.textContent = `${imageNumber} / ${totalImages}`;
+            // Hide both elements first
+            lightboxImage.classList.add('hidden');
+            lightboxVideo.classList.add('hidden');
+            
+            if (mediaType === 'image') {
+                lightboxImage.src = mediaPath;
+                lightboxImage.alt = mediaTitle;
+                lightboxImage.classList.remove('hidden');
+            } else {
+                lightboxVideo.src = mediaPath;
+                lightboxVideo.classList.remove('hidden');
+            }
+            
+            mediaCounter.textContent = `${mediaNumber} / ${totalMedia}`;
+            mediaTitleElement.textContent = mediaTitle;
             
             // Update thumbnail active state
-            updateThumbnailActive(imageNumber);
+            updateThumbnailActive(mediaNumber);
             
             lightbox.classList.remove('hidden');
             lightbox.classList.add('flex');
             document.body.style.overflow = 'hidden';
+        }
+        
+        function openLightboxFromData(element) {
+            const mediaNumber = parseInt(element.dataset.mediaIndex);
+            const mediaType = element.dataset.mediaType;
+            const mediaPath = element.dataset.mediaPath;
+            const mediaTitle = element.dataset.mediaTitle;
+            openLightbox(mediaNumber, mediaType, mediaPath, mediaTitle);
         }
         
         function closeLightbox() {
@@ -1967,31 +2089,63 @@
             document.body.style.overflow = 'auto';
         }
         
-        function nextImage() {
-            currentImageIndex = currentImageIndex >= totalImages ? 1 : currentImageIndex + 1;
-            updateLightboxImage();
+        function nextMedia() {
+            currentMediaIndex = currentMediaIndex >= totalMedia ? 1 : currentMediaIndex + 1;
+            updateLightboxMedia();
         }
         
-        function previousImage() {
-            currentImageIndex = currentImageIndex <= 1 ? totalImages : currentImageIndex - 1;
-            updateLightboxImage();
+        function previousMedia() {
+            currentMediaIndex = currentMediaIndex <= 1 ? totalMedia : currentMediaIndex - 1;
+            updateLightboxMedia();
         }
         
-        function goToImage(imageNumber) {
-            currentImageIndex = imageNumber;
-            updateLightboxImage();
+        function goToMedia(mediaNumber, mediaType, mediaPath, mediaTitle) {
+            currentMediaIndex = mediaNumber;
+            currentMediaType = mediaType;
+            updateLightboxMedia(mediaPath, mediaTitle);
         }
         
-        function updateLightboxImage() {
+        function goToMediaFromData(element) {
+            const mediaNumber = parseInt(element.dataset.mediaIndex);
+            const mediaType = element.dataset.mediaType;
+            const mediaPath = element.dataset.mediaPath;
+            const mediaTitle = element.dataset.mediaTitle;
+            goToMedia(mediaNumber, mediaType, mediaPath, mediaTitle);
+        }
+        
+        function updateLightboxMedia(mediaPath = null, mediaTitle = null) {
             const lightboxImage = document.getElementById('lightbox-image');
-            const imageCounter = document.getElementById('image-counter');
+            const lightboxVideo = document.getElementById('lightbox-video');
+            const mediaCounter = document.getElementById('media-counter');
+            const mediaTitleElement = document.getElementById('media-title');
             
-            lightboxImage.src = `{{ asset('images/') }}/${currentImageIndex}.png`;
-            lightboxImage.alt = `صورة ${currentImageIndex}`;
-            imageCounter.textContent = `${currentImageIndex} / ${totalImages}`;
+            // Hide both elements first
+            lightboxImage.classList.add('hidden');
+            lightboxVideo.classList.add('hidden');
+            
+            // If no specific media provided, try to get from portfolio data
+            if (!mediaPath) {
+                // This would need to be updated to work with dynamic portfolio data
+                // For now, fallback to static images
+                mediaPath = `{{ asset('images/') }}/${currentMediaIndex}.png`;
+                mediaType = 'image';
+                mediaTitle = `صورة ${currentMediaIndex}`;
+            }
+            
+            if (currentMediaType === 'image') {
+                lightboxImage.src = mediaPath;
+                lightboxImage.alt = mediaTitle;
+                lightboxImage.classList.remove('hidden');
+            } else {
+                lightboxVideo.src = mediaPath;
+                lightboxVideo.classList.remove('hidden');
+            }
+            
+            mediaCounter.textContent = `${currentMediaIndex} / ${totalMedia}`;
+            mediaTitleElement.textContent = mediaTitle;
             
             // Update thumbnail active state
-            updateThumbnailActive(currentImageIndex);
+            updateThumbnailActive(currentMediaIndex);
         }
         
         function updateThumbnailActive(activeIndex) {
@@ -2018,16 +2172,16 @@
                     case 'ArrowRight':
                     case 'ArrowDown':
                         e.preventDefault();
-                        nextImage();
+                        nextMedia();
                         break;
                     case 'ArrowLeft':
                     case 'ArrowUp':
                         e.preventDefault();
-                        previousImage();
+                        previousMedia();
                         break;
                     case ' ':
                         e.preventDefault();
-                        nextImage();
+                        nextMedia();
                         break;
                 }
             }

@@ -33,7 +33,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">إجمالي الطلبات</p>
-                <p class="text-2xl font-semibold text-primary-dark">{{ $stats['total_orders'] }}</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ $stats['total_orders'] ?? 0 }}</p>
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">إجمالي الإيرادات</p>
-                <p class="text-2xl font-semibold text-primary-dark">{{ number_format($stats['total_revenue'], 2) }} ريال</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ number_format($stats['total_revenue'] ?? 0, 2) }} ريال</p>
             </div>
         </div>
     </div>
@@ -61,8 +61,8 @@
                 </svg>
             </div>
             <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">إجمالي المستخدمين</p>
-                <p class="text-2xl font-semibold text-primary-dark">{{ $stats['total_users'] }}</p>
+                <p class="text-sm font-medium text-gray-600">إجمالي العملاء</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ $stats['total_users'] ?? 0 }}</p>
             </div>
         </div>
     </div>
@@ -76,7 +76,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">الخدمات النشطة</p>
-                <p class="text-2xl font-semibold text-primary-dark">{{ $stats['total_services'] }}</p>
+                <p class="text-2xl font-semibold text-primary-dark">{{ $stats['total_services'] ?? 0 }}</p>
             </div>
         </div>
     </div>
@@ -134,7 +134,7 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse($topServices as $service)
+                @forelse($topServices ?? [] as $service)
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {{ $service->name_ar }}
@@ -169,12 +169,12 @@ const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getCont
 new Chart(monthlyRevenueCtx, {
     type: 'line',
     data: {
-        labels: {!! json_encode($monthlyRevenue->pluck('month')->map(function($month) {
+        labels: {!! json_encode(($monthlyRevenue ?? collect())->pluck('month')->map(function($month) {
             return \Carbon\Carbon::create()->month($month)->format('M');
         })) !!},
         datasets: [{
             label: 'الإيرادات (ريال)',
-            data: {!! json_encode($monthlyRevenue->pluck('total')) !!},
+            data: {!! json_encode(($monthlyRevenue ?? collect())->pluck('total')) !!},
             borderColor: '#08788B',
             backgroundColor: 'rgba(8, 120, 139, 0.1)',
             tension: 0.4
@@ -196,9 +196,9 @@ const ordersByStatusCtx = document.getElementById('ordersByStatusChart').getCont
 new Chart(ordersByStatusCtx, {
     type: 'doughnut',
     data: {
-        labels: {!! json_encode($ordersByStatus->pluck('status')) !!},
+        labels: {!! json_encode(($ordersByStatus ?? collect())->pluck('status')) !!},
         datasets: [{
-            data: {!! json_encode($ordersByStatus->pluck('count')) !!},
+            data: {!! json_encode(($ordersByStatus ?? collect())->pluck('count')) !!},
             backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6'],
             borderWidth: 0
         }]
@@ -219,10 +219,10 @@ const dailyOrdersCtx = document.getElementById('dailyOrdersChart').getContext('2
 new Chart(dailyOrdersCtx, {
     type: 'bar',
     data: {
-        labels: {!! json_encode($dailyOrders->pluck('date')) !!},
+        labels: {!! json_encode(($dailyOrders ?? collect())->pluck('date')) !!},
         datasets: [{
             label: 'عدد الطلبات',
-            data: {!! json_encode($dailyOrders->pluck('count')) !!},
+            data: {!! json_encode(($dailyOrders ?? collect())->pluck('count')) !!},
             backgroundColor: '#DFA340',
             borderColor: '#DFA340',
             borderWidth: 1
@@ -244,9 +244,9 @@ const paymentMethodsCtx = document.getElementById('paymentMethodsChart').getCont
 new Chart(paymentMethodsCtx, {
     type: 'pie',
     data: {
-        labels: {!! json_encode($paymentMethods->pluck('payment_method')) !!},
+        labels: {!! json_encode(($paymentMethods ?? collect())->pluck('payment_method')) !!},
         datasets: [{
-            data: {!! json_encode($paymentMethods->pluck('count')) !!},
+            data: {!! json_encode(($paymentMethods ?? collect())->pluck('count')) !!},
             backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'],
             borderWidth: 0
         }]

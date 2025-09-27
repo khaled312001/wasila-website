@@ -26,9 +26,9 @@ class MyFatoorahController extends Controller
      */
     public function __construct() {
         $this->mfConfig = [
-            'apiKey'      => config('myfatoorah.api_key'),
-            'isTest'      => config('myfatoorah.test_mode'),
-            'countryCode' => config('myfatoorah.country_iso'),
+            'apiKey'      => SettingsHelper::get('myfatoorah_api_key', config('myfatoorah.api_key')),
+            'isTest'      => (bool) SettingsHelper::get('myfatoorah_is_test', config('myfatoorah.test_mode')),
+            'vcCode'      => SettingsHelper::get('myfatoorah_currency', config('myfatoorah.country_iso')),
         ];
     }
 
@@ -302,7 +302,7 @@ class MyFatoorahController extends Controller
         return view('admin.myfatoorah.transactions', compact('transactions'));
     }
 
-    public function showTransaction(Order $order)
+    public function show(Order $order)
     {
         $order->load('orderItems.service');
         
@@ -328,8 +328,13 @@ class MyFatoorahController extends Controller
         ]);
 
         try {
-            $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
+            // TODO: Implement refund functionality with correct MyFatoorah method
+            // $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
             
+            // For now, return error as refund API needs to be properly implemented
+            return back()->with('error', 'وظيفة الاسترداد غير متوفرة حالياً. يرجى التواصل مع الدعم الفني.');
+            
+            /*
             $refundData = [
                 'Key' => $order->payment_reference,
                 'KeyType' => 'PaymentId',
@@ -340,22 +345,7 @@ class MyFatoorahController extends Controller
             ];
 
             $refundResult = $mfObj->makeRefund($refundData);
-
-            if ($refundResult && $refundResult['IsSuccess']) {
-                // Update order status
-                $order->update([
-                    'status' => 'cancelled',
-                    'payment_status' => 'refunded',
-                    'refund_amount' => $request->amount,
-                    'refund_reason' => $request->reason,
-                    'refund_reference' => $refundResult['Data']['RefundReference']
-                ]);
-
-                return redirect()->route('admin.myfatoorah.show', $order)
-                    ->with('success', 'تم استرداد المبلغ بنجاح');
-            } else {
-                return back()->with('error', 'فشل في استرداد المبلغ: ' . ($refundResult['Message'] ?? 'خطأ غير معروف'));
-            }
+            */
 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء استرداد المبلغ: ' . $e->getMessage());
@@ -426,7 +416,7 @@ class MyFatoorahController extends Controller
             ->with('success', 'تم تحديث إعدادات بوابة الدفع بنجاح');
     }
 
-    public function exportTransactions(Request $request)
+    public function export(Request $request)
     {
         $query = Order::with('orderItems.service')
             ->whereNotNull('payment_reference');
@@ -494,7 +484,7 @@ class MyFatoorahController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function retryPayment(Order $order)
+    public function retry(Order $order)
     {
         try {
             if ($order->payment_status === 'paid') {

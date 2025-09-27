@@ -12,6 +12,7 @@ use App\Http\Controllers\ContactMessageController;
 Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('/services', [ServiceController::class, 'publicIndex'])->name('services');
+    Route::get('/portfolio', [App\Http\Controllers\PortfolioController::class, 'index'])->name('portfolio');
     Route::get('/orders/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
@@ -35,6 +36,7 @@ Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function
 Route::group(['prefix' => 'en', 'middleware' => ['web', 'setlocale:en']], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home.en');
     Route::get('/services', [ServiceController::class, 'publicIndex'])->name('services.en');
+    Route::get('/portfolio', [App\Http\Controllers\PortfolioController::class, 'index'])->name('portfolio.en');
     Route::get('/orders/checkout', [OrderController::class, 'checkout'])->name('orders.checkout.en');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store.en');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show.en');
@@ -72,18 +74,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('services', ServiceController::class);
         Route::resource('orders', OrderController::class)->only(['index', 'update']);
         Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('orders.show');
+        Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
         
         // MyFatoorah Management
         Route::prefix('myfatoorah')->name('myfatoorah.')->group(function () {
-            Route::get('/', [App\Http\Controllers\MyFatoorahController::class, 'index'])->name('index');
+            Route::get('/', [App\Http\Controllers\MyFatoorahController::class, 'adminIndex'])->name('index');
             Route::get('/transactions', [App\Http\Controllers\MyFatoorahController::class, 'transactions'])->name('transactions');
-            Route::get('/transactions/{order}', [App\Http\Controllers\MyFatoorahController::class, 'showTransaction'])->name('show');
+            Route::get('/transactions/{order}', [App\Http\Controllers\MyFatoorahController::class, 'show'])->name('show');
             Route::post('/test-connection', [App\Http\Controllers\MyFatoorahController::class, 'testConnection'])->name('test-connection');
             Route::post('/refund/{order}', [App\Http\Controllers\MyFatoorahController::class, 'refund'])->name('refund');
             Route::get('/settings', [App\Http\Controllers\MyFatoorahController::class, 'settings'])->name('settings');
             Route::post('/settings', [App\Http\Controllers\MyFatoorahController::class, 'updateSettings'])->name('settings.update');
-            Route::get('/export', [App\Http\Controllers\MyFatoorahController::class, 'exportTransactions'])->name('export');
-            Route::post('/retry/{order}', [App\Http\Controllers\MyFatoorahController::class, 'retryPayment'])->name('retry');
+            Route::get('/export', [App\Http\Controllers\MyFatoorahController::class, 'export'])->name('export');
+            Route::post('/retry/{order}', [App\Http\Controllers\MyFatoorahController::class, 'retry'])->name('retry');
         });
         
         
@@ -111,6 +114,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{contactMessage}/mark-read', [ContactMessageController::class, 'markAsRead'])->name('mark-read');
             Route::post('/{contactMessage}/mark-unread', [ContactMessageController::class, 'markAsUnread'])->name('mark-unread');
             Route::get('/api/unread-count', [ContactMessageController::class, 'getUnreadCount'])->name('unread-count');
+        });
+        
+        // Content Management
+        Route::prefix('content-management')->name('content-management.')->group(function () {
+            Route::get('/', [App\Http\Controllers\ContentManagementController::class, 'index'])->name('index');
+            Route::post('/', [App\Http\Controllers\ContentManagementController::class, 'update'])->name('update');
+            Route::post('/delete-file', [App\Http\Controllers\ContentManagementController::class, 'deleteFile'])->name('delete-file');
+        });
+        
+        // Portfolio Management
+        Route::prefix('portfolio')->name('portfolio.')->group(function () {
+            Route::get('/', [App\Http\Controllers\PortfolioController::class, 'adminIndex'])->name('index');
+            Route::get('/create', [App\Http\Controllers\PortfolioController::class, 'create'])->name('create');
+            Route::post('/', [App\Http\Controllers\PortfolioController::class, 'store'])->name('store');
+            Route::get('/{portfolioItem}/edit', [App\Http\Controllers\PortfolioController::class, 'edit'])->name('edit');
+            Route::put('/{portfolioItem}', [App\Http\Controllers\PortfolioController::class, 'update'])->name('update');
+            Route::delete('/{portfolioItem}', [App\Http\Controllers\PortfolioController::class, 'destroy'])->name('destroy');
         });
     });
 });

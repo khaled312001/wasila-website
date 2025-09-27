@@ -21,8 +21,14 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Admin Mobile CSS -->
     <link href="{{ asset('css/admin-mobile.css') }}" rel="stylesheet">
+    
+    <!-- Custom Admin CSS -->
+    @stack('styles')
     
     <!-- Custom CSS -->
     <style>
@@ -448,6 +454,24 @@
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <span class="sidebar-text">الخدمات</span>
+                    </a>
+                    
+                    <!-- Content Management -->
+                    <a href="{{ route('admin.content-management.index') }}" 
+                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.content-management.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                        </svg>
+                        <span class="sidebar-text">إدارة المحتوى</span>
+                    </a>
+                    
+                    <!-- Portfolio -->
+                    <a href="{{ route('admin.portfolio.index') }}" 
+                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.portfolio.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                        </svg>
+                        <span class="sidebar-text">معرض الأعمال</span>
                     </a>
                     
                     <!-- Contact Messages -->

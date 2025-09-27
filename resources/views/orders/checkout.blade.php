@@ -148,19 +148,54 @@
                             
                             <!-- Customer Phone -->
                             <div>
-                                <label for="customer_phone" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'رقم الهاتف *' : 'Phone *' }}
                                 </label>
-                                <input type="tel" 
-                                       id="customer_phone" 
-                                       name="customer_phone" 
-                                       value="{{ old('customer_phone') }}"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('customer_phone') border-red-500 @enderror"
-                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone' }}"
-                                       required>
-                                @error('customer_phone')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <div class="flex gap-2">
+                                    <div class="w-32">
+                                        <select id="country_code" 
+                                                name="country_code" 
+                                                class="w-full px-3 py-3 border border-gray-300 rounded-lg input-focus @error('country_code') border-red-500 @enderror"
+                                                required>
+                                            <option value="+966" {{ old('country_code', '+966') == '+966' ? 'selected' : '' }}>🇸🇦 +966</option>
+                                            <option value="+971" {{ old('country_code') == '+971' ? 'selected' : '' }}>🇦🇪 +971</option>
+                                            <option value="+965" {{ old('country_code') == '+965' ? 'selected' : '' }}>🇰🇼 +965</option>
+                                            <option value="+973" {{ old('country_code') == '+973' ? 'selected' : '' }}>🇧🇭 +973</option>
+                                            <option value="+974" {{ old('country_code') == '+974' ? 'selected' : '' }}>🇶🇦 +974</option>
+                                            <option value="+968" {{ old('country_code') == '+968' ? 'selected' : '' }}>🇴🇲 +968</option>
+                                            <option value="+20" {{ old('country_code') == '+20' ? 'selected' : '' }}>🇪🇬 +20</option>
+                                            <option value="+212" {{ old('country_code') == '+212' ? 'selected' : '' }}>🇲🇦 +212</option>
+                                            <option value="+213" {{ old('country_code') == '+213' ? 'selected' : '' }}>🇩🇿 +213</option>
+                                            <option value="+216" {{ old('country_code') == '+216' ? 'selected' : '' }}>🇹🇳 +216</option>
+                                            <option value="+218" {{ old('country_code') == '+218' ? 'selected' : '' }}>🇱🇾 +218</option>
+                                            <option value="+249" {{ old('country_code') == '+249' ? 'selected' : '' }}>🇸🇩 +249</option>
+                                        </select>
+                                        @error('country_code')
+                                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="tel" 
+                                               id="customer_phone" 
+                                               name="customer_phone" 
+                                               value="{{ old('customer_phone') }}"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('customer_phone') border-red-500 @enderror"
+                                               placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone' }}"
+                                               required>
+                                        @error('customer_phone')
+                                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                                        <div class="text-sm text-blue-700">
+                                            <strong>{{ app()->getLocale() === 'ar' ? 'تنبيه مهم:' : 'Important Notice:' }}</strong>
+                                            {{ app()->getLocale() === 'ar' ? 'يجب أن يكون رقم الهاتف مرتبط بحساب واتساب لإرسال فيديو التسليم والتواصل معك' : 'The phone number must be linked to a WhatsApp account to send delivery video and communicate with you' }}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Customer Address -->
@@ -458,7 +493,7 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const requiredFields = ['customer_name', 'customer_email', 'customer_phone', 'customer_address'];
+                const requiredFields = ['customer_name', 'customer_email', 'customer_phone', 'country_code', 'customer_address'];
                 let isValid = true;
                 
                 // التحقق من الحقول الأساسية

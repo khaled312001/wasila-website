@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use MyFatoorah\Library\MyFatoorah;
 use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
 use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
+use App\Exports\OrdersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -40,6 +42,7 @@ class OrderController extends Controller
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
+            'country_code' => 'required|string|max:10',
             'customer_address' => 'required|string',
             'payment_method' => 'required|in:card,bank,cod',
             // Credit card fields (optional)
@@ -102,6 +105,8 @@ class OrderController extends Controller
                 'customer_name' => $request->customer_name,
                 'customer_email' => $request->customer_email,
                 'customer_phone' => $request->customer_phone,
+                'country_code' => $request->country_code,
+                'full_phone_number' => $request->country_code . $request->customer_phone,
                 'customer_address' => $request->customer_address,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
@@ -330,5 +335,15 @@ class OrderController extends Controller
         
         return redirect()->route('admin.orders.show', $order)
             ->with('success', 'Order updated successfully.');
+    }
+
+    /**
+     * Export orders to Excel
+     */
+    public function exportExcel(Request $request)
+    {
+        $dateRange = $request->get('date_range', 30);
+        
+        return Excel::download(new OrdersExport($dateRange), 'orders_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
     }
 }
