@@ -1273,7 +1273,7 @@
                     <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-primary-dark mb-8">
                         <span class="relative inline-block">
                             <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
-                                {{ \App\Models\Setting::get('about_title_ar', 'من نحن') }}
+                                {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_title_ar' : 'about_title_en', __('messages.about_title')) }}
                             </span>
                             <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
                         </span>
@@ -1281,11 +1281,11 @@
                     
                     <div class="space-y-6">
                         <p class="text-2xl md:text-3xl text-gray-600 leading-relaxed">
-                            {{ \App\Models\Setting::get('about_description_ar', 'وسيلة هو مشروع خيري اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع.') }}
+                            {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_description_ar' : 'about_description_en', __('messages.about_description')) }}
                         </p>
                         
                         <p class="text-xl md:text-2xl text-gray-600 leading-relaxed">
-                            {{ \App\Models\Setting::get('about_mission_ar', 'نعمل على توزيع المياه النقية، منتجات العناية بالمساجد، وجبات الطعام للمحتاجين، وكراسي كبار السن، وغيرها من الخدمات التي تساهم في رفاهية المجتمع.') }}
+                            {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_mission_ar' : 'about_mission_en', __('messages.about_mission')) }}
                         </p>
                     </div>
                     
@@ -1293,11 +1293,11 @@
                     <div class="grid grid-cols-2 gap-6 my-8">
                         <div class="text-center p-6 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300">
                             <div class="text-5xl md:text-6xl font-bold text-primary-medium mb-2">{{ \App\Models\Setting::get('stat1_number', '500+') }}</div>
-                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ \App\Models\Setting::get('stat1_label_ar', 'خدمة مقدمة') }}</div>
+                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'stat1_label_ar' : 'stat1_label_en', __('messages.services_provided')) }}</div>
                         </div>
                         <div class="text-center p-6 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300">
                             <div class="text-5xl md:text-6xl font-bold text-accent mb-2">{{ \App\Models\Setting::get('stat2_number', '1000+') }}</div>
-                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ \App\Models\Setting::get('stat2_label_ar', 'مستفيد') }}</div>
+                            <div class="text-lg md:text-xl text-gray-600 font-medium">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'stat2_label_ar' : 'stat2_label_en', __('messages.beneficiaries')) }}</div>
                         </div>
                     </div>
                     
@@ -1324,7 +1324,7 @@
                     <div class="relative group">
                         <!-- Main Image -->
                         <div class="relative overflow-hidden rounded-2xl shadow-2xl">
-                            <img src="{{ asset('images/39.png') }}" alt="صورة توضيحية لمشروع وسيلة الخيري" class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                            <img src="{{ asset('images/39.png') }}" alt="{{ __('messages.illustrative_image_wasila') }}" class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
                         
@@ -1337,8 +1337,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-semibold text-primary-dark">خدمات متميزة</div>
-                                    <div class="text-xs text-gray-500">للمجتمع</div>
+                                    <div class="text-sm font-semibold text-primary-dark">{{ __('messages.excellent_services_for_community_title') }}</div>
+                                    <div class="text-xs text-gray-500">{{ __('messages.for_community_subtitle') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -1351,8 +1351,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-semibold text-primary-dark">فريق متخصص</div>
-                                    <div class="text-xs text-gray-500">خبرة عالية</div>
+                                    <div class="text-sm font-semibold text-primary-dark">{{ __('messages.specialized_team_title') }}</div>
+                                    <div class="text-xs text-gray-500">{{ __('messages.high_experience_subtitle') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -1378,14 +1378,14 @@
                         <svg class="w-3 h-3 ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        مميزاتنا
+                        {{ __('messages.our_features') }}
                     </span>
                 </div>
                 <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-dark mb-4 animate-fade-in-up">
-                        {{ \App\Models\Setting::get('why_choose_title_ar', 'لماذا تختار وسيلة؟') }}
+                        {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'why_choose_title_ar' : 'why_choose_title_en', __('messages.features_subtitle')) }}
                 </h2>
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
-                    {{ \App\Models\Setting::get('why_choose_subtitle_ar', 'نتميز بتقديم خدمات خيرية متميزة مع ضمان الجودة والشفافية في جميع أعمالنا') }}
+                    {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'why_choose_subtitle_ar' : 'why_choose_subtitle_en', __('messages.features_description')) }}
                 </p>
             </div>
             
@@ -1401,8 +1401,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get('feature1_title_ar', 'خدمات متنوعة') }}</h3>
-                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get('feature1_description_ar', 'نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ') }}</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'feature1_title_ar' : 'feature1_title_en', __('messages.diverse_services')) }}</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'feature1_description_ar' : 'feature1_description_en', __('messages.diverse_services_description_extended')) }}</p>
                 </div>
                 
                 <!-- Card 2 -->
@@ -1415,8 +1415,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get('feature2_title_ar', 'فريق متخصص') }}</h3>
-                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get('feature2_description_ar', 'فريق من المتخصصين في العمل الخيري والاجتماعي مع خبرة واسعة في مجال خدمة المجتمع') }}</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'feature2_title_ar' : 'feature2_title_en', __('messages.specialized_team')) }}</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'feature2_description_ar' : 'feature2_description_en', __('messages.specialized_team_description_extended')) }}</p>
                 </div>
                 
                 <!-- Card 3 -->
@@ -1429,8 +1429,8 @@
                             </svg>
                         </div>
                     </div>
-                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get('feature3_title_ar', 'تأثير إيجابي') }}</h3>
-                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get('feature3_description_ar', 'نساهم في إحداث تأثير إيجابي في المجتمع مع تقديم تقارير دورية عن المشاريع والأنشطة') }}</p>
+                    <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'feature3_title_ar' : 'feature3_title_en', __('messages.positive_impact')) }}</h3>
+                    <p class="text-sm md:text-base text-gray-600 leading-relaxed">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'feature3_description_ar' : 'feature3_description_en', __('messages.positive_impact_description_extended')) }}</p>
                 </div>
             </div>
         </div>
@@ -1452,19 +1452,19 @@
                         <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
                         </svg>
-                        أعمالنا
+                        {{ __('messages.our_work') }}
                     </span>
                 </div>
                 <h2 class="text-4xl md:text-5xl font-bold text-primary-dark mb-6">
                     <span class="relative inline-block">
                         <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-5xl md:text-6xl lg:text-7xl glow-text">
-                            أعمالنا
+                            {{ __('messages.our_work') }}
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
                     </span>
                 </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    اكتشف صوراً من أنشطتنا الخيرية وخدماتنا المتنوعة التي نقدمها للمجتمع
+                    {{ __('messages.discover_images_from_activities') }}
                 </p>
             </div>
             
@@ -1509,7 +1509,7 @@
                                             </svg>
                                         @endif
                                     </div>
-                                    <p class="text-sm font-medium">{{ $item->type === 'image' ? 'عرض الصورة' : 'تشغيل الفيديو' }}</p>
+                                    <p class="text-sm font-medium">{{ $item->type === 'image' ? __('messages.view_image') : __('messages.play_video') }}</p>
                                 </div>
                             </div>
                             
@@ -1533,7 +1533,7 @@
                     @for($i = 1; $i <= 12; $i++)
                     <div class="gallery-item group cursor-pointer" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')">
                         <div class="relative overflow-hidden rounded-2xl shadow-lg">
-                            <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة توضيحية {{ $i }} لمشروع وسيلة الخيري" 
+                            <img src="{{ asset('images/' . $i . '.png') }}" alt="{{ __('messages.illustrative_image_number') }} {{ $i }} {{ __('messages.charity_project') }}" 
                                  class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
                             
                             <!-- Enhanced Overlay -->
@@ -1544,7 +1544,7 @@
                                             <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
                                         </svg>
                                     </div>
-                                    <p class="text-sm font-medium">عرض الصورة</p>
+                                    <p class="text-sm font-medium">{{ __('messages.view_image') }}</p>
                                 </div>
                             </div>
                             
@@ -1590,12 +1590,12 @@
             <!-- Main Media Container -->
             <div class="relative max-w-5xl max-h-full flex items-center justify-center">
                 <!-- Image Display -->
-                <img id="lightbox-image" src="" alt="صورة معرض وسيلة الخيرية" class="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-300 hidden">
+                <img id="lightbox-image" src="" alt="{{ __('messages.gallery_title') }}" class="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-300 hidden">
                 
                 <!-- Video Display -->
                 <video id="lightbox-video" controls class="max-w-full max-h-full rounded-lg shadow-2xl transition-all duration-300 hidden">
                     <source src="" type="video/mp4">
-                    متصفحك لا يدعم تشغيل الفيديو
+                    {{ __('messages.browser_not_support_video') }}
                 </video>
                 
                 <!-- Media Counter -->
@@ -1605,7 +1605,7 @@
                 
                 <!-- Media Title -->
                 <div class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg backdrop-blur-sm max-w-md text-center">
-                    <span id="media-title">عنوان المحتوى</span>
+                    <span id="media-title">{{ __('messages.content_title') }}</span>
                 </div>
             </div>
             
@@ -1662,17 +1662,17 @@
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                         </svg>
-                        <span class="font-bold">تواصل معنا</span>
+                        <span class="font-bold">{{ __('messages.contact_us') }}</span>
                     </span>
                 </div>
                 <h2 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#fffbe6] via-[#fbbf24] to-[#1e3a8a] mb-6 drop-shadow-lg">
                     <span class="relative inline-block">
-                        <span class="relative z-10 font-black glow-text">تواصل معنا</span>
+                        <span class="relative z-10 font-black glow-text">{{ __('messages.contact_us') }}</span>
                         <span class="absolute inset-0 bg-gradient-to-r from-[#fffbe6]/30 via-[#fbbf24]/20 to-[#1e3a8a]/20 blur-2xl scale-110"></span>
                     </span>
                 </h2>
                 <p class="text-lg text-[#f3f4f6] font-medium drop-shadow">
-                    نحن هنا لمساعدتك في أي استفسار أو طلب خدمة. تواصل معنا وسنكون سعداء لخدمتك
+                    {{ __('messages.contact_us_description') }}
                 </p>
             </div>
             
@@ -1696,7 +1696,7 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">البريد الإلكتروني</h4>
+                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">{{ __('messages.contact_email') }}</h4>
                                     <p class="text-[#fbbf24] text-lg font-bold">{{ \App\Helpers\SettingsHelper::contactEmail() }}</p>
                                 </div>
                             </div>

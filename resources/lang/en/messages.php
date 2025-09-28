@@ -306,4 +306,6 @@ return [
     
     // Video message
     'browser_not_support_video' => 'Your browser does not support video playback',
+    'play_video' => 'Play Video',
+    'content_title' => 'Content Title',
 ];
