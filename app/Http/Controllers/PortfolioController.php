@@ -76,8 +76,8 @@ class PortfolioController extends Controller
                 ->withInput();
         }
 
-        // رفع الملف
-        $path = $file->store('public/portfolio');
+        // رفع الملف - استخدام مجلد بديل لتجنب قيود السيرفر
+        $path = $file->store('public');
         $url = Storage::url($path);
 
         // إنشاء thumbnail للفيديو
@@ -166,8 +166,8 @@ class PortfolioController extends Controller
                     Storage::delete(str_replace('/storage/', 'public/', $portfolioItem->thumbnail_path));
                 }
 
-                // رفع الملف الجديد
-                $path = $file->store('public/portfolio');
+                // رفع الملف الجديد - استخدام مجلد بديل
+                $path = $file->store('public');
                 $data['file_path'] = Storage::url($path);
 
                 // إنشاء thumbnail للفيديو
