@@ -48,7 +48,7 @@ class PortfolioController extends Controller
             'type' => 'required|in:image,video',
             'file' => 'required|file',
             'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -124,7 +124,7 @@ class PortfolioController extends Controller
             'type' => 'required|in:image,video',
             'file' => 'nullable|file',
             'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable|boolean'
         ]);
 
         if ($validator->fails()) {
