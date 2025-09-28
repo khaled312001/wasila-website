@@ -231,6 +231,8 @@
     height: 200%;
     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
     animation: float 6s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
 }
 
 .portfolio-header h1 {
@@ -263,6 +265,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    position: relative;
+    z-index: 10;
+    cursor: pointer;
 }
 
 .btn-add-new:hover {
@@ -270,6 +275,11 @@
     box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
     color: white;
     text-decoration: none;
+}
+
+.btn-add-new:active {
+    transform: translateY(0px);
+    transition: all 0.1s ease;
 }
 
 .portfolio-table {
