@@ -22,4 +22,4 @@ class AdminSeeder extends Seeder
             'is_active' => true,
         ]);
     }
-}
+} 
