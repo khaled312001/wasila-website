@@ -93,11 +93,20 @@ class ComprehensiveSeeder extends Seeder
                 $table->text('description_en')->nullable();
                 $table->enum('type', ['image', 'video']);
                 $table->string('file_path');
+                $table->string('thumbnail_path')->nullable();
                 $table->boolean('is_active')->default(true);
                 $table->integer('sort_order')->default(0);
                 $table->timestamps();
             });
             echo "Created portfolio_items table\n";
+        } else {
+            // Check if thumbnail_path column exists, if not add it
+            if (!DB::getSchemaBuilder()->hasColumn('portfolio_items', 'thumbnail_path')) {
+                DB::getSchemaBuilder()->table('portfolio_items', function ($table) {
+                    $table->string('thumbnail_path')->nullable()->after('file_path');
+                });
+                echo "Added thumbnail_path column to portfolio_items table\n";
+            }
         }
         
         // Fix orders table - add missing columns if they don't exist
