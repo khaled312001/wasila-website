@@ -30,6 +30,7 @@ class ComprehensiveSeeder extends Seeder
         $this->truncateTableSafely('settings');
         $this->truncateTableSafely('portfolio_items');
         $this->truncateTableSafely('contact_messages');
+        $this->truncateTableSafely('orders');
         
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
@@ -97,6 +98,44 @@ class ComprehensiveSeeder extends Seeder
                 $table->timestamps();
             });
             echo "Created portfolio_items table\n";
+        }
+        
+        // Fix orders table - add missing columns if they don't exist
+        $this->fixOrdersTable();
+    }
+
+    private function fixOrdersTable()
+    {
+        if (DB::getSchemaBuilder()->hasTable('orders')) {
+            // Check if payment_status column exists, if not add it
+            if (!DB::getSchemaBuilder()->hasColumn('orders', 'payment_status')) {
+                DB::getSchemaBuilder()->table('orders', function ($table) {
+                    $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending')->after('status');
+                    $table->string('payment_method')->nullable()->after('payment_status');
+                    $table->string('payment_reference')->nullable()->after('payment_method');
+                    $table->json('payment_details')->nullable()->after('payment_reference');
+                });
+                echo "Added missing columns to orders table\n";
+            }
+        } else {
+            // Create orders table with complete structure
+            DB::getSchemaBuilder()->create('orders', function ($table) {
+                $table->id();
+                $table->string('order_number')->unique();
+                $table->string('customer_name');
+                $table->string('customer_email');
+                $table->string('customer_phone');
+                $table->text('customer_address');
+                $table->decimal('total_amount', 10, 2);
+                $table->enum('status', ['pending', 'confirmed', 'processing', 'completed', 'cancelled'])->default('pending');
+                $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
+                $table->string('payment_method')->nullable();
+                $table->string('payment_reference')->nullable();
+                $table->json('payment_details')->nullable();
+                $table->text('notes')->nullable();
+                $table->timestamps();
+            });
+            echo "Created orders table with complete structure\n";
         }
     }
 
