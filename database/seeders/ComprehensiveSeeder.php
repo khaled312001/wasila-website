@@ -109,6 +109,9 @@ class ComprehensiveSeeder extends Seeder
             }
         }
         
+        // Ensure portfolio directory exists
+        $this->ensurePortfolioDirectory();
+        
         // Fix orders table - add missing columns if they don't exist
         $this->fixOrdersTable();
     }
@@ -152,6 +155,66 @@ class ComprehensiveSeeder extends Seeder
     {
         if (DB::getSchemaBuilder()->hasTable($tableName)) {
             DB::table($tableName)->truncate();
+        }
+    }
+
+    private function ensurePortfolioDirectory()
+    {
+        $portfolioPath = public_path('storage/portfolio');
+        if (!is_dir($portfolioPath)) {
+            mkdir($portfolioPath, 0755, true);
+            echo "Created portfolio directory\n";
+        }
+        
+        // Create .htaccess file for portfolio directory
+        $htaccessPath = $portfolioPath . '/.htaccess';
+        if (!file_exists($htaccessPath)) {
+            $htaccessContent = '<IfModule mod_mime.c>
+    AddType image/png .png
+    AddType image/jpeg .jpg .jpeg
+    AddType image/gif .gif
+    AddType image/svg+xml .svg
+    AddType image/webp .webp
+    AddType video/mp4 .mp4
+    AddType video/avi .avi
+    AddType video/mov .mov
+    AddType video/wmv .wmv
+    AddType video/webm .webm
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType video/mp4 "access plus 1 month"
+    ExpiresByType video/avi "access plus 1 month"
+    ExpiresByType video/mov "access plus 1 month"
+    ExpiresByType video/wmv "access plus 1 month"
+    ExpiresByType video/webm "access plus 1 month"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+<Files "*">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+Options -Indexes
+Options +FollowSymLinks
+
+<IfModule mod_headers.c>
+    Header set Accept-Ranges bytes
+</IfModule>';
+            
+            file_put_contents($htaccessPath, $htaccessContent);
+            echo "Created portfolio .htaccess file\n";
         }
     }
 

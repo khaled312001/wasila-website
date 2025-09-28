@@ -1,17 +1,46 @@
-# Allow access to portfolio images
-<Files "*">
-    Order allow,deny
-    Allow from all
-</Files>
-
-# Set proper MIME types
 <IfModule mod_mime.c>
     AddType image/png .png
     AddType image/jpeg .jpg .jpeg
     AddType image/gif .gif
     AddType image/svg+xml .svg
+    AddType image/webp .webp
     AddType video/mp4 .mp4
     AddType video/avi .avi
     AddType video/mov .mov
     AddType video/wmv .wmv
+    AddType video/webm .webm
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType video/mp4 "access plus 1 month"
+    ExpiresByType video/avi "access plus 1 month"
+    ExpiresByType video/mov "access plus 1 month"
+    ExpiresByType video/wmv "access plus 1 month"
+    ExpiresByType video/webm "access plus 1 month"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+
+# Allow access to all files in this directory
+<Files "*">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Ensure proper permissions
+Options -Indexes
+Options +FollowSymLinks
+
+# Handle large video files
+<IfModule mod_headers.c>
+    Header set Accept-Ranges bytes
 </IfModule>
