@@ -1,0 +1,17 @@
+# Allow access to portfolio images
+<Files "*">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Set proper MIME types
+<IfModule mod_mime.c>
+    AddType image/png .png
+    AddType image/jpeg .jpg .jpeg
+    AddType image/gif .gif
+    AddType image/svg+xml .svg
+    AddType video/mp4 .mp4
+    AddType video/avi .avi
+    AddType video/mov .mov
+    AddType video/wmv .wmv
+</IfModule>
