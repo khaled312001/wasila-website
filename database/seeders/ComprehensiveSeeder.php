@@ -18,15 +18,18 @@ class ComprehensiveSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create missing tables first
+        $this->createMissingTables();
+        
         // Clear existing data
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         
-        // Truncate tables
-        Admin::truncate();
-        Service::truncate();
-        Setting::truncate();
-        PortfolioItem::truncate();
-        ContactMessage::truncate();
+        // Truncate tables safely
+        $this->truncateTableSafely('admins');
+        $this->truncateTableSafely('services');
+        $this->truncateTableSafely('settings');
+        $this->truncateTableSafely('portfolio_items');
+        $this->truncateTableSafely('contact_messages');
         
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
@@ -46,6 +49,62 @@ class ComprehensiveSeeder extends Seeder
         $this->seedContactMessages();
         
         echo "All data seeded successfully!\n";
+    }
+
+    private function createMissingTables()
+    {
+        // Create contact_messages table if it doesn't exist
+        if (!DB::getSchemaBuilder()->hasTable('contact_messages')) {
+            DB::getSchemaBuilder()->create('contact_messages', function ($table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email');
+                $table->text('message');
+                $table->string('phone')->nullable();
+                $table->string('subject')->nullable();
+                $table->boolean('is_read')->default(false);
+                $table->timestamp('read_at')->nullable();
+                $table->timestamps();
+            });
+            echo "Created contact_messages table\n";
+        }
+        
+        // Create settings table if it doesn't exist
+        if (!DB::getSchemaBuilder()->hasTable('settings')) {
+            DB::getSchemaBuilder()->create('settings', function ($table) {
+                $table->id();
+                $table->string('key')->unique();
+                $table->text('value')->nullable();
+                $table->string('type')->default('string');
+                $table->text('description')->nullable();
+                $table->timestamps();
+            });
+            echo "Created settings table\n";
+        }
+        
+        // Create portfolio_items table if it doesn't exist
+        if (!DB::getSchemaBuilder()->hasTable('portfolio_items')) {
+            DB::getSchemaBuilder()->create('portfolio_items', function ($table) {
+                $table->id();
+                $table->string('title_ar');
+                $table->string('title_en');
+                $table->text('description_ar')->nullable();
+                $table->text('description_en')->nullable();
+                $table->enum('type', ['image', 'video']);
+                $table->string('file_path');
+                $table->boolean('is_active')->default(true);
+                $table->integer('sort_order')->default(0);
+                $table->timestamps();
+            });
+            echo "Created portfolio_items table\n";
+        }
+    }
+
+    private function truncateTableSafely($tableName)
+    {
+        if (DB::getSchemaBuilder()->hasTable($tableName)) {
+            DB::table($tableName)->truncate();
+        }
     }
 
     private function seedAdmins()
