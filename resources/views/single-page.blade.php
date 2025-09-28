@@ -1003,7 +1003,7 @@
                         <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-medium transition-all duration-300 nav-link-underline"></div>
                     </a>
                     <a href="#contact" class="nav-link relative text-gray-700 hover:text-primary-medium transition-all duration-300 font-medium">
-                        <span class="relative z-10">اتصل بنا</span>
+                        <span class="relative z-10">{{ __('messages.contact') }}</span>
                         <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-medium transition-all duration-300 nav-link-underline"></div>
                     </a>
                 </div>
@@ -1014,12 +1014,12 @@
                         <a href="{{ route('lang.switch', 'ar') }}" 
                            class="text-sm px-3 py-1 rounded-full transition-all duration-300 {{ app()->getLocale() === 'ar' ? 'text-primary-medium font-semibold bg-white shadow-sm' : 'text-gray-500 hover:bg-white hover:text-primary-medium' }}"
                            onclick="switchLanguage('ar', event)">
-                            العربية
+                            {{ __('messages.arabic') }}
                         </a>
                         <a href="{{ route('lang.switch', 'en') }}" 
                            class="text-sm px-3 py-1 rounded-full transition-all duration-300 {{ app()->getLocale() === 'en' ? 'text-primary-medium font-semibold bg-white shadow-sm' : 'text-gray-500 hover:bg-white hover:text-primary-medium' }}"
                            onclick="switchLanguage('en', event)">
-                            English
+                            {{ __('messages.english') }}
                         </a>
                     </div>
                 </div>
@@ -1027,7 +1027,7 @@
                 <!-- Enhanced Mobile menu button -->
                 <div class="md:hidden">
                     <button type="button" class="relative w-8 h-8 flex items-center justify-center text-gray-700 hover:text-primary-medium focus:outline-none transition-all duration-300" onclick="toggleMobileMenu()">
-                        <span class="sr-only">فتح القائمة</span>
+                        <span class="sr-only">{{ __('messages.open_mobile_menu') }}</span>
                         <div class="hamburger">
                             <span class="hamburger-line"></span>
                             <span class="hamburger-line"></span>
@@ -1102,12 +1102,12 @@
                 <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 animate-slide-in-left">
                     <span class="relative inline-block">
                         <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white via-primary-light to-accent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
-                            {{ \App\Models\Setting::get('hero_title_ar', 'وسيلة - مشروع خيري اجتماعي') }}
+                            {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_title_ar' : 'hero_title_en', __('messages.hero_title') . ' - ' . __('messages.hero_subtitle')) }}
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-white/20 via-primary-light/20 to-accent/20 blur-xl transform scale-110"></span>
                     </span>
                     <br>
-                    <span class="text-3xl md:text-4xl lg:text-5xl font-light animate-slide-in-right">{{ \App\Models\Setting::get('hero_subtitle_ar', 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية') }}</span>
+                    <span class="text-3xl md:text-4xl lg:text-5xl font-light animate-slide-in-right">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_subtitle_ar' : 'hero_subtitle_en', __('messages.hero_description')) }}</span>
                 </h1>
                 <p class="text-2xl md:text-3xl lg:text-4xl mb-8 text-gray-200 max-w-5xl mx-auto animate-fade-in-delay">
                     {{ __('messages.hero_description') }}
@@ -1126,7 +1126,7 @@
                             <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                             </svg>
-                            تعرف علينا
+                            {{ __('messages.learn_more') }}
                         </span>
                     </a>
                 </div>

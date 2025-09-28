@@ -47,7 +47,7 @@
                     @foreach($categoryServices as $service)
                     <div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden hover:shadow-xl transition duration-300">
                         @if($service->image)
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name_ar }} - خدمة خيرية من وسيلة" class="w-full h-48 object-cover" loading="lazy">
+                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" class="w-full h-48 object-cover" loading="lazy">
                         @else
                         <div class="w-full h-48 bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center">
                             <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -61,12 +61,12 @@
                             <p class="text-sm text-gray-600 mb-4 line-clamp-3">{{ $service->description }}</p>
                             
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xl font-bold text-accent">{{ number_format($service->price, 2) }} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
+                                <span class="text-xl font-bold text-accent">{{ number_format($service->price, 2) }} {{ __('messages.currency') }}</span>
                             </div>
                             
                             <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
                                class="btn-primary text-white px-6 py-2 rounded-lg font-semibold w-full text-center block hover:shadow-lg transition duration-300">
-                                {{ app()->getLocale() === 'ar' ? 'اطلب الآن' : 'Order Now' }}
+                                {{ __('messages.order_now') }}
                             </a>
                         </div>
                     </div>

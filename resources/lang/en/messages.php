@@ -303,4 +303,7 @@ return [
     'contact_email_value' => 'info@wasila-charity.com',
     'contact_phone_value' => '+966 55 922 9980',
     'contact_address_value' => 'Kingdom of Saudi Arabia',
+    
+    // Video message
+    'browser_not_support_video' => 'Your browser does not support video playback',
 ];

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', app()->getLocale() === 'ar' ? 'أعمالنا' : 'Our Work')
+@section('title', __('messages.our_work_title'))
 
 @section('content')
 <div class="container-fluid py-5">
@@ -8,10 +8,10 @@
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <h1 class="text-3xl md:text-4xl font-bold text-primary">
-                    {{ app()->getLocale() === 'ar' ? 'أعمالنا' : 'Our Work' }}
+                    {{ __('messages.our_work_title') }}
                 </h1>
                 <p class="lead text-muted">
-                    {{ app()->getLocale() === 'ar' ? 'تعرف على بعض أعمالنا وإنجازاتنا في مجال الخير والعطاء' : 'Discover some of our work and achievements in the field of charity and giving' }}
+                    {{ __('messages.discover_some_of_our_work') }}
                 </p>
             </div>
         </div>
@@ -28,7 +28,7 @@
                                 @else
                                     <video class="w-100 h-100" style="object-fit: cover;" controls>
                                         <source src="{{ $item->file_path }}" type="video/mp4">
-                                        {{ app()->getLocale() === 'ar' ? 'متصفحك لا يدعم تشغيل الفيديو' : 'Your browser does not support video playback' }}
+                                        {{ __('messages.browser_not_support_video') }}
                                     </video>
                                 @endif
                                 <div class="position-absolute top-0 end-0 m-2">
