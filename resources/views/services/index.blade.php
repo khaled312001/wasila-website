@@ -24,12 +24,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
             <h1 class="text-xl md:text-2xl font-bold mb-6">
-                {{ app()->getLocale() === 'ar' ? 'خدمات وسيلة' : 'Wasila Services' }}
+                {{ __('messages.wasila_services_title') }}
             </h1>
             <p class="text-base md:text-lg text-gray-200 max-w-3xl mx-auto">
-                {{ app()->getLocale() === 'ar' 
-                    ? 'اكتشف مجموعة متنوعة من الخدمات الخيرية والاجتماعية التي نقدمها للمجتمع'
-                    : 'Discover our diverse range of charitable and social services for the community' }}
+                {{ __('messages.discover_diverse_range') }}
             </p>
         </div>
     </div>

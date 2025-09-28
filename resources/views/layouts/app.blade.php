@@ -273,7 +273,7 @@
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center">
                         <img src="{{ asset('images/' . (app()->getLocale() === 'ar' ? 'logo-arabic.png' : 'logo-english.png')) }}" style="height: 60px; width: auto;"
-                             alt="وسيلة" class="h-10 w-auto">
+                             alt="{{ __('messages.wasila') }}" class="h-10 w-auto">
                     </a>
                 </div>
                 
@@ -338,9 +338,9 @@
                 <!-- Logo and Description -->
                 <div class="lg:col-span-2">
                     <div class="flex items-center mb-6">
-                        <img src="{{ asset('images/logo-footer.png') }}" alt="وسيلة" class="h-16 w-auto mr-4">
+                        <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila') }}" class="h-16 w-auto mr-4">
                         <div>
-                            <h3 class="text-2xl font-bold text-white">{{ app()->getLocale() === 'ar' ? 'وسيلة' : 'Wasila' }}</h3>
+                            <h3 class="text-2xl font-bold text-white">{{ __('messages.wasila') }}</h3>
                             <p class="text-accent text-sm font-medium">{{ __('messages.hero_subtitle') }}</p>
                         </div>
                     </div>
@@ -449,7 +449,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="text-center md:text-left mb-4 md:mb-0">
                         <p class="text-gray-300 text-lg">
-                            &copy; {{ date('Y') }} {{ app()->getLocale() === 'ar' ? 'وسيلة. ' : 'Wasila. ' }}{{ __('messages.all_rights_reserved') }}
+                            &copy; {{ date('Y') }} {{ __('messages.copyright_wasila') }}
                         </p>
                     </div>
                    
@@ -468,7 +468,7 @@
             // Show loading indicator
             const link = event.target;
             const originalText = link.textContent;
-            link.textContent = locale === 'ar' ? 'جاري التحميل...' : 'Loading...';
+            link.textContent = locale === 'ar' ? '{{ __('messages.loading') }}' : '{{ __('messages.loading') }}';
             
             // Create form to submit language change
             const form = document.createElement('form');

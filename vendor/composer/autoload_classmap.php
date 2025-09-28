@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Exports\\OrdersExport' => $baseDir . '/app/Exports/OrdersExport.php',
     'App\\Helpers\\SettingsHelper' => $baseDir . '/app/Helpers/SettingsHelper.php',
     'App\\Http\\Controllers\\AdminController' => $baseDir . '/app/Http/Controllers/AdminController.php',
     'App\\Http\\Controllers\\AnalyticsController' => $baseDir . '/app/Http/Controllers/AnalyticsController.php',
@@ -186,6 +187,7 @@ return array(
     'Cron\\MonthField' => $vendorDir . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
     'Database\\Factories\\UserFactory' => $baseDir . '/database/factories/UserFactory.php',
     'Database\\Seeders\\AdminSeeder' => $baseDir . '/database/seeders/AdminSeeder.php',
+    'Database\\Seeders\\ContactPhoneSeeder' => $baseDir . '/database/seeders/ContactPhoneSeeder.php',
     'Database\\Seeders\\DatabaseSeeder' => $baseDir . '/database/seeders/DatabaseSeeder.php',
     'Database\\Seeders\\ServiceSeeder' => $baseDir . '/database/seeders/ServiceSeeder.php',
     'Database\\Seeders\\SettingSeeder' => $baseDir . '/database/seeders/SettingSeeder.php',

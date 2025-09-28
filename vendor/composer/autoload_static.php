@@ -598,6 +598,7 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
     );
 
     public static $classMap = array (
+        'App\\Exports\\OrdersExport' => __DIR__ . '/../..' . '/app/Exports/OrdersExport.php',
         'App\\Helpers\\SettingsHelper' => __DIR__ . '/../..' . '/app/Helpers/SettingsHelper.php',
         'App\\Http\\Controllers\\AdminController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdminController.php',
         'App\\Http\\Controllers\\AnalyticsController' => __DIR__ . '/../..' . '/app/Http/Controllers/AnalyticsController.php',
@@ -778,6 +779,7 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
         'Cron\\MonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\AdminSeeder' => __DIR__ . '/../..' . '/database/seeders/AdminSeeder.php',
+        'Database\\Seeders\\ContactPhoneSeeder' => __DIR__ . '/../..' . '/database/seeders/ContactPhoneSeeder.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
         'Database\\Seeders\\ServiceSeeder' => __DIR__ . '/../..' . '/database/seeders/ServiceSeeder.php',
         'Database\\Seeders\\SettingSeeder' => __DIR__ . '/../..' . '/database/seeders/SettingSeeder.php',
