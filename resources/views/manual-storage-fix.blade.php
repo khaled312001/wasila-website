@@ -178,8 +178,15 @@
             @endphp
             @if($portfolioItems->count() > 0)
                 @foreach($portfolioItems as $item)
-                <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank">
-                    {{ asset('storage/' . $item->file_path) }}
+                @php
+                    // Fix double storage path issue
+                    $cleanPath = $item->file_path;
+                    if (strpos($cleanPath, 'storage/') === 0) {
+                        $cleanPath = substr($cleanPath, 8); // Remove 'storage/' prefix
+                    }
+                @endphp
+                <a href="{{ asset('storage/' . $cleanPath) }}" target="_blank">
+                    {{ asset('storage/' . $cleanPath) }}
                 </a>
                 @endforeach
             @else
