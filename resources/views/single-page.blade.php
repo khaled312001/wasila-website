@@ -1476,14 +1476,14 @@
                 
                 @if($portfolioItems->count() > 0)
                     @foreach($portfolioItems as $index => $item)
-                    <div class="gallery-item group cursor-pointer" data-media-index="{{ $index + 1 }}" data-media-type="{{ $item->type }}" data-media-path="{{ $item->file_path }}" data-media-title="{{ $item->title_ar }}" onclick="openLightboxFromData(this)">
+                    <div class="gallery-item group cursor-pointer" data-media-index="{{ $index + 1 }}" data-media-type="{{ $item->type }}" data-media-path="{{ asset('storage/' . $item->file_path) }}" data-media-title="{{ $item->title_ar }}" onclick="openLightboxFromData(this)">
                         <div class="relative overflow-hidden rounded-2xl shadow-lg">
                             @if($item->type === 'image')
-                                <img src="{{ $item->file_path }}" alt="{{ $item->title_ar }}" 
+                                <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title_ar }}" 
                                      class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
                             @else
                                 <video class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110" muted>
-                                    <source src="{{ $item->file_path }}" type="video/mp4">
+                                    <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
                                 </video>
                                 <!-- Video Play Overlay -->
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -1617,13 +1617,13 @@
                 
                 @if($portfolioItems->count() > 0)
                     @foreach($portfolioItems as $index => $item)
-                    <button data-media-index="{{ $index + 1 }}" data-media-type="{{ $item->type }}" data-media-path="{{ $item->file_path }}" data-media-title="{{ $item->title_ar }}" onclick="goToMediaFromData(this)" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
+                    <button data-media-index="{{ $index + 1 }}" data-media-type="{{ $item->type }}" data-media-path="{{ asset('storage/' . $item->file_path) }}" data-media-title="{{ $item->title_ar }}" onclick="goToMediaFromData(this)" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
                         @if($item->type === 'image')
-                            <img src="{{ $item->file_path }}" alt="{{ $item->title_ar }}" class="w-full h-full object-cover">
+                            <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title_ar }}" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full bg-gray-800 flex items-center justify-center relative">
                                 <video class="w-full h-full object-cover" muted>
-                                    <source src="{{ $item->file_path }}" type="video/mp4">
+                                    <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
                                 </video>
                                 <div class="absolute inset-0 flex items-center justify-center">
                                     <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">

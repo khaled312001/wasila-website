@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Service;
+use App\Models\PortfolioItem;
 
 class ManualStorageFixController extends Controller
 {
@@ -85,19 +86,38 @@ Options +FollowSymLinks
             
             // Step 4: Test file existence
             $results[] = "4. Testing copied files...";
-            $testFiles = [
+            
+            // Test service images
+            $results[] = "   Services:";
+            $testServiceFiles = [
                 'services/35LBAIj7gi8HLOWiIbGjiCs82UFloL9YDKhOePuS.png',
                 'services/94ahRvARwxYgD3RzedyPEOIgk6BSESNYk98XQRgH.png',
                 'services/GdN8EyOD9hylXKEUnfZ7Dx0HC5DMhfHCLXhf3fpB.png'
             ];
             
-            foreach ($testFiles as $file) {
+            foreach ($testServiceFiles as $file) {
                 $filePath = $targetDir . '/' . $file;
                 if (file_exists($filePath)) {
-                    $results[] = "   ✅ Found: " . basename($file);
+                    $results[] = "     ✅ Found: " . basename($file);
                 } else {
-                    $results[] = "   ❌ Missing: " . basename($file);
+                    $results[] = "     ❌ Missing: " . basename($file);
                 }
+            }
+            
+            // Test portfolio images
+            $results[] = "   Portfolio (أعمالنا):";
+            $portfolioItems = PortfolioItem::active()->take(5)->get();
+            if ($portfolioItems->count() > 0) {
+                foreach ($portfolioItems as $item) {
+                    $filePath = $targetDir . '/' . $item->file_path;
+                    if (file_exists($filePath)) {
+                        $results[] = "     ✅ Found: " . basename($item->file_path);
+                    } else {
+                        $results[] = "     ❌ Missing: " . basename($item->file_path);
+                    }
+                }
+            } else {
+                $results[] = "     ⚠️ No portfolio items found in database";
             }
             
             $results[] = "";

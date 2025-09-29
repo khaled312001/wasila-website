@@ -156,6 +156,8 @@
 
         <div class="test-urls">
             <strong>🔗 Test these URLs after running the fix:</strong>
+            
+            <div style="margin: 10px 0; font-weight: bold; color: #007bff;">خدماتنا (Services):</div>
             <a href="{{ asset('storage/services/35LBAIj7gi8HLOWiIbGjiCs82UFloL9YDKhOePuS.png') }}" target="_blank">
                 {{ asset('storage/services/35LBAIj7gi8HLOWiIbGjiCs82UFloL9YDKhOePuS.png') }}
             </a>
@@ -165,6 +167,20 @@
             <a href="{{ asset('storage/services/GdN8EyOD9hylXKEUnfZ7Dx0HC5DMhfHCLXhf3fpB.png') }}" target="_blank">
                 {{ asset('storage/services/GdN8EyOD9hylXKEUnfZ7Dx0HC5DMhfHCLXhf3fpB.png') }}
             </a>
+            
+            <div style="margin: 10px 0; font-weight: bold; color: #28a745;">أعمالنا (Portfolio):</div>
+            @php
+                $portfolioItems = \App\Models\PortfolioItem::active()->take(3)->get();
+            @endphp
+            @if($portfolioItems->count() > 0)
+                @foreach($portfolioItems as $item)
+                <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank">
+                    {{ asset('storage/' . $item->file_path) }}
+                </a>
+                @endforeach
+            @else
+                <p style="color: #856404; font-style: italic;">No portfolio items found in database</p>
+            @endif
         </div>
 
         <div class="alert alert-warning" style="margin-top: 40px;">
