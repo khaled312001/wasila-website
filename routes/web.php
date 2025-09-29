@@ -64,6 +64,10 @@ Route::get('/deployment-tools', [App\Http\Controllers\DeploymentController::clas
 Route::post('/deployment/fix-storage', [App\Http\Controllers\DeploymentController::class, 'fixStorage'])->name('deployment.fix-storage');
 Route::post('/deployment/fix-paths', [App\Http\Controllers\DeploymentController::class, 'fixImagePaths'])->name('deployment.fix-paths');
 
+// Manual storage fix (for hosting providers that don't support symlinks)
+Route::get('/manual-storage-fix', [App\Http\Controllers\ManualStorageFixController::class, 'index'])->name('manual.storage.fix');
+Route::post('/manual-storage-fix/run', [App\Http\Controllers\ManualStorageFixController::class, 'fixStorageManually'])->name('manual.storage.fix.run');
+
 // Sitemap and Robots
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\RobotsController::class, 'index'])->name('robots');
