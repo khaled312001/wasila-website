@@ -59,6 +59,11 @@ Route::group(['prefix' => 'en', 'middleware' => ['web', 'setlocale:en']], functi
 // Language switching
 Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
 
+// Deployment tools (remove these routes after fixing production issues)
+Route::get('/deployment-tools', [App\Http\Controllers\DeploymentController::class, 'index'])->name('deployment.tools');
+Route::post('/deployment/fix-storage', [App\Http\Controllers\DeploymentController::class, 'fixStorage'])->name('deployment.fix-storage');
+Route::post('/deployment/fix-paths', [App\Http\Controllers\DeploymentController::class, 'fixImagePaths'])->name('deployment.fix-paths');
+
 // Sitemap and Robots
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\RobotsController::class, 'index'])->name('robots');
