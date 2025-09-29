@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\PortfolioItem;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class PortfolioController extends Controller
 {
@@ -80,6 +81,9 @@ class PortfolioController extends Controller
         $path = $file->store('public/portfolio');
         // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
         $relativePath = str_replace('public/', '', $path);
+        
+        // Copy file to public/storage for hosting providers that don't support symlinks
+        $this->copyToPublicStorage($relativePath);
 
         // إنشاء thumbnail للفيديو
         $thumbnailPath = null;
@@ -171,6 +175,9 @@ class PortfolioController extends Controller
                 $path = $file->store('public/portfolio');
                 // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
                 $data['file_path'] = str_replace('public/', '', $path);
+                
+                // Copy file to public/storage for hosting providers that don't support symlinks
+                $this->copyToPublicStorage($data['file_path']);
 
                 // إنشاء thumbnail للفيديو
                 if ($type === 'video') {
@@ -212,5 +219,33 @@ class PortfolioController extends Controller
         // هذا يتطلب تثبيت FFmpeg
         // للآن سنستخدم صورة افتراضية
         return null;
+    }
+    
+    /**
+     * Copy file to public/storage directory for hosting providers that don't support symlinks
+     */
+    private function copyToPublicStorage($filePath)
+    {
+        try {
+            $sourcePath = storage_path('app/public/' . $filePath);
+            $targetPath = public_path('storage/' . $filePath);
+            
+            // Create directory if it doesn't exist
+            $targetDir = dirname($targetPath);
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+            
+            // Copy file
+            if (file_exists($sourcePath)) {
+                copy($sourcePath, $targetPath);
+                
+                // Set permissions
+                chmod($targetPath, 0644);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break the flow
+            Log::info('Failed to copy file to public storage: ' . $e->getMessage());
+        }
     }
 }

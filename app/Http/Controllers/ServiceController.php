@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\Service;
 
 class ServiceController extends Controller
@@ -54,6 +55,9 @@ class ServiceController extends Controller
         
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('services', 'public');
+            
+            // Copy file to public/storage for hosting providers that don't support symlinks
+            $this->copyToPublicStorage($data['image']);
         }
         
         // Set default values
@@ -103,6 +107,9 @@ class ServiceController extends Controller
                 Storage::disk('public')->delete($service->image);
             }
             $data['image'] = $request->file('image')->store('services', 'public');
+            
+            // Copy file to public/storage for hosting providers that don't support symlinks
+            $this->copyToPublicStorage($data['image']);
         }
         
         $service->update($data);
@@ -122,5 +129,33 @@ class ServiceController extends Controller
         
         return redirect()->route('admin.services.index')
             ->with('success', 'تم حذف الخدمة بنجاح.');
+    }
+    
+    /**
+     * Copy file to public/storage directory for hosting providers that don't support symlinks
+     */
+    private function copyToPublicStorage($filePath)
+    {
+        try {
+            $sourcePath = storage_path('app/public/' . $filePath);
+            $targetPath = public_path('storage/' . $filePath);
+            
+            // Create directory if it doesn't exist
+            $targetDir = dirname($targetPath);
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+            
+            // Copy file
+            if (file_exists($sourcePath)) {
+                copy($sourcePath, $targetPath);
+                
+                // Set permissions
+                chmod($targetPath, 0644);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break the flow
+            Log::info('Failed to copy file to public storage: ' . $e->getMessage());
+        }
     }
 }
