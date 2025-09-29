@@ -1471,7 +1471,22 @@
             <!-- Enhanced Gallery Grid -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                 @php
+                    // Get all portfolio items first to debug
+                    $allPortfolioItems = \App\Models\PortfolioItem::all();
+                    $activePortfolioItems = \App\Models\PortfolioItem::active()->get();
                     $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->take(12)->get();
+                    
+                    // Debug info - will show in Laravel logs
+                    \Log::info('=== Portfolio Debug Info ===');
+                    \Log::info('Total portfolio items in DB: ' . $allPortfolioItems->count());
+                    \Log::info('Active portfolio items: ' . $activePortfolioItems->count());
+                    \Log::info('Final portfolio items for display: ' . $portfolioItems->count());
+                    
+                    if ($portfolioItems->count() > 0) {
+                        foreach($portfolioItems as $item) {
+                            \Log::info('Item: ' . $item->title_ar . ' | Path: ' . $item->file_path . ' | Active: ' . ($item->is_active ? 'Yes' : 'No'));
+                        }
+                    }
                 @endphp
                 
                 @if($portfolioItems->count() > 0)

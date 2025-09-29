@@ -135,6 +135,44 @@ class ManualStorageFixController extends Controller
     }
     
     /**
+     * Activate all portfolio items and fix paths
+     */
+    public function activatePortfolioItems()
+    {
+        $results = [];
+        $results[] = "=== Activating Portfolio Items ===";
+        
+        try {
+            // Get all portfolio items
+            $portfolioItems = PortfolioItem::all();
+            $results[] = "Found " . $portfolioItems->count() . " portfolio items";
+            
+            $activatedCount = 0;
+            foreach ($portfolioItems as $item) {
+                if (!$item->is_active) {
+                    $item->update(['is_active' => true]);
+                    $results[] = "✅ Activated: " . $item->title_ar;
+                    $activatedCount++;
+                } else {
+                    $results[] = "✅ Already active: " . $item->title_ar;
+                }
+            }
+            
+            $results[] = "";
+            $results[] = "Activated $activatedCount portfolio items.";
+            $results[] = "Total active items: " . PortfolioItem::active()->count();
+            
+        } catch (\Exception $e) {
+            $results[] = "❌ Error: " . $e->getMessage();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'results' => $results
+        ]);
+    }
+    
+    /**
      * Fix portfolio paths in database
      */
     public function fixPortfolioPaths()
