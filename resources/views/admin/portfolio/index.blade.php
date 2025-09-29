@@ -51,11 +51,11 @@
                                     <tr>
                                         <td>
                                             @if($item->type === 'image')
-                                                <img src="{{ $item->file_path }}" alt="{{ $item->title_ar }}" 
+                                                <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title_ar }}" 
                                                      class="media-preview">
                                             @else
                                                 <video class="media-preview" controls>
-                                                    <source src="{{ $item->file_path }}" type="video/mp4">
+                                                    <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
                                                 </video>
                                             @endif
                                         </td>

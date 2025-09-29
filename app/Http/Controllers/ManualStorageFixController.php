@@ -71,27 +71,28 @@ class ManualStorageFixController extends Controller
                 $results[] = "   ✅ Created portfolio directory";
             }
             
-            // Create missing numbered portfolio images (1.png to 12.png)
+            // Create missing numbered portfolio images (1.png to 12.png) using different service images
             $servicesDir = $targetDir . '/services';
-            $templateImage = null;
+            $serviceImages = [];
             
-            // Find a template image from services
+            // Collect all service images
             if (is_dir($servicesDir)) {
                 $serviceFiles = scandir($servicesDir);
                 foreach ($serviceFiles as $file) {
-                    if (strpos($file, '.png') !== false) {
-                        $templateImage = $servicesDir . '/' . $file;
-                        break;
+                    if (strpos($file, '.png') !== false || strpos($file, '.jpg') !== false) {
+                        $serviceImages[] = $servicesDir . '/' . $file;
                     }
                 }
             }
             
-            if ($templateImage && file_exists($templateImage)) {
+            if (count($serviceImages) > 0) {
                 for ($i = 1; $i <= 12; $i++) {
                     $targetFile = $portfolioDir . '/' . $i . '.png';
                     if (!file_exists($targetFile)) {
-                        if (copy($templateImage, $targetFile)) {
-                            $results[] = "   ✅ Created: portfolio/" . $i . '.png';
+                        // Use different service images in rotation
+                        $sourceImage = $serviceImages[($i - 1) % count($serviceImages)];
+                        if (copy($sourceImage, $targetFile)) {
+                            $results[] = "   ✅ Created: portfolio/" . $i . '.png (from ' . basename($sourceImage) . ')';
                         } else {
                             $results[] = "   ❌ Failed to create: portfolio/" . $i . '.png';
                         }
@@ -100,7 +101,7 @@ class ManualStorageFixController extends Controller
                     }
                 }
             } else {
-                $results[] = "   ⚠️ No template image found to create portfolio images";
+                $results[] = "   ⚠️ No service images found to create portfolio images";
             }
             
             // Step 5: Test final results

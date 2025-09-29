@@ -95,11 +95,11 @@
                             <label>الملف الحالي</label>
                             <div class="mt-2">
                                 @if($portfolioItem->type === 'image')
-                                    <img src="{{ $portfolioItem->file_path }}" alt="{{ $portfolioItem->title_ar }}" 
+                                    <img src="{{ asset('storage/' . $portfolioItem->file_path) }}" alt="{{ $portfolioItem->title_ar }}" 
                                          style="max-width: 300px; max-height: 200px; object-fit: cover;">
                                 @else
                                     <video controls style="max-width: 300px; max-height: 200px;">
-                                        <source src="{{ $portfolioItem->file_path }}" type="video/mp4">
+                                        <source src="{{ asset('storage/' . $portfolioItem->file_path) }}" type="video/mp4">
                                     </video>
                                 @endif
                             </div>

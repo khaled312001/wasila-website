@@ -23,11 +23,11 @@
                         <div class="card h-100 shadow-sm">
                             <div class="card-img-top position-relative" style="height: 250px; overflow: hidden;">
                                 @if($item->type === 'image')
-                                    <img src="{{ $item->file_path }}" alt="{{ $item->title }}" 
+                                    <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title }}" 
                                          class="w-100 h-100" style="object-fit: cover;">
                                 @else
                                     <video class="w-100 h-100" style="object-fit: cover;" controls>
-                                        <source src="{{ $item->file_path }}" type="video/mp4">
+                                        <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
                                         {{ __('messages.browser_not_support_video') }}
                                     </video>
                                 @endif
