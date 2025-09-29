@@ -51,7 +51,11 @@ class SettingsHelper
      */
     public static function address()
     {
-        return self::get('address', 'المملكة العربية السعودية');
+        $locale = app()->getLocale();
+        $addressKey = $locale === 'ar' ? 'address_ar' : 'address_en';
+        $defaultAddress = $locale === 'ar' ? 'المملكة العربية السعودية' : 'Kingdom of Saudi Arabia';
+        
+        return self::get($addressKey, $defaultAddress);
     }
 
     /**

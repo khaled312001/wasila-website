@@ -184,5 +184,9 @@ return [
     'phone_label' => 'الهاتف',
     'address_label' => 'العنوان',
     'follow_us_on_social' => 'تابعنا على',
-    'click_to_order' => 'اضغط للطلب',
+    'our_work' => 'أعمالنا',
+    'our_work_title' => 'أعمالنا',
+    'our_work_subtitle' => 'أعمالنا',
+    'discover_images_from_activities' => 'اكتشف صوراً من أنشطتنا الخيرية وخدماتنا المتنوعة التي نقدمها للمجتمع',
+    'discover_some_of_our_work' => 'اكتشف بعض أعمالنا وإنجازاتنا في مجال العمل الخيري والعطاء',
 ];
