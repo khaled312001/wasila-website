@@ -276,7 +276,8 @@ return [
     'admin_main_website' => 'Main Website',
     
     // Error messages and notifications
-    'message_sent_success' => 'Message sent successfully!',
+    'message_sent_success' => 'Your message has been sent successfully. We will contact you soon.',
+    'message_send_error' => 'An error occurred while sending the message. Please try again.',
     'thank_you_for_contacting' => 'Thank you for contacting us. We will get back to you as soon as possible.',
     'error_occurred_message' => 'Error occurred!',
     'error_sending_message_detail' => 'An error occurred while sending the message. Please try again or contact us directly.',

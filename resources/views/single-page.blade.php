@@ -1180,10 +1180,10 @@
                     <!-- Enhanced Image Section -->
                     <div class="service-card-image relative h-56">
                         @if($service->image)
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name_ar }} - خدمة خيرية من وسيلة" class="w-full h-full object-cover" loading="lazy">
+                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" class="w-full h-full object-cover" loading="lazy">
                         @else
                         <div class="w-full h-full bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center relative">
-                            <img src="{{ asset('images/' . (($loop->index % 12) + 1) . '.png') }}" alt="{{ $service->name_ar }} - صورة توضيحية" class="w-full h-full object-cover opacity-40" loading="lazy">
+                            <img src="{{ asset('images/' . (($loop->index % 12) + 1) . '.png') }}" alt="{{ $service->name }} - {{ __('messages.illustrative_image') }}" class="w-full h-full object-cover opacity-40" loading="lazy">
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                                     <svg class="w-10 h-10 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
@@ -1753,7 +1753,7 @@
                         
                         <!-- Contact Form -->
                         <div class="w-full max-w-4xl mx-auto">
-                        <h3 class="text-3xl md:text-4xl font-bold text-[#fbbf24] mb-8 text-center">أرسل لنا رسالة</h3>
+                        <h3 class="text-3xl md:text-4xl font-bold text-[#fbbf24] mb-8 text-center">{{ __('messages.send_us_message_title') }}</h3>
                         
                         <!-- Success Message -->
                         <div id="contactSuccess" class="hidden mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
@@ -1761,7 +1761,7 @@
                                 <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                 </svg>
-                                <span>تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.</span>
+                                <span>{{ __('messages.message_sent_success') }}</span>
                             </div>
                         </div>
                         
@@ -1771,14 +1771,14 @@
                                 <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                 </svg>
-                                <span>حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.</span>
+                                <span>{{ __('messages.message_send_error') }}</span>
                             </div>
                         </div>
                         
                         <form class="space-y-6" id="contactForm" method="POST" action="{{ route('contact.store') }}">
                             @csrf
                             <div class="relative">
-                                <input type="text" name="name" placeholder="الاسم الكامل" required
+                                <input type="text" name="name" placeholder="{{ __('messages.full_name_label') }}" required
                                        class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
                                     <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
@@ -1788,7 +1788,7 @@
                             </div>
                             
                             <div class="relative">
-                                <input type="email" name="email" placeholder="البريد الإلكتروني" required
+                                <input type="email" name="email" placeholder="{{ __('messages.email_input_label') }}" required
                                        class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
                                     <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
@@ -1799,7 +1799,7 @@
                             </div>
                             
                             <div class="relative">
-                                <input type="tel" name="phone" placeholder="رقم الهاتف" required
+                                <input type="tel" name="phone" placeholder="{{ __('messages.phone_number_label') }}" required
                                        class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
                                     <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
@@ -1809,7 +1809,7 @@
                             </div>
                             
                             <div class="relative">
-                                <input type="text" name="subject" placeholder="الموضوع (اختياري)"
+                                <input type="text" name="subject" placeholder="{{ __('messages.subject_optional_label') }}"
                                        class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm font-medium shadow-lg">
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
                                     <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
@@ -1820,7 +1820,7 @@
                             </div>
                             
                             <div class="relative">
-                                <textarea name="message" rows="5" placeholder="اكتب رسالتك هنا..." required
+                                <textarea name="message" rows="5" placeholder="{{ __('messages.write_message_placeholder') }}" required
                                           class="w-full px-6 py-4 rounded-2xl bg-white/90 border border-[#fbbf24]/40 text-black placeholder-[#fbbf24] placeholder:text-right focus:outline-none focus:ring-2 focus:ring-[#fbbf24] focus:border-transparent transition-all duration-300 backdrop-blur-sm resize-none font-medium shadow-lg"></textarea>
                                 <div class="absolute top-4 right-4">
                                     <svg class="w-5 h-5 text-[#fbbf24]" fill="currentColor" viewBox="0 0 20 20">
@@ -1833,7 +1833,7 @@
                                 <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1 text-[#fffbe6]" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
                                 </svg>
-                                <span>إرسال الرسالة</span>
+                                <span>{{ __('messages.send_message_button') }}</span>
                             </button>
                         </form>
                     </div>
@@ -1850,36 +1850,36 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Logo and Description -->
                 <div class="col-span-1">
-                    <img src="{{ asset('images/logo-footer.png') }}" alt="شعار وسيلة الخيرية" class="h-12 w-auto mb-4">
+                    <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila_charity_logo_footer') }}" class="h-12 w-auto mb-4">
                     <p class="text-gray-300 leading-relaxed">
-                        مشروع خيري اجتماعي يهدف إلى توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية.
+                        {{ __('messages.social_charity_project_aim') }}
                     </p>
                 </div>
                 
                 <!-- Quick Links -->
                 <div class="col-span-1">
-                    <h3 class="text-lg font-semibold mb-4">روابط سريعة</h3>
+                    <h3 class="text-lg font-semibold mb-4">{{ __('messages.quick_links_footer') }}</h3>
                     <ul class="space-y-2">
-                        <li><a href="#home" class="text-gray-300 hover:text-white transition duration-300">الرئيسية</a></li>
-                        <li><a href="#services" class="text-gray-300 hover:text-white transition duration-300">الخدمات</a></li>
-                        <li><a href="#about" class="text-gray-300 hover:text-white transition duration-300">من نحن</a></li>
-                        <li><a href="#contact" class="text-gray-300 hover:text-white transition duration-300">اتصل بنا</a></li>
+                        <li><a href="#home" class="text-gray-300 hover:text-white transition duration-300">{{ __('messages.home_link') }}</a></li>
+                        <li><a href="#services" class="text-gray-300 hover:text-white transition duration-300">{{ __('messages.services_link') }}</a></li>
+                        <li><a href="#about" class="text-gray-300 hover:text-white transition duration-300">{{ __('messages.about_link') }}</a></li>
+                        <li><a href="#contact" class="text-gray-300 hover:text-white transition duration-300">{{ __('messages.contact_link') }}</a></li>
                     </ul>
                 </div>
                 
                 <!-- Contact Info -->
                 <div class="col-span-1">
-                    <h3 class="text-lg font-semibold mb-4">معلومات الاتصال</h3>
+                    <h3 class="text-lg font-semibold mb-4">{{ __('messages.contact_information_footer') }}</h3>
                     <div class="space-y-2 text-gray-300">
-                        <p>البريد الإلكتروني: {{ \App\Helpers\SettingsHelper::contactEmail() }}</p>
-                        <p>الهاتف: {{ \App\Helpers\SettingsHelper::contactPhone() }}</p>
-                        <p>العنوان: {{ \App\Helpers\SettingsHelper::address() }}</p>
+                        <p>{{ __('messages.email_colon_footer') }} {{ \App\Helpers\SettingsHelper::contactEmail() }}</p>
+                        <p>{{ __('messages.phone_colon_footer') }} {{ \App\Helpers\SettingsHelper::contactPhone() }}</p>
+                        <p>{{ __('messages.address_colon_footer') }} {{ \App\Helpers\SettingsHelper::address() }}</p>
                     </div>
                 </div>
             </div>
             
             <div class="border-t border-gray-600 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; {{ date('Y') }} وسيلة. جميع الحقوق محفوظة.</p>
+                <p>&copy; {{ date('Y') }} {{ __('messages.copyright_2025_wasila') }}</p>
             </div>
         </div>
     </footer>
@@ -1891,7 +1891,7 @@
                 <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                 </svg>
-                اطلب خدمة
+                {{ __('messages.request_service_footer') }}
             </span>
         </button>
     </div>
@@ -1904,7 +1904,7 @@
             <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
             </svg>
-            واتساب
+            {{ __('messages.whatsapp_footer') }}
         </a>
     </div>
 
@@ -1918,7 +1918,7 @@
             // Show loading indicator
             const link = event.target;
             const originalText = link.textContent;
-            link.textContent = 'جاري التحميل...';
+            link.textContent = '{{ __("messages.loading") }}';
             
             // Create form to submit language change
             const form = document.createElement('form');
