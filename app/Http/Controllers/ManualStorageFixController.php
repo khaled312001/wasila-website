@@ -135,6 +135,50 @@ class ManualStorageFixController extends Controller
     }
     
     /**
+     * Create sample portfolio items if none exist
+     */
+    public function createSamplePortfolio()
+    {
+        $results = [];
+        $results[] = "=== Creating Sample Portfolio Items ===";
+        
+        try {
+            $existingCount = PortfolioItem::count();
+            $results[] = "Existing portfolio items: " . $existingCount;
+            
+            if ($existingCount == 0) {
+                for ($i = 1; $i <= 12; $i++) {
+                    PortfolioItem::create([
+                        'title_ar' => 'مشروع خيري ' . $i,
+                        'title_en' => 'Charity Project ' . $i,
+                        'description_ar' => 'وصف المشروع الخيري رقم ' . $i . ' - عمل خيري متميز يهدف لخدمة المجتمع',
+                        'description_en' => 'Description of charity project ' . $i . ' - Distinguished charity work aimed at serving the community',
+                        'type' => 'image',
+                        'file_path' => 'portfolio/' . $i . '.png',
+                        'sort_order' => $i,
+                        'is_active' => true
+                    ]);
+                    $results[] = "✅ Created: مشروع خيري " . $i;
+                }
+                
+                $results[] = "";
+                $results[] = "✅ Created 12 sample portfolio items successfully!";
+                $results[] = "Now visit the website - portfolio section should show real items instead of static images.";
+            } else {
+                $results[] = "ℹ️ Portfolio items already exist. Use 'Activate Portfolio Items' instead.";
+            }
+            
+        } catch (\Exception $e) {
+            $results[] = "❌ Error: " . $e->getMessage();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'results' => $results
+        ]);
+    }
+    
+    /**
      * Activate all portfolio items and fix paths
      */
     public function activatePortfolioItems()

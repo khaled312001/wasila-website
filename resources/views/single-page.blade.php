@@ -1486,6 +1486,28 @@
                         foreach($portfolioItems as $item) {
                             \Log::info('Item: ' . $item->title_ar . ' | Path: ' . $item->file_path . ' | Active: ' . ($item->is_active ? 'Yes' : 'No'));
                         }
+                    } else {
+                        \Log::info('No portfolio items found - will use static images');
+                        
+                        // Create sample portfolio items if none exist
+                        if ($allPortfolioItems->count() == 0) {
+                            \Log::info('Creating sample portfolio items...');
+                            for ($i = 1; $i <= 6; $i++) {
+                                \App\Models\PortfolioItem::create([
+                                    'title_ar' => 'مشروع خيري ' . $i,
+                                    'title_en' => 'Charity Project ' . $i,
+                                    'description_ar' => 'وصف المشروع الخيري رقم ' . $i,
+                                    'description_en' => 'Description of charity project ' . $i,
+                                    'type' => 'image',
+                                    'file_path' => 'portfolio/' . $i . '.png',
+                                    'sort_order' => $i,
+                                    'is_active' => true
+                                ]);
+                            }
+                            // Reload portfolio items
+                            $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->take(12)->get();
+                            \Log::info('Created ' . $portfolioItems->count() . ' sample portfolio items');
+                        }
                     }
                 @endphp
                 

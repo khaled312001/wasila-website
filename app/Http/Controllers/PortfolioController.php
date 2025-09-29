@@ -67,7 +67,7 @@ class PortfolioController extends Controller
             ]);
         } else {
             $validator = Validator::make(['file' => $file], [
-                'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240'
             ]);
         }
 
@@ -158,7 +158,7 @@ class PortfolioController extends Controller
                 ]);
             } else {
                 $validator = Validator::make(['file' => $file], [
-                    'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+                    'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240'
                 ]);
             }
 

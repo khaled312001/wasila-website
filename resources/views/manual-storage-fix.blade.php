@@ -143,6 +143,10 @@
                 🚀 Run Manual Storage Fix
             </button>
             
+            <button class="btn btn-test" onclick="createSamplePortfolio()">
+                🎨 Create Sample Portfolio
+            </button>
+            
             <button class="btn btn-test" onclick="activatePortfolioItems()">
                 🔥 Activate Portfolio Items
             </button>
@@ -239,6 +243,27 @@
             showLoading();
             
             fetch('/manual-storage-fix/run', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                showResults(data.results);
+            })
+            .catch(error => {
+                hideLoading();
+                showResults(['❌ Error: ' + error.message]);
+            });
+        }
+        
+        function createSamplePortfolio() {
+            showLoading();
+            
+            fetch('/manual-storage-fix/create-sample-portfolio', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
