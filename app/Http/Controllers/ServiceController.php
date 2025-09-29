@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Service;
 
 class ServiceController extends Controller
@@ -84,19 +85,25 @@ class ServiceController extends Controller
             'sort_order' => 'nullable|integer|min:0'
         ]);
         
-        $data = $request->all();
+        $data = [
+            'name_ar' => $request->input('name_ar'),
+            'name_en' => $request->input('name_en'),
+            'description_ar' => $request->input('description_ar'),
+            'description_en' => $request->input('description_en'),
+            'price' => $request->input('price'),
+            'category_ar' => $request->input('category_ar'),
+            'category_en' => $request->input('category_en'),
+            'is_active' => $request->has('is_active'),
+            'sort_order' => $request->input('sort_order', 0)
+        ];
         
         if ($request->hasFile('image')) {
             // Delete old image if it exists
-            if ($service->image && \Storage::disk('public')->exists($service->image)) {
-                \Storage::disk('public')->delete($service->image);
+            if ($service->image && Storage::disk('public')->exists($service->image)) {
+                Storage::disk('public')->delete($service->image);
             }
             $data['image'] = $request->file('image')->store('services', 'public');
         }
-        
-        // Set default values
-        $data['is_active'] = $request->has('is_active') ? true : false;
-        $data['sort_order'] = $data['sort_order'] ?? 0;
         
         $service->update($data);
         
@@ -107,8 +114,8 @@ class ServiceController extends Controller
     public function destroy(Service $service)
     {
         // Delete the image file if it exists
-        if ($service->image && \Storage::disk('public')->exists($service->image)) {
-            \Storage::disk('public')->delete($service->image);
+        if ($service->image && Storage::disk('public')->exists($service->image)) {
+            Storage::disk('public')->delete($service->image);
         }
         
         $service->delete();

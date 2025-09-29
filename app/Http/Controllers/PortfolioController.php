@@ -76,9 +76,10 @@ class PortfolioController extends Controller
                 ->withInput();
         }
 
-        // رفع الملف - استخدام مجلد بديل لتجنب قيود السيرفر
-        $path = $file->store('public');
-        $url = Storage::url($path);
+        // رفع الملف إلى مجلد portfolio
+        $path = $file->store('public/portfolio');
+        // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
+        $relativePath = str_replace('public/', '', $path);
 
         // إنشاء thumbnail للفيديو
         $thumbnailPath = null;
@@ -92,7 +93,7 @@ class PortfolioController extends Controller
             'description_ar' => $request->input('description_ar'),
             'description_en' => $request->input('description_en'),
             'type' => $type,
-            'file_path' => $url,
+            'file_path' => $relativePath,
             'thumbnail_path' => $thumbnailPath,
             'sort_order' => $request->input('sort_order', 0),
             'is_active' => $request->has('is_active')
@@ -166,9 +167,10 @@ class PortfolioController extends Controller
                     Storage::delete(str_replace('/storage/', 'public/', $portfolioItem->thumbnail_path));
                 }
 
-                // رفع الملف الجديد - استخدام مجلد بديل
-                $path = $file->store('public');
-                $data['file_path'] = Storage::url($path);
+                // رفع الملف الجديد إلى مجلد portfolio
+                $path = $file->store('public/portfolio');
+                // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
+                $data['file_path'] = str_replace('public/', '', $path);
 
                 // إنشاء thumbnail للفيديو
                 if ($type === 'video') {
