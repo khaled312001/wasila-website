@@ -278,7 +278,7 @@
                 </div>
                 
                 <!-- Navigation Links -->
-                <div class="hidden md:flex items-center space-x-8 {{ app()->getLocale() === 'ar' ? 'space-x-reverse' : '' }}">
+                <div class="hidden md:flex items-center space-x-12 {{ app()->getLocale() === 'ar' ? 'space-x-reverse' : '' }}">
                     <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}" class="text-gray-700 hover:text-primary-medium transition duration-300">
                         {{ __('messages.home') }}
                     </a>

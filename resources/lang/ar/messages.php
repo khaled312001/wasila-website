@@ -181,4 +181,8 @@ return [
     'subject_optional_label' => 'الموضوع (اختياري)',
     'write_message_placeholder' => 'اكتب رسالتك هنا...',
     'send_message_button' => 'إرسال الرسالة',
+    'phone_label' => 'الهاتف',
+    'address_label' => 'العنوان',
+    'follow_us_on_social' => 'تابعنا على',
+    'click_to_order' => 'اضغط للطلب',
 ];

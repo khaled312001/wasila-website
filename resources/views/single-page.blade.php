@@ -989,7 +989,7 @@
                 </div>
                 
                 <!-- Enhanced Navigation Links -->
-                <div class="hidden md:flex items-center space-x-8 space-x-reverse">
+                <div class="hidden md:flex items-center space-x-12 space-x-reverse">
                     <a href="#home" class="nav-link relative text-gray-700 hover:text-primary-medium transition-all duration-300 font-medium">
                         <span class="relative z-10">{{ __('messages.home') }}</span>
                         <div class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-medium transition-all duration-300 nav-link-underline"></div>
@@ -1200,7 +1200,7 @@
                                 <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                                 </svg>
-                                <p class="text-sm font-medium">اضغط للطلب</p>
+                                <p class="text-sm font-medium">{{ __('messages.click_to_order') }}</p>
                             </div>
                         </div>
                         
@@ -1214,15 +1214,15 @@
                     <div class="p-6">
                         <div class="mb-4">
                             <h3 class="text-xl font-bold text-primary-dark mb-3 group-hover:text-primary-medium transition-colors duration-300">
-                                {{ $service->name_ar }}
+                                {{ $service->name }}
                             </h3>
                             <p class="text-gray-600 leading-relaxed line-clamp-3">
-                                {{ $service->description_ar }}
+                                {{ $service->description }}
                             </p>
                         </div>
                         
                         <!-- Enhanced Action Button -->
-                        <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name_ar) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description_ar) }}" 
+                        <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
                            class="w-full modern-btn text-white px-6 py-4 rounded-2xl font-bold text-lg flex items-center justify-center group">
                             <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
@@ -1709,7 +1709,7 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">الهاتف</h4>
+                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">{{ __('messages.phone_label') }}</h4>
                                     <p class="text-[#fbbf24] text-lg font-bold">{{ \App\Helpers\SettingsHelper::contactPhone() }}</p>
                                 </div>
                             </div>
@@ -1722,7 +1722,7 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">العنوان</h4>
+                                    <h4 class="text-lg font-semibold text-[#fffbe6] mb-1">{{ __('messages.address_label') }}</h4>
                                     <p class="text-[#fbbf24] text-lg font-bold">{{ \App\Helpers\SettingsHelper::address() }}</p>
                                 </div>
                             </div>
@@ -1730,7 +1730,7 @@
                         
                         <!-- Social Media Links -->
                         <div class="mt-8 pt-8 border-t border-[#fbbf24]/30">
-                            <h4 class="text-xl font-semibold text-[#fbbf24] mb-4 text-center">تابعنا على</h4>
+                            <h4 class="text-xl font-semibold text-[#fbbf24] mb-4 text-center">{{ __('messages.follow_us_on_social') }}</h4>
                             <div class="flex justify-center space-x-4 space-x-reverse">
                                 <a href="#" class="w-12 h-12 bg-gradient-to-br from-[#1e3a8a] via-[#fbbf24] to-[#f59e42] rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 shadow-lg">
                                     <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">

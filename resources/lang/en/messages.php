@@ -266,6 +266,7 @@ return [
     'wasila_charity_services' => 'Wasila Charity Services',
     'discover_variety_charitable' => 'Discover our variety of charitable and social services that Wasila provides to the community. Comprehensive humanitarian services for a better society.',
     'wasila_services_keywords' => 'wasila services, charity services, social services, humanitarian aid, volunteer, relief, community support',
+    'click_to_order' => 'Click to Order',
     
     // Admin panel translations (if needed)
     'admin_services' => 'Services',
