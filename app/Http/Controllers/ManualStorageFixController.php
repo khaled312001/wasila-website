@@ -124,7 +124,22 @@ Options +FollowSymLinks
                         $results[] = "     ✅ Found: " . $i . '.png';
                     } else {
                         $results[] = "     ❌ Missing: " . $i . '.png';
+                        $results[] = "       Checked path: " . $filePath;
                     }
+                }
+                
+                // Also check what files actually exist in portfolio directory
+                $portfolioDir = $targetDir . '/portfolio';
+                if (is_dir($portfolioDir)) {
+                    $actualFiles = array_slice(scandir($portfolioDir), 2, 5); // Skip . and .., take first 5
+                    $results[] = "     📁 Actually found in portfolio directory:";
+                    foreach ($actualFiles as $file) {
+                        if (is_file($portfolioDir . '/' . $file)) {
+                            $results[] = "       - " . $file;
+                        }
+                    }
+                } else {
+                    $results[] = "     ❌ Portfolio directory doesn't exist: " . $portfolioDir;
                 }
             }
             
@@ -137,6 +152,58 @@ Options +FollowSymLinks
             $results[] = "";
             $results[] = "If images still show 403 errors, contact your hosting provider";
             $results[] = "and ask them to allow access to the public/storage directory.";
+            
+        } catch (\Exception $e) {
+            $results[] = "❌ Error: " . $e->getMessage();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'results' => $results
+        ]);
+    }
+    
+    /**
+     * Fix portfolio paths in database
+     */
+    public function fixPortfolioPaths()
+    {
+        $results = [];
+        $results[] = "=== Fixing Portfolio Database Paths ===";
+        
+        try {
+            // Get all portfolio items
+            $portfolioItems = PortfolioItem::all();
+            $results[] = "Found " . $portfolioItems->count() . " portfolio items";
+            
+            $updatedCount = 0;
+            foreach ($portfolioItems as $item) {
+                $oldPath = $item->file_path;
+                
+                // Fix paths that start with /storage/ or storage/
+                if (strpos($oldPath, '/storage/') === 0) {
+                    $newPath = substr($oldPath, 9); // Remove '/storage/'
+                } elseif (strpos($oldPath, 'storage/') === 0) {
+                    $newPath = substr($oldPath, 8); // Remove 'storage/'
+                } else {
+                    $newPath = $oldPath; // Keep as is if already correct
+                }
+                
+                if ($oldPath !== $newPath) {
+                    $results[] = "Portfolio Item: {$item->title_ar}";
+                    $results[] = "  Old path: {$oldPath}";
+                    $results[] = "  New path: {$newPath}";
+                    
+                    $item->update(['file_path' => $newPath]);
+                    $updatedCount++;
+                    $results[] = "  ✅ Updated";
+                } else {
+                    $results[] = "Portfolio Item: {$item->title_ar} - ✅ Path already correct";
+                }
+            }
+            
+            $results[] = "";
+            $results[] = "Updated $updatedCount portfolio items with correct paths.";
             
         } catch (\Exception $e) {
             $results[] = "❌ Error: " . $e->getMessage();
