@@ -1531,9 +1531,9 @@
                 @else
                     <!-- Fallback to static images if no portfolio items -->
                     @for($i = 1; $i <= 12; $i++)
-                    <div class="gallery-item group cursor-pointer" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')">
+                    <div class="gallery-item group cursor-pointer" onclick="openLightbox({{ $i }}, 'image', '{{ asset('storage/portfolio/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')">
                         <div class="relative overflow-hidden rounded-2xl shadow-lg">
-                            <img src="{{ asset('images/' . $i . '.png') }}" alt="{{ __('messages.illustrative_image_number') }} {{ $i }} {{ __('messages.charity_project') }}" 
+                            <img src="{{ asset('storage/portfolio/' . $i . '.png') }}" alt="{{ __('messages.illustrative_image_number') }} {{ $i }} {{ __('messages.charity_project') }}" 
                                  class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110">
                             
                             <!-- Enhanced Overlay -->
@@ -1636,8 +1636,8 @@
                     @endforeach
                 @else
                     @for($i = 1; $i <= 12; $i++)
-                    <button onclick="goToMedia({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
-                        <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" class="w-full h-full object-cover">
+                    <button onclick="goToMedia({{ $i }}, 'image', '{{ asset('storage/portfolio/' . $i . '.png') }}', 'صورة توضيحية {{ $i }}')" class="thumbnail-btn flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-white transition-all duration-300">
+                        <img src="{{ asset('storage/portfolio/' . $i . '.png') }}" alt="صورة {{ $i }}" class="w-full h-full object-cover">
                     </button>
                     @endfor
                 @endif
@@ -2127,7 +2127,7 @@
             if (!mediaPath) {
                 // This would need to be updated to work with dynamic portfolio data
                 // For now, fallback to static images
-                mediaPath = `{{ asset('images/') }}/${currentMediaIndex}.png`;
+                mediaPath = `{{ asset('storage/portfolio/') }}/${currentMediaIndex}.png`;
                 mediaType = 'image';
                 mediaTitle = `صورة ${currentMediaIndex}`;
             }

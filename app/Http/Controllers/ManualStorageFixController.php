@@ -106,7 +106,7 @@ Options +FollowSymLinks
             
             // Test portfolio images
             $results[] = "   Portfolio (أعمالنا):";
-            $portfolioItems = PortfolioItem::active()->take(5)->get();
+            $portfolioItems = PortfolioItem::active()->take(3)->get();
             if ($portfolioItems->count() > 0) {
                 foreach ($portfolioItems as $item) {
                     $filePath = $targetDir . '/' . $item->file_path;
@@ -117,7 +117,15 @@ Options +FollowSymLinks
                     }
                 }
             } else {
-                $results[] = "     ⚠️ No portfolio items found in database";
+                $results[] = "     ⚠️ No portfolio items found in database - checking static images:";
+                for ($i = 1; $i <= 5; $i++) {
+                    $filePath = $targetDir . '/portfolio/' . $i . '.png';
+                    if (file_exists($filePath)) {
+                        $results[] = "     ✅ Found: " . $i . '.png';
+                    } else {
+                        $results[] = "     ❌ Missing: " . $i . '.png';
+                    }
+                }
             }
             
             $results[] = "";

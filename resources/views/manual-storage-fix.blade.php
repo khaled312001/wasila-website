@@ -179,7 +179,12 @@
                 </a>
                 @endforeach
             @else
-                <p style="color: #856404; font-style: italic;">No portfolio items found in database</p>
+                <div style="color: #856404; font-style: italic; margin-bottom: 10px;">No portfolio items found in database - using static images:</div>
+                @for($i = 1; $i <= 5; $i++)
+                <a href="{{ asset('storage/portfolio/' . $i . '.png') }}" target="_blank">
+                    {{ asset('storage/portfolio/' . $i . '.png') }}
+                </a>
+                @endfor
             @endif
         </div>
 
