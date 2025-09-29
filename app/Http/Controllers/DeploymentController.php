@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
 use App\Models\Service;
 
 class DeploymentController extends Controller
@@ -18,16 +19,53 @@ class DeploymentController extends Controller
         $results[] = "=== Wasila Charity - Storage Fix ===";
         
         try {
-            // Step 1: Check if storage symlink exists
+            // Step 1: Fix storage symlink
             $publicStoragePath = public_path('storage');
-            $results[] = "1. Checking storage symlink...";
+            $results[] = "1. Fixing storage symlink...";
             
             if (is_link($publicStoragePath)) {
-                $results[] = "   ✅ Storage symlink exists";
+                $results[] = "   ✅ Storage symlink already exists";
             } elseif (is_dir($publicStoragePath)) {
-                $results[] = "   ⚠️ Storage directory exists but is not a symlink";
+                $results[] = "   ⚠️ Storage directory exists but is not a symlink - FIXING...";
+                
+                // Remove the directory and create proper symlink
+                try {
+                    // Remove existing directory
+                    $this->removeDirectory($publicStoragePath);
+                    $results[] = "   ✅ Removed existing storage directory";
+                    
+                    // Create symlink
+                    $targetPath = storage_path('app/public');
+                    if (symlink($targetPath, $publicStoragePath)) {
+                        $results[] = "   ✅ Created storage symlink successfully";
+                    } else {
+                        $results[] = "   ❌ Failed to create symlink - trying alternative method...";
+                        
+                        // Alternative: Try Laravel's storage:link command
+                        Artisan::call('storage:link');
+                        $results[] = "   ✅ Used Laravel's storage:link command";
+                    }
+                } catch (\Exception $e) {
+                    $results[] = "   ❌ Symlink creation failed: " . $e->getMessage();
+                    $results[] = "   🔄 Trying alternative: Copy files instead...";
+                    
+                    // Alternative: Copy files if symlinks aren't supported
+                    try {
+                        $this->copyStorageFiles($publicStoragePath);
+                        $results[] = "   ✅ Copied storage files as alternative to symlink";
+                    } catch (\Exception $copyError) {
+                        $results[] = "   ❌ Copy failed too: " . $copyError->getMessage();
+                        $results[] = "   💡 Manual fix needed: Contact hosting provider or run 'php artisan storage:link' via SSH";
+                    }
+                }
             } else {
-                $results[] = "   ❌ Storage symlink missing";
+                $results[] = "   ❌ Storage symlink missing - creating...";
+                try {
+                    Artisan::call('storage:link');
+                    $results[] = "   ✅ Created storage symlink";
+                } catch (\Exception $e) {
+                    $results[] = "   ❌ Failed to create symlink: " . $e->getMessage();
+                }
             }
             
             // Step 2: Create .htaccess for storage
@@ -104,10 +142,10 @@ Options +FollowSymLinks
             // Step 5: Clear caches
             $results[] = "5. Clearing caches...";
             try {
-                \Artisan::call('config:clear');
-                \Artisan::call('cache:clear');
-                \Artisan::call('view:clear');
-                \Artisan::call('route:clear');
+                Artisan::call('config:clear');
+                Artisan::call('cache:clear');
+                Artisan::call('view:clear');
+                Artisan::call('route:clear');
                 $results[] = "   ✅ All caches cleared";
             } catch (\Exception $e) {
                 $results[] = "   ⚠️ Cache clear error: " . $e->getMessage();
@@ -203,5 +241,74 @@ Options +FollowSymLinks
     public function index()
     {
         return view('deployment-tools');
+    }
+    
+    /**
+     * Recursively remove a directory and its contents
+     */
+    private function removeDirectory($dir)
+    {
+        if (!is_dir($dir)) {
+            return false;
+        }
+        
+        $files = array_diff(scandir($dir), array('.', '..'));
+        foreach ($files as $file) {
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            is_dir($path) ? $this->removeDirectory($path) : unlink($path);
+        }
+        
+        return rmdir($dir);
+    }
+    
+    /**
+     * Copy storage files as alternative to symlink
+     */
+    private function copyStorageFiles($publicStoragePath)
+    {
+        $sourcePath = storage_path('app/public');
+        
+        if (!is_dir($sourcePath)) {
+            throw new \Exception("Source storage directory not found: $sourcePath");
+        }
+        
+        // Create public/storage directory if it doesn't exist
+        if (!is_dir($publicStoragePath)) {
+            mkdir($publicStoragePath, 0755, true);
+        }
+        
+        // Copy all files and subdirectories
+        $this->recursiveCopy($sourcePath, $publicStoragePath);
+    }
+    
+    /**
+     * Recursively copy directory contents
+     */
+    private function recursiveCopy($source, $destination)
+    {
+        if (!is_dir($source)) {
+            return;
+        }
+        
+        if (!is_dir($destination)) {
+            mkdir($destination, 0755, true);
+        }
+        
+        $files = scandir($source);
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+            
+            $sourcePath = $source . DIRECTORY_SEPARATOR . $file;
+            $destPath = $destination . DIRECTORY_SEPARATOR . $file;
+            
+            if (is_dir($sourcePath)) {
+                $this->recursiveCopy($sourcePath, $destPath);
+            } else {
+                copy($sourcePath, $destPath);
+                chmod($destPath, 0644);
+            }
+        }
     }
 }
