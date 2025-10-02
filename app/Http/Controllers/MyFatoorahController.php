@@ -27,9 +27,9 @@ class MyFatoorahController extends Controller
      */
     public function __construct() {
         $this->mfConfig = [
-            'apiKey'      => config('myfatoorah.api_key'),
-            'isTest'      => config('myfatoorah.test_mode'),
-            'vcCode'      => config('myfatoorah.country_iso'),
+            'apiKey'      => is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key'),
+            'isTest'      => is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode'),
+            'vcCode'      => is_callable(config('myfatoorah.country_iso')) ? config('myfatoorah.country_iso')() : config('myfatoorah.country_iso'),
         ];
     }
 
@@ -527,6 +527,7 @@ class MyFatoorahController extends Controller
         $config = [
             'api_key' => SettingsHelper::get('myfatoorah_api_key', ''),
             'is_test' => SettingsHelper::get('myfatoorah_is_test', '1') == '1',
+            'country_iso' => SettingsHelper::get('myfatoorah_country_iso', 'SA'),
             'currency_iso' => SettingsHelper::get('myfatoorah_currency', 'SAR'),
         ];
         return view('admin.myfatoorah.settings', compact('config'));
@@ -537,12 +538,14 @@ class MyFatoorahController extends Controller
         $request->validate([
             'api_key' => 'required|string',
             'is_test' => 'boolean',
+            'country_iso' => 'required|string|size:2',
             'currency_iso' => 'required|string|size:3',
         ]);
 
         // Update settings in database
         \App\Models\Setting::set('myfatoorah_api_key', $request->api_key, 'string', 'مفتاح API لبوابة الدفع MyFatoorah');
         \App\Models\Setting::set('myfatoorah_is_test', $request->has('is_test') ? '1' : '0', 'boolean', 'وضع الاختبار لبوابة الدفع');
+        \App\Models\Setting::set('myfatoorah_country_iso', $request->country_iso, 'string', 'رمز البلد');
         \App\Models\Setting::set('myfatoorah_currency', $request->currency_iso, 'string', 'العملة الافتراضية');
 
         // Clear settings cache
