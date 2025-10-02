@@ -228,6 +228,16 @@
         
         <!-- Action Buttons -->
         <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            @if(($orderData['payment_status'] ?? '') === 'paid')
+            <button onclick="printInvoice()" 
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-lg text-center flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/>
+                </svg>
+                {{ app()->getLocale() === 'ar' ? 'طباعة الفاتورة' : 'Print Invoice' }}
+            </button>
+            @endif
+            
             <a href="{{ route('home') }}" 
                class="bg-primary-medium hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-lg text-center">
                 {{ app()->getLocale() === 'ar' ? 'العودة للرئيسية' : 'Back to Home' }}
@@ -294,3 +304,198 @@
 @endif
 
 @endsection
+
+@push('scripts')
+<script>
+function printInvoice() {
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    
+    // Get the order data from the page
+    const orderData = @json($orderData ?? []);
+    
+    // Create the invoice HTML
+    const invoiceHTML = `
+        <!DOCTYPE html>
+        <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>{{ app()->getLocale() === 'ar' ? 'فاتورة وسيلة الخيرية' : 'Wasila Charity Invoice' }}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background: white;
+                    color: #333;
+                }
+                .invoice-header {
+                    text-align: center;
+                    border-bottom: 3px solid #0f4c81;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }
+                .invoice-title {
+                    font-size: 28px;
+                    font-weight: bold;
+                    color: #0f4c81;
+                    margin-bottom: 10px;
+                }
+                .invoice-subtitle {
+                    font-size: 16px;
+                    color: #666;
+                }
+                .invoice-details {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 30px;
+                }
+                .invoice-section {
+                    flex: 1;
+                    margin: 0 10px;
+                }
+                .section-title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #0f4c81;
+                    margin-bottom: 15px;
+                    border-bottom: 2px solid #38b6ff;
+                    padding-bottom: 5px;
+                }
+                .detail-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 8px;
+                    padding: 5px 0;
+                }
+                .detail-label {
+                    font-weight: bold;
+                    color: #555;
+                }
+                .detail-value {
+                    color: #333;
+                }
+                .total-section {
+                    background: #f8f9fa;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin-top: 20px;
+                }
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #0f4c81;
+                    border-top: 2px solid #38b6ff;
+                    padding-top: 10px;
+                }
+                .status-paid {
+                    color: #28a745;
+                    font-weight: bold;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 40px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
+                    color: #666;
+                }
+                @media print {
+                    body { margin: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-header">
+                <div class="invoice-title">{{ app()->getLocale() === 'ar' ? 'وسيلة الخيرية' : 'Wasila Charity' }}</div>
+                <div class="invoice-subtitle">{{ app()->getLocale() === 'ar' ? 'فاتورة الدفع' : 'Payment Invoice' }}</div>
+            </div>
+            
+            <div class="invoice-details">
+                <div class="invoice-section">
+                    <div class="section-title">{{ app()->getLocale() === 'ar' ? 'معلومات الطلب' : 'Order Information' }}</div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'رقم الطلب:' : 'Order Number:' }}</span>
+                        <span class="detail-value">${orderData.order_number || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'تاريخ الطلب:' : 'Order Date:' }}</span>
+                        <span class="detail-value">${new Date().toLocaleDateString('{{ app()->getLocale() === "ar" ? "ar-SA" : "en-US" }}')}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'حالة الدفع:' : 'Payment Status:' }}</span>
+                        <span class="detail-value status-paid">{{ app()->getLocale() === 'ar' ? 'مدفوع' : 'Paid' }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'طريقة الدفع:' : 'Payment Method:' }}</span>
+                        <span class="detail-value">${orderData.payment_method || 'MyFatoorah'}</span>
+                    </div>
+                </div>
+                
+                <div class="invoice-section">
+                    <div class="section-title">{{ app()->getLocale() === 'ar' ? 'معلومات العميل' : 'Customer Information' }}</div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'الاسم:' : 'Name:' }}</span>
+                        <span class="detail-value">${orderData.customer_name || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني:' : 'Email:' }}</span>
+                        <span class="detail-value">${orderData.customer_email || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'رقم الهاتف:' : 'Phone:' }}</span>
+                        <span class="detail-value">${orderData.customer_phone || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'العنوان:' : 'Address:' }}</span>
+                        <span class="detail-value">${orderData.customer_address || 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="invoice-section">
+                <div class="section-title">{{ app()->getLocale() === 'ar' ? 'تفاصيل الخدمة' : 'Service Details' }}</div>
+                <div class="detail-row">
+                    <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'اسم الخدمة:' : 'Service Name:' }}</span>
+                    <span class="detail-value">${orderData.service_name || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'السعر:' : 'Price:' }}</span>
+                    <span class="detail-value">${(orderData.service_price || 0).toFixed(2)} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">{{ app()->getLocale() === 'ar' ? 'الكمية:' : 'Quantity:' }}</span>
+                    <span class="detail-value">${orderData.service_quantity || 1}</span>
+                </div>
+            </div>
+            
+            <div class="total-section">
+                <div class="total-row">
+                    <span>{{ app()->getLocale() === 'ar' ? 'المجموع الكلي:' : 'Total Amount:' }}</span>
+                    <span>${(orderData.total_amount || 0).toFixed(2)} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>{{ app()->getLocale() === 'ar' ? 'شكراً لك على دعمك لمشروع وسيلة الخيري' : 'Thank you for supporting Wasila Charity' }}</p>
+                <p>{{ app()->getLocale() === 'ar' ? 'هذه الفاتورة صالحة كإيصال دفع' : 'This invoice is valid as a payment receipt' }}</p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Write the HTML to the new window
+    printWindow.document.write(invoiceHTML);
+    printWindow.document.close();
+    
+    // Wait for the content to load, then print
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.close();
+    };
+}
+</script>
+@endpush
