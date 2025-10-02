@@ -17,7 +17,7 @@ return [
      * Country ISO Code (string)
      * Accepted value: KWT, SAU, ARE, QAT, BHR, OMN, JOD, or EGY.
      */
-    'country_iso' => env('MYFATOORAH_COUNTRY_ISO', 'SAU'),
+    'country_iso' => env('MYFATOORAH_COUNTRY_ISO', 'KWT'),
     /**
      * Save card (boolean)
      * Accepted value: true if you want to enable save card options.

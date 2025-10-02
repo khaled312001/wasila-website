@@ -27,9 +27,9 @@ class MyFatoorahController extends Controller
      */
     public function __construct() {
         $this->mfConfig = [
-            'apiKey'      => SettingsHelper::get('myfatoorah_api_key', config('myfatoorah.api_key')),
-            'isTest'      => (bool) SettingsHelper::get('myfatoorah_is_test', config('myfatoorah.test_mode')),
-            'vcCode'      => SettingsHelper::get('myfatoorah_currency', config('myfatoorah.country_iso')),
+            'apiKey'      => config('myfatoorah.api_key'),
+            'isTest'      => config('myfatoorah.test_mode'),
+            'vcCode'      => config('myfatoorah.country_iso'),
         ];
     }
 
