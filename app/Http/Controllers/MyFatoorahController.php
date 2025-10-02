@@ -26,10 +26,24 @@ class MyFatoorahController extends Controller
      * Initiate MyFatoorah Configuration
      */
     public function __construct() {
+        $countryIso = is_callable(config('myfatoorah.country_iso')) ? config('myfatoorah.country_iso')() : config('myfatoorah.country_iso');
+        
+        // Convert country ISO codes to MyFatoorah vcCode format
+        $vcCodeMap = [
+            'SA' => 'SAU',  // Saudi Arabia
+            'AE' => 'ARE',  // UAE
+            'KW' => 'KWT',  // Kuwait
+            'BH' => 'BHR',  // Bahrain
+            'QA' => 'QAT',  // Qatar
+            'OM' => 'OMN',  // Oman
+            'JO' => 'JOR',  // Jordan
+            'EG' => 'EGY',  // Egypt
+        ];
+        
         $this->mfConfig = [
             'apiKey'      => is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key'),
             'isTest'      => is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode'),
-            'vcCode'      => is_callable(config('myfatoorah.country_iso')) ? config('myfatoorah.country_iso')() : config('myfatoorah.country_iso'),
+            'vcCode'      => $vcCodeMap[$countryIso] ?? 'SAU', // Default to Saudi Arabia
         ];
     }
 
