@@ -36,28 +36,35 @@ class OrderController extends Controller
     
     public function store(Request $request)
     {
-        $request->validate([
-            'service_id' => 'required|exists:services,id',
-            'quantity' => 'required|integer|min:1|max:100',
-            'customer_name' => 'required|string|max:255',
-            'customer_email' => 'required|email|max:255',
-            'customer_phone' => 'required|string|max:20',
-            'country_code' => 'required|string|max:10',
-            'customer_address' => 'required|string',
-            'payment_method' => 'required|in:card,bank,cod,myfatoorah',
-            // Credit card fields (optional)
-            'card_number' => 'nullable|string|max:20',
-            'cardholder_name' => 'nullable|string|max:255',
-            'expiry_date' => 'nullable|string|max:10',
-            'cvv' => 'nullable|string|max:4',
-            // Bank transfer fields (optional)
-            'bank_name' => 'nullable|string|max:255',
-            'account_number' => 'nullable|string|max:50',
-            'transfer_reference' => 'nullable|string|max:50',
-            // COD fields (optional)
-            'delivery_time' => 'nullable|string|max:50',
-            'delivery_notes' => 'nullable|string|max:500'
-        ]);
+        try {
+            $request->validate([
+                'service_id' => 'required|exists:services,id',
+                'quantity' => 'required|integer|min:1|max:100',
+                'customer_name' => 'required|string|max:255',
+                'customer_email' => 'required|email|max:255',
+                'customer_phone' => 'required|string|max:20',
+                'customer_address' => 'required|string',
+                'payment_method' => 'required|in:card,bank,cod,myfatoorah',
+                // Credit card fields (optional)
+                'card_number' => 'nullable|string|max:20',
+                'cardholder_name' => 'nullable|string|max:255',
+                'expiry_date' => 'nullable|string|max:10',
+                'cvv' => 'nullable|string|max:4',
+                // Bank transfer fields (optional)
+                'bank_name' => 'nullable|string|max:255',
+                'account_number' => 'nullable|string|max:50',
+                'transfer_reference' => 'nullable|string|max:50',
+                // COD fields (optional)
+                'delivery_time' => 'nullable|string|max:50',
+                'delivery_notes' => 'nullable|string|max:500'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => app()->getLocale() === 'ar' ? 'يرجى التحقق من البيانات المدخلة' : 'Please check the entered data',
+                'errors' => $e->errors()
+            ], 422);
+        }
         
         try {
             DB::beginTransaction();
@@ -108,8 +115,8 @@ class OrderController extends Controller
                 'customer_name' => $request->customer_name,
                 'customer_email' => $request->customer_email,
                 'customer_phone' => $request->customer_phone,
-                'country_code' => $request->country_code,
-                'full_phone_number' => $request->country_code . $request->customer_phone,
+                'country_code' => '+966', // Default to Saudi Arabia
+                'full_phone_number' => '+966' . $request->customer_phone,
                 'customer_address' => $request->customer_address,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
