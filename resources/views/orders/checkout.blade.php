@@ -99,322 +99,127 @@
                     @endif
                 </div>
             </div>
-            
+
             <!-- Order Form -->
             <div class="lg:col-span-2">
                 <div class="glass-effect rounded-2xl p-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-8">
-                        {{ app()->getLocale() === 'ar' ? 'بيانات الطلب' : 'Order Information' }}
+                        {{ app()->getLocale() === 'ar' ? 'معلومات الطلب' : 'Order Information' }}
                     </h2>
                     
-                    <form action="{{ route('orders.store') }}" method="POST" id="order-form">
+                    <form id="order-form" class="space-y-6">
                         @csrf
-                        <input type="hidden" name="service_id" value="{{ $serviceId }}">
+                        <input type="hidden" name="service_id" value="{{ $serviceId ?? '' }}">
+                        <input type="hidden" name="service_name" value="{{ $serviceName ?? '' }}">
+                        <input type="hidden" name="service_price" value="{{ $servicePrice ?? '' }}">
+                        <input type="hidden" name="service_description" value="{{ $serviceDescription ?? '' }}">
                         
+                        <!-- Customer Information -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Customer Name -->
-                            <div class="md:col-span-2">
-                                <label for="customer_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'الاسم الكامل *' : 'Full Name *' }}
                                 </label>
-                                <input type="text" 
-                                       id="customer_name" 
-                                       name="customer_name" 
-                                       value="{{ old('customer_name') }}"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('customer_name') border-red-500 @enderror"
-                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name' }}"
-                                       required>
-                                @error('customer_name')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <input type="text" name="customer_name" required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
+                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل اسمك الكامل' : 'Enter your full name' }}">
                             </div>
                             
-                            <!-- Customer Email -->
                             <div>
-                                <label for="customer_email" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني *' : 'Email *' }}
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني *' : 'Email Address *' }}
                                 </label>
-                                <input type="email" 
-                                       id="customer_email" 
-                                       name="customer_email" 
-                                       value="{{ old('customer_email') }}"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('customer_email') border-red-500 @enderror"
-                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email' }}"
-                                       required>
-                                @error('customer_email')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <input type="email" name="customer_email" required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
+                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل بريدك الإلكتروني' : 'Enter your email address' }}">
                             </div>
                             
-                            <!-- Customer Phone -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    {{ app()->getLocale() === 'ar' ? 'رقم الهاتف *' : 'Phone *' }}
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ app()->getLocale() === 'ar' ? 'رقم الهاتف *' : 'Phone Number *' }}
                                 </label>
-                                <div class="flex gap-2">
-                                    <div class="w-32">
-                                        <select id="country_code" 
-                                                name="country_code" 
-                                                class="w-full px-3 py-3 border border-gray-300 rounded-lg input-focus @error('country_code') border-red-500 @enderror"
-                                                required>
-                                            <option value="+966" {{ old('country_code', '+966') == '+966' ? 'selected' : '' }}>🇸🇦 +966</option>
-                                            <option value="+971" {{ old('country_code') == '+971' ? 'selected' : '' }}>🇦🇪 +971</option>
-                                            <option value="+965" {{ old('country_code') == '+965' ? 'selected' : '' }}>🇰🇼 +965</option>
-                                            <option value="+973" {{ old('country_code') == '+973' ? 'selected' : '' }}>🇧🇭 +973</option>
-                                            <option value="+974" {{ old('country_code') == '+974' ? 'selected' : '' }}>🇶🇦 +974</option>
-                                            <option value="+968" {{ old('country_code') == '+968' ? 'selected' : '' }}>🇴🇲 +968</option>
-                                            <option value="+20" {{ old('country_code') == '+20' ? 'selected' : '' }}>🇪🇬 +20</option>
-                                            <option value="+212" {{ old('country_code') == '+212' ? 'selected' : '' }}>🇲🇦 +212</option>
-                                            <option value="+213" {{ old('country_code') == '+213' ? 'selected' : '' }}>🇩🇿 +213</option>
-                                            <option value="+216" {{ old('country_code') == '+216' ? 'selected' : '' }}>🇹🇳 +216</option>
-                                            <option value="+218" {{ old('country_code') == '+218' ? 'selected' : '' }}>🇱🇾 +218</option>
-                                            <option value="+249" {{ old('country_code') == '+249' ? 'selected' : '' }}>🇸🇩 +249</option>
-                                        </select>
-                                        @error('country_code')
-                                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div class="flex-1">
-                                        <input type="tel" 
-                                               id="customer_phone" 
-                                               name="customer_phone" 
-                                               value="{{ old('customer_phone') }}"
-                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('customer_phone') border-red-500 @enderror"
-                                               placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone' }}"
-                                               required>
-                                        @error('customer_phone')
-                                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <div class="flex items-start">
-                                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
-                                        <div class="text-sm text-blue-700">
-                                            <strong>{{ app()->getLocale() === 'ar' ? 'تنبيه مهم:' : 'Important Notice:' }}</strong>
-                                            {{ app()->getLocale() === 'ar' ? 'يجب أن يكون رقم الهاتف مرتبط بحساب واتساب لإرسال فيديو التسليم والتواصل معك' : 'The phone number must be linked to a WhatsApp account to send delivery video and communicate with you' }}
-                                        </div>
-                                    </div>
-                                </div>
+                                <input type="tel" name="customer_phone" required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
+                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
                             </div>
                             
-                            <!-- Customer Address -->
-                            <div class="md:col-span-2">
-                                <label for="customer_address" class="block text-sm font-semibold text-gray-700 mb-2">
-                                    {{ app()->getLocale() === 'ar' ? 'العنوان *' : 'Address *' }}
-                                </label>
-                                <textarea id="customer_address" 
-                                          name="customer_address" 
-                                          rows="3"
-                                          class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('customer_address') border-red-500 @enderror"
-                                          placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل عنوانك الكامل' : 'Enter your full address' }}"
-                                          required>{{ old('customer_address') }}</textarea>
-                                @error('customer_address')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            
-                            <!-- Quantity -->
                             <div>
-                                <label for="quantity" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'الكمية *' : 'Quantity *' }}
                                 </label>
-                                <input type="number" 
-                                       id="quantity" 
-                                       name="quantity" 
-                                       value="{{ old('quantity', 1) }}"
-                                       min="1" 
-                                       max="100"
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus @error('quantity') border-red-500 @enderror"
-                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل الكمية' : 'Enter quantity' }}"
-                                       required>
-                                @error('quantity')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <input type="number" name="quantity" value="1" min="1" required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus">
                             </div>
                         </div>
                         
-                        <!-- Payment Notice -->
-                        <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 text-blue-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <div>
-                                    <h4 class="text-sm font-semibold text-blue-800 mb-1">
-                                        {{ app()->getLocale() === 'ar' ? 'دفع آمن' : 'Secure Payment' }}
-                                    </h4>
-                                    <p class="text-xs text-blue-700">
-                                        {{ app()->getLocale() === 'ar' 
-                                            ? 'سيتم توجيهك لبوابة دفع آمنة لإتمام عملية الدفع'
-                                            : 'You will be redirected to a secure payment gateway to complete your payment' }}
-                                    </p>
-                                </div>
-                            </div>
+                        <!-- Address -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ app()->getLocale() === 'ar' ? 'العنوان *' : 'Address *' }}
+                            </label>
+                            <textarea name="customer_address" rows="3" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
+                                      placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل عنوانك الكامل' : 'Enter your complete address' }}"></textarea>
                         </div>
                         
-                        <!-- Payment Methods -->
-                        <div class="mt-8">
+                        <!-- Payment Method -->
+                        <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">
-                                {{ app()->getLocale() === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method' }}
+                                {{ app()->getLocale() === 'ar' ? 'طريقة الدفع' : 'Payment Method' }}
                             </h3>
                             
                             <div class="space-y-3 mb-6">
-                                <!-- Credit Card -->
-                                <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                    <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition">
-                                        <input type="radio" name="payment_method" value="card" class="mr-3" checked>
+                                <!-- MyFatoorah Payment Only -->
+                                <div class="border-2 border-green-500 rounded-lg overflow-hidden bg-green-50">
+                                    <label class="flex items-center p-6 cursor-pointer hover:bg-green-100 transition">
+                                        <input type="radio" name="payment_method" value="myfatoorah" class="mr-4" checked>
                                         <div class="flex items-center">
-                                            <svg class="w-6 h-6 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
-                                            </svg>
-                                            <span class="font-medium">{{ app()->getLocale() === 'ar' ? 'بطاقة ائتمان/خصم' : 'Credit/Debit Card' }}</span>
-                                        </div>
-                                    </label>
-                                    
-                                    <!-- Credit Card Details -->
-                                    <div id="card-details" class="payment-details p-4 bg-gray-50 border-t border-gray-200">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <img src="{{ asset('images/myfatoorah-logo.svg') }}" alt="MyFatoorah" class="w-10 h-10 mr-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'رقم البطاقة *' : 'Card Number *' }}
-                                                </label>
-                                                <input type="text" name="card_number" placeholder="1234 5678 9012 3456" 
-                                                       maxlength="19" pattern="[0-9\s]+"
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
+                                                <span class="font-bold text-xl text-green-800">{{ app()->getLocale() === 'ar' ? 'دفع آمن عبر ماي فاتورة' : 'Secure Payment via MyFatoorah' }}</span>
+                                                <p class="text-sm text-green-600 mt-1">{{ app()->getLocale() === 'ar' ? 'الطريقة الوحيدة المتاحة للدفع' : 'The only available payment method' }}</p>
                                             </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'اسم حامل البطاقة *' : 'Cardholder Name *' }}
-                                                </label>
-                                                <input type="text" name="cardholder_name" placeholder="{{ app()->getLocale() === 'ar' ? 'اسم حامل البطاقة' : 'Cardholder Name' }}" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'تاريخ الانتهاء *' : 'Expiry Date *' }}
-                                                </label>
-                                                <input type="text" name="expiry_date" placeholder="MM/YY" 
-                                                       maxlength="5" pattern="[0-9]{2}/[0-9]{2}"
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'رمز الأمان *' : 'CVV *' }}
-                                                </label>
-                                                <input type="text" name="cvv" placeholder="123" 
-                                                       maxlength="4" pattern="[0-9]+"
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Bank Transfer -->
-                                <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                    <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition">
-                                        <input type="radio" name="payment_method" value="bank" class="mr-3">
-                                        <div class="flex items-center">
-                                            <svg class="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="font-medium">{{ app()->getLocale() === 'ar' ? 'تحويل بنكي' : 'Bank Transfer' }}</span>
-                                        </div>
-                                    </label>
-                                    
-                                    <!-- Bank Transfer Details -->
-                                    <div id="bank-details" class="payment-details p-4 bg-gray-50 border-t border-gray-200" style="display: none;">
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'اسم البنك *' : 'Bank Name *' }}
-                                                </label>
-                                                <input type="text" name="bank_name" placeholder="{{ app()->getLocale() === 'ar' ? 'اسم البنك' : 'Bank Name' }}" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'رقم الحساب *' : 'Account Number *' }}
-                                                </label>
-                                                <input type="text" name="account_number" placeholder="{{ app()->getLocale() === 'ar' ? 'رقم الحساب' : 'Account Number' }}" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'رقم التحويل المرجعي *' : 'Transfer Reference Number *' }}
-                                                </label>
-                                                <input type="text" name="transfer_reference" placeholder="{{ app()->getLocale() === 'ar' ? 'رقم التحويل المرجعي' : 'Transfer Reference Number' }}" 
-                                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- MyFatoorah Payment -->
-                                <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                    <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition">
-                                        <input type="radio" name="payment_method" value="myfatoorah" class="mr-3">
-                                        <div class="flex items-center">
-                                            <img src="{{ asset('images/myfatoorah-logo.svg') }}" alt="MyFatoorah" class="w-6 h-6 mr-3">
-                                            <span class="font-medium">{{ app()->getLocale() === 'ar' ? 'دفع آمن عبر ماي فاتورة' : 'Secure Payment via MyFatoorah' }}</span>
                                         </div>
                                     </label>
                                     
                                     <!-- MyFatoorah Details -->
-                                    <div id="myfatoorah-details" class="payment-details p-4 bg-gray-50 border-t border-gray-200" style="display: none;">
+                                    <div id="myfatoorah-details" class="payment-details p-6 bg-white border-t border-green-200">
                                         <div class="space-y-4">
                                             <div class="flex items-start">
-                                                <svg class="w-5 h-5 text-green-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <svg class="w-6 h-6 text-green-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                                 </svg>
                                                 <div>
-                                                    <h4 class="text-sm font-semibold text-green-800 mb-1">
+                                                    <h4 class="text-lg font-bold text-green-800 mb-2">
                                                         {{ app()->getLocale() === 'ar' ? 'دفع آمن ومضمون' : 'Secure & Guaranteed Payment' }}
                                                     </h4>
-                                                    <p class="text-xs text-green-700">
+                                                    <p class="text-sm text-green-700 mb-4">
                                                         {{ app()->getLocale() === 'ar' 
                                                             ? 'ستتمكن من الدفع بجميع البطاقات الائتمانية والخصم والدفع الإلكتروني'
                                                             : 'You can pay with all credit/debit cards and electronic payment methods' }}
                                                     </p>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Cash on Delivery -->
-                                <div class="border border-gray-300 rounded-lg overflow-hidden">
-                                    <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition">
-                                        <input type="radio" name="payment_method" value="cod" class="mr-3">
-                                        <div class="flex items-center">
-                                            <svg class="w-6 h-6 text-orange-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="font-medium">{{ app()->getLocale() === 'ar' ? 'الدفع عند الاستلام' : 'Cash on Delivery' }}</span>
-                                        </div>
-                                    </label>
-                                    
-                                    <!-- COD Details -->
-                                    <div id="cod-details" class="payment-details p-4 bg-gray-50 border-t border-gray-200" style="display: none;">
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'وقت التسليم المفضل' : 'Preferred Delivery Time' }}
-                                                </label>
-                                                <select name="delivery_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus">
-                                                    <option value="">{{ app()->getLocale() === 'ar' ? 'اختر وقت التسليم' : 'Select Delivery Time' }}</option>
-                                                    <option value="morning">{{ app()->getLocale() === 'ar' ? 'الصباح (8 ص - 12 ظ)' : 'Morning (8 AM - 12 PM)' }}</option>
-                                                    <option value="afternoon">{{ app()->getLocale() === 'ar' ? 'بعد الظهر (12 ظ - 5 م)' : 'Afternoon (12 PM - 5 PM)' }}</option>
-                                                    <option value="evening">{{ app()->getLocale() === 'ar' ? 'المساء (5 م - 9 م)' : 'Evening (5 PM - 9 PM)' }}</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">
-                                                    {{ app()->getLocale() === 'ar' ? 'ملاحظات إضافية' : 'Additional Notes' }}
-                                                </label>
-                                                <textarea name="delivery_notes" rows="3" placeholder="{{ app()->getLocale() === 'ar' ? 'أي ملاحظات إضافية للتسليم' : 'Any additional delivery notes' }}" 
-                                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg input-focus"></textarea>
+                                            
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                                <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                                                    <svg class="w-8 h-8 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                                                    </svg>
+                                                    <p class="text-sm font-semibold text-green-800">{{ app()->getLocale() === 'ar' ? 'البطاقات الائتمانية' : 'Credit Cards' }}</p>
+                                                </div>
+                                                <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                                                    <svg class="w-8 h-8 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    <p class="text-sm font-semibold text-green-800">{{ app()->getLocale() === 'ar' ? 'التحويل البنكي' : 'Bank Transfer' }}</p>
+                                                </div>
+                                                <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                                                    <svg class="w-8 h-8 text-green-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                                                    </svg>
+                                                    <p class="text-sm font-semibold text-green-800">{{ app()->getLocale() === 'ar' ? 'المحافظ الإلكترونية' : 'E-Wallets' }}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -429,7 +234,7 @@
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
                                 </svg>
-                                <span id="submit-text">{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب' : 'Confirm Order' }}</span>
+                                <span id="submit-text">{{ app()->getLocale() === 'ar' ? 'الدفع الآمن' : 'Secure Payment' }}</span>
                             </button>
                         </div>
                     </form>
@@ -447,93 +252,31 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const quantitySelect = document.getElementById('quantity');
-            const servicePrice = parseFloat('{{ $servicePrice ?? 0 }}');
+            const form = document.getElementById('order-form');
+            const quantityInput = document.querySelector('input[name="quantity"]');
+            const servicePriceElement = document.getElementById('service-price');
             const totalAmountElement = document.getElementById('total-amount');
             const serviceQuantityElement = document.getElementById('service-quantity');
             
             // Update total when quantity changes
-            quantitySelect.addEventListener('input', function() {
+            quantityInput.addEventListener('input', function() {
                 const quantity = parseInt(this.value) || 1;
-                const total = servicePrice * quantity;
+                const price = parseFloat(servicePriceElement.textContent.replace(/[^\d.]/g, '')) || 0;
+                const total = price * quantity;
                 
                 serviceQuantityElement.textContent = quantity;
                 totalAmountElement.textContent = total.toFixed(2) + ' {{ app()->getLocale() === "ar" ? "ريال" : "SAR" }}';
             });
             
-            // Update submit button text and show/hide payment details based on payment method
-            const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
-            const paymentDetails = document.querySelectorAll('.payment-details');
-            const submitText = document.getElementById('submit-text');
-            
-            paymentMethods.forEach(method => {
-                method.addEventListener('change', function() {
-                    // Hide all payment details first
-                    paymentDetails.forEach(detail => {
-                        detail.style.display = 'none';
-                    });
-                    
-                    // Show selected payment method details
-                    if (this.value === 'card') {
-                        document.getElementById('card-details').style.display = 'block';
-                        submitText.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد الطلب والدفع" : "Confirm Order & Pay" }}';
-                    } else if (this.value === 'bank') {
-                        document.getElementById('bank-details').style.display = 'block';
-                        submitText.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد الطلب" : "Confirm Order" }}';
-                    } else if (this.value === 'myfatoorah') {
-                        document.getElementById('myfatoorah-details').style.display = 'block';
-                        submitText.textContent = '{{ app()->getLocale() === "ar" ? "الدفع الآمن" : "Secure Payment" }}';
-                    } else if (this.value === 'cod') {
-                        document.getElementById('cod-details').style.display = 'block';
-                        submitText.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد الطلب" : "Confirm Order" }}';
-                    }
-                });
-            });
-            
-            // Show card details by default since it's checked
-            document.getElementById('card-details').style.display = 'block';
-            
-            // Format card number input
-            const cardNumberInput = document.querySelector('input[name="card_number"]');
-            if (cardNumberInput) {
-                cardNumberInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-                    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-                    e.target.value = formattedValue;
-                });
-            }
-            
-            // Format expiry date input
-            const expiryDateInput = document.querySelector('input[name="expiry_date"]');
-            if (expiryDateInput) {
-                expiryDateInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length >= 2) {
-                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-                    }
-                    e.target.value = value;
-                });
-            }
-            
-            // Format CVV input
-            const cvvInput = document.querySelector('input[name="cvv"]');
-            if (cvvInput) {
-                cvvInput.addEventListener('input', function(e) {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                });
-            }
-            
             // Form submission
-            const form = document.getElementById('order-form');
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const requiredFields = ['customer_name', 'customer_email', 'customer_phone', 'country_code', 'customer_address'];
+                // Validate form
+                const requiredFields = form.querySelectorAll('[required]');
                 let isValid = true;
                 
-                // التحقق من الحقول الأساسية
-                requiredFields.forEach(fieldName => {
-                    const field = document.getElementById(fieldName);
+                requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         field.classList.add('border-red-500');
                         isValid = false;
@@ -542,40 +285,10 @@
                     }
                 });
                 
-                // التحقق من حقول الدفع بناءً على الطريقة المختارة
-                const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-                
-                if (selectedPaymentMethod === 'card') {
-                    const cardFields = ['card_number', 'cardholder_name', 'expiry_date', 'cvv'];
-                    cardFields.forEach(fieldName => {
-                        const field = document.querySelector(`[name="${fieldName}"]`);
-                        if (!field.value.trim()) {
-                            field.classList.add('border-red-500');
-                            isValid = false;
-                        } else {
-                            field.classList.remove('border-red-500');
-                        }
-                    });
-                } else if (selectedPaymentMethod === 'bank') {
-                    const bankFields = ['bank_name', 'account_number', 'transfer_reference'];
-                    bankFields.forEach(fieldName => {
-                        const field = document.querySelector(`[name="${fieldName}"]`);
-                        if (!field.value.trim()) {
-                            field.classList.add('border-red-500');
-                            isValid = false;
-                        } else {
-                            field.classList.remove('border-red-500');
-                        }
-                    });
-                }
-                
                 if (!isValid) {
                     showNotification('{{ app()->getLocale() === "ar" ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill in all required fields" }}', 'error');
                     return;
                 }
-                
-                // Get selected payment method (already declared above)
-                const selectedPaymentMethodValue = document.querySelector('input[name="payment_method"]:checked').value;
                 
                 // Show loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
@@ -583,101 +296,65 @@
                 submitBtn.innerHTML = '<svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>{{ app()->getLocale() === "ar" ? "جاري المعالجة..." : "Processing..." }}';
                 submitBtn.disabled = true;
                 
-                // Send form data via AJAX
-                const formData = new FormData(form);
-                
+                // Submit form
                 fetch('{{ route("orders.store") }}', {
                     method: 'POST',
-                    body: formData,
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                    },
+                    body: JSON.stringify({
+                        service_id: form.querySelector('input[name="service_id"]').value,
+                        service_name: form.querySelector('input[name="service_name"]').value,
+                        service_price: form.querySelector('input[name="service_price"]').value,
+                        service_description: form.querySelector('input[name="service_description"]').value,
+                        customer_name: form.querySelector('input[name="customer_name"]').value,
+                        customer_email: form.querySelector('input[name="customer_email"]').value,
+                        customer_phone: form.querySelector('input[name="customer_phone"]').value,
+                        customer_address: form.querySelector('textarea[name="customer_address"]').value,
+                        quantity: form.querySelector('input[name="quantity"]').value,
+                        payment_method: 'myfatoorah'
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Reset button
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    
                     if (data.success) {
                         // Show success notification
                         showNotification(data.message, 'success');
                         
-                        // If MyFatoorah payment, redirect to payment page
+                        // Redirect to MyFatoorah payment page
                         if (data.redirect) {
                             setTimeout(() => {
                                 window.location.href = data.redirect;
                             }, 1500);
-                        } else {
-                            // Redirect to home page after 3 seconds
-                            setTimeout(() => {
-                                window.location.href = '{{ route("home") }}';
-                            }, 3000);
                         }
                     } else {
-                        // Show error notification
-                        showNotification(data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred" }}', 'error');
+                        showNotification(data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الطلب" : "An error occurred while processing the order" }}', 'error');
                     }
                 })
                 .catch(error => {
-                    // Reset button
+                    console.error('Error:', error);
+                    showNotification('{{ app()->getLocale() === "ar" ? "حدث خطأ في الاتصال" : "Connection error occurred" }}', 'error');
+                })
+                .finally(() => {
+                    // Reset button state
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
-                    
-                    // Show error notification
-                    showNotification('{{ app()->getLocale() === "ar" ? "حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى" : "Connection error. Please try again" }}', 'error');
-                    console.error('Error:', error);
                 });
             });
             
             // Notification function
-            function showNotification(message, type = 'success') {
-                // Remove existing notifications
-                const existingNotifications = document.querySelectorAll('.notification');
-                existingNotifications.forEach(notification => notification.remove());
-                
-                // Create notification element
+            function showNotification(message, type) {
                 const notification = document.createElement('div');
-                notification.className = `notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-md transform transition-all duration-300 translate-x-full`;
-                
-                if (type === 'success') {
-                    notification.classList.add('bg-green-500', 'text-white');
-                } else {
-                    notification.classList.add('bg-red-500', 'text-white');
-                }
-                
-                notification.innerHTML = `
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            ${type === 'success' ? 
-                                '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>' :
-                                '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
-                            }
-                        </svg>
-                        <span>${message}</span>
-                        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                        </button>
-                    </div>
-                `;
+                notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+                    type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`;
+                notification.textContent = message;
                 
                 document.body.appendChild(notification);
                 
-                // Animate in
                 setTimeout(() => {
-                    notification.classList.remove('translate-x-full');
-                }, 100);
-                
-                // Auto remove after 5 seconds
-                setTimeout(() => {
-                    notification.classList.add('translate-x-full');
-                    setTimeout(() => {
-                        if (notification.parentElement) {
-                            notification.remove();
-                        }
-                    }, 300);
+                    notification.remove();
                 }, 5000);
             }
         });
