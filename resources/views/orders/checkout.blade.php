@@ -8,7 +8,7 @@
     <title>{{ app()->getLocale() === 'ar' ? 'طلب خدمة - وسيلة' : 'Service Order - Wasila' }}</title>
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ asset('css/tailwind.css') }}" rel="stylesheet">
     
     <style>
         :root {
@@ -301,7 +301,8 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
                         service_id: form.querySelector('input[name="service_id"]').value,
@@ -316,7 +317,16 @@
                         payment_method: 'myfatoorah'
                     })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    // Check if response is JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        // If not JSON, it might be an error page
+                        throw new Error('Server returned non-JSON response');
+                    }
+                })
                 .then(data => {
                     if (data.success) {
                         // Show success notification
@@ -334,7 +344,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showNotification('{{ app()->getLocale() === "ar" ? "حدث خطأ في الاتصال" : "Connection error occurred" }}', 'error');
+                    showNotification('{{ app()->getLocale() === "ar" ? "حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى" : "Connection error occurred. Please try again" }}', 'error');
                 })
                 .finally(() => {
                     // Reset button state
