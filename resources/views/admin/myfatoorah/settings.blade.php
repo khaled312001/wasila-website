@@ -164,6 +164,34 @@
         </div>
     </form>
 </div>
+
+<!-- Debug Information -->
+@if(isset($debug))
+<div class="bg-gray-100 rounded-lg p-4 mt-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-3">معلومات التشخيص</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+            <strong>رمز البلد الحالي (vcCode):</strong> 
+            <span class="text-blue-600 font-mono">{{ $debug['current_vccode'] }}</span>
+        </div>
+        <div>
+            <strong>البلد المحدد:</strong> 
+            <span class="text-green-600">{{ $config['country_iso'] }}</span>
+        </div>
+    </div>
+    <div class="mt-3">
+        <strong>خريطة تحويل رموز البلد:</strong>
+        <div class="mt-2 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            @foreach($debug['country_mapping'] as $iso => $vccode)
+            <div class="bg-white p-2 rounded border">
+                <span class="font-mono">{{ $iso }}</span> → 
+                <span class="font-mono text-blue-600">{{ $vccode }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 @push('scripts')

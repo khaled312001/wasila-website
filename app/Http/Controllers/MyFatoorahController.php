@@ -505,10 +505,23 @@ class MyFatoorahController extends Controller
     public function testConnection()
     {
         try {
+            // Log the current configuration for debugging
+            Log::info('MyFatoorah Test Connection - Config:', $this->mfConfig);
+            
             if (!$this->mfConfig['apiKey']) {
                 return response()->json([
                     'success' => false,
                     'message' => 'يرجى إدخال مفتاح API أولاً'
+                ]);
+            }
+            
+            // Validate vcCode before making the call
+            $validVcCodes = ['KWT', 'SAU', 'ARE', 'QAT', 'BHR', 'OMN', 'JOR', 'EGY'];
+            if (!in_array($this->mfConfig['vcCode'], $validVcCodes)) {
+                Log::error('Invalid vcCode: ' . $this->mfConfig['vcCode']);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'رمز البلد غير صحيح: ' . $this->mfConfig['vcCode'] . '. يجب أن يكون واحداً من: ' . implode(', ', $validVcCodes)
                 ]);
             }
             
@@ -529,6 +542,11 @@ class MyFatoorahController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
+            Log::error('MyFatoorah Test Connection Error: ' . $e->getMessage(), [
+                'config' => $this->mfConfig,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'خطأ في الاتصال: ' . $e->getMessage()
@@ -544,7 +562,17 @@ class MyFatoorahController extends Controller
             'country_iso' => SettingsHelper::get('myfatoorah_country_iso', 'SA'),
             'currency_iso' => SettingsHelper::get('myfatoorah_currency', 'SAR'),
         ];
-        return view('admin.myfatoorah.settings', compact('config'));
+        
+        // Add debug information
+        $debug = [
+            'current_vccode' => $this->mfConfig['vcCode'],
+            'country_mapping' => [
+                'SA' => 'SAU', 'AE' => 'ARE', 'KW' => 'KWT', 'BH' => 'BHR',
+                'QA' => 'QAT', 'OM' => 'OMN', 'JO' => 'JOR', 'EG' => 'EGY'
+            ]
+        ];
+        
+        return view('admin.myfatoorah.settings', compact('config', 'debug'));
     }
 
     public function updateSettings(Request $request)
