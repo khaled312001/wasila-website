@@ -350,6 +350,38 @@
                                     </div>
                                 </div>
                                 
+                                <!-- MyFatoorah Payment -->
+                                <div class="border border-gray-300 rounded-lg overflow-hidden">
+                                    <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition">
+                                        <input type="radio" name="payment_method" value="myfatoorah" class="mr-3">
+                                        <div class="flex items-center">
+                                            <img src="{{ asset('images/myfatoorah-logo.svg') }}" alt="MyFatoorah" class="w-6 h-6 mr-3">
+                                            <span class="font-medium">{{ app()->getLocale() === 'ar' ? 'دفع آمن عبر ماي فاتورة' : 'Secure Payment via MyFatoorah' }}</span>
+                                        </div>
+                                    </label>
+                                    
+                                    <!-- MyFatoorah Details -->
+                                    <div id="myfatoorah-details" class="payment-details p-4 bg-gray-50 border-t border-gray-200" style="display: none;">
+                                        <div class="space-y-4">
+                                            <div class="flex items-start">
+                                                <svg class="w-5 h-5 text-green-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                <div>
+                                                    <h4 class="text-sm font-semibold text-green-800 mb-1">
+                                                        {{ app()->getLocale() === 'ar' ? 'دفع آمن ومضمون' : 'Secure & Guaranteed Payment' }}
+                                                    </h4>
+                                                    <p class="text-xs text-green-700">
+                                                        {{ app()->getLocale() === 'ar' 
+                                                            ? 'ستتمكن من الدفع بجميع البطاقات الائتمانية والخصم والدفع الإلكتروني'
+                                                            : 'You can pay with all credit/debit cards and electronic payment methods' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Cash on Delivery -->
                                 <div class="border border-gray-300 rounded-lg overflow-hidden">
                                     <label class="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition">
@@ -448,6 +480,9 @@
                     } else if (this.value === 'bank') {
                         document.getElementById('bank-details').style.display = 'block';
                         submitText.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد الطلب" : "Confirm Order" }}';
+                    } else if (this.value === 'myfatoorah') {
+                        document.getElementById('myfatoorah-details').style.display = 'block';
+                        submitText.textContent = '{{ app()->getLocale() === "ar" ? "الدفع الآمن" : "Secure Payment" }}';
                     } else if (this.value === 'cod') {
                         document.getElementById('cod-details').style.display = 'block';
                         submitText.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد الطلب" : "Confirm Order" }}';
@@ -539,8 +574,8 @@
                     return;
                 }
                 
-                // Get selected payment method
-                const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+                // Get selected payment method (already declared above)
+                const selectedPaymentMethodValue = document.querySelector('input[name="payment_method"]:checked').value;
                 
                 // Show loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
@@ -568,10 +603,17 @@
                         // Show success notification
                         showNotification(data.message, 'success');
                         
-                        // Redirect to home page after 3 seconds
-                        setTimeout(() => {
-                            window.location.href = '{{ route("home") }}';
-                        }, 3000);
+                        // If MyFatoorah payment, redirect to payment page
+                        if (data.redirect) {
+                            setTimeout(() => {
+                                window.location.href = data.redirect;
+                            }, 1500);
+                        } else {
+                            // Redirect to home page after 3 seconds
+                            setTimeout(() => {
+                                window.location.href = '{{ route("home") }}';
+                            }, 3000);
+                        }
                     } else {
                         // Show error notification
                         showNotification(data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ غير متوقع" : "An unexpected error occurred" }}', 'error');

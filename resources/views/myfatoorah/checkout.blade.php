@@ -75,7 +75,8 @@
             <script src="{{asset('vendor/myfatoorah/js/checkout.js')}}"></script>
             <script>
                 function mfCallback(response) {
-                    window.location.href = "{{url('myfatoorah')}}?sid=" + response.sessionId;
+                    // Redirect to MyFatoorah callback with payment ID
+                    window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
                 }
             </script>
 

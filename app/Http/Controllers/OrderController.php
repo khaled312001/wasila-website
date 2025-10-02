@@ -44,7 +44,7 @@ class OrderController extends Controller
             'customer_phone' => 'required|string|max:20',
             'country_code' => 'required|string|max:10',
             'customer_address' => 'required|string',
-            'payment_method' => 'required|in:card,bank,cod',
+            'payment_method' => 'required|in:card,bank,cod,myfatoorah',
             // Credit card fields (optional)
             'card_number' => 'nullable|string|max:20',
             'cardholder_name' => 'nullable|string|max:255',
@@ -76,6 +76,9 @@ class OrderController extends Controller
                     break;
                 case 'cod':
                     $paymentMethod = 'Cash on Delivery';
+                    break;
+                case 'myfatoorah':
+                    $paymentMethod = 'MyFatoorah';
                     break;
             }
             
@@ -124,6 +127,15 @@ class OrderController extends Controller
             ]);
             
             DB::commit();
+            
+            // إذا كانت طريقة الدفع عبر MyFatoorah، توجيه إلى صفحة الدفع
+            if ($request->payment_method === 'myfatoorah') {
+                return response()->json([
+                    'success' => true,
+                    'redirect' => route('myfatoorah.checkout', ['oid' => $order->id]),
+                    'message' => app()->getLocale() === 'ar' ? 'تم إنشاء الطلب بنجاح! سيتم توجيهك لصفحة الدفع' : 'Order created successfully! You will be redirected to payment page'
+                ]);
+            }
             
             // إرجاع استجابة JSON للطلب المكتمل
             return response()->json([
