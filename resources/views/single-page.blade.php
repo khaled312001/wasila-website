@@ -79,6 +79,8 @@
             background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
             color: white !important;
             border: none;
+            min-height: 48px;
+            white-space: nowrap;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
         }
@@ -94,6 +96,8 @@
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white !important;
             border: none;
+            min-height: 48px;
+            white-space: nowrap;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
         }
@@ -833,6 +837,7 @@
             position: relative;
             overflow: hidden;
             background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-medium) 50%, var(--accent) 100%);
+            min-height: 60px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             box-shadow: 
@@ -1099,9 +1104,9 @@
         <!-- Content -->
         <div class="relative z-10 text-center text-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="animate-fade-in-up">
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 animate-slide-in-left">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 animate-slide-in-left">
                     <span class="relative inline-block">
-                        <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white via-primary-light to-accent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
+                        <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-white via-primary-light to-accent font-black text-5xl md:text-6xl lg:text-7xl xl:text-8xl glow-text">
                             {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_title_ar' : 'hero_title_en', __('messages.hero_title') . ' - ' . __('messages.hero_subtitle')) }}
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-white/20 via-primary-light/20 to-accent/20 blur-xl transform scale-110"></span>
@@ -1160,9 +1165,9 @@
                         {{ __('messages.services_title') }}
                     </span>
                 </div>
-                <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-primary-dark mb-6 animate-slide-in-left">
+                <h2 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-dark mb-6 animate-slide-in-left">
                     <span class="relative inline-block">
-                        <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
+                        <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-5xl md:text-6xl lg:text-7xl xl:text-8xl glow-text">
                             {{ __('messages.services_subtitle') }}
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
@@ -1205,7 +1210,7 @@
                         </div>
                         
                         <!-- Price Badge -->
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
                             <span class="text-sm font-bold text-primary-dark">{{ number_format($service->price, 2) }} {{ __('messages.currency') }}</span>
                         </div>
                     </div>
@@ -1270,9 +1275,9 @@
                         </span>
                     </div>
                     
-                    <h2 class="text-5xl md:text-6xl lg:text-7xl font-bold text-primary-dark mb-8">
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-primary-dark mb-8">
                         <span class="relative inline-block">
-                            <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-6xl md:text-7xl lg:text-8xl glow-text">
+                            <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-5xl md:text-6xl lg:text-7xl xl:text-8xl glow-text">
                                 {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_title_ar' : 'about_title_en', __('messages.about_title')) }}
                             </span>
                             <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
@@ -1381,7 +1386,7 @@
                         {{ __('messages.our_features') }}
                     </span>
                 </div>
-                <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-dark mb-4 animate-fade-in-up">
+                <h2 class="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-primary-dark mb-4 animate-fade-in-up">
                         {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'why_choose_title_ar' : 'why_choose_title_en', __('messages.features_subtitle')) }}
                 </h2>
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-200">
@@ -1455,9 +1460,9 @@
                         {{ __('messages.our_work') }}
                     </span>
                 </div>
-                <h2 class="text-4xl md:text-5xl font-bold text-primary-dark mb-6">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary-dark mb-6">
                     <span class="relative inline-block">
-                        <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-5xl md:text-6xl lg:text-7xl glow-text">
+                        <span class="relative z-10 bg-gradient-to-r from-primary-light via-primary-medium to-accent bg-clip-text text-transparent font-black text-4xl md:text-5xl lg:text-6xl xl:text-7xl glow-text">
                             {{ __('messages.our_work') }}
                         </span>
                         <span class="absolute inset-0 bg-gradient-to-r from-primary-light/20 via-primary-medium/20 to-accent/20 blur-xl transform scale-110"></span>
@@ -1702,7 +1707,7 @@
                         <span class="font-bold">{{ __('messages.contact_us') }}</span>
                     </span>
                 </div>
-                <h2 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#fffbe6] via-[#fbbf24] to-[#1e3a8a] mb-6 drop-shadow-lg">
+                <h2 class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#fffbe6] via-[#fbbf24] to-[#1e3a8a] mb-6 drop-shadow-lg">
                     <span class="relative inline-block">
                         <span class="relative z-10 font-black glow-text">{{ __('messages.contact_us') }}</span>
                         <span class="absolute inset-0 bg-gradient-to-r from-[#fffbe6]/30 via-[#fbbf24]/20 to-[#1e3a8a]/20 blur-2xl scale-110"></span>
@@ -1935,13 +1940,13 @@
 
     <!-- WhatsApp Floating Button -->
     <div class="whatsapp-btn">
-        <a href="https://wa.me/966501234567?text=مرحباً، أريد الاستفسار عن خدمات وسيلة الخيرية" 
-           target="_blank" 
-           class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center">
-            <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24">
+        <a href="https://wa.me/966501234567?text={{ urlencode(__('messages.whatsapp_message', ['default' => 'مرحباً، أريد الاستفسار عن خدمات وسيلة الخيرية'])) }}"
+           target="_blank"
+           class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-full font-semibold shadow-lg transform hover:scale-110 transition-all duration-300 flex items-center min-w-0">
+            <svg class="w-5 h-5 ml-2 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
             </svg>
-            {{ __('messages.whatsapp_footer') }}
+            <span class="truncate">{{ __('messages.whatsapp_footer') }}</span>
         </a>
     </div>
 

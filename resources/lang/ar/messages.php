@@ -175,6 +175,7 @@ return [
     'copyright_2025_wasila' => 'وسيلة. جميع الحقوق محفوظة.',
     'request_service_footer' => 'اطلب خدمة',
     'whatsapp_footer' => 'واتساب',
+    'whatsapp_message' => 'مرحباً، أريد الاستفسار عن خدمات وسيلة الخيرية',
     'full_name_label' => 'الاسم الكامل',
     'email_input_label' => 'البريد الإلكتروني',
     'phone_number_label' => 'رقم الهاتف',

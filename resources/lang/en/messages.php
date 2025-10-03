@@ -257,6 +257,7 @@ return [
     'copyright_2025_wasila' => '© 2025 Wasila. All rights reserved.',
     'request_service_footer' => 'Request Service',
     'whatsapp_footer' => 'WhatsApp',
+    'whatsapp_message' => 'Hello, I would like to inquire about Wasila Charity services',
     
     // Additional translations for complete coverage
     'discover_some_of_our_work' => 'Discover some of our work and achievements in the field of charity and giving',
