@@ -90,7 +90,7 @@
 في ملف `resources/views/components/seo.blade.php`:
 
 ```php
-$siteName = 'وسيلة - منصة الخير والتبرعات';
+$siteName = 'وسيلة ';
 $twitterSite = '@wasila_charity';
 $twitterCreator = '@wasila_charity';
 ```
@@ -135,7 +135,6 @@ $sitemap .= $this->addUrl(
 ### الكلمات المفتاحية المستهدفة
 - وسيلة
 - خير
-- تبرعات
 - خدمات إنسانية
 - منصة خيرية
 - السعودية

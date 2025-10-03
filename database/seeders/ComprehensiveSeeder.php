@@ -308,7 +308,7 @@ Options +FollowSymLinks
     {
         $settings = [
             ['key' => 'site_name', 'value' => 'وسيلة', 'type' => 'string', 'description' => 'اسم الموقع'],
-            ['key' => 'site_description', 'value' => 'منصة وسيلة الخيرية للتبرعات والخدمات', 'type' => 'text', 'description' => 'وصف الموقع'],
+            ['key' => 'site_description', 'value' => 'منصة وسيلة الخيرية والخدمات', 'type' => 'text', 'description' => 'وصف الموقع'],
             ['key' => 'contact_email', 'value' => 'info@wasila-charity.com', 'type' => 'string', 'description' => 'البريد الإلكتروني للتواصل'],
             ['key' => 'contact_phone', 'value' => '+966 55 922 9980', 'type' => 'string', 'description' => 'رقم الهاتف للتواصل'],
             ['key' => 'address', 'value' => 'المملكة العربية السعودية', 'type' => 'text', 'description' => 'العنوان'],
@@ -335,7 +335,7 @@ Options +FollowSymLinks
             ['key' => 'feature1_icon', 'value' => 'fas fa-hands-helping', 'type' => 'string', 'description' => 'أيقونة الميزة الأولى'],
             ['key' => 'feature2_title_ar', 'value' => 'شفافية كاملة', 'type' => 'string', 'description' => 'عنوان الميزة الثانية بالعربية'],
             ['key' => 'feature2_title_en', 'value' => 'Complete Transparency', 'type' => 'string', 'description' => 'عنوان الميزة الثانية بالإنجليزية'],
-            ['key' => 'feature2_description_ar', 'value' => 'نضمن الشفافية الكاملة في جميع عملياتنا وتقديم تقارير دورية عن استخدام التبرعات والخدمات المقدمة', 'type' => 'text', 'description' => 'وصف الميزة الثانية بالعربية'],
+            ['key' => 'feature2_description_ar', 'value' => 'نضمن الشفافية الكاملة في جميع عملياتنا وتقديم تقارير دورية عن استخدام  والخدمات المقدمة', 'type' => 'text', 'description' => 'وصف الميزة الثانية بالعربية'],
             ['key' => 'feature2_description_en', 'value' => 'We ensure complete transparency in all our operations and provide periodic reports on the use of donations and services provided', 'type' => 'text', 'description' => 'وصف الميزة الثانية بالإنجليزية'],
             ['key' => 'feature2_icon', 'value' => 'fas fa-eye', 'type' => 'string', 'description' => 'أيقونة الميزة الثانية'],
             ['key' => 'feature3_title_ar', 'value' => 'تأثير إيجابي', 'type' => 'string', 'description' => 'عنوان الميزة الثالثة بالعربية'],

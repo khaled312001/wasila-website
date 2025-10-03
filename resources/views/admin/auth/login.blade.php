@@ -118,16 +118,7 @@
             </div>
         </div>
         
-        <!-- Demo Credentials -->
-        <div class="mt-6 bg-white bg-opacity-20 rounded-lg p-4">
-            <h3 class="text-white font-semibold mb-2">
-                {{ app()->getLocale() === 'ar' ? 'بيانات الدخول التجريبية:' : 'Demo Credentials:' }}
-            </h3>
-            <p class="text-white text-sm">
-                {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني:' : 'Email:' }} admin@wasila.org<br>
-                {{ app()->getLocale() === 'ar' ? 'كلمة المرور:' : 'Password:' }} password
-            </p>
-        </div>
+        
     </div>
 </body>
 </html>

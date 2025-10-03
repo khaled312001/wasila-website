@@ -13,7 +13,7 @@ class SettingsController extends Controller
     {
         $settings = [
             'site_name' => Setting::get('site_name', config('app.name', 'وسيلة')),
-            'site_description' => Setting::get('site_description', 'منصة وسيلة الخيرية للتبرعات والخدمات'),
+            'site_description' => Setting::get('site_description', 'منصة وسيلة الخيرية والخدمات'),
             'contact_email' => Setting::get('contact_email', 'info@wasila.org'),
             'contact_phone' => Setting::get('contact_phone', '+966 XX XXX XXXX'),
             'address' => Setting::get('address', 'المملكة العربية السعودية'),
