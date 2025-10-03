@@ -141,23 +141,6 @@
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    {{ app()->getLocale() === 'ar' ? 'رقم الهاتف *' : 'Phone Number *' }}
-                                </label>
-                                <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                        <span id="country_code_display" class="text-gray-500 text-sm">+</span>
-                                    </div>
-                                    <input type="tel" name="customer_phone" required id="customer_phone"
-                                           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg input-focus"
-                                           placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    {{ app()->getLocale() === 'ar' ? 'ضرورة وجود واتساب لإرسال فيديو التوثيق' : 'WhatsApp is required for verification video delivery' }}
-                                </p>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'الدولة *' : 'Country *' }}
                                 </label>
                                 <select name="customer_country" required id="customer_country"
@@ -185,6 +168,23 @@
                                     <option value="+90_تركيا" data-code="+90">{{ app()->getLocale() === 'ar' ? 'تركيا (+90)' : 'Turkey (+90)' }}</option>
                                     <option value="أخرى">{{ app()->getLocale() === 'ar' ? 'أخرى' : 'Other' }}</option>
                                 </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ app()->getLocale() === 'ar' ? 'رقم الهاتف *' : 'Phone Number *' }}
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <span id="country_code_display" class="text-gray-500 text-sm">+</span>
+                                    </div>
+                                    <input type="tel" name="customer_phone" required id="customer_phone"
+                                           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg input-focus"
+                                           placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ app()->getLocale() === 'ar' ? 'ضرورة وجود واتساب لإرسال فيديو التوثيق' : 'WhatsApp is required for verification video delivery' }}
+                                </p>
                             </div>
 
                             <div>
