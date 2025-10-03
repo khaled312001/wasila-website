@@ -23,7 +23,12 @@
         }
         
         body {
-            font-family: 'HT Qays Sans', {{ app()->getLocale() === 'ar' ? "'Noto Sans Arabic', sans-serif" : "'Inter', sans-serif" }};
+            font-family: 'HT Qays Sans', 'Inter', sans-serif;
+        }
+
+        /* RTL font override */
+        [dir="rtl"] body {
+            font-family: 'HT Qays Sans', 'Noto Sans Arabic', sans-serif;
         }
         
         .bg-primary-light { background-color: var(--primary-light); }
