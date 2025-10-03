@@ -348,16 +348,40 @@ class OrderController extends Controller
     
     public function update(Request $request, Order $order)
     {
-        $request->validate([
-            'status' => 'required|in:pending,confirmed,processing,completed,cancelled',
-            'payment_status' => 'required|in:pending,paid,failed',
-            'notes' => 'nullable|string'
-        ]);
-        
-        $order->update($request->only(['status', 'payment_status', 'notes']));
-        
-        return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Order updated successfully.');
+        // Determine which form was submitted based on the presence of customer data
+        if ($request->has('customer_name')) {
+            // Customer information update
+            $request->validate([
+                'customer_name' => 'required|string|max:255',
+                'customer_email' => 'required|email|max:255',
+                'customer_phone' => 'required|string|max:20',
+                'customer_country' => 'nullable|string|max:255',
+                'customer_address' => 'nullable|string'
+            ]);
+
+            $order->update($request->only([
+                'customer_name',
+                'customer_email',
+                'customer_phone',
+                'customer_country',
+                'customer_address'
+            ]));
+
+            return redirect()->route('admin.orders.show', $order)
+                           ->with('success', app()->getLocale() === 'ar' ? 'تم تحديث بيانات العميل بنجاح' : 'Customer information updated successfully.');
+        } else {
+            // Order status update
+            $request->validate([
+                'status' => 'required|in:pending,confirmed,processing,completed,cancelled',
+                'payment_status' => 'required|in:pending,paid,failed',
+                'notes' => 'nullable|string'
+            ]);
+
+            $order->update($request->only(['status', 'payment_status', 'notes']));
+
+            return redirect()->route('admin.orders.show', $order)
+                           ->with('success', app()->getLocale() === 'ar' ? 'تم تحديث حالة الطلب بنجاح' : 'Order status updated successfully.');
+        }
     }
 
     /**
