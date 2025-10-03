@@ -45,7 +45,8 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach($categoryServices as $service)
-                    <div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden hover:shadow-xl transition duration-300">
+                    <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
+                       class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden hover:shadow-xl transition duration-300 block cursor-pointer">
                         @if($service->image)
                         <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" class="w-full h-48 object-cover" loading="lazy">
                         @else
@@ -64,12 +65,11 @@
                                 <span class="text-xl font-bold text-accent">{{ number_format($service->price, 2) }} {{ __('messages.currency') }}</span>
                             </div>
                             
-                            <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
-                               class="btn-primary text-white px-6 py-2 rounded-lg font-semibold w-full text-center block hover:shadow-lg transition duration-300">
+                            <div class="btn-primary text-white px-6 py-2 rounded-lg font-semibold w-full text-center block hover:shadow-lg transition duration-300">
                                 {{ __('messages.order_now') }}
-                            </a>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                     @endforeach
                 </div>
             </div>

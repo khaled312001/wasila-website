@@ -276,7 +276,12 @@
         <!-- Services Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             @foreach($services as $index => $service)
-            <a href="{{ route('services') }}" class="service-card group relative block">
+            <a href="{{ route('orders.checkout', [
+                'service_id' => $service->id,
+                'service_name' => $service->name,
+                'service_price' => $service->price,
+                'service_description' => $service->description
+            ]) }}" class="service-card group relative block">
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
                     <span class="bg-gradient-to-r from-accent to-primary-medium text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">

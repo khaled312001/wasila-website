@@ -1218,7 +1218,8 @@
             @if($services->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-animation">
                 @foreach($services as $service)
-                <div class="service-card rounded-2xl shadow-lg overflow-hidden group">
+                <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode(app()->getLocale() === 'en' ? $service->name_en : $service->name_ar) }}&service_price={{ $service->price }}&service_description={{ urlencode(app()->getLocale() === 'en' ? $service->description_en : $service->description_ar) }}" 
+                   class="service-card rounded-2xl shadow-lg overflow-hidden group block cursor-pointer">
                     <!-- Enhanced Image Section -->
                     <div class="service-card-image relative h-56">
                         @if($service->image)
@@ -1264,15 +1265,14 @@
                         </div>
                         
                         <!-- Enhanced Action Button -->
-                        <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode(app()->getLocale() === 'en' ? $service->name_en : $service->name_ar) }}&service_price={{ $service->price }}&service_description={{ urlencode(app()->getLocale() === 'en' ? $service->description_en : $service->description_ar) }}" 
-                           class="w-full modern-btn text-white px-6 py-4 rounded-2xl font-bold text-lg flex items-center justify-center group">
+                        <div class="w-full modern-btn text-white px-6 py-4 rounded-2xl font-bold text-lg flex items-center justify-center group">
                             <svg class="w-5 h-5 ml-2 transition-transform duration-300 group-hover:rotate-12" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                             </svg>
                             <span>{{ __('messages.order_now') }}</span>
-                        </a>
+                        </div>
                     </div>
-                </div>
+                </a>
                 @endforeach
             </div>
             @else
