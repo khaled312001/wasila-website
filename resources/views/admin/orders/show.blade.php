@@ -106,10 +106,7 @@
                     <p class="mt-1 text-gray-900">{{ $order->customer_country ?? 'غير محدد' }}</p>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">العنوان:</label>
-                    <p class="mt-1 text-gray-900">{{ $order->customer_address }}</p>
-                </div>
+            
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">تاريخ الطلب:</label>
