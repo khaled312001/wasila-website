@@ -193,15 +193,6 @@
                             </div>
                         </div>
                         
-                        <!-- Address -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ app()->getLocale() === 'ar' ? 'العنوان *' : 'Address *' }}
-                            </label>
-                            <textarea name="customer_address" rows="3" required
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
-                                      placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل عنوانك الكامل' : 'Enter your complete address' }}"></textarea>
-                        </div>
                         
                         <!-- Payment Method -->
                         <div>
@@ -363,7 +354,6 @@
                         customer_email: form.querySelector('input[name="customer_email"]').value,
                         customer_phone: form.querySelector('input[name="customer_phone"]').value,
                         customer_country: form.querySelector('select[name="customer_country"]').value,
-                        customer_address: form.querySelector('textarea[name="customer_address"]').value,
                         quantity: form.querySelector('select[name="quantity"]').value,
                         payment_method: 'myfatoorah'
                     })

@@ -43,7 +43,7 @@ class OrderController extends Controller
                 'customer_name' => 'required|string|max:255',
                 'customer_email' => 'required|email|max:255',
                 'customer_phone' => 'required|string|max:20',
-                'customer_address' => 'required|string',
+                'customer_address' => 'nullable|string',
                 'payment_method' => 'required|in:card,bank,cod,myfatoorah',
                 // Credit card fields (optional)
                 'card_number' => 'nullable|string|max:20',
@@ -115,9 +115,10 @@ class OrderController extends Controller
                 'customer_name' => $request->customer_name,
                 'customer_email' => $request->customer_email,
                 'customer_phone' => $request->customer_phone,
+                'customer_country' => $request->customer_country ?? 'السعودية',
                 'country_code' => '+966', // Default to Saudi Arabia
                 'full_phone_number' => '+966' . $request->customer_phone,
-                'customer_address' => $request->customer_address,
+                'customer_address' => $request->customer_address ?? '',
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
                 'payment_status' => 'pending',
@@ -179,7 +180,8 @@ class OrderController extends Controller
                 'customer_name' => $request->get('customer_name'),
                 'customer_email' => $request->get('customer_email'),
                 'customer_phone' => $request->get('customer_phone'),
-                'customer_address' => $request->get('customer_address'),
+                'customer_country' => $request->get('customer_country', 'السعودية'),
+                'customer_address' => $request->get('customer_address', ''),
                 'total_amount' => $request->get('total_amount'),
                 'payment_status' => $request->get('payment_status', 'pending')
             ];
@@ -248,7 +250,7 @@ class OrderController extends Controller
                     'customer_name' => $order->customer_name,
                     'customer_email' => $order->customer_email,
                     'customer_phone' => $order->customer_phone,
-                    'customer_address' => $order->customer_address,
+                    'customer_address' => $order->customer_address ?? '',
                     'total_amount' => $order->total_amount,
                     'payment_status' => 'paid',
                     'payment_method' => $order->payment_method
@@ -275,7 +277,7 @@ class OrderController extends Controller
                         'customer_name' => $order->customer_name,
                         'customer_email' => $order->customer_email,
                         'customer_phone' => $order->customer_phone,
-                        'customer_address' => $order->customer_address,
+                        'customer_address' => $order->customer_address ?? '',
                         'total_amount' => $order->total_amount,
                         'payment_status' => 'failed'
                     ]);
@@ -299,7 +301,7 @@ class OrderController extends Controller
                         'customer_name' => $order->customer_name,
                         'customer_email' => $order->customer_email,
                         'customer_phone' => $order->customer_phone,
-                        'customer_address' => $order->customer_address,
+                        'customer_address' => $order->customer_address ?? '',
                         'total_amount' => $order->total_amount,
                         'payment_status' => 'pending'
                     ]);
