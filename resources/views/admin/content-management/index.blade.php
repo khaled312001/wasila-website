@@ -71,6 +71,21 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="hero_description_ar">وصف الهيرو (عربي)</label>
+                                            <textarea class="form-control" id="hero_description_ar" name="hero_description_ar" rows="4" required>{{ $settings['hero_description_ar'] ?? 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية' }}</textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="hero_description_en">وصف الهيرو (إنجليزي)</label>
+                                            <textarea class="form-control" id="hero_description_en" name="hero_description_en" rows="4" required>{{ $settings['hero_description_en'] ?? 'We work on distributing water and mosque care products, distributing food meals and chairs for the elderly, and other humanitarian services' }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
                                             <label for="hero_image">صورة الهيرو</label>
                                             <input type="file" class="form-control-file" id="hero_image" name="hero_image" accept="image/*">
                                             @if(isset($settings['hero_image']) && $settings['hero_image'])

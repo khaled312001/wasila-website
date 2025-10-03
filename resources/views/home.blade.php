@@ -230,7 +230,7 @@
                 {{ __('messages.hero_title') }} - {{ __('messages.hero_subtitle') }}
             </h1>
             <p class="hero-subtitle max-w-4xl mx-auto">
-                {{ __('messages.hero_description') }}
+                {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_description_ar' : 'hero_description_en', __('messages.hero_description')) }}
             </p>
             <div class="hero-buttons flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('services') }}" class="btn-primary-enhanced">

@@ -345,7 +345,7 @@
                         </div>
                     </div>
                     <p class="text-gray-300 leading-relaxed text-lg mb-6 max-w-md">
-                        {{ __('messages.hero_description') }}
+                        {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_description_ar' : 'hero_description_en', __('messages.hero_description')) }}
                     </p>
                     
                     <!-- Social Media Links -->
@@ -468,7 +468,7 @@
             // Show loading indicator
             const link = event.target;
             const originalText = link.textContent;
-            link.textContent = locale === 'ar' ? '{{ __('messages.loading') }}' : '{{ __('messages.loading') }}';
+            link.textContent = 'جاري التحميل...';
             
             // Create form to submit language change
             const form = document.createElement('form');

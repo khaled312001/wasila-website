@@ -28,6 +28,8 @@ class ContentManagementController extends Controller
             'hero_title_en' => 'required|string|max:255',
             'hero_subtitle_ar' => 'required|string|max:500',
             'hero_subtitle_en' => 'required|string|max:500',
+            'hero_description_ar' => 'required|string|max:1000',
+            'hero_description_en' => 'required|string|max:1000',
             'site_title_ar' => 'required|string|max:255',
             'site_title_en' => 'required|string|max:255',
             'site_description_ar' => 'required|string|max:500',
@@ -84,6 +86,7 @@ class ContentManagementController extends Controller
         // تحديث النصوص
         $textFields = [
             'hero_title_ar', 'hero_title_en', 'hero_subtitle_ar', 'hero_subtitle_en',
+            'hero_description_ar', 'hero_description_en',
             'site_title_ar', 'site_title_en', 'site_description_ar', 'site_description_en',
             'contact_email', 'contact_phone', 'contact_address_ar', 'contact_address_en',
             'whatsapp_link', 'social_facebook', 'social_twitter', 'social_instagram', 'social_linkedin', 'social_youtube',

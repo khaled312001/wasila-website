@@ -1152,7 +1152,7 @@
                     <span class="text-3xl md:text-4xl lg:text-5xl font-light animate-slide-in-right">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_subtitle_ar' : 'hero_subtitle_en', __('messages.hero_description')) }}</span>
                 </h1>
                 <p class="text-2xl md:text-3xl lg:text-4xl mb-8 text-gray-200 max-w-5xl mx-auto animate-fade-in-delay">
-                    {{ __('messages.hero_description') }}
+                    {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_description_ar' : 'hero_description_en', __('messages.hero_description')) }}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center animate-bounce-in">
                     <a href="#services" class="btn-primary text-white px-8 py-4 rounded-lg font-semibold inline-block transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
