@@ -276,7 +276,7 @@
         <!-- Services Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             @foreach($services as $index => $service)
-            <div class="service-card group relative">
+            <a href="{{ route('services') }}" class="service-card group relative block">
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
                     <span class="bg-gradient-to-r from-accent to-primary-medium text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
@@ -333,16 +333,15 @@
                                 {{ __('messages.saudi_riyal') }}
                             </span>
                         </div>
-                        <a href="{{ route('services') }}" 
-                           class="btn-primary-enhanced">
+                        <div class="btn-primary-enhanced">
                             {{ __('messages.order_now') }}
-                        </a>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Hover Effect Border -->
                 <div class="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-primary-light transition-colors duration-300 pointer-events-none"></div>
-            </div>
+            </a>
             @endforeach
         </div>
         

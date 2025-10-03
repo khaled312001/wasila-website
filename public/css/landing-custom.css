@@ -81,6 +81,12 @@
     margin: 0.5rem;
 }
 
+/* When button is inside a clickable card, remove hover effects */
+.service-card .btn-primary-enhanced:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(8, 120, 139, 0.3);
+}
+
 .btn-primary-enhanced:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(8, 120, 139, 0.4);
@@ -126,6 +132,7 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     overflow: hidden;
     position: relative;
+    cursor: pointer;
 }
 
 .service-card::before {
