@@ -222,10 +222,10 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            z-index: 1000;
+            z-index: 999;
             animation: float 3s ease-in-out infinite;
         }
-        
+
         .whatsapp-btn {
             position: fixed;
             bottom: 30px;
@@ -455,15 +455,30 @@
         
         /* Mobile Optimizations */
         @media (max-width: 768px) {
-            .floating-btn, .whatsapp-btn {
+            .floating-btn {
                 bottom: 20px;
-                right: 20px;
-                left: 20px;
+                right: 15px;
+                left: auto;
+                width: auto;
+                max-width: 140px;
             }
-            
+
             .whatsapp-btn {
+                bottom: 20px;
+                left: 15px;
                 right: auto;
-                left: 20px;
+                width: auto;
+                max-width: 140px;
+            }
+
+            .whatsapp-btn a {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .floating-btn button {
+                padding: 10px 12px;
+                font-size: 13px;
             }
             
             .video-container iframe {
@@ -472,6 +487,28 @@
         }
         
         @media (max-width: 480px) {
+            .floating-btn {
+                bottom: 15px;
+                right: 10px;
+                max-width: 120px;
+            }
+
+            .whatsapp-btn {
+                bottom: 15px;
+                left: 10px;
+                max-width: 120px;
+            }
+
+            .whatsapp-btn a {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .floating-btn button {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
             .video-container iframe {
                 transform: translateX(-50%) translateY(-50%) scale(1.3);
             }
