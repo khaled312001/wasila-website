@@ -84,6 +84,11 @@
                             <span class="text-gray-600">{{ app()->getLocale() === 'ar' ? 'الكمية:' : 'Quantity:' }}</span>
                             <span class="font-semibold text-gray-800" id="service-quantity">1</span>
                         </div>
+
+                        <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                            <span class="text-gray-600">{{ app()->getLocale() === 'ar' ? 'الدولة:' : 'Country:' }}</span>
+                            <span class="font-semibold text-gray-800" id="service-country">{{ app()->getLocale() === 'ar' ? 'السعودية' : 'Saudi Arabia' }}</span>
+                        </div>
                         
                         <div class="flex justify-between items-center py-4 bg-gray-100 rounded-lg px-4">
                             <span class="text-lg font-bold text-gray-800">{{ app()->getLocale() === 'ar' ? 'المجموع:' : 'Total:' }}</span>
@@ -142,13 +147,49 @@
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
                                        placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
                             </div>
-                            
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ app()->getLocale() === 'ar' ? 'الدولة *' : 'Country *' }}
+                                </label>
+                                <select name="customer_country" required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? 'اختر الدولة' : 'Select Country' }}</option>
+                                    <option value="السعودية">{{ app()->getLocale() === 'ar' ? 'السعودية' : 'Saudi Arabia' }}</option>
+                                    <option value="الإمارات">{{ app()->getLocale() === 'ar' ? 'الإمارات العربية المتحدة' : 'United Arab Emirates' }}</option>
+                                    <option value="الكويت">{{ app()->getLocale() === 'ar' ? 'الكويت' : 'Kuwait' }}</option>
+                                    <option value="قطر">{{ app()->getLocale() === 'ar' ? 'قطر' : 'Qatar' }}</option>
+                                    <option value="البحرين">{{ app()->getLocale() === 'ar' ? 'البحرين' : 'Bahrain' }}</option>
+                                    <option value="عمان">{{ app()->getLocale() === 'ar' ? 'عمان' : 'Oman' }}</option>
+                                    <option value="الأردن">{{ app()->getLocale() === 'ar' ? 'الأردن' : 'Jordan' }}</option>
+                                    <option value="مصر">{{ app()->getLocale() === 'ar' ? 'مصر' : 'Egypt' }}</option>
+                                    <option value="لبنان">{{ app()->getLocale() === 'ar' ? 'لبنان' : 'Lebanon' }}</option>
+                                    <option value="سوريا">{{ app()->getLocale() === 'ar' ? 'سوريا' : 'Syria' }}</option>
+                                    <option value="العراق">{{ app()->getLocale() === 'ar' ? 'العراق' : 'Iraq' }}</option>
+                                    <option value="اليمن">{{ app()->getLocale() === 'ar' ? 'اليمن' : 'Yemen' }}</option>
+                                    <option value="السودان">{{ app()->getLocale() === 'ar' ? 'السودان' : 'Sudan' }}</option>
+                                    <option value="ليبيا">{{ app()->getLocale() === 'ar' ? 'ليبيا' : 'Libya' }}</option>
+                                    <option value="تونس">{{ app()->getLocale() === 'ar' ? 'تونس' : 'Tunisia' }}</option>
+                                    <option value="الجزائر">{{ app()->getLocale() === 'ar' ? 'الجزائر' : 'Algeria' }}</option>
+                                    <option value="المغرب">{{ app()->getLocale() === 'ar' ? 'المغرب' : 'Morocco' }}</option>
+                                    <option value="موريتانيا">{{ app()->getLocale() === 'ar' ? 'موريتانيا' : 'Mauritania' }}</option>
+                                    <option value="فلسطين">{{ app()->getLocale() === 'ar' ? 'فلسطين' : 'Palestine' }}</option>
+                                    <option value="تركيا">{{ app()->getLocale() === 'ar' ? 'تركيا' : 'Turkey' }}</option>
+                                    <option value="أخرى">{{ app()->getLocale() === 'ar' ? 'أخرى' : 'Other' }}</option>
+                                </select>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'الكمية *' : 'Quantity *' }}
                                 </label>
-                                <input type="number" name="quantity" value="1" min="1" required
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus">
+                                <select name="quantity" required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? 'اختر الكمية' : 'Select Quantity' }}</option>
+                                    @for($i = 1; $i <= 9; $i++)
+                                        <option value="{{ $i }}" {{ $i == 1 ? 'selected' : '' }}>{{ $i }}</option>
+                                    @endfor
+                                </select>
                             </div>
                         </div>
                         
@@ -253,19 +294,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('order-form');
-            const quantityInput = document.querySelector('input[name="quantity"]');
+            const quantitySelect = document.querySelector('select[name="quantity"]');
+            const countrySelect = document.querySelector('select[name="customer_country"]');
             const servicePriceElement = document.getElementById('service-price');
             const totalAmountElement = document.getElementById('total-amount');
             const serviceQuantityElement = document.getElementById('service-quantity');
-            
+            const serviceCountryElement = document.getElementById('service-country');
+
             // Update total when quantity changes
-            quantityInput.addEventListener('input', function() {
+            quantitySelect.addEventListener('change', function() {
                 const quantity = parseInt(this.value) || 1;
                 const price = parseFloat(servicePriceElement.textContent.replace(/[^\d.]/g, '')) || 0;
                 const total = price * quantity;
-                
+
                 serviceQuantityElement.textContent = quantity;
                 totalAmountElement.textContent = total.toFixed(2) + ' {{ app()->getLocale() === "ar" ? "ريال" : "SAR" }}';
+            });
+
+            // Update country when country selection changes
+            countrySelect.addEventListener('change', function() {
+                const countryValue = this.value;
+                const countryText = this.options[this.selectedIndex].text;
+                serviceCountryElement.textContent = countryText;
             });
             
             // Form submission
@@ -312,8 +362,9 @@
                         customer_name: form.querySelector('input[name="customer_name"]').value,
                         customer_email: form.querySelector('input[name="customer_email"]').value,
                         customer_phone: form.querySelector('input[name="customer_phone"]').value,
+                        customer_country: form.querySelector('select[name="customer_country"]').value,
                         customer_address: form.querySelector('textarea[name="customer_address"]').value,
-                        quantity: form.querySelector('input[name="quantity"]').value,
+                        quantity: form.querySelector('select[name="quantity"]').value,
                         payment_method: 'myfatoorah'
                     })
                 })
