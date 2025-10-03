@@ -143,38 +143,46 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'رقم الهاتف *' : 'Phone Number *' }}
                                 </label>
-                                <input type="tel" name="customer_phone" required
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus"
-                                       placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <span id="country_code_display" class="text-gray-500 text-sm">+</span>
+                                    </div>
+                                    <input type="tel" name="customer_phone" required id="customer_phone"
+                                           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg input-focus"
+                                           placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل رقم هاتفك' : 'Enter your phone number' }}">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ app()->getLocale() === 'ar' ? 'ضرورة وجود واتساب لإرسال فيديو التوثيق' : 'WhatsApp is required for verification video delivery' }}
+                                </p>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     {{ app()->getLocale() === 'ar' ? 'الدولة *' : 'Country *' }}
                                 </label>
-                                <select name="customer_country" required
+                                <select name="customer_country" required id="customer_country"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus">
                                     <option value="">{{ app()->getLocale() === 'ar' ? 'اختر الدولة' : 'Select Country' }}</option>
-                                    <option value="السعودية">{{ app()->getLocale() === 'ar' ? 'السعودية' : 'Saudi Arabia' }}</option>
-                                    <option value="الإمارات">{{ app()->getLocale() === 'ar' ? 'الإمارات العربية المتحدة' : 'United Arab Emirates' }}</option>
-                                    <option value="الكويت">{{ app()->getLocale() === 'ar' ? 'الكويت' : 'Kuwait' }}</option>
-                                    <option value="قطر">{{ app()->getLocale() === 'ar' ? 'قطر' : 'Qatar' }}</option>
-                                    <option value="البحرين">{{ app()->getLocale() === 'ar' ? 'البحرين' : 'Bahrain' }}</option>
-                                    <option value="عمان">{{ app()->getLocale() === 'ar' ? 'عمان' : 'Oman' }}</option>
-                                    <option value="الأردن">{{ app()->getLocale() === 'ar' ? 'الأردن' : 'Jordan' }}</option>
-                                    <option value="مصر">{{ app()->getLocale() === 'ar' ? 'مصر' : 'Egypt' }}</option>
-                                    <option value="لبنان">{{ app()->getLocale() === 'ar' ? 'لبنان' : 'Lebanon' }}</option>
-                                    <option value="سوريا">{{ app()->getLocale() === 'ar' ? 'سوريا' : 'Syria' }}</option>
-                                    <option value="العراق">{{ app()->getLocale() === 'ar' ? 'العراق' : 'Iraq' }}</option>
-                                    <option value="اليمن">{{ app()->getLocale() === 'ar' ? 'اليمن' : 'Yemen' }}</option>
-                                    <option value="السودان">{{ app()->getLocale() === 'ar' ? 'السودان' : 'Sudan' }}</option>
-                                    <option value="ليبيا">{{ app()->getLocale() === 'ar' ? 'ليبيا' : 'Libya' }}</option>
-                                    <option value="تونس">{{ app()->getLocale() === 'ar' ? 'تونس' : 'Tunisia' }}</option>
-                                    <option value="الجزائر">{{ app()->getLocale() === 'ar' ? 'الجزائر' : 'Algeria' }}</option>
-                                    <option value="المغرب">{{ app()->getLocale() === 'ar' ? 'المغرب' : 'Morocco' }}</option>
-                                    <option value="موريتانيا">{{ app()->getLocale() === 'ar' ? 'موريتانيا' : 'Mauritania' }}</option>
-                                    <option value="فلسطين">{{ app()->getLocale() === 'ar' ? 'فلسطين' : 'Palestine' }}</option>
-                                    <option value="تركيا">{{ app()->getLocale() === 'ar' ? 'تركيا' : 'Turkey' }}</option>
+                                    <option value="+966_السعودية" data-code="+966" selected>{{ app()->getLocale() === 'ar' ? 'السعودية (+966)' : 'Saudi Arabia (+966)' }}</option>
+                                    <option value="+971_الإمارات" data-code="+971">{{ app()->getLocale() === 'ar' ? 'الإمارات العربية المتحدة (+971)' : 'United Arab Emirates (+971)' }}</option>
+                                    <option value="+965_الكويت" data-code="+965">{{ app()->getLocale() === 'ar' ? 'الكويت (+965)' : 'Kuwait (+965)' }}</option>
+                                    <option value="+974_قطر" data-code="+974">{{ app()->getLocale() === 'ar' ? 'قطر (+974)' : 'Qatar (+974)' }}</option>
+                                    <option value="+973_البحرين" data-code="+973">{{ app()->getLocale() === 'ar' ? 'البحرين (+973)' : 'Bahrain (+973)' }}</option>
+                                    <option value="+968_عمان" data-code="+968">{{ app()->getLocale() === 'ar' ? 'عمان (+968)' : 'Oman (+968)' }}</option>
+                                    <option value="+962_الأردن" data-code="+962">{{ app()->getLocale() === 'ar' ? 'الأردن (+962)' : 'Jordan (+962)' }}</option>
+                                    <option value="+20_مصر" data-code="+20">{{ app()->getLocale() === 'ar' ? 'مصر (+20)' : 'Egypt (+20)' }}</option>
+                                    <option value="+961_لبنان" data-code="+961">{{ app()->getLocale() === 'ar' ? 'لبنان (+961)' : 'Lebanon (+961)' }}</option>
+                                    <option value="+963_سوريا" data-code="+963">{{ app()->getLocale() === 'ar' ? 'سوريا (+963)' : 'Syria (+963)' }}</option>
+                                    <option value="+964_العراق" data-code="+964">{{ app()->getLocale() === 'ar' ? 'العراق (+964)' : 'Iraq (+964)' }}</option>
+                                    <option value="+967_اليمن" data-code="+967">{{ app()->getLocale() === 'ar' ? 'اليمن (+967)' : 'Yemen (+967)' }}</option>
+                                    <option value="+249_السودان" data-code="+249">{{ app()->getLocale() === 'ar' ? 'السودان (+249)' : 'Sudan (+249)' }}</option>
+                                    <option value="+218_ليبيا" data-code="+218">{{ app()->getLocale() === 'ar' ? 'ليبيا (+218)' : 'Libya (+218)' }}</option>
+                                    <option value="+216_تونس" data-code="+216">{{ app()->getLocale() === 'ar' ? 'تونس (+216)' : 'Tunisia (+216)' }}</option>
+                                    <option value="+213_الجزائر" data-code="+213">{{ app()->getLocale() === 'ar' ? 'الجزائر (+213)' : 'Algeria (+213)' }}</option>
+                                    <option value="+212_المغرب" data-code="+212">{{ app()->getLocale() === 'ar' ? 'المغرب (+212)' : 'Morocco (+212)' }}</option>
+                                    <option value="+222_موريتانيا" data-code="+222">{{ app()->getLocale() === 'ar' ? 'موريتانيا (+222)' : 'Mauritania (+222)' }}</option>
+                                    <option value="+970_فلسطين" data-code="+970">{{ app()->getLocale() === 'ar' ? 'فلسطين (+970)' : 'Palestine (+970)' }}</option>
+                                    <option value="+90_تركيا" data-code="+90">{{ app()->getLocale() === 'ar' ? 'تركيا (+90)' : 'Turkey (+90)' }}</option>
                                     <option value="أخرى">{{ app()->getLocale() === 'ar' ? 'أخرى' : 'Other' }}</option>
                                 </select>
                             </div>
@@ -287,10 +295,51 @@
             const form = document.getElementById('order-form');
             const quantitySelect = document.querySelector('select[name="quantity"]');
             const countrySelect = document.querySelector('select[name="customer_country"]');
+            const phoneInput = document.getElementById('customer_phone');
+            const countryCodeDisplay = document.getElementById('country_code_display');
             const servicePriceElement = document.getElementById('service-price');
             const totalAmountElement = document.getElementById('total-amount');
             const serviceQuantityElement = document.getElementById('service-quantity');
             const serviceCountryElement = document.getElementById('service-country');
+
+            // Country codes mapping
+            const countryCodes = {
+                '+966_السعودية': '+966',
+                '+971_الإمارات': '+971',
+                '+965_الكويت': '+965',
+                '+974_قطر': '+974',
+                '+973_البحرين': '+973',
+                '+968_عمان': '+968',
+                '+962_الأردن': '+962',
+                '+20_مصر': '+20',
+                '+961_لبنان': '+961',
+                '+963_سوريا': '+963',
+                '+964_العراق': '+964',
+                '+967_اليمن': '+967',
+                '+249_السودان': '+249',
+                '+218_ليبيا': '+218',
+                '+216_تونس': '+216',
+                '+213_الجزائر': '+213',
+                '+212_المغرب': '+212',
+                '+222_موريتانيا': '+222',
+                '+970_فلسطين': '+970',
+                '+90_تركيا': '+90'
+            };
+
+            // Update country code display when country changes
+            countrySelect.addEventListener('change', function() {
+                const selectedValue = this.value;
+                const countryCode = countryCodes[selectedValue] || '+';
+                countryCodeDisplay.textContent = countryCode;
+
+                // Update service country display
+                const countryText = this.options[this.selectedIndex].text;
+                serviceCountryElement.textContent = countryText;
+            });
+
+            // Set initial country code display (default to Saudi Arabia)
+            const initialCountryCode = countryCodes[countrySelect.value] || '+966';
+            countryCodeDisplay.textContent = initialCountryCode;
 
             // Update total when quantity changes
             quantitySelect.addEventListener('change', function() {

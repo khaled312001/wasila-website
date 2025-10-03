@@ -115,9 +115,9 @@ class OrderController extends Controller
                 'customer_name' => $request->customer_name,
                 'customer_email' => $request->customer_email,
                 'customer_phone' => $request->customer_phone,
-                'customer_country' => $request->customer_country ?? 'السعودية',
-                'country_code' => '+966', // Default to Saudi Arabia
-                'full_phone_number' => '+966' . $request->customer_phone,
+                'customer_country' => $this->extractCountryName($request->customer_country) ?? 'السعودية',
+                'country_code' => $this->extractCountryCode($request->customer_country) ?? '+966',
+                'full_phone_number' => ($this->extractCountryCode($request->customer_country) ?? '+966') . $request->customer_phone,
                 'customer_address' => $request->customer_address ?? '',
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
@@ -172,6 +172,7 @@ class OrderController extends Controller
         
         if (!$orderData) {
             // Try to get from URL parameters
+            $customerCountry = $request->get('customer_country');
             $orderData = [
                 'order_number' => $request->get('order_number'),
                 'service_name' => $request->get('service_name'),
@@ -180,7 +181,8 @@ class OrderController extends Controller
                 'customer_name' => $request->get('customer_name'),
                 'customer_email' => $request->get('customer_email'),
                 'customer_phone' => $request->get('customer_phone'),
-                'customer_country' => $request->get('customer_country', 'السعودية'),
+                'customer_country' => $this->extractCountryName($customerCountry) ?? 'السعودية',
+                'country_code' => $this->extractCountryCode($customerCountry) ?? '+966',
                 'customer_address' => $request->get('customer_address', ''),
                 'total_amount' => $request->get('total_amount'),
                 'payment_status' => $request->get('payment_status', 'pending')
@@ -366,5 +368,67 @@ class OrderController extends Controller
         $dateRange = $request->get('date_range', 30);
         
         return Excel::download(new OrdersExport($dateRange), 'orders_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+    }
+
+    /**
+     * Extract country name from country value that includes country code
+     */
+    private function extractCountryName($countryValue)
+    {
+        if (!$countryValue) return null;
+
+        // Handle special cases
+        if ($countryValue === 'أخرى') return 'أخرى';
+
+        // Extract country name from format "+966_السعودية"
+        if (strpos($countryValue, '_') !== false) {
+            $parts = explode('_', $countryValue, 2);
+            return $parts[1] ?? null;
+        }
+
+        return $countryValue;
+    }
+
+    /**
+     * Extract country code from country value that includes country code
+     */
+    private function extractCountryCode($countryValue)
+    {
+        if (!$countryValue) return null;
+
+        // Handle special cases
+        if ($countryValue === 'أخرى') return '+966'; // Default to Saudi Arabia
+
+        // Extract country code from format "+966_السعودية"
+        if (strpos($countryValue, '_') !== false) {
+            $parts = explode('_', $countryValue, 2);
+            return $parts[0] ?? null;
+        }
+
+        // If it's just a country name, return default code
+        $defaultCodes = [
+            'السعودية' => '+966',
+            'الإمارات' => '+971',
+            'الكويت' => '+965',
+            'قطر' => '+974',
+            'البحرين' => '+973',
+            'عمان' => '+968',
+            'الأردن' => '+962',
+            'مصر' => '+20',
+            'لبنان' => '+961',
+            'سوريا' => '+963',
+            'العراق' => '+964',
+            'اليمن' => '+967',
+            'السودان' => '+249',
+            'ليبيا' => '+218',
+            'تونس' => '+216',
+            'الجزائر' => '+213',
+            'المغرب' => '+212',
+            'موريتانيا' => '+222',
+            'فلسطين' => '+970',
+            'تركيا' => '+90'
+        ];
+
+        return $defaultCodes[$countryValue] ?? '+966';
     }
 }
