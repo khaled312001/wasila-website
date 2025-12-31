@@ -7,6 +7,10 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ContactMessageController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\Customer\MessageController as CustomerMessageController;
 
 // Arabic routes (default - no prefix)
 Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function () {
@@ -58,6 +62,26 @@ Route::group(['prefix' => 'en', 'middleware' => ['web', 'setlocale:en']], functi
 
 // Language switching
 Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
+
+// Google OAuth routes
+Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+Route::post('/customer/logout', [GoogleController::class, 'logout'])->name('customer.logout');
+
+// Customer Dashboard routes
+Route::prefix('customer')->name('customer.')->middleware('auth:customer')->group(function () {
+    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+    
+    // Orders
+    Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}/invoice', [CustomerOrderController::class, 'invoice'])->name('orders.invoice');
+    Route::get('/orders/{order}/invoice/download', [CustomerOrderController::class, 'downloadInvoice'])->name('orders.invoice.download');
+    
+    // Messages
+    Route::get('/messages', [CustomerMessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [CustomerMessageController::class, 'store'])->name('messages.store');
+});
 
 // Deployment tools (remove these routes after fixing production issues)
 Route::get('/deployment-tools', [App\Http\Controllers\DeploymentController::class, 'index'])->name('deployment.tools');

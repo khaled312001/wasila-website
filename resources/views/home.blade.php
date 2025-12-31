@@ -252,7 +252,7 @@
     <!-- Background Elements -->
     <div class="absolute inset-0 opacity-5">
         <div class="absolute top-20 left-10 w-72 h-72 bg-primary-light rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div class="absolute top-40 right-10 w-72 h-72 bg-accent rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="animation-delay: 2s;"></div>
+        <div class="absolute top-40 right-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="background-color: #10b981; animation-delay: 2s;"></div>
         <div class="absolute -bottom-8 left-20 w-72 h-72 bg-primary-medium rounded-full mix-blend-multiply filter blur-xl animate-pulse" style="animation-delay: 4s;"></div>
     </div>
     
@@ -284,7 +284,7 @@
             ]) }}" class="service-card group relative block">
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
-                    <span class="bg-gradient-to-r from-accent to-primary-medium text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg">
+                    <span class="text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                         {{ __('messages.premium') }}
                     </span>
                 </div>
@@ -331,7 +331,7 @@
                     <!-- Price and Action -->
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col">
-                            <span class="text-2xl md:text-3xl font-bold text-accent mb-1">
+                            <span class="text-2xl md:text-3xl font-bold mb-1" style="color: #10b981;">
                                 {{ number_format($service->price, 2) }}
                             </span>
                             <span class="text-sm md:text-base text-gray-500">
@@ -461,7 +461,7 @@
             </div>
             
             <div class="text-center p-6">
-                <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #10b981;">
                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                     </svg>
@@ -484,7 +484,7 @@
             <h2 class="contact-title">
                 {{ __('messages.contact_us_title') }}
             </h2>
-            <p class="text-lg text-white/90 mb-8 max-w-3xl mx-auto text-center">
+            <p class="text-base md:text-lg mb-8 max-w-3xl mx-auto text-center" style="color: #1f2937;">
                 {{ __('messages.contact_us_description') }}
             </p>
         

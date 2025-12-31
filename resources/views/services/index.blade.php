@@ -62,7 +62,7 @@
                             <p class="text-sm text-gray-600 mb-4 line-clamp-3">{{ $service->description }}</p>
                             
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-xl font-bold text-accent">{{ number_format($service->price, 2) }} {{ __('messages.currency') }}</span>
+                                <span class="text-xl font-bold" style="color: #10b981;">{{ number_format($service->price, 2) }} {{ __('messages.currency') }}</span>
                             </div>
                             
                             <div class="btn-primary text-white px-6 py-2 rounded-lg font-semibold w-full text-center block hover:shadow-lg transition duration-300">

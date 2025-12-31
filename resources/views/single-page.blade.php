@@ -40,7 +40,7 @@
             --primary-light: #3CA6B4;
             --primary-medium: #08788B;
             --primary-dark: #025469;
-            --accent: #DFA340;
+            --accent: #10b981;
         }
         
         body {
@@ -1135,7 +1135,7 @@
             </div>
             
             <!-- Overlay -->
-            <div class="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
+            <div class="absolute inset-0 bg-black bg-opacity-30 z-10"></div>
         </div>
         
         <!-- Content -->
