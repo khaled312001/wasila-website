@@ -367,6 +367,15 @@ class OrderController extends Controller
     public function adminShow(Order $order)
     {
         $order->load('orderItems.service');
+        
+        // Load documentation safely (handle if table doesn't exist)
+        try {
+            $order->load('documentation');
+        } catch (\Exception $e) {
+            // If table doesn't exist, set empty collection
+            $order->setRelation('documentation', collect([]));
+        }
+        
         return view('admin.orders.show', compact('order'));
     }
     

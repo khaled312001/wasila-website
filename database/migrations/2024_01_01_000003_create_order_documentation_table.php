@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('thumbnail_path')->nullable();
             $table->integer('duration')->nullable(); // in seconds
             $table->bigInteger('file_size')->nullable(); // in bytes
-            $table->foreignId('uploaded_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('uploaded_by')->nullable()->constrained('admins')->onDelete('set null');
             $table->boolean('is_visible_to_customer')->default(true);
             $table->timestamp('viewed_at')->nullable();
             $table->timestamps();

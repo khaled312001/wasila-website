@@ -303,7 +303,7 @@
         </form>
         
         <!-- Existing Documentation -->
-        @if($order->documentation && $order->documentation->count() > 0)
+        @if(isset($order->documentation) && $order->documentation && $order->documentation->count() > 0)
         <div class="border-t border-gray-200 pt-6 mt-6">
             <h3 class="text-lg font-semibold text-primary-dark mb-4">الملفات المرفوعة</h3>
             <div class="space-y-4">
