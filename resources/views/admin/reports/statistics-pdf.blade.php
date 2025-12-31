@@ -7,6 +7,14 @@
         @font-face {
             font-family: 'DejaVu Sans';
             src: url('{{ storage_path('fonts/DejaVuSans.ttf') }}');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url('{{ storage_path('fonts/DejaVuSans-Bold.ttf') }}');
+            font-weight: bold;
+            font-style: normal;
         }
         * {
             margin: 0;
@@ -14,19 +22,36 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'DejaVu Sans', 'Tajawal', Arial, sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             direction: rtl;
-            padding: 20px;
+            padding: 30px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
+            margin-bottom: 40px;
+            padding: 25px;
             border-bottom: 3px solid #08788B;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         .header h1 {
-            font-size: 28px;
+            font-size: 36px;
+            font-weight: bold;
             color: #025469;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
         }
         .stats-grid {
             display: grid;
@@ -35,34 +60,65 @@
             margin-bottom: 30px;
         }
         .stat-card {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
             border-right: 4px solid #08788B;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         .stat-card h3 {
-            color: #025469;
-            margin-bottom: 10px;
-            font-size: 16px;
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
         }
         .stat-card .value {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
             color: #08788B;
+            text-align: right;
+            line-height: 1.2;
+        }
+        h2 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #025469;
+            margin: 30px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #08788B;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
         }
         th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 14px 16px;
+            border: 1px solid #e5e7eb;
             text-align: right;
+            font-size: 14px;
         }
         th {
-            background: #08788B;
+            background: linear-gradient(135deg, #08788B 0%, #025469 100%);
             color: white;
+            font-weight: bold;
+            font-size: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        tr:nth-child(odd) {
+            background: #ffffff;
+        }
+        td {
+            color: #374151;
         }
     </style>
 </head>

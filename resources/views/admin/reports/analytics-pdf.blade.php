@@ -7,6 +7,14 @@
         @font-face {
             font-family: 'DejaVu Sans';
             src: url('{{ storage_path('fonts/DejaVuSans.ttf') }}');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url('{{ storage_path('fonts/DejaVuSans-Bold.ttf') }}');
+            font-weight: bold;
+            font-style: normal;
         }
         * {
             margin: 0;
@@ -14,67 +22,118 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'DejaVu Sans', 'Tajawal', Arial, sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             direction: rtl;
-            font-size: 12px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #08788B;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #08788B;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         .header h1 {
-            font-size: 24px;
+            font-size: 32px;
+            font-weight: bold;
             color: #025469;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
         }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 30px;
         }
         .stat-card {
-            background: #f9fafb;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-right: 4px solid #08788B;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
         }
         .stat-card h3 {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 10px;
+            text-align: right;
         }
         .stat-card p {
-            font-size: 18px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #08788B;
+            text-align: right;
+            line-height: 1.2;
+        }
+        h2 {
+            font-size: 20px;
             font-weight: bold;
             color: #025469;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #08788B;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
         }
         th, td {
-            padding: 8px;
-            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border: 1px solid #e5e7eb;
             text-align: right;
+            font-size: 13px;
         }
         th {
-            background: #08788B;
+            background: linear-gradient(135deg, #08788B 0%, #025469 100%);
             color: white;
             font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
         tr:nth-child(even) {
             background: #f9fafb;
         }
+        tr:nth-child(odd) {
+            background: #ffffff;
+        }
+        td {
+            color: #374151;
+        }
         .footer {
-            margin-top: 20px;
+            margin-top: 40px;
             text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 10px;
+            font-size: 12px;
+            color: #6b7280;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 15px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .footer p {
+            font-weight: 500;
         }
     </style>
 </head>

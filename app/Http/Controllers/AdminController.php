@@ -173,7 +173,10 @@ class AdminController extends Controller
         $pdf = Pdf::loadView('admin.reports.orders-pdf', compact('orders'))
             ->setPaper('a4', 'landscape')
             ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans');
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('fontHeightRatio', 1.1);
         
         return $pdf->download('orders-report-' . date('Y-m-d') . '.pdf');
     }
@@ -200,7 +203,11 @@ class AdminController extends Controller
         
         $pdf = Pdf::loadView('admin.reports.statistics-pdf', compact('stats'))
             ->setPaper('a4')
-            ->setOption('enable-local-file-access', true);
+            ->setOption('enable-local-file-access', true)
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('fontHeightRatio', 1.1);
         
         return $pdf->download('statistics-report-' . date('Y-m-d') . '.pdf');
     }
@@ -368,7 +375,10 @@ class AdminController extends Controller
         $pdf = Pdf::loadView('admin.reports.customers-pdf', compact('customers'))
             ->setPaper('a4', 'landscape')
             ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans');
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('fontHeightRatio', 1.1);
         
         return $pdf->download('customers-report-' . date('Y-m-d') . '.pdf');
     }

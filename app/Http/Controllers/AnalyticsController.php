@@ -251,7 +251,10 @@ class AnalyticsController extends Controller
         $pdf = Pdf::loadView('admin.reports.analytics-pdf', compact('stats', 'orders', 'dateRange', 'startDate', 'endDate'))
             ->setPaper('a4', 'landscape')
             ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans');
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('fontHeightRatio', 1.1);
         
         return $pdf->download('analytics-report-' . date('Y-m-d') . '.pdf');
     }
