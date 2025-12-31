@@ -294,10 +294,16 @@
                 <!-- Image Section -->
                 <div class="relative overflow-hidden">
                     @if($service->image)
-                    <img src="{{ asset('storage/' . $service->image) }}" 
+                    @php
+                        $imageUrl = \Storage::disk('public')->exists($service->image) 
+                            ? \Storage::disk('public')->url($service->image)
+                            : asset('storage/' . (str_starts_with($service->image, 'storage/') ? substr($service->image, 8) : $service->image));
+                    @endphp
+                    <img src="{{ $imageUrl }}" 
                          alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" 
                          class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500" 
-                         loading="lazy">
+                         loading="lazy"
+                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-56 bg-gradient-to-br from-primary-light via-primary-medium to-accent flex items-center justify-center relative\'><div class=\'absolute inset-0 bg-black opacity-20\'></div><svg class=\'w-20 h-20 text-white relative z-10\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z\'/></svg></div>';">
                     @else
                     <div class="w-full h-56 bg-gradient-to-br from-primary-light via-primary-medium to-accent flex items-center justify-center relative">
                         <div class="absolute inset-0 bg-black opacity-20"></div>

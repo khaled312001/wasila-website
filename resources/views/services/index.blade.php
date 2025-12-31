@@ -48,7 +48,12 @@
                     <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode($service->name) }}&service_price={{ $service->price }}&service_description={{ urlencode($service->description) }}" 
                        class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden hover:shadow-xl transition duration-300 block cursor-pointer h-full flex flex-col">
                         @if($service->image)
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" class="w-full h-48 object-cover" loading="lazy">
+                        @php
+                            $imageUrl = \Storage::disk('public')->exists($service->image) 
+                                ? \Storage::disk('public')->url($service->image)
+                                : asset('storage/' . (str_starts_with($service->image, 'storage/') ? substr($service->image, 8) : $service->image));
+                        @endphp
+                        <img src="{{ $imageUrl }}" alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" class="w-full h-48 object-cover" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-48 bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center\'><svg class=\'w-16 h-16 text-white\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z\'/></svg></div>';">
                         @else
                         <div class="w-full h-48 bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center">
                             <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">

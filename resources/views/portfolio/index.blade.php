@@ -23,11 +23,24 @@
                         <div class="card h-100 shadow-sm">
                             <div class="card-img-top position-relative" style="height: 250px; overflow: hidden;">
                                 @if($item->type === 'image')
-                                    <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title }}" 
-                                         class="w-100 h-100" style="object-fit: cover;">
+                                    @php
+                                        $filePath = str_starts_with($item->file_path, 'storage/') ? substr($item->file_path, 8) : $item->file_path;
+                                        $imageUrl = \Storage::disk('public')->exists($filePath) 
+                                            ? \Storage::disk('public')->url($filePath)
+                                            : asset('storage/' . $filePath);
+                                    @endphp
+                                    <img src="{{ $imageUrl }}" alt="{{ $item->title }}" 
+                                         class="w-100 h-100" style="object-fit: cover;"
+                                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-100 h-100 bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center\'><i class=\'fas fa-image fa-3x text-white\'></i></div>';">
                                 @else
+                                    @php
+                                        $filePath = str_starts_with($item->file_path, 'storage/') ? substr($item->file_path, 8) : $item->file_path;
+                                        $videoUrl = \Storage::disk('public')->exists($filePath) 
+                                            ? \Storage::disk('public')->url($filePath)
+                                            : asset('storage/' . $filePath);
+                                    @endphp
                                     <video class="w-100 h-100" style="object-fit: cover;" controls>
-                                        <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
+                                        <source src="{{ $videoUrl }}" type="video/mp4">
                                         {{ __('messages.browser_not_support_video') }}
                                     </video>
                                 @endif

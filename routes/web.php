@@ -68,7 +68,12 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 Route::post('/customer/logout', [GoogleController::class, 'logout'])->name('customer.logout');
 
-// Customer login route
+// Login route - redirect to admin login
+Route::get('/login', function() {
+    return redirect()->route('admin.login');
+})->name('login');
+
+// Customer login route (with email parameter)
 Route::get('/login/{email}', function($email) {
     $customer = \App\Models\Customer::where('email', $email)->first();
     if ($customer) {

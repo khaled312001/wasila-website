@@ -194,14 +194,14 @@
         .btn-primary, .btn-accent, 
         a.btn-primary, a.btn-accent,
         button.btn-primary, button.btn-accent {
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+            background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
             color: white !important;
             border: none !important;
             text-decoration: none !important;
         }
         
         .btn-accent, a.btn-accent, button.btn-accent {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+            background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
         }
         
         /* Optimized font sizes for better readability */
@@ -308,9 +308,11 @@
             background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
         }
         
-        /* Override any white backgrounds on buttons */
-        .bg-white, .bg-gray-50, .bg-transparent {
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+        /* Override any white backgrounds on buttons - use brand colors */
+        button.bg-white, a.bg-white, 
+        button.bg-gray-50, a.bg-gray-50,
+        button.bg-transparent, a.bg-transparent {
+            background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
         }
         
         /* Ensure text is always white on buttons */
@@ -327,11 +329,11 @@
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-14">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center">
-                        <img src="{{ asset('images/' . (app()->getLocale() === 'ar' ? 'logo-arabic.png' : 'logo-english.png')) }}" style="height: 90px; width: auto;"
+                        <img src="{{ asset('images/' . (app()->getLocale() === 'ar' ? 'logo-arabic.png' : 'logo-english.png')) }}" style="height: 50px; width: auto;"
                              alt="{{ __('messages.wasila') }}" class="h-10 w-auto">
                     </a>
                 </div>
@@ -409,7 +411,7 @@
                     
                     <!-- Social Media Links -->
                     <div class="flex space-x-4 {{ app()->getLocale() === 'ar' ? 'space-x-reverse' : '' }}">
-                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center transition-colors duration-300" style="hover:background-color: #10b981;">
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center transition-colors duration-300 hover:bg-primary-medium">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
                             </svg>
@@ -553,11 +555,13 @@
     
     <!-- Additional CSS to force button colors -->
     <style>
-        /* Force all buttons to have proper colors */
+        /* Force all buttons to have proper colors - unified brand colors */
         .btn-primary, .btn-accent, 
         a.btn-primary, a.btn-accent,
         button.btn-primary, button.btn-accent,
-        .inline-block.btn-primary, .inline-block.btn-accent {
+        .inline-block.btn-primary, .inline-block.btn-accent,
+        button[class*="bg-"], a[class*="bg-"][class*="btn"],
+        .btn, button.btn, a.btn {
             background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
             color: white !important;
             border: none !important;
@@ -600,6 +604,33 @@
         .btn-primary *, .btn-accent *,
         a.btn-primary *, a.btn-accent *,
         button.btn-primary *, button.btn-accent * {
+            color: white !important;
+        }
+        
+        /* Unified button colors - override all button colors with brand colors */
+        button[class*="bg-red"], a[class*="bg-red"][class*="btn"],
+        button[class*="bg-blue"], a[class*="bg-blue"][class*="btn"],
+        button[class*="bg-green"], a[class*="bg-green"][class*="btn"],
+        button[class*="bg-indigo"], a[class*="bg-indigo"][class*="btn"],
+        button[class*="bg-purple"], a[class*="bg-purple"][class*="btn"],
+        button.bg-red-600, button.bg-red-700, button.bg-blue-600, button.bg-blue-700,
+        button.bg-green-600, button.bg-green-700, button.bg-indigo-600, button.bg-purple-600,
+        a.bg-red-600, a.bg-red-700, a.bg-blue-600, a.bg-blue-700,
+        a.bg-green-600, a.bg-green-700, a.bg-indigo-600, a.bg-purple-600 {
+            background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
+            color: white !important;
+        }
+        
+        button[class*="bg-red"]:hover, a[class*="bg-red"][class*="btn"]:hover,
+        button[class*="bg-blue"]:hover, a[class*="bg-blue"][class*="btn"]:hover,
+        button[class*="bg-green"]:hover, a[class*="bg-green"][class*="btn"]:hover,
+        button.bg-red-600:hover, button.bg-red-700:hover, 
+        button.bg-blue-600:hover, button.bg-blue-700:hover,
+        button.bg-green-600:hover, button.bg-green-700:hover,
+        a.bg-red-600:hover, a.bg-red-700:hover,
+        a.bg-blue-600:hover, a.bg-blue-700:hover,
+        a.bg-green-600:hover, a.bg-green-700:hover {
+            background: linear-gradient(135deg, #065a6b 0%, #2a8a96 100%) !important;
             color: white !important;
         }
     </style>
