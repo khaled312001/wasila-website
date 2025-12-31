@@ -53,30 +53,51 @@
     @else
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
     @endif
+    
+    <style>
+        /* Additional fixes for navbar toggler */
+        .navbar-toggler {
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.25rem 0.5rem;
+        }
+        .navbar-toggler-icon {
+            display: inline-block;
+            width: 1.5em;
+            height: 1.5em;
+            vertical-align: middle;
+            background-image: none;
+        }
+        .navbar-toggler-icon i {
+            color: var(--primary-medium);
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top" id="navbar">
         <div class="container">
-            <a class="navbar-brand" href="#home">
+            <a class="navbar-brand" href="{{ url('/') }}#home">
                 <img src="{{ asset('images/logo-arabic.png') }}" alt="شعار وسيلة" height="60">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-                    </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon">
+                    <i class="fas fa-bars"></i>
+                </span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#home">{{ __('messages.home') }}</a>
+                        <a class="nav-link" href="{{ url('/') }}#home">{{ __('messages.home') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#services">{{ __('messages.services') }}</a>
+                        <a class="nav-link" href="{{ url('/') }}#services">{{ __('messages.services') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#about">{{ __('messages.about') }}</a>
+                        <a class="nav-link" href="{{ url('/') }}#about">{{ __('messages.about') }}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">{{ __('messages.contact') }}</a>
+                        <a class="nav-link" href="{{ url('/') }}#contact">{{ __('messages.contact') }}</a>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3 ms-3">
@@ -118,13 +139,13 @@
                     {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_description_ar' : 'hero_description_en', __('messages.hero_description')) }}
                 </p>
             <div class="hero-buttons">
-                <a href="#services" class="btn btn-hero btn-hero-primary">
+                <a href="{{ url('/') }}#services" class="btn btn-hero btn-hero-primary">
                     <i class="fas fa-list me-2"></i>{{ __('messages.browse_services') }}
                 </a>
-                <a href="#about" class="btn btn-hero btn-hero-secondary">
+                <a href="{{ url('/') }}#about" class="btn btn-hero btn-hero-secondary">
                     <i class="fas fa-info-circle me-2"></i>{{ __('messages.learn_more') }}
-                    </a>
-                </div>
+                </a>
+            </div>
         </div>
     </section>
 
@@ -346,10 +367,10 @@
                 </div>
                 <div class="footer-section">
                     <h3>{{ __('messages.quick_links_footer') }}</h3>
-                    <a href="#home">{{ __('messages.home_link') }}</a><br>
-                    <a href="#services">{{ __('messages.services_link') }}</a><br>
-                    <a href="#about">{{ __('messages.about_link') }}</a><br>
-                    <a href="#contact">{{ __('messages.contact_link') }}</a>
+                    <a href="{{ url('/') }}#home">{{ __('messages.home_link') }}</a><br>
+                    <a href="{{ url('/') }}#services">{{ __('messages.services_link') }}</a><br>
+                    <a href="{{ url('/') }}#about">{{ __('messages.about_link') }}</a><br>
+                    <a href="{{ url('/') }}#contact">{{ __('messages.contact_link') }}</a>
                 </div>
                 <div class="footer-section">
                     <h3>{{ __('messages.contact_information_footer') }}</h3>
@@ -449,7 +470,12 @@
 
         // Scroll to services
         function scrollToServices() {
-            document.getElementById('services').scrollIntoView({ behavior: 'smooth' });
+            const servicesSection = document.getElementById('services');
+            if (servicesSection) {
+                servicesSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = '{{ url("/") }}#services';
+            }
         }
 
         // Lightbox functions
