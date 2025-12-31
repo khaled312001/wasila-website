@@ -66,9 +66,18 @@ Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('lang.
 // Google OAuth routes
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
-Route::post('/customer/logout', [GoogleController::class, 'logout'])->name('customer.logout');
 
-// Login route - show admin login form directly (must come before /login/{email})
+// Customer Auth routes
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::get('/login', [App\Http\Controllers\Auth\CustomerAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [App\Http\Controllers\Auth\CustomerAuthController::class, 'login'])->name('login.post');
+    Route::get('/register', [App\Http\Controllers\Auth\CustomerAuthController::class, 'showRegisterForm'])->name('register');
+    Route::post('/register', [App\Http\Controllers\Auth\CustomerAuthController::class, 'register'])->name('register.post');
+    Route::post('/logout', [App\Http\Controllers\Auth\CustomerAuthController::class, 'logout'])->name('logout');
+});
+
+// Admin login route
+Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
 Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
 
 // Customer login route (with email parameter) - must have a valid email format

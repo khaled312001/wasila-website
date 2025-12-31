@@ -97,7 +97,7 @@
             
             <div class="wasila-header-actions">
                 @guest('customer')
-                <a href="{{ route('auth.google') }}" class="wasila-btn wasila-btn-login">
+                <a href="{{ route('customer.login') }}" class="wasila-btn wasila-btn-login">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>{{ __('messages.login') }}</span>
                 </a>
@@ -134,7 +134,8 @@
                 <li><a href="{{ url('/') }}#contact"><i class="fas fa-envelope"></i> {{ __('messages.contact') }}</a></li>
                 <li class="wasila-mobile-divider"></li>
                 @guest('customer')
-                <li><a href="{{ route('auth.google') }}"><i class="fas fa-sign-in-alt"></i> {{ __('messages.login') }}</a></li>
+                <li><a href="{{ route('customer.login') }}"><i class="fas fa-sign-in-alt"></i> {{ __('messages.login') }}</a></li>
+                <li><a href="{{ route('customer.register') }}"><i class="fas fa-user-plus"></i> {{ __('messages.register') }}</a></li>
                 @else
                 <li><a href="{{ route('customer.dashboard') }}"><i class="fas fa-user-circle"></i> {{ auth('customer')->user()->name }}</a></li>
                 @endguest

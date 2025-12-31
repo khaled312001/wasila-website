@@ -77,7 +77,28 @@
         }
         
         .sidebar {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(180deg, #025469 0%, #08788B 50%, #3CA6B4 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
         
         .sidebar.collapsed {
@@ -88,25 +109,94 @@
             display: none;
         }
         
+        .sidebar.collapsed .sidebar-logo-text {
+            display: none;
+        }
+        
         .main-content {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .main-content.expanded {
             margin-right: 80px;
         }
         
+        .sidebar-logo {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+        }
+        
+        .sidebar-logo img {
+            filter: brightness(0) invert(1);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-logo:hover img {
+            transform: scale(1.1);
+        }
+        
         .sidebar-item {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: right 0.5s ease;
+        }
+        
+        .sidebar-item:hover::before {
+            right: 100%;
         }
         
         .sidebar-item:hover {
-            background-color: rgba(60, 166, 180, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
         .sidebar-item.active {
-            background-color: var(--primary-medium);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
             color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border-right: 4px solid white;
+        }
+        
+        .sidebar-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: white;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .sidebar-item svg {
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        .sidebar-item:hover svg,
+        .sidebar-item.active svg {
+            transform: scale(1.15);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
         }
         
         .chart-container {
@@ -282,7 +372,8 @@
             /* Mobile Sidebar */
             .sidebar {
                 transform: translateX(100%);
-                transition: transform 0.3s ease-in-out;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
             }
             
             .sidebar.mobile-open {
@@ -295,11 +386,12 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: rgba(0, 0, 0, 0.5);
+                background-color: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(4px);
                 z-index: 30;
                 opacity: 0;
                 visibility: hidden;
-                transition: all 0.3s ease-in-out;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             
             .sidebar-overlay.active {
@@ -417,121 +509,121 @@
         <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeMobileSidebar()"></div>
         
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar bg-white shadow-lg w-64 fixed right-0 top-0 h-full z-40">
+        <div id="sidebar" class="sidebar w-64 fixed right-0 top-0 h-full z-40">
             <!-- Logo -->
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center">
-                    <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة" class="h-10 w-auto">
-                    <span class="sidebar-text mr-3 text-xl font-bold text-primary-dark">وسيلة</span>
+            <div class="sidebar-logo">
+                <div class="flex items-center justify-center">
+                    <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة" class="h-12 w-auto">
+                    <span class="sidebar-logo-text sidebar-text mr-3 text-xl font-bold text-white">وسيلة</span>
                 </div>
+                <p class="sidebar-logo-text sidebar-text text-white/80 text-sm mt-2 text-center">لوحة تحكم الإدارة</p>
             </div>
             
             <!-- Navigation -->
-            <nav class="mt-6">
-                <div class="px-4">
+            <nav class="mt-4 px-3">
+                <div>
                     <!-- Dashboard -->
                     <a href="{{ route('admin.dashboard') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                         </svg>
-                        <span class="sidebar-text">لوحة التحكم</span>
+                        <span class="sidebar-text text-sm">لوحة التحكم</span>
                     </a>
                     
                     <!-- Orders -->
                     <a href="{{ route('admin.orders.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
                         </svg>
-                        <span class="sidebar-text">الطلبات</span>
+                        <span class="sidebar-text text-sm">الطلبات</span>
                     </a>
                     
                     <!-- Customers -->
                     <a href="{{ route('admin.customers.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
                         </svg>
-                        <span class="sidebar-text">العملاء</span>
+                        <span class="sidebar-text text-sm">العملاء</span>
                     </a>
                     
                     <!-- Services -->
                     <a href="{{ route('admin.services.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <span class="sidebar-text">الخدمات</span>
+                        <span class="sidebar-text text-sm">الخدمات</span>
                     </a>
                     
                     <!-- Content Management -->
                     <a href="{{ route('admin.content-management.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.content-management.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.content-management.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
                         </svg>
-                        <span class="sidebar-text">إدارة المحتوى</span>
+                        <span class="sidebar-text text-sm">إدارة المحتوى</span>
                     </a>
                     
                     <!-- Portfolio -->
                     <a href="{{ route('admin.portfolio.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.portfolio.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.portfolio.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
                         </svg>
-                        <span class="sidebar-text">معرض الأعمال</span>
+                        <span class="sidebar-text text-sm">معرض الأعمال</span>
                     </a>
                     
                     <!-- Contact Messages -->
                     <a href="{{ route('admin.contact-messages.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                         </svg>
-                        <span class="sidebar-text">الرسائل</span>
-                        <span id="unread-count" class="sidebar-text bg-red-500 text-white text-xs rounded-full px-2 py-1 mr-2 hidden">0</span>
+                        <span class="sidebar-text text-sm flex-1">الرسائل</span>
+                        <span id="unread-count" class="sidebar-text bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 min-w-[20px] text-center hidden">0</span>
                     </a>
                     
                     <!-- MyFatoorah Management -->
                     <a href="{{ route('admin.myfatoorah.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.myfatoorah.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.myfatoorah.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
                         </svg>
-                        <span class="sidebar-text">إدارة المدفوعات</span>
+                        <span class="sidebar-text text-sm">إدارة المدفوعات</span>
                     </a>
-                    
                     
                     <!-- Analytics -->
                     <a href="{{ route('admin.analytics.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
                         </svg>
-                        <span class="sidebar-text">التقارير والإحصائيات</span>
+                        <span class="sidebar-text text-sm">التقارير والإحصائيات</span>
                     </a>
                     
                     <!-- Settings -->
                     <a href="{{ route('admin.settings.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
                         </svg>
-                        <span class="sidebar-text">الإعدادات</span>
+                        <span class="sidebar-text text-sm">الإعدادات</span>
                     </a>
                     
                     <!-- Divider -->
-                    <div class="border-t border-gray-200 my-4"></div>
+                    <div class="border-t border-white/20 my-4"></div>
                     
                     <!-- Website -->
-                    <a href="{{ route('home') }}"  target="_blank"
-                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2">
-                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                    <a href="{{ route('home') }}" target="_blank"
+                       class="sidebar-item flex items-center px-4 py-3">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                         </svg>
-                        <span class="sidebar-text">الموقع الرئيسي</span>
+                        <span class="sidebar-text text-sm">الموقع الرئيسي</span>
                     </a>
                 </div>
             </nav>
@@ -540,36 +632,36 @@
         <!-- Main Content -->
         <div id="main-content" class="main-content flex-1 mr-64">
             <!-- Top Navigation -->
-            <header class="bg-white shadow-sm border-b border-gray-200 mobile-header">
+            <header class="bg-white shadow-lg border-b-2 border-primary-medium/20 mobile-header sticky top-0 z-30">
                 <div class="flex justify-between items-center px-4 md:px-6 py-3 md:py-4">
                     <div class="flex items-center">
-                        <button onclick="toggleMobileSidebar()" class="text-gray-500 hover:text-gray-700 ml-2 md:ml-4 lg:hidden">
+                        <button onclick="toggleMobileSidebar()" class="text-primary-medium hover:text-primary-dark ml-2 md:ml-4 lg:hidden transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
-                        <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-700 ml-2 md:ml-4 hidden lg:block">
+                        <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark ml-2 md:ml-4 hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
-                        <h1 class="text-lg md:text-2xl font-semibold text-gray-800">@yield('page-title', 'لوحة التحكم')</h1>
+                        <h1 class="text-lg md:text-2xl font-bold text-primary-dark ml-3">@yield('page-title', 'لوحة التحكم')</h1>
                     </div>
                     
                     <div class="flex items-center gap-2 md:gap-4 flex-row-reverse">
-                        <div class="hidden sm:flex items-center bg-gray-100 rounded-full px-3 md:px-4 py-2 shadow-sm">
+                        <div class="hidden sm:flex items-center bg-gradient-to-l from-primary-medium/10 to-primary-light/10 rounded-full px-3 md:px-4 py-2 shadow-md border border-primary-medium/20">
                             <svg class="w-5 h-5 md:w-6 md:h-6 text-primary-medium ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                             </svg>
-                            <span class="text-xs md:text-sm font-medium text-gray-700">مرحباً، {{ Auth::guard('admin')->user()->name }}</span>
+                            <span class="text-xs md:text-sm font-semibold text-primary-dark">مرحباً، {{ Auth::guard('admin')->user()->name }}</span>
                         </div>
                         <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                             @csrf
-                            <button type="submit" class="flex items-center gap-1 md:gap-2 text-gray-500 hover:text-red-600 transition duration-300 bg-gray-100 rounded-full px-2 md:px-3 py-2 shadow-sm" title="تسجيل الخروج">
+                            <button type="submit" class="flex items-center gap-1 md:gap-2 text-white bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 rounded-full px-3 md:px-4 py-2 shadow-md hover:shadow-lg transform hover:scale-105" title="تسجيل الخروج">
                                 <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"/>
                                 </svg>
-                                <span class="hidden md:inline text-sm font-medium">تسجيل الخروج</span>
+                                <span class="hidden md:inline text-sm font-semibold">تسجيل الخروج</span>
                             </button>
                         </form>
                     </div>
