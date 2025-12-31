@@ -44,11 +44,15 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/wasila.css') }}">
+    @php
+        $cssFile = public_path('css/single-page.css');
+        $cssContent = file_exists($cssFile) ? file_get_contents($cssFile) : '';
+    @endphp
+    @if($cssContent)
+    <style>{!! $cssContent !!}</style>
+    @else
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
-    
-    <style>
-        /* Additional inline styles if needed */
-    </style>
+    @endif
 </head>
 <body>
     <!-- Navigation -->
