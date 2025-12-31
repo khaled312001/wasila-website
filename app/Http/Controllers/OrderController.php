@@ -358,9 +358,53 @@ class OrderController extends Controller
     }
     
     // Admin methods
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with('orderItems.service')->orderBy('created_at', 'desc')->paginate(20);
+        $query = Order::with('orderItems.service');
+        
+        // Advanced Filters
+        if ($request->filled('order_number')) {
+            $query->where('order_number', 'like', '%' . $request->order_number . '%');
+        }
+        
+        if ($request->filled('customer_name')) {
+            $query->where('customer_name', 'like', '%' . $request->customer_name . '%');
+        }
+        
+        if ($request->filled('customer_email')) {
+            $query->where('customer_email', 'like', '%' . $request->customer_email . '%');
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+        
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+        
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        if ($request->filled('amount_min')) {
+            $query->where('total_amount', '>=', $request->amount_min);
+        }
+        
+        if ($request->filled('amount_max')) {
+            $query->where('total_amount', '<=', $request->amount_max);
+        }
+        
+        $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        
         return view('admin.orders.index', compact('orders'));
     }
     
@@ -422,9 +466,117 @@ class OrderController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        $dateRange = $request->get('date_range', 30);
+        $query = Order::with('orderItems.service');
         
-        return Excel::download(new OrdersExport($dateRange), 'orders_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx');
+        // Apply same filters as index
+        if ($request->filled('order_number')) {
+            $query->where('order_number', 'like', '%' . $request->order_number . '%');
+        }
+        if ($request->filled('customer_name')) {
+            $query->where('customer_name', 'like', '%' . $request->customer_name . '%');
+        }
+        if ($request->filled('customer_email')) {
+            $query->where('customer_email', 'like', '%' . $request->customer_email . '%');
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        if ($request->filled('amount_min')) {
+            $query->where('total_amount', '>=', $request->amount_min);
+        }
+        if ($request->filled('amount_max')) {
+            $query->where('total_amount', '<=', $request->amount_max);
+        }
+        
+        $orders = $query->orderBy('created_at', 'desc')->get();
+        
+        return Excel::download(new class($orders) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings, \Maatwebsite\Excel\Concerns\WithStyles, \Maatwebsite\Excel\Concerns\WithTitle {
+            private $orders;
+            
+            public function __construct($orders) {
+                $this->orders = $orders;
+            }
+            
+            public function collection() {
+                $data = collect();
+                foreach ($this->orders as $order) {
+                    foreach ($order->orderItems as $item) {
+                        $data->push([
+                            'رقم الطلب' => $order->order_number,
+                            'اسم العميل' => $order->customer_name,
+                            'البريد الإلكتروني' => $order->customer_email,
+                            'رقم الهاتف' => $order->customer_phone,
+                            'الخدمة' => $item->service->name_ar ?? '',
+                            'الكمية' => $item->quantity,
+                            'المبلغ' => $item->total_price,
+                            'حالة الطلب' => $this->getStatusArabic($order->status),
+                            'حالة الدفع' => $this->getPaymentStatusArabic($order->payment_status),
+                            'طريقة الدفع' => $order->payment_method ?? 'غير محدد',
+                            'تاريخ الطلب' => $order->created_at->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+                return $data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'رقم الطلب',
+                    'اسم العميل',
+                    'البريد الإلكتروني',
+                    'رقم الهاتف',
+                    'الخدمة',
+                    'الكمية',
+                    'المبلغ',
+                    'حالة الطلب',
+                    'حالة الدفع',
+                    'طريقة الدفع',
+                    'تاريخ الطلب'
+                ];
+            }
+            
+            public function title(): string {
+                return 'الطلبات';
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    1 => ['font' => ['bold' => true, 'size' => 12]],
+                ];
+            }
+            
+            private function getStatusArabic($status) {
+                $statuses = [
+                    'pending' => 'في الانتظار',
+                    'confirmed' => 'مؤكد',
+                    'processing' => 'قيد المعالجة',
+                    'completed' => 'مكتمل',
+                    'cancelled' => 'ملغي',
+                ];
+                return $statuses[$status] ?? $status;
+            }
+            
+            private function getPaymentStatusArabic($status) {
+                $statuses = [
+                    'pending' => 'في الانتظار',
+                    'paid' => 'مدفوع',
+                    'failed' => 'فشل',
+                ];
+                return $statuses[$status] ?? $status;
+            }
+        }, 'orders-export-' . date('Y-m-d') . '.xlsx');
     }
 
     /**

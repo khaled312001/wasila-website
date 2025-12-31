@@ -15,9 +15,22 @@
                 <option value="90" {{ $dateRange == '90' ? 'selected' : '' }}>آخر 90 يوم</option>
                 <option value="365" {{ $dateRange == '365' ? 'selected' : '' }}>آخر سنة</option>
             </select>
-            <button onclick="exportData()" class="bg-primary-medium text-white px-4 py-2 rounded-lg hover:bg-primary-dark">
-                تصدير البيانات
-            </button>
+            <div class="flex gap-2">
+                <a href="{{ route('admin.analytics.export', ['format' => 'excel', 'date_range' => $dateRange]) }}" 
+                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                    تصدير Excel
+                </a>
+                <a href="{{ route('admin.analytics.export', ['format' => 'pdf', 'date_range' => $dateRange]) }}" 
+                   class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/>
+                    </svg>
+                    تصدير PDF
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -268,10 +281,6 @@ document.getElementById('dateRange').addEventListener('change', function() {
     window.location.href = '{{ route("admin.analytics.index") }}?date_range=' + dateRange;
 });
 
-// Export data
-function exportData() {
-    const dateRange = document.getElementById('dateRange').value;
-    window.open('{{ route("admin.analytics.export") }}?format=csv&date_range=' + dateRange, '_blank');
-}
+// Export buttons are now direct links, no JavaScript needed
 </script>
 @endpush

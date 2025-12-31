@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('customer_messages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->foreignId('order_id')->nullable()->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('order_id')->nullable();
             $table->text('message');
             $table->enum('sender_type', ['customer', 'admin'])->default('customer');
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');

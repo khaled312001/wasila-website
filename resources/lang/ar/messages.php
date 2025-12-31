@@ -6,6 +6,7 @@ return [
     'services' => 'الخدمات',
     'about' => 'من نحن',
     'contact' => 'اتصل بنا',
+    'login' => 'تسجيل الدخول',
     'arabic' => 'العربية',
     'english' => 'English',
     

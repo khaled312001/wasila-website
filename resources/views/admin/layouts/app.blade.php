@@ -447,6 +447,15 @@
                         <span class="sidebar-text">الطلبات</span>
                     </a>
                     
+                    <!-- Customers -->
+                    <a href="{{ route('admin.customers.index') }}" 
+                       class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                        <span class="sidebar-text">العملاء</span>
+                    </a>
+                    
                     <!-- Services -->
                     <a href="{{ route('admin.services.index') }}" 
                        class="sidebar-item flex items-center px-4 py-3 text-gray-700 rounded-lg mb-2 {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">

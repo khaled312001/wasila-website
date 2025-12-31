@@ -18,7 +18,7 @@ Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function
     Route::get('/services', [ServiceController::class, 'publicIndex'])->name('services');
     Route::get('/portfolio', [App\Http\Controllers\PortfolioController::class, 'index'])->name('portfolio');
     Route::get('/orders/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/orders', [OrderController::class, 'store'])->middleware('auth:customer')->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
     
@@ -68,19 +68,17 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 Route::post('/customer/logout', [GoogleController::class, 'logout'])->name('customer.logout');
 
-// Development: Direct customer login (for testing only - remove in production)
-if (app()->environment('local', 'development')) {
-    Route::get('/dev/customer-login/{email}', function($email) {
-        $customer = \App\Models\Customer::where('email', $email)->first();
-        if ($customer) {
-            auth('customer')->login($customer);
-            return redirect()->route('customer.dashboard')
-                ->with('success', 'تم تسجيل الدخول بنجاح كـ ' . $customer->name);
-        }
-        return redirect()->route('home')
-            ->with('error', 'العميل غير موجود');
-    })->name('dev.customer.login');
-}
+// Customer login route
+Route::get('/login/{email}', function($email) {
+    $customer = \App\Models\Customer::where('email', $email)->first();
+    if ($customer) {
+        auth('customer')->login($customer);
+        return redirect()->route('customer.dashboard')
+            ->with('success', 'تم تسجيل الدخول بنجاح كـ ' . $customer->name);
+    }
+    return redirect()->route('home')
+        ->with('error', 'العميل غير موجود');
+})->name('customer.login');
 
 // Customer Dashboard routes
 Route::prefix('customer')->name('customer.')->middleware('auth:customer')->group(function () {
@@ -131,6 +129,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/{order}/documentation', [AdminController::class, 'uploadDocumentation'])->name('orders.documentation.upload');
         Route::delete('/documentation/{documentation}', [AdminController::class, 'deleteDocumentation'])->name('documentation.delete');
         
+        // Customers Management
+        Route::prefix('customers')->name('customers.')->group(function () {
+            Route::get('/', [AdminController::class, 'customersIndex'])->name('index');
+            Route::get('/{customer}', [AdminController::class, 'customersShow'])->name('show');
+            Route::get('/{customer}/orders', [AdminController::class, 'customersOrders'])->name('orders');
+            Route::get('/{customer}/messages', [AdminController::class, 'customersMessages'])->name('messages');
+            Route::get('/export/excel', [AdminController::class, 'exportCustomersExcel'])->name('export.excel');
+            Route::get('/export/pdf', [AdminController::class, 'exportCustomersPDF'])->name('export.pdf');
+        });
+        
         // Customer Messages
         Route::get('/customer-messages', [AdminController::class, 'customerMessages'])->name('customer.messages');
         Route::post('/customer-messages/{message}/reply', [AdminController::class, 'replyToCustomer'])->name('customer.messages.reply');
@@ -157,6 +165,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [App\Http\Controllers\AnalyticsController::class, 'index'])->name('index');
             Route::get('/export', [App\Http\Controllers\AnalyticsController::class, 'export'])->name('export');
         });
+        
+        // MyFatoorah Export
+        Route::get('/myfatoorah/export', [App\Http\Controllers\MyFatoorahController::class, 'export'])->name('myfatoorah.export');
         
         // Settings
         Route::prefix('settings')->name('settings.')->group(function () {

@@ -12,6 +12,7 @@ use App\Models\OrderDocumentation;
 use App\Models\CustomerMessage;
 use App\Models\Customer;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -133,16 +134,46 @@ class AdminController extends Controller
     // Export Orders PDF
     public function exportOrdersPDF(Request $request)
     {
-        $orders = Order::with(['customer', 'service'])
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->from_date, fn($q) => $q->whereDate('created_at', '>=', $request->from_date))
-            ->when($request->to_date, fn($q) => $q->whereDate('created_at', '<=', $request->to_date))
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Order::with(['orderItems.service', 'customer']);
+        
+        // Apply same filters as index
+        if ($request->filled('order_number')) {
+            $query->where('order_number', 'like', '%' . $request->order_number . '%');
+        }
+        if ($request->filled('customer_name')) {
+            $query->where('customer_name', 'like', '%' . $request->customer_name . '%');
+        }
+        if ($request->filled('customer_email')) {
+            $query->where('customer_email', 'like', '%' . $request->customer_email . '%');
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        if ($request->filled('amount_min')) {
+            $query->where('total_amount', '>=', $request->amount_min);
+        }
+        if ($request->filled('amount_max')) {
+            $query->where('total_amount', '<=', $request->amount_max);
+        }
+        
+        $orders = $query->orderBy('created_at', 'desc')->get();
         
         $pdf = Pdf::loadView('admin.reports.orders-pdf', compact('orders'))
             ->setPaper('a4', 'landscape')
-            ->setOption('enable-local-file-access', true);
+            ->setOption('enable-local-file-access', true)
+            ->setOption('defaultFont', 'DejaVu Sans');
         
         return $pdf->download('orders-report-' . date('Y-m-d') . '.pdf');
     }
@@ -200,5 +231,145 @@ class AdminController extends Controller
         ]);
         
         return back()->with('success', 'تم إرسال الرد بنجاح');
+    }
+    
+    // Customers Management
+    public function customersIndex(Request $request)
+    {
+        $query = Customer::withCount(['orders', 'messages']);
+        
+        // Filters
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        $customers = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        
+        return view('admin.customers.index', compact('customers'));
+    }
+    
+    public function customersShow(Customer $customer)
+    {
+        $customer->load(['orders.orderItems.service', 'messages.admin']);
+        $stats = [
+            'total_orders' => $customer->orders()->count(),
+            'total_spent' => $customer->orders()->where('payment_status', 'paid')->sum('total_amount'),
+            'pending_orders' => $customer->orders()->where('status', 'pending')->count(),
+            'completed_orders' => $customer->orders()->where('status', 'completed')->count(),
+        ];
+        
+        return view('admin.customers.show', compact('customer', 'stats'));
+    }
+    
+    public function customersOrders(Customer $customer)
+    {
+        $orders = $customer->orders()->with('orderItems.service')->orderBy('created_at', 'desc')->paginate(20);
+        return view('admin.customers.orders', compact('customer', 'orders'));
+    }
+    
+    public function customersMessages(Customer $customer)
+    {
+        $messages = $customer->messages()->with('admin', 'order')->orderBy('created_at', 'desc')->paginate(20);
+        return view('admin.customers.messages', compact('customer', 'messages'));
+    }
+    
+    public function exportCustomersExcel(Request $request)
+    {
+        $query = Customer::withCount(['orders', 'messages']);
+        
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        $customers = $query->orderBy('created_at', 'desc')->get();
+        
+        return Excel::download(new class($customers) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings, \Maatwebsite\Excel\Concerns\WithStyles, \Maatwebsite\Excel\Concerns\WithTitle {
+            private $customers;
+            
+            public function __construct($customers) {
+                $this->customers = $customers;
+            }
+            
+            public function collection() {
+                return $this->customers->map(function($customer) {
+                    return [
+                        'الاسم' => $customer->name,
+                        'البريد الإلكتروني' => $customer->email,
+                        'الهاتف' => $customer->phone ?? 'غير محدد',
+                        'العنوان' => $customer->address ?? 'غير محدد',
+                        'عدد الطلبات' => $customer->orders_count,
+                        'عدد الرسائل' => $customer->messages_count,
+                        'تاريخ التسجيل' => $customer->created_at->format('Y-m-d H:i:s'),
+                    ];
+                });
+            }
+            
+            public function headings(): array {
+                return [
+                    'الاسم',
+                    'البريد الإلكتروني',
+                    'الهاتف',
+                    'العنوان',
+                    'عدد الطلبات',
+                    'عدد الرسائل',
+                    'تاريخ التسجيل'
+                ];
+            }
+            
+            public function title(): string {
+                return 'العملاء';
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    1 => ['font' => ['bold' => true, 'size' => 12]],
+                ];
+            }
+        }, 'customers-export-' . date('Y-m-d') . '.xlsx');
+    }
+    
+    public function exportCustomersPDF(Request $request)
+    {
+        $query = Customer::withCount(['orders', 'messages']);
+        
+        if ($request->filled('name')) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        $customers = $query->orderBy('created_at', 'desc')->get();
+        
+        $pdf = Pdf::loadView('admin.reports.customers-pdf', compact('customers'))
+            ->setPaper('a4', 'landscape')
+            ->setOption('enable-local-file-access', true)
+            ->setOption('defaultFont', 'DejaVu Sans');
+        
+        return $pdf->download('customers-report-' . date('Y-m-d') . '.pdf');
     }
 }

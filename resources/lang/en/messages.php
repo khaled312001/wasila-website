@@ -6,6 +6,7 @@ return [
     'services' => 'Services',
     'about' => 'About Us',
     'contact' => 'Contact Us',
+    'login' => 'Login',
     'arabic' => 'العربية',
     'english' => 'English',
     

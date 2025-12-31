@@ -13,6 +13,8 @@ use MyFatoorah\Library\API\Payment\MyFatoorahPaymentEmbedded;
 use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 
 class MyFatoorahController extends Controller
@@ -599,6 +601,7 @@ class MyFatoorahController extends Controller
 
     public function export(Request $request)
     {
+        $format = $request->get('format', 'excel');
         $query = Order::with('orderItems.service')
             ->whereNotNull('payment_reference');
 
@@ -616,7 +619,93 @@ class MyFatoorahController extends Controller
         }
 
         $transactions = $query->orderBy('created_at', 'desc')->get();
-
+        
+        if ($format === 'excel') {
+            return $this->exportToExcel($transactions);
+        } elseif ($format === 'pdf') {
+            return $this->exportToPDF($transactions);
+        }
+        
+        // Default CSV for backward compatibility
+        return $this->exportToCSV($transactions);
+    }
+    
+    private function exportToExcel($transactions)
+    {
+        return Excel::download(new class($transactions) implements \Maatwebsite\Excel\Concerns\FromCollection, \Maatwebsite\Excel\Concerns\WithHeadings, \Maatwebsite\Excel\Concerns\WithStyles, \Maatwebsite\Excel\Concerns\WithTitle {
+            private $transactions;
+            
+            public function __construct($transactions) {
+                $this->transactions = $transactions;
+            }
+            
+            public function collection() {
+                $data = collect();
+                foreach ($this->transactions as $transaction) {
+                    $data->push([
+                        'رقم الطلب' => $transaction->order_number,
+                        'اسم العميل' => $transaction->customer_name,
+                        'البريد الإلكتروني' => $transaction->customer_email,
+                        'رقم الهاتف' => $transaction->customer_phone,
+                        'المبلغ' => $transaction->total_amount,
+                        'طريقة الدفع' => $transaction->payment_method ?? 'غير محدد',
+                        'حالة الدفع' => $this->getPaymentStatusArabic($transaction->payment_status),
+                        'تاريخ الطلب' => $transaction->created_at->format('Y-m-d H:i:s'),
+                        'تاريخ الدفع' => $transaction->updated_at->format('Y-m-d H:i:s'),
+                        'مرجع الدفع' => $transaction->payment_reference ?? '',
+                    ]);
+                }
+                return $data;
+            }
+            
+            public function headings(): array {
+                return [
+                    'رقم الطلب',
+                    'اسم العميل',
+                    'البريد الإلكتروني',
+                    'رقم الهاتف',
+                    'المبلغ',
+                    'طريقة الدفع',
+                    'حالة الدفع',
+                    'تاريخ الطلب',
+                    'تاريخ الدفع',
+                    'مرجع الدفع'
+                ];
+            }
+            
+            public function title(): string {
+                return 'معاملات MyFatoorah';
+            }
+            
+            public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet) {
+                return [
+                    1 => ['font' => ['bold' => true, 'size' => 12]],
+                ];
+            }
+            
+            private function getPaymentStatusArabic($status) {
+                $statuses = [
+                    'pending' => 'في الانتظار',
+                    'paid' => 'مدفوع',
+                    'failed' => 'فشل',
+                ];
+                return $statuses[$status] ?? $status;
+            }
+        }, 'myfatoorah-transactions-' . date('Y-m-d') . '.xlsx');
+    }
+    
+    private function exportToPDF($transactions)
+    {
+        $pdf = Pdf::loadView('admin.reports.myfatoorah-pdf', compact('transactions'))
+            ->setPaper('a4', 'landscape')
+            ->setOption('enable-local-file-access', true)
+            ->setOption('defaultFont', 'DejaVu Sans');
+        
+        return $pdf->download('myfatoorah-transactions-' . date('Y-m-d') . '.pdf');
+    }
+    
+    private function exportToCSV($transactions)
+    {
         $filename = 'transactions_' . now()->format('Y-m-d_H-i-s') . '.csv';
         
         $headers = [

@@ -4,17 +4,123 @@
 @section('page-title', 'إدارة الطلبات')
 
 @section('content')
+<!-- Advanced Filters -->
+<div class="bg-white rounded-lg shadow-lg card-shadow p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-primary-dark">فلترة متقدمة</h3>
+        <button onclick="toggleFilters()" class="text-primary-medium hover:text-primary-dark">
+            <svg id="filter-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"/>
+            </svg>
+        </button>
+    </div>
+    
+    <form id="filter-form" method="GET" action="{{ route('admin.orders.index') }}" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">رقم الطلب</label>
+                <input type="text" name="order_number" value="{{ request('order_number') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">اسم العميل</label>
+                <input type="text" name="customer_name" value="{{ request('customer_name') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                <input type="email" name="customer_email" value="{{ request('customer_email') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">حالة الطلب</label>
+                <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+                    <option value="">الكل</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>في الانتظار</option>
+                    <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>مؤكد</option>
+                    <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>قيد المعالجة</option>
+                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتمل</option>
+                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>ملغي</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">حالة الدفع</label>
+                <select name="payment_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+                    <option value="">الكل</option>
+                    <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>في الانتظار</option>
+                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>مدفوع</option>
+                    <option value="failed" {{ request('payment_status') == 'failed' ? 'selected' : '' }}>فشل</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">طريقة الدفع</label>
+                <select name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+                    <option value="">الكل</option>
+                    <option value="myfatoorah" {{ request('payment_method') == 'myfatoorah' ? 'selected' : '' }}>MyFatoorah</option>
+                    <option value="bank_transfer" {{ request('payment_method') == 'bank_transfer' ? 'selected' : '' }}>تحويل بنكي</option>
+                    <option value="cash" {{ request('payment_method') == 'cash' ? 'selected' : '' }}>نقدي</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">من تاريخ</label>
+                <input type="date" name="date_from" value="{{ request('date_from') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">إلى تاريخ</label>
+                <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">الحد الأدنى للمبلغ</label>
+                <input type="number" step="0.01" name="amount_min" value="{{ request('amount_min') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">الحد الأقصى للمبلغ</label>
+                <input type="number" step="0.01" name="amount_max" value="{{ request('amount_max') }}" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium">
+            </div>
+        </div>
+        
+        <div class="flex gap-2 mt-4">
+            <button type="submit" class="bg-primary-medium text-white px-6 py-2 rounded-lg hover:bg-primary-dark">
+                تطبيق الفلترة
+            </button>
+            <a href="{{ route('admin.orders.index') }}" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400">
+                إعادة تعيين
+            </a>
+        </div>
+    </form>
+</div>
+
 <div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden mobile-card">
     <div class="p-4 md:p-6 border-b border-gray-200">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 class="text-lg md:text-xl font-semibold text-primary-dark">جميع الطلبات</h2>
             <div class="flex gap-2">
-                <a href="{{ route('admin.orders.export.excel') }}" 
+                <a href="{{ route('admin.orders.export.excel', request()->query()) }}" 
                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
                     </svg>
                     تصدير Excel
+                </a>
+                <a href="{{ route('admin.orders.export.pdf', request()->query()) }}" 
+                   class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/>
+                    </svg>
+                    تصدير PDF
                 </a>
             </div>
         </div>
@@ -136,4 +242,17 @@
     </div>
     @endif
 </div>
+
+<script>
+function toggleFilters() {
+    const form = document.getElementById('filter-form');
+    const icon = document.getElementById('filter-icon');
+    form.classList.toggle('hidden');
+    if (form.classList.contains('hidden')) {
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+</script>
 @endsection
