@@ -16,13 +16,18 @@
 
     # Serve static files directly (CSS, JS, images, etc.)
     RewriteCond %{REQUEST_FILENAME} -f
-    RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|eot)$ [NC]
+    RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|eot|map)$ [NC]
     RewriteRule ^ - [L]
     
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# LiteSpeed specific rules
+<IfModule LiteSpeed>
+    CacheLookup on
 </IfModule>
 
 # Security Headers
