@@ -68,6 +68,20 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 Route::post('/customer/logout', [GoogleController::class, 'logout'])->name('customer.logout');
 
+// Development: Direct customer login (for testing only - remove in production)
+if (app()->environment('local', 'development')) {
+    Route::get('/dev/customer-login/{email}', function($email) {
+        $customer = \App\Models\Customer::where('email', $email)->first();
+        if ($customer) {
+            auth('customer')->login($customer);
+            return redirect()->route('customer.dashboard')
+                ->with('success', 'تم تسجيل الدخول بنجاح كـ ' . $customer->name);
+        }
+        return redirect()->route('home')
+            ->with('error', 'العميل غير موجود');
+    })->name('dev.customer.login');
+}
+
 // Customer Dashboard routes
 Route::prefix('customer')->name('customer.')->middleware('auth:customer')->group(function () {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');

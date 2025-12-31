@@ -54,6 +54,30 @@ class Order extends Model
     {
         return $this->hasMany(OrderDocumentation::class);
     }
+    
+    public function service()
+    {
+        return $this->hasOneThrough(
+            Service::class,
+            OrderItem::class,
+            'order_id',
+            'id',
+            'id',
+            'service_id'
+        );
+    }
+    
+    public function getServiceNameAttribute()
+    {
+        $orderItem = $this->orderItems()->first();
+        return $orderItem ? $orderItem->service->name : null;
+    }
+    
+    public function getServiceDescriptionAttribute()
+    {
+        $orderItem = $this->orderItems()->first();
+        return $orderItem ? $orderItem->service->description : null;
+    }
 
     protected static function boot()
     {

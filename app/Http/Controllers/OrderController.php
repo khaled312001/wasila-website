@@ -479,4 +479,52 @@ class OrderController extends Controller
 
         return $defaultCodes[$countryValue] ?? '+966';
     }
+    
+    /**
+     * Store order documentation (video/audio)
+     */
+    public function storeDocumentation(Request $request, Order $order)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:mp4,avi,mov,mp3,wav|max:102400', // 100MB max
+            'description' => 'nullable|string|max:500'
+        ]);
+        
+        $file = $request->file('file');
+        $fileType = str_contains($file->getMimeType(), 'video') ? 'video' : 'audio';
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $filePath = $file->storeAs('order_documentation', $fileName, 'public');
+        
+        \App\Models\OrderDocumentation::create([
+            'order_id' => $order->id,
+            'file_path' => $filePath,
+            'file_type' => $fileType,
+            'description' => $request->description,
+            'is_visible_to_customer' => true
+        ]);
+        
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', app()->getLocale() === 'ar' ? 'تم رفع الملف بنجاح' : 'File uploaded successfully.');
+    }
+    
+    /**
+     * Delete order documentation
+     */
+    public function destroyDocumentation(Order $order, \App\Models\OrderDocumentation $documentation)
+    {
+        // Ensure documentation belongs to this order
+        if ($documentation->order_id !== $order->id) {
+            abort(403);
+        }
+        
+        // Delete file from storage
+        if (\Storage::disk('public')->exists($documentation->file_path)) {
+            \Storage::disk('public')->delete($documentation->file_path);
+        }
+        
+        $documentation->delete();
+        
+        return redirect()->route('admin.orders.show', $order)
+            ->with('success', app()->getLocale() === 'ar' ? 'تم حذف الملف بنجاح' : 'File deleted successfully.');
+    }
 }
