@@ -272,7 +272,7 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center">
-                        <img src="{{ asset('images/' . (app()->getLocale() === 'ar' ? 'logo-arabic.png' : 'logo-english.png')) }}" style="height: 60px; width: auto;"
+                        <img src="{{ asset('images/' . (app()->getLocale() === 'ar' ? 'logo-arabic.png' : 'logo-english.png')) }}" style="height: 90px; width: auto;"
                              alt="{{ __('messages.wasila') }}" class="h-10 w-auto">
                     </a>
                 </div>
@@ -338,7 +338,7 @@
                 <!-- Logo and Description -->
                 <div class="lg:col-span-2">
                     <div class="flex items-center mb-6">
-                        <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila') }}" class="h-16 w-auto mr-4">
+                        <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila') }}" class="h-28 w-auto mr-4">
                         <div>
                             <h3 class="text-2xl font-bold text-white">{{ __('messages.wasila') }}</h3>
                             <p class="text-sm font-medium" style="color: #10b981;">{{ __('messages.hero_subtitle') }}</p>

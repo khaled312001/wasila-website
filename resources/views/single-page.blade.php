@@ -1023,7 +1023,7 @@
                 <div class="flex items-center">
                     <a href="#home" class="flex items-center group">
                         <div class="relative">
-                            <img src="{{ asset('images/logo-arabic.png') }}" alt="شعار وسيلة الخيرية" class="h-12 w-auto transition-transform duration-300 group-hover:scale-110">
+                            <img src="{{ asset('images/logo-arabic.png') }}" alt="شعار وسيلة الخيرية" class="h-20 w-auto transition-transform duration-300 group-hover:scale-110">
                             <div class="absolute inset-0 bg-primary-light opacity-0 group-hover:opacity-20 rounded-full transition-opacity duration-300"></div>
                         </div>
                         <span class="mr-3 text-xl font-bold text-primary-dark group-hover:text-primary-medium transition-colors duration-300">وسيلة</span>
@@ -1929,7 +1929,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Logo and Description -->
                 <div class="col-span-1">
-                    <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila_charity_logo_footer') }}" class="h-12 w-auto mb-4">
+                    <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila_charity_logo_footer') }}" class="h-24 w-auto mb-4">
                     <p class="text-gray-300 leading-relaxed">
                         {{ __('messages.social_charity_project_aim') }}
                     </p>

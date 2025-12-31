@@ -178,7 +178,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-            <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila') }}" style="height: 50px; width: auto;">
+            <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila') }}" style="height: 80px; width: auto;">
             <h3 class="text-white text-xl font-bold mt-4">{{ auth('customer')->user()->name }}</h3>
             <p class="text-white text-sm opacity-80">{{ auth('customer')->user()->email }}</p>
         </div>
