@@ -44,6 +44,8 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/wasila.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/wasila-header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/wasila-footer.css') }}">
     @php
         $cssFile = public_path('css/single-page.css');
         $cssContent = file_exists($cssFile) ? file_get_contents($cssFile) : '';
@@ -53,74 +55,95 @@
     @else
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
     @endif
-    
-    <style>
-        /* Additional fixes for navbar toggler */
-        .navbar-toggler {
-            border: 1px solid rgba(0,0,0,0.1);
-            padding: 0.25rem 0.5rem;
-        }
-        .navbar-toggler-icon {
-            display: inline-block;
-            width: 1.5em;
-            height: 1.5em;
-            vertical-align: middle;
-            background-image: none;
-        }
-        .navbar-toggler-icon i {
-            color: var(--primary-medium);
-            font-size: 1.2rem;
-        }
-    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg fixed-top" id="navbar">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}#home">
-                <img src="{{ asset('images/logo-arabic.png') }}" alt="شعار وسيلة" height="60">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon">
-                    <i class="fas fa-bars"></i>
-                </span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}#home">{{ __('messages.home') }}</a>
+    <!-- Main Header -->
+    <header class="wasila-header">
+        <div class="wasila-header-container">
+            <div class="wasila-header-logo">
+                <a href="{{ url('/') }}#home" class="wasila-logo-link">
+                    <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة الخيرية" class="wasila-logo-img">
+                </a>
+            </div>
+            
+            <nav class="wasila-header-nav">
+                <ul class="wasila-nav-list">
+                    <li class="wasila-nav-item">
+                        <a href="{{ url('/') }}#home" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-home"></i>
+                            <span>{{ __('messages.home') }}</span>
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}#services">{{ __('messages.services') }}</a>
+                    <li class="wasila-nav-item">
+                        <a href="{{ url('/') }}#services" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-concierge-bell"></i>
+                            <span>{{ __('messages.services') }}</span>
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}#about">{{ __('messages.about') }}</a>
+                    <li class="wasila-nav-item">
+                        <a href="{{ url('/') }}#about" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-info-circle"></i>
+                            <span>{{ __('messages.about') }}</span>
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url('/') }}#contact">{{ __('messages.contact') }}</a>
+                    <li class="wasila-nav-item">
+                        <a href="{{ url('/') }}#contact" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-envelope"></i>
+                            <span>{{ __('messages.contact') }}</span>
+                        </a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center gap-3 ms-3">
-                    @guest('customer')
-                    <a href="{{ route('auth.google') }}" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt me-2"></i>{{ __('messages.login') }}
+            </nav>
+            
+            <div class="wasila-header-actions">
+                @guest('customer')
+                <a href="{{ route('auth.google') }}" class="wasila-btn wasila-btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>{{ __('messages.login') }}</span>
+                </a>
+                @else
+                <a href="{{ route('customer.dashboard') }}" class="wasila-btn wasila-btn-user">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ auth('customer')->user()->name }}</span>
+                </a>
+                @endguest
+                
+                <div class="wasila-lang-switcher">
+                    <a href="{{ route('lang.switch', 'ar') }}" class="wasila-lang-btn {{ app()->getLocale() === 'ar' ? 'wasila-lang-active' : '' }}">
+                        عربي
                     </a>
-                    @else
-                    <a href="{{ route('customer.dashboard') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-user me-2"></i>{{ auth('customer')->user()->name }}
+                    <a href="{{ route('lang.switch', 'en') }}" class="wasila-lang-btn {{ app()->getLocale() === 'en' ? 'wasila-lang-active' : '' }}">
+                        EN
                     </a>
-                    @endguest
-                    <div class="btn-group">
-                        <a href="{{ route('lang.switch', 'ar') }}" class="btn btn-sm {{ app()->getLocale() === 'ar' ? 'btn-primary' : 'btn-outline-primary' }}">عربي</a>
-                        <a href="{{ route('lang.switch', 'en') }}" class="btn btn-sm {{ app()->getLocale() === 'en' ? 'btn-primary' : 'btn-outline-primary' }}">EN</a>
-                    </div>
                 </div>
+                
+                <button class="wasila-menu-toggle" id="wasilaMenuToggle">
+                    <span class="wasila-menu-line"></span>
+                    <span class="wasila-menu-line"></span>
+                    <span class="wasila-menu-line"></span>
+                </button>
             </div>
         </div>
-    </nav>
+        
+        <!-- Mobile Menu -->
+        <div class="wasila-mobile-menu" id="wasilaMobileMenu">
+            <ul class="wasila-mobile-nav-list">
+                <li><a href="{{ url('/') }}#home"><i class="fas fa-home"></i> {{ __('messages.home') }}</a></li>
+                <li><a href="{{ url('/') }}#services"><i class="fas fa-concierge-bell"></i> {{ __('messages.services') }}</a></li>
+                <li><a href="{{ url('/') }}#about"><i class="fas fa-info-circle"></i> {{ __('messages.about') }}</a></li>
+                <li><a href="{{ url('/') }}#contact"><i class="fas fa-envelope"></i> {{ __('messages.contact') }}</a></li>
+                <li class="wasila-mobile-divider"></li>
+                @guest('customer')
+                <li><a href="{{ route('auth.google') }}"><i class="fas fa-sign-in-alt"></i> {{ __('messages.login') }}</a></li>
+                @else
+                <li><a href="{{ route('customer.dashboard') }}"><i class="fas fa-user-circle"></i> {{ auth('customer')->user()->name }}</a></li>
+                @endguest
+            </ul>
+        </div>
+    </header>
 
     <!-- Hero Section -->
-    <section id="home" class="hero-section">
+    <section id="home" class="hero-section" style="margin-top: 70px;">
         <div class="hero-video-container">
                 <iframe 
                     id="heroVideo"
@@ -357,30 +380,86 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <img src="{{ asset('images/logo-footer.png') }}" alt="وسيلة" height="80" class="mb-3">
-                    <p>{{ __('messages.social_charity_project_aim') }}</p>
-                </div>
-                <div class="footer-section">
-                    <h3>{{ __('messages.quick_links_footer') }}</h3>
-                    <a href="{{ url('/') }}#home">{{ __('messages.home_link') }}</a><br>
-                    <a href="{{ url('/') }}#services">{{ __('messages.services_link') }}</a><br>
-                    <a href="{{ url('/') }}#about">{{ __('messages.about_link') }}</a><br>
-                    <a href="{{ url('/') }}#contact">{{ __('messages.contact_link') }}</a>
-                </div>
-                <div class="footer-section">
-                    <h3>{{ __('messages.contact_information_footer') }}</h3>
-                        <p>{{ __('messages.email_colon_footer') }} {{ \App\Helpers\SettingsHelper::contactEmail() }}</p>
-                        <p>{{ __('messages.phone_colon_footer') }} {{ \App\Helpers\SettingsHelper::contactPhone() }}</p>
-                        <p>{{ __('messages.address_colon_footer') }} {{ \App\Helpers\SettingsHelper::address() }}</p>
+    <!-- Main Footer -->
+    <footer class="wasila-footer">
+        <div class="wasila-footer-container">
+            <div class="wasila-footer-grid">
+                <div class="wasila-footer-col wasila-footer-about">
+                    <div class="wasila-footer-logo">
+                        <img src="{{ asset('images/logo-footer.png') }}" alt="وسيلة الخيرية" class="wasila-footer-logo-img">
+                    </div>
+                    <p class="wasila-footer-desc">{{ __('messages.social_charity_project_aim') }}</p>
+                    <div class="wasila-footer-social">
+                        <a href="#" class="wasila-social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="wasila-social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="wasila-social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/966501234567" class="wasila-social-link" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
                     </div>
                 </div>
-            <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} {{ __('messages.copyright_2025_wasila') }}</p>
+                
+                <div class="wasila-footer-col wasila-footer-links">
+                    <h4 class="wasila-footer-title">
+                        <i class="fas fa-link wasila-footer-title-icon"></i>
+                        {{ __('messages.quick_links_footer') }}
+                    </h4>
+                    <ul class="wasila-footer-list">
+                        <li><a href="{{ url('/') }}#home"><i class="fas fa-chevron-left"></i> {{ __('messages.home_link') }}</a></li>
+                        <li><a href="{{ url('/') }}#services"><i class="fas fa-chevron-left"></i> {{ __('messages.services_link') }}</a></li>
+                        <li><a href="{{ url('/') }}#about"><i class="fas fa-chevron-left"></i> {{ __('messages.about_link') }}</a></li>
+                        <li><a href="{{ url('/') }}#contact"><i class="fas fa-chevron-left"></i> {{ __('messages.contact_link') }}</a></li>
+                    </ul>
+                </div>
+                
+                <div class="wasila-footer-col wasila-footer-contact">
+                    <h4 class="wasila-footer-title">
+                        <i class="fas fa-address-card wasila-footer-title-icon"></i>
+                        {{ __('messages.contact_information_footer') }}
+                    </h4>
+                    <ul class="wasila-footer-list">
+                        <li class="wasila-footer-contact-item">
+                            <i class="wasila-footer-contact-icon fas fa-envelope"></i>
+                            <div>
+                                <span class="wasila-footer-contact-label">{{ __('messages.email_colon_footer') }}</span>
+                                <a href="mailto:{{ \App\Helpers\SettingsHelper::contactEmail() }}" class="wasila-footer-contact-value">{{ \App\Helpers\SettingsHelper::contactEmail() }}</a>
+                            </div>
+                        </li>
+                        <li class="wasila-footer-contact-item">
+                            <i class="wasila-footer-contact-icon fas fa-phone"></i>
+                            <div>
+                                <span class="wasila-footer-contact-label">{{ __('messages.phone_colon_footer') }}</span>
+                                <a href="tel:{{ \App\Helpers\SettingsHelper::contactPhone() }}" class="wasila-footer-contact-value">{{ \App\Helpers\SettingsHelper::contactPhone() }}</a>
+                            </div>
+                        </li>
+                        <li class="wasila-footer-contact-item">
+                            <i class="wasila-footer-contact-icon fas fa-map-marker-alt"></i>
+                            <div>
+                                <span class="wasila-footer-contact-label">{{ __('messages.address_colon_footer') }}</span>
+                                <span class="wasila-footer-contact-value">{{ \App\Helpers\SettingsHelper::address() }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="wasila-footer-bottom">
+                <div class="wasila-footer-bottom-content">
+                    <p class="wasila-footer-copyright">
+                        <i class="fas fa-copyright"></i>
+                        {{ date('Y') }} {{ __('messages.copyright_2025_wasila') }}
+                    </p>
+                    <p class="wasila-footer-made">
+                        <i class="fas fa-heart"></i>
+                        صنع بـ
+                    </p>
+                </div>
             </div>
         </div>
     </footer>
@@ -422,15 +501,34 @@
             offset: 100
         });
 
-        // Navbar scroll effect
+        // Wasila Header scroll effect
         window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
+            const header = document.querySelector('.wasila-header');
             if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
+                header.classList.add('scrolled');
             } else {
-                navbar.classList.remove('scrolled');
+                header.classList.remove('scrolled');
             }
         });
+        
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('wasilaMenuToggle');
+        const mobileMenu = document.getElementById('wasilaMobileMenu');
+        
+        if (menuToggle && mobileMenu) {
+            menuToggle.addEventListener('click', function() {
+                menuToggle.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+            });
+            
+            // Close menu when clicking on a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    menuToggle.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                });
+            });
+        }
 
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -449,7 +547,7 @@
         // Active nav link
         window.addEventListener('scroll', function() {
             const sections = document.querySelectorAll('section[id]');
-            const navLinks = document.querySelectorAll('.nav-link');
+            const navLinks = document.querySelectorAll('.wasila-nav-link');
             
             let current = '';
             sections.forEach(section => {
@@ -462,7 +560,8 @@
             
             navLinks.forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('href') === '#' + current) {
+                const href = link.getAttribute('href');
+                if (href && href.includes('#' + current)) {
                     link.classList.add('active');
                 }
             });
