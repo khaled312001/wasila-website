@@ -68,13 +68,17 @@ Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name(
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 Route::post('/customer/logout', [GoogleController::class, 'logout'])->name('customer.logout');
 
-// Login route - redirect to admin login
-Route::get('/login', function() {
-    return redirect()->route('admin.login');
-})->name('login');
+// Login route - show admin login form directly (must come before /login/{email})
+Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
 
-// Customer login route (with email parameter)
+// Customer login route (with email parameter) - must have a valid email format
 Route::get('/login/{email}', function($email) {
+    // Validate email format
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return redirect()->route('admin.login')
+            ->with('error', 'البريد الإلكتروني غير صحيح');
+    }
+    
     $customer = \App\Models\Customer::where('email', $email)->first();
     if ($customer) {
         auth('customer')->login($customer);
@@ -83,7 +87,7 @@ Route::get('/login/{email}', function($email) {
     }
     return redirect()->route('home')
         ->with('error', 'العميل غير موجود');
-})->name('customer.login');
+})->where('email', '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')->name('customer.login');
 
 // Customer Dashboard routes
 Route::prefix('customer')->name('customer.')->middleware('auth:customer')->group(function () {
