@@ -44,6 +44,14 @@ class GoogleController extends Controller
 
             Auth::guard('customer')->login($customer, true);
 
+            // Check if there's a checkout redirect
+            if (session()->has('checkout_redirect')) {
+                $redirectUrl = session('checkout_redirect');
+                session()->forget('checkout_redirect');
+                return redirect($redirectUrl)
+                    ->with('success', __('messages.login_successful'));
+            }
+
             return redirect()->route('customer.dashboard')
                 ->with('success', __('messages.login_successful'));
 

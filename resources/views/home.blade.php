@@ -86,7 +86,7 @@
     a.btn-primary, a.btn-accent,
     button.btn-primary, button.btn-accent,
     .inline-block.btn-primary, .inline-block.btn-accent {
-        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
         color: white !important;
         border: none !important;
         text-decoration: none !important;
@@ -95,13 +95,14 @@
         border-radius: 0.5rem !important;
         display: inline-block !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3) !important;
+        box-shadow: 0 4px 15px rgba(8, 120, 139, 0.3) !important;
+        font-family: 'Tajawal', 'Inter', sans-serif !important;
     }
     
     .btn-accent, a.btn-accent, button.btn-accent,
     .inline-block.btn-accent {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3) !important;
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
+        box-shadow: 0 4px 15px rgba(8, 120, 139, 0.3) !important;
     }
     
     /* Hover effects */
@@ -109,18 +110,19 @@
     a.btn-primary:hover, a.btn-accent:hover,
     button.btn-primary:hover, button.btn-accent:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 10px 25px rgba(8, 120, 139, 0.4) !important;
+        background: linear-gradient(135deg, #065a6b 0%, #2a8a96 100%) !important;
         color: white !important;
     }
     
     /* Override any white backgrounds */
     .bg-white.btn-primary, .bg-white.btn-accent,
     a.bg-white.btn-primary, a.bg-white.btn-accent {
-        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%) !important;
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
     }
     
     .bg-white.btn-accent, a.bg-white.btn-accent {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%) !important;
     }
     
     /* Ensure text is always white */
@@ -226,7 +228,7 @@
 <section class="hero-section text-white py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="hero-content text-center">
-            <h1 class="hero-title">
+            <h1 class="hero-title" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.hero_title') }} - {{ __('messages.hero_subtitle') }}
             </h1>
             <p class="hero-subtitle max-w-4xl mx-auto">
@@ -264,10 +266,10 @@
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-primary-dark mb-6">
+            <h2 class="text-xl md:text-2xl lg:text-2xl font-bold text-primary-dark mb-6" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.services_title') }}
             </h2>
-            <p class="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            <p class="text-base md:text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.services_description') }}
             </p>
         </div>
@@ -281,7 +283,7 @@
                 'service_name' => $service->name,
                 'service_price' => $service->price,
                 'service_description' => $service->description
-            ]) }}" class="service-card group relative block">
+            ]) }}" class="service-card group relative block" style="height: 100%; display: flex; flex-direction: column;">
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
                     <span class="text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
@@ -310,37 +312,37 @@
                 </div>
                 
                 <!-- Content Section -->
-                <div class="p-8">
+                <div class="p-6 flex-grow flex flex-col">
                     <!-- Service Icon -->
-                    <div class="service-icon">
+                    <div class="service-icon mb-4">
                         <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     
                     <!-- Service Title -->
-                    <h3 class="service-title">
+                    <h3 class="service-title text-lg font-semibold mb-3" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                         {{ $service->name }}
                     </h3>
                     
                     <!-- Service Description -->
-                    <p class="service-description">
+                    <p class="service-description text-sm text-gray-600 mb-4 flex-grow" style="font-family: 'Tajawal', 'Inter', sans-serif; line-height: 1.6;">
                         {{ $service->description }}
                     </p>
                     
                     <!-- Price and Action -->
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-gray-200">
                         <div class="flex flex-col">
-                            <span class="text-2xl md:text-3xl font-bold mb-1" style="color: #10b981;">
+                            <span class="text-xl font-bold mb-1" style="color: #08788B;">
                                 {{ number_format($service->price, 2) }}
                             </span>
-                            <span class="text-sm md:text-base text-gray-500">
+                            <span class="text-xs text-gray-500">
                                 {{ __('messages.saudi_riyal') }}
                             </span>
                         </div>
-                        <div class="btn-primary-enhanced">
+                        <button class="bg-gradient-to-r from-primary-medium to-primary-light hover:from-primary-dark hover:to-primary-medium text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                             {{ __('messages.order_now') }}
-                        </div>
+                        </button>
                     </div>
                 </div>
                 
@@ -355,10 +357,10 @@
             <div class="bg-gradient-to-r from-primary-light to-primary-medium rounded-2xl p-8 md:p-12 relative overflow-hidden">
                 <div class="absolute inset-0 bg-white opacity-10"></div>
                 <div class="relative z-10">
-                    <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4">
+                    <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-white mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                         {{ __('messages.discover_more_services') }}
                     </h3>
-                    <p class="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+                    <p class="text-base md:text-lg text-white/90 mb-8 max-w-3xl mx-auto" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                         {{ __('messages.discover_more_description') }}
                     </p>
                     <a href="{{ route('services') }}" 
@@ -376,10 +378,10 @@
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
-            <h3 class="text-xl md:text-2xl font-bold text-primary-dark mb-4">
+            <h3 class="text-lg md:text-xl font-bold text-primary-dark mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.services_coming_soon') }}
             </h3>
-            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p class="text-base md:text-lg text-gray-600 max-w-3xl mx-auto" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.services_coming_soon_description') }}
             </p>
         </div>
@@ -391,13 +393,13 @@
 <section id="about" class="about-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="about-content">
-            <h2 class="about-title">
+            <h2 class="about-title text-2xl md:text-3xl" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.about_title') }}
             </h2>
-            <p class="about-description">
+            <p class="about-description text-base md:text-lg" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.about_description') }}
             </p>
-            <p class="about-description">
+            <p class="about-description text-base md:text-lg" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.about_mission') }}
             </p>
             <div class="grid grid-cols-2 gap-6 mb-6">
@@ -426,7 +428,7 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-xl md:text-2xl lg:text-3xl font-bold text-primary-dark mb-4">
+            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-primary-dark mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.features_subtitle') }}
             </h2>
         </div>
@@ -438,10 +440,10 @@
                         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
-                <h3 class="text-lg md:text-xl font-semibold text-primary-dark mb-3">
+                <h3 class="text-base md:text-lg font-semibold text-primary-dark mb-3" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                     {{ __('messages.diverse_services') }}
                 </h3>
-                <p class="text-sm md:text-base text-gray-600">
+                <p class="text-sm md:text-base text-gray-600" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                     {{ __('messages.diverse_services_description') }}
                 </p>
             </div>
@@ -481,7 +483,7 @@
 <section id="contact" class="contact-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="contact-content">
-            <h2 class="contact-title">
+            <h2 class="contact-title text-2xl md:text-3xl" style="font-family: 'Tajawal', 'Inter', sans-serif;">
                 {{ __('messages.contact_us_title') }}
             </h2>
             <p class="text-base md:text-lg mb-8 max-w-3xl mx-auto text-center" style="color: #1f2937;">

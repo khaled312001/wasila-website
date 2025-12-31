@@ -1026,7 +1026,6 @@
                             <img src="{{ asset('images/logo-arabic.png') }}" alt="شعار وسيلة الخيرية" class="h-20 w-auto transition-transform duration-300 group-hover:scale-110">
                             <div class="absolute inset-0 bg-primary-light opacity-0 group-hover:opacity-20 rounded-full transition-opacity duration-300"></div>
                         </div>
-                        <span class="mr-3 text-xl font-bold text-primary-dark group-hover:text-primary-medium transition-colors duration-300">وسيلة</span>
                     </a>
                 </div>
                 

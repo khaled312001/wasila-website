@@ -111,6 +111,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('orders', OrderController::class)->only(['index', 'update']);
         Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('orders.show');
         Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
+        Route::get('/orders/export/pdf', [AdminController::class, 'exportOrdersPDF'])->name('orders.export.pdf');
+        
+        // Order Documentation
+        Route::post('/orders/{order}/documentation', [AdminController::class, 'uploadDocumentation'])->name('orders.documentation.upload');
+        Route::delete('/documentation/{documentation}', [AdminController::class, 'deleteDocumentation'])->name('documentation.delete');
+        
+        // Customer Messages
+        Route::get('/customer-messages', [AdminController::class, 'customerMessages'])->name('customer.messages');
+        Route::post('/customer-messages/{message}/reply', [AdminController::class, 'replyToCustomer'])->name('customer.messages.reply');
+        
+        // Statistics PDF Export
+        Route::get('/statistics/export/pdf', [AdminController::class, 'exportStatisticsPDF'])->name('statistics.export.pdf');
         
         // MyFatoorah Management
         Route::prefix('myfatoorah')->name('myfatoorah.')->group(function () {

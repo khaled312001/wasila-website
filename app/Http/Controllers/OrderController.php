@@ -19,6 +19,15 @@ class OrderController extends Controller
 {
     public function checkout(Request $request)
     {
+        // Check if customer is logged in
+        if (!auth('customer')->check()) {
+            session(['checkout_redirect' => $request->fullUrl()]);
+            return redirect()->route('auth.google')
+                ->with('info', app()->getLocale() === 'ar' 
+                    ? 'يرجى تسجيل الدخول أولاً لإتمام الطلب' 
+                    : 'Please login first to complete your order');
+        }
+        
         // Get service data from URL parameters
         $serviceId = $request->get('service_id');
         $serviceName = $request->get('service_name');
@@ -31,11 +40,25 @@ class OrderController extends Controller
                 ->with('error', app()->getLocale() === 'ar' ? 'يرجى اختيار خدمة أولاً' : 'Please select a service first');
         }
         
-        return view('orders.checkout', compact('serviceId', 'serviceName', 'servicePrice', 'serviceDescription'));
+        $customer = auth('customer')->user();
+        
+        return view('orders.checkout', compact('serviceId', 'serviceName', 'servicePrice', 'serviceDescription', 'customer'));
     }
     
     public function store(Request $request)
     {
+        // Check if customer is logged in
+        if (!auth('customer')->check()) {
+            return response()->json([
+                'success' => false,
+                'message' => app()->getLocale() === 'ar' 
+                    ? 'يرجى تسجيل الدخول أولاً' 
+                    : 'Please login first'
+            ], 401);
+        }
+        
+        $customer = auth('customer')->user();
+        
         try {
             $request->validate([
                 'service_id' => 'required|exists:services,id',
@@ -112,13 +135,14 @@ class OrderController extends Controller
             }
             
             $order = Order::create([
-                'customer_name' => $request->customer_name,
-                'customer_email' => $request->customer_email,
+                'customer_id' => $customer->id,
+                'customer_name' => $customer->name,
+                'customer_email' => $customer->email,
                 'customer_phone' => $request->customer_phone,
                 'customer_country' => $this->extractCountryName($request->customer_country) ?? 'السعودية',
                 'country_code' => $this->extractCountryCode($request->customer_country) ?? '+966',
                 'full_phone_number' => ($this->extractCountryCode($request->customer_country) ?? '+966') . $request->customer_phone,
-                'customer_address' => $request->customer_address ?? '',
+                'customer_address' => $request->customer_address ?? $customer->address ?? '',
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
                 'payment_status' => 'pending',
