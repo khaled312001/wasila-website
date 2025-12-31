@@ -11,9 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('customer_messages', function (Blueprint $table) {
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-        });
+        // Try to add foreign key, ignore if it already exists
+        try {
+            Schema::table('customer_messages', function (Blueprint $table) {
+                $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            });
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Foreign key already exists, skip
+            if (strpos($e->getMessage(), 'Duplicate foreign key') === false && 
+                strpos($e->getMessage(), 'already exists') === false) {
+                throw $e; // Re-throw if it's a different error
+            }
+        }
     }
 
     /**

@@ -8,16 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('customer_messages', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('order_id')->nullable();
-            $table->text('message');
-            $table->enum('sender_type', ['customer', 'admin'])->default('customer');
-            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->boolean('is_read')->default(false);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('customer_messages')) {
+            Schema::create('customer_messages', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+                $table->unsignedBigInteger('order_id')->nullable();
+                $table->text('message');
+                $table->enum('sender_type', ['customer', 'admin'])->default('customer');
+                $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->boolean('is_read')->default(false);
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
