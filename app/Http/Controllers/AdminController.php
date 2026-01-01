@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\ContactMessage;
@@ -90,6 +91,9 @@ class AdminController extends Controller
             // Get video duration and size
             $fileSize = $request->file('video')->getSize();
             
+            // Copy file to public/storage for hosting providers that don't support symlinks
+            $this->copyToPublicStorage($videoPath);
+            
             $documentation = OrderDocumentation::create([
                 'order_id' => $order->id,
                 'title' => $request->title,
@@ -113,6 +117,9 @@ class AdminController extends Controller
             
             return back()->with('success', 'تم رفع الفيديو بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error uploading documentation: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return back()->with('error', 'حدث خطأ أثناء رفع الفيديو: ' . $e->getMessage());
         }
     }
@@ -121,13 +128,28 @@ class AdminController extends Controller
     public function deleteDocumentation(OrderDocumentation $documentation)
     {
         try {
+            // Delete from storage/app/public
             Storage::disk('public')->delete($documentation->video_path);
             if ($documentation->thumbnail_path) {
                 Storage::disk('public')->delete($documentation->thumbnail_path);
             }
+            
+            // Delete from public/storage
+            $publicPath = public_path('storage/' . $documentation->video_path);
+            if (file_exists($publicPath)) {
+                unlink($publicPath);
+            }
+            if ($documentation->thumbnail_path) {
+                $publicThumbPath = public_path('storage/' . $documentation->thumbnail_path);
+                if (file_exists($publicThumbPath)) {
+                    unlink($publicThumbPath);
+                }
+            }
+            
             $documentation->delete();
             return back()->with('success', 'تم حذف الفيديو بنجاح');
         } catch (\Exception $e) {
+            Log::error('Error deleting documentation: ' . $e->getMessage());
             return back()->with('error', 'حدث خطأ أثناء حذف الفيديو');
         }
     }
@@ -478,5 +500,85 @@ class AdminController extends Controller
                 'orientation' => 'L',
             ]
         );
+    }
+    
+    /**
+     * Sync all documentation files to public/storage
+     */
+    public function syncDocumentationFiles()
+    {
+        try {
+            $documentations = OrderDocumentation::whereNotNull('video_path')->get();
+            $syncedCount = 0;
+            $errors = [];
+            
+            foreach ($documentations as $doc) {
+                if ($this->copyToPublicStorage($doc->video_path)) {
+                    $syncedCount++;
+                } else {
+                    $errors[] = "Failed to sync file for documentation ID {$doc->id}: {$doc->video_path}";
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => "تمت مزامنة {$syncedCount} ملف بنجاح. عدد الأخطاء: " . count($errors),
+                'synced_count' => $syncedCount,
+                'errors' => $errors
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error syncing documentation files: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء مزامنة الملفات: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Copy file to public/storage directory for hosting providers that don't support symlinks
+     */
+    private function copyToPublicStorage($filePath)
+    {
+        try {
+            $sourcePath = storage_path('app/public/' . $filePath);
+            $targetPath = public_path('storage/' . $filePath);
+            
+            // Check if source file exists
+            if (!file_exists($sourcePath)) {
+                Log::warning('Source file does not exist: ' . $sourcePath);
+                return false;
+            }
+            
+            // Create directory if it doesn't exist
+            $targetDir = dirname($targetPath);
+            if (!is_dir($targetDir)) {
+                if (!mkdir($targetDir, 0755, true)) {
+                    Log::error('Failed to create directory: ' . $targetDir);
+                    return false;
+                }
+            }
+            
+            // Copy file
+            if (!copy($sourcePath, $targetPath)) {
+                Log::error('Failed to copy file from ' . $sourcePath . ' to ' . $targetPath);
+                return false;
+            }
+            
+            // Set permissions
+            chmod($targetPath, 0644);
+            
+            // Verify the copy was successful
+            if (!file_exists($targetPath)) {
+                Log::error('File copy verification failed: ' . $targetPath);
+                return false;
+            }
+            
+            Log::info('Successfully copied file to public storage: ' . $filePath);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Exception in copyToPublicStorage: ' . $e->getMessage() . ' | File: ' . $filePath);
+            return false;
+        }
     }
 }
