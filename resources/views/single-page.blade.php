@@ -195,9 +195,21 @@
                         <div class="service-card">
                             <div class="service-image-wrapper" style="overflow: hidden; height: 250px;">
                         @if($service->image)
-                                <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name }}" class="service-image">
+                            @php
+                                $imagePath = str_starts_with($service->image, 'storage/') ? $service->image : 'storage/' . $service->image;
+                                $imageExists = \Storage::disk('public')->exists(str_replace('storage/', '', $imagePath)) || file_exists(public_path($imagePath));
+                            @endphp
+                            @if($imageExists)
+                                <img src="{{ asset($imagePath) }}" alt="{{ $service->name }}" class="service-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width:100%;height:250px;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-4xl\'></i></div>';">
+                            @else
+                                <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image text-white text-4xl"></i>
+                                </div>
+                            @endif
                         @else
-                                <img src="{{ asset('images/' . (($loop->index % 12) + 1) . '.png') }}" alt="{{ $service->name }}" class="service-image">
+                            <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-image text-white text-4xl"></i>
+                            </div>
                         @endif
                             </div>
                             <div class="service-body">
@@ -339,7 +351,7 @@
             <div class="gallery-grid">
                     @for($i = 1; $i <= 12; $i++)
                 <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $i * 50 }}" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة {{ $i }}')">
-                    <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}">
+                    <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-3xl\'></i></div>';">
                             <div class="gallery-overlay">
                         <i class="fas fa-image fa-3x text-white"></i>
                         </div>
@@ -811,22 +823,22 @@
             });
         });
 
-        // Scroll animations
-        const observerOptions = {
+        // Scroll animations (using different observer instance)
+        const scrollObserverOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        const scrollObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
                 }
             });
-        }, observerOptions);
+        }, scrollObserverOptions);
 
         document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
+            scrollObserver.observe(el);
         });
     </script>
 
