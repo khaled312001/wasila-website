@@ -3,6 +3,10 @@
 @section('title', 'تفاصيل الطلب')
 @section('page-title', 'تفاصيل الطلب')
 
+@push('styles')
+<link href="{{ asset('css/order-documentation.css') }}" rel="stylesheet">
+@endpush
+
 @section('content')
 <div class="max-w-6xl mx-auto">
 
@@ -12,224 +16,135 @@
     </div>
     @endif
 
-    <!-- Order Documentation (Video/Audio Upload) - FIRST SECTION -->
-    <div class="bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/30 rounded-3xl shadow-2xl border border-primary-light/20 p-8 md:p-10 mb-8 relative overflow-hidden">
-        <!-- Decorative Background Elements -->
-        <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary-light/8 via-primary-medium/5 to-transparent rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-indigo-200/10 via-primary-medium/5 to-transparent rounded-full blur-3xl"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-primary-light/5 to-transparent rounded-full blur-2xl"></div>
-        
-        <div class="relative z-10">
-            <!-- Header Section -->
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-4">
-                <div class="flex items-center gap-5">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-br from-primary-medium via-primary-dark to-indigo-600 rounded-2xl blur-lg opacity-50"></div>
-                        <div class="relative bg-gradient-to-br from-primary-medium via-primary-dark to-indigo-600 p-5 rounded-2xl shadow-2xl transform hover:scale-105 hover:rotate-3 transition-all duration-300">
-                            <i class="fas fa-video text-white text-3xl"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 bg-gradient-to-r from-primary-dark via-primary-medium to-indigo-600 bg-clip-text text-transparent">
-                            توثيق الطلب (فيديو)
-                        </h2>
-                        <p class="text-sm md:text-base text-gray-600 flex items-center gap-2 font-medium">
-                            <i class="fas fa-info-circle text-primary-medium text-lg"></i>
-                            رفع وتوثيق فيديو تنفيذ الطلب للعميل
-                        </p>
-                    </div>
+    <!-- Order Documentation Section - New Design -->
+    <div class="doc-section-new">
+        <div class="doc-container-new">
+            <!-- Header -->
+            <div class="doc-header-new">
+                <div class="doc-header-icon-new">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div>
+                    <h2 class="doc-title-new">توثيق الطلب (فيديو)</h2>
+                    <p class="doc-subtitle-new">رفع وتوثيق فيديو تنفيذ الطلب للعميل</p>
                 </div>
             </div>
-            
+
             <!-- Upload Form -->
-            <form method="POST" action="{{ route('admin.orders.documentation.upload', $order) }}" enctype="multipart/form-data" class="mb-8 bg-white/95 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-gray-200/50 hover:shadow-2xl transition-all duration-300">
+            <form method="POST" action="{{ route('admin.orders.documentation.upload', $order) }}" enctype="multipart/form-data" class="doc-form-new">
                 @csrf
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                    <!-- File Title Input -->
-                    <div class="space-y-2">
-                        <label for="title" class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                            <div class="bg-gradient-to-br from-primary-light to-primary-medium p-2 rounded-lg shadow-md">
-                                <i class="fas fa-heading text-white text-sm"></i>
-                            </div>
-                            <span>عنوان الملف</span>
-                            <span class="text-red-500 font-bold">*</span>
+                <div class="doc-form-row-new">
+                    <div class="doc-form-group-new">
+                        <label for="title" class="doc-label-new">
+                            <i class="fas fa-heading"></i>
+                            عنوان الملف <span class="doc-required-new">*</span>
                         </label>
-                        <div class="relative">
-                            <input type="text" id="title" name="title" 
-                                   class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-medium/20 focus:border-primary-medium transition-all duration-300 shadow-sm hover:shadow-md bg-white text-gray-900 placeholder-gray-400 font-medium"
-                                   placeholder="مثال: توثيق تنفيذ الطلب" required>
-                            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-light/0 via-primary-medium/0 to-primary-dark/0 opacity-0 hover:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
-                        </div>
+                        <input type="text" id="title" name="title" class="doc-input-new" placeholder="مثال: توثيق تنفيذ الطلب" required>
                     </div>
                     
-                    <!-- File Upload Input -->
-                    <div class="space-y-2">
-                        <label for="video" class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                            <div class="bg-gradient-to-br from-primary-light to-primary-medium p-2 rounded-lg shadow-md">
-                                <i class="fas fa-video text-white text-sm"></i>
-                            </div>
-                            <span>رفع ملف (فيديو/صوت)</span>
-                            <span class="text-red-500 font-bold">*</span>
+                    <div class="doc-form-group-new">
+                        <label for="video" class="doc-label-new">
+                            <i class="fas fa-video"></i>
+                            رفع ملف (فيديو/صوت) <span class="doc-required-new">*</span>
                         </label>
-                        <div class="relative">
-                            <div class="relative group">
-                                <input type="file" id="video" name="video" accept="video/*,audio/*" 
-                                       class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-medium/20 focus:border-primary-medium transition-all duration-300 shadow-sm hover:shadow-md bg-white text-gray-900 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-gradient-to-r file:from-primary-light file:via-primary-medium file:to-primary-dark file:text-white hover:file:from-primary-medium hover:file:via-primary-dark hover:file:to-indigo-600 file:shadow-lg file:hover:shadow-xl file:transition-all file:duration-300 file:cursor-pointer" required>
-                                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-light/0 via-primary-medium/0 to-primary-dark/0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-600 mt-3 flex items-center gap-2 bg-blue-50/50 px-4 py-2 rounded-lg border border-blue-100">
-                            <i class="fas fa-info-circle text-primary-medium text-base"></i>
-                            <span class="font-medium">الصيغ المدعومة: MP4, MOV, AVI, WMV</span>
-                            <span class="text-primary-dark font-bold">(حد أقصى 100MB)</span>
+                        <input type="file" id="video" name="video" accept="video/*,audio/*" class="doc-file-input-new" required>
+                        <p class="doc-file-hint-new">
+                            <i class="fas fa-info-circle"></i>
+                            الصيغ المدعومة: MP4, MOV, AVI, WMV (حد أقصى 100MB)
                         </p>
                     </div>
                 </div>
-                
-                <!-- Description Textarea -->
-                <div class="mt-6 space-y-2">
-                    <label for="description" class="block text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <div class="bg-gradient-to-br from-primary-light to-primary-medium p-2 rounded-lg shadow-md">
-                            <i class="fas fa-align-right text-white text-sm"></i>
-                        </div>
-                        <span>وصف الملف</span>
-                        <span class="text-gray-400 text-xs font-normal">(اختياري)</span>
+
+                <div class="doc-form-group-new">
+                    <label for="description" class="doc-label-new">
+                        <i class="fas fa-align-right"></i>
+                        وصف الملف <span class="doc-optional-new">(اختياري)</span>
                     </label>
-                    <div class="relative">
-                        <textarea id="description" name="description" rows="4"
-                                  class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-primary-medium/20 focus:border-primary-medium transition-all duration-300 resize-none shadow-sm hover:shadow-md bg-white text-gray-900 placeholder-gray-400 font-medium"
-                                  placeholder="وصف مختصر للملف..."></textarea>
-                        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-primary-light/0 via-primary-medium/0 to-primary-dark/0 opacity-0 hover:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
-                    </div>
+                    <textarea id="description" name="description" rows="4" class="doc-textarea-new" placeholder="وصف مختصر للملف..."></textarea>
                 </div>
-                
-                <!-- Submit Button -->
-                <div class="flex justify-end mt-8">
-                    <button type="submit" class="group relative bg-gradient-to-r from-primary-medium via-primary-dark to-indigo-600 text-white px-10 py-4 rounded-xl font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-r from-primary-dark via-indigo-600 to-primary-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <i class="fas fa-upload text-lg relative z-10 transform group-hover:translate-y-[-2px] transition-transform duration-300"></i>
-                        <span class="relative z-10">رفع الملف</span>
-                        <div class="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+
+                <div class="doc-submit-wrapper-new">
+                    <button type="submit" class="doc-submit-btn-new">
+                        <i class="fas fa-upload"></i>
+                        رفع الملف
                     </button>
                 </div>
             </form>
-            
-            <!-- Existing Documentation -->
+
+            <!-- Files List -->
             @if(isset($order->documentation) && $order->documentation && $order->documentation->count() > 0)
-            <div class="border-t-2 border-gray-200/50 pt-10 mt-10">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 flex items-center gap-4">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-primary-light to-primary-medium rounded-xl blur-md opacity-50"></div>
-                            <div class="relative bg-gradient-to-br from-primary-light to-primary-medium p-3 rounded-xl shadow-lg">
-                                <i class="fas fa-folder-open text-white text-xl"></i>
-                            </div>
-                        </div>
-                        <span class="bg-gradient-to-r from-primary-dark via-primary-medium to-indigo-600 bg-clip-text text-transparent">
-                            الملفات المرفوعة
-                        </span>
-                        <span class="bg-gradient-to-r from-primary-medium to-primary-dark text-white px-4 py-1.5 rounded-full text-lg font-bold shadow-lg">
-                            {{ $order->documentation->count() }}
-                        </span>
+            <div class="doc-files-section-new">
+                <div class="doc-files-header-new">
+                    <h3 class="doc-files-title-new">
+                        <i class="fas fa-folder-open"></i>
+                        الملفات المرفوعة
+                        <span class="doc-files-count-new">{{ $order->documentation->count() }}</span>
                     </h3>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                <div class="doc-files-grid-new">
                     @foreach($order->documentation as $doc)
-                    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border-2 border-gray-200/50 p-6 md:p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative overflow-hidden group">
-                        <!-- Hover Effect Background -->
-                        <div class="absolute inset-0 bg-gradient-to-br from-primary-light/10 via-primary-medium/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-light/20 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        <div class="relative z-10">
-                            <div class="flex items-start justify-between mb-5">
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-bold text-lg md:text-xl text-gray-900 mb-3 flex items-center gap-3">
-                                        <div class="bg-gradient-to-br from-primary-light to-primary-medium p-2.5 rounded-lg shadow-md flex-shrink-0">
-                                            <i class="fas fa-file-video text-white text-lg"></i>
-                                        </div>
-                                        <span class="truncate">{{ $doc->title ?? ($doc->description ?: 'ملف توثيق') }}</span>
-                                    </h4>
-                                    @if($doc->description)
-                                    <p class="text-sm text-gray-600 mb-4 leading-relaxed">{{ $doc->description }}</p>
+                    <div class="doc-file-card-new">
+                        <div class="doc-file-header-new">
+                            <div class="doc-file-info-new">
+                                <h4 class="doc-file-title-new">
+                                    <i class="fas fa-file-video"></i>
+                                    {{ $doc->title ?? ($doc->description ?: 'ملف توثيق') }}
+                                </h4>
+                                @if($doc->description)
+                                <p class="doc-file-desc-new">{{ $doc->description }}</p>
+                                @endif
+                                <div class="doc-file-meta-new">
+                                    <span class="doc-meta-item-new">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ $doc->created_at->format('Y-m-d H:i') }}
+                                    </span>
+                                    @if($doc->formatted_file_size)
+                                    <span class="doc-meta-item-new doc-meta-blue-new">
+                                        <i class="fas fa-hdd"></i>
+                                        {{ $doc->formatted_file_size }}
+                                    </span>
                                     @endif
-                                    <div class="flex items-center gap-3 text-xs md:text-sm text-gray-600 flex-wrap">
-                                        <span class="flex items-center gap-2 bg-gradient-to-r from-gray-50 to-gray-100 px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                                            <i class="fas fa-calendar text-primary-medium"></i>
-                                            <span class="font-medium">{{ $doc->created_at->format('Y-m-d H:i') }}</span>
-                                        </span>
-                                        @if($doc->formatted_file_size)
-                                        <span class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-3 py-2 rounded-lg border border-blue-200 shadow-sm">
-                                            <i class="fas fa-hdd text-primary-medium"></i>
-                                            <span class="font-medium">{{ $doc->formatted_file_size }}</span>
-                                        </span>
-                                        @endif
-                                        @if($doc->formatted_duration)
-                                        <span class="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 px-3 py-2 rounded-lg border border-purple-200 shadow-sm">
-                                            <i class="fas fa-clock text-primary-medium"></i>
-                                            <span class="font-medium">{{ $doc->formatted_duration }}</span>
-                                        </span>
-                                        @endif
-                                        @if($doc->is_visible_to_customer)
-                                        <span class="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 px-3 py-2 rounded-lg border border-green-200 shadow-sm">
-                                            <i class="fas fa-eye text-green-600"></i>
-                                            <span class="font-bold">مرئي للعميل</span>
-                                        </span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2 flex-shrink-0 ml-3">
-                                    <a href="{{ $doc->video_url }}" target="_blank" 
-                                       class="group/btn relative bg-gradient-to-r from-primary-light via-primary-medium to-primary-dark hover:from-primary-medium hover:via-primary-dark hover:to-indigo-600 text-white p-3.5 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl transform hover:rotate-3" title="عرض الفيديو">
-                                        <i class="fas fa-eye text-base"></i>
-                                        <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                    </a>
-                                    <form method="POST" action="{{ route('admin.documentation.delete', $doc) }}" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="group/btn relative bg-gradient-to-r from-red-500 via-red-600 to-red-700 hover:from-red-600 hover:via-red-700 hover:to-red-800 text-white p-3.5 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg hover:shadow-xl transform hover:rotate-3" 
-                                                onclick="return confirm('هل أنت متأكد من حذف هذا الملف؟')" title="حذف">
-                                            <i class="fas fa-trash text-base"></i>
-                                            <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                                        </button>
-                                    </form>
+                                    @if($doc->is_visible_to_customer)
+                                    <span class="doc-meta-item-new doc-meta-green-new">
+                                        <i class="fas fa-eye"></i>
+                                        مرئي للعميل
+                                    </span>
+                                    @endif
                                 </div>
                             </div>
-                            @if($doc->video_path)
-                            <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-700/50 relative group/video">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 z-10 pointer-events-none"></div>
-                                <video controls class="w-full relative z-0" style="max-height: 400px; min-height: 300px;" preload="metadata" playsinline webkit-playsinline>
-                                    <source src="{{ $doc->video_url }}" type="video/mp4">
-                                    <source src="{{ $doc->video_url }}" type="video/webm">
-                                    <source src="{{ $doc->video_url }}" type="video/ogg">
-                                    <div class="text-white p-6 text-center bg-gray-900/90">
-                                        <i class="fas fa-exclamation-triangle text-3xl mb-3 text-yellow-400"></i>
-                                        <p class="mb-2">متصفحك لا يدعم تشغيل الفيديو.</p>
-                                        <a href="{{ $doc->video_url }}" class="text-blue-400 underline hover:text-blue-300 font-medium inline-flex items-center gap-2" download>
-                                            <i class="fas fa-download"></i>
-                                            اضغط هنا لتحميل الفيديو
-                                        </a>
-                                    </div>
-                                </video>
+                            <div class="doc-file-actions-new">
+                                <a href="{{ $doc->video_url }}" target="_blank" class="doc-action-btn-new doc-action-view-new" title="عرض">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <form method="POST" action="{{ route('admin.documentation.delete', $doc) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="doc-action-btn-new doc-action-delete-new" 
+                                            onclick="return confirm('هل أنت متأكد من حذف هذا الملف؟')" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
-                            @endif
                         </div>
+                        @if($doc->video_path)
+                        <div class="doc-video-wrapper-new">
+                            <video controls class="doc-video-new" preload="metadata">
+                                <source src="{{ $doc->video_url }}" type="video/mp4">
+                                متصفحك لا يدعم تشغيل الفيديو.
+                            </video>
+                        </div>
+                        @endif
                     </div>
                     @endforeach
                 </div>
             </div>
             @else
-            <div class="text-center py-20 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 rounded-2xl border-2 border-dashed border-gray-300/50 relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-primary-light/5 to-transparent"></div>
-                <div class="relative z-10">
-                    <div class="relative inline-block mb-6">
-                        <div class="absolute inset-0 bg-gradient-to-br from-primary-light to-primary-medium rounded-full blur-2xl opacity-30"></div>
-                        <div class="relative bg-white rounded-full p-8 w-32 h-32 mx-auto shadow-2xl flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-video text-5xl text-gray-400"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 text-xl font-bold mb-2">لا توجد ملفات توثيق مرفوعة بعد</p>
-                    <p class="text-gray-500 text-base">قم برفع أول ملف توثيق للطلب أعلاه</p>
+            <div class="doc-empty-new">
+                <div class="doc-empty-icon-new">
+                    <i class="fas fa-video"></i>
                 </div>
+                <p class="doc-empty-title-new">لا توجد ملفات توثيق مرفوعة بعد</p>
+                <p class="doc-empty-text-new">قم برفع أول ملف توثيق للطلب أعلاه</p>
             </div>
             @endif
         </div>
