@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('contact_message_replies');
+        
         Schema::create('contact_message_replies', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('contact_message_id');
