@@ -361,11 +361,22 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Order::with(['orderItems' => function($q) {
-                $q->with('service');
+            // أولاً: الحصول على عدد الطلبات الإجمالي بدون أي فلترة
+            $totalOrdersCount = Order::count();
+            
+            Log::info('Total orders in database: ' . $totalOrdersCount);
+            
+            // بناء الاستعلام - بدون أي فلترة افتراضية
+            $query = Order::query();
+            
+            // تحميل العلاقات بشكل آمن
+            $query->with(['orderItems' => function($q) {
+                $q->with(['service' => function($serviceQuery) {
+                    // تحميل الخدمة حتى لو كانت محذوفة
+                }]);
             }]);
             
-            // Advanced Filters
+            // تطبيق الفلاتر فقط إذا تم إرسالها من المستخدم
             if ($request->filled('order_number')) {
                 $query->where('order_number', 'like', '%' . $request->order_number . '%');
             }
@@ -406,25 +417,39 @@ class OrderController extends Controller
                 $query->where('total_amount', '<=', $request->amount_max);
             }
             
+            // الحصول على الطلبات بدون أي فلترة افتراضية
             $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
             
             // Log for debugging
             Log::info('Admin orders index', [
-                'total_orders' => $orders->total(),
+                'total_orders_in_db' => $totalOrdersCount,
+                'filtered_orders_count' => $orders->total(),
                 'current_page' => $orders->currentPage(),
-                'filters' => $request->all()
+                'items_on_page' => $orders->count(),
+                'filters_applied' => $request->all()
             ]);
             
-            return view('admin.orders.index', compact('orders'));
+            return view('admin.orders.index', compact('orders', 'totalOrdersCount'));
         } catch (\Exception $e) {
             Log::error('Error loading orders: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
-            return view('admin.orders.index', [
-                'orders' => collect([])->paginate(20),
-                'error' => 'حدث خطأ أثناء تحميل الطلبات: ' . $e->getMessage()
-            ]);
+            // محاولة الحصول على الطلبات بدون علاقات في حالة الخطأ
+            try {
+                $simpleOrders = Order::orderBy('created_at', 'desc')->paginate(20);
+                return view('admin.orders.index', [
+                    'orders' => $simpleOrders,
+                    'error' => 'حدث خطأ أثناء تحميل العلاقات: ' . $e->getMessage()
+                ]);
+            } catch (\Exception $e2) {
+                return view('admin.orders.index', [
+                    'orders' => collect([])->paginate(20),
+                    'error' => 'حدث خطأ أثناء تحميل الطلبات: ' . $e2->getMessage()
+                ]);
+            }
         }
     }
     
@@ -481,6 +506,26 @@ class OrderController extends Controller
         }
     }
 
+    /**
+     * Seed demo orders (delete old and create new)
+     */
+    public function seedDemoOrders()
+    {
+        try {
+            \Artisan::call('db:seed', ['--class' => 'OrderSeeder', '--force' => true]);
+            
+            $output = \Artisan::output();
+            
+            return redirect()->route('admin.orders.index')
+                ->with('success', 'تم حذف الطلبات القديمة وإنشاء طلبات ديمو جديدة بنجاح! ' . $output);
+        } catch (\Exception $e) {
+            \Log::error('Error seeding demo orders: ' . $e->getMessage());
+            
+            return redirect()->route('admin.orders.index')
+                ->with('error', 'حدث خطأ أثناء إنشاء الطلبات الديمو: ' . $e->getMessage());
+        }
+    }
+    
     /**
      * Export orders to Excel
      */

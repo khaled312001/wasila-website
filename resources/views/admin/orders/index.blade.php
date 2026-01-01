@@ -108,11 +108,28 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="text-lg md:text-xl font-semibold text-primary-dark">جميع الطلبات</h2>
-                @if(isset($orders) && $orders->total() > 0)
+                @if(isset($totalOrdersCount))
+                <p class="text-sm text-gray-500 mt-1">
+                    إجمالي الطلبات في قاعدة البيانات: <strong>{{ $totalOrdersCount }}</strong>
+                    @if(isset($orders) && $orders->total() != $totalOrdersCount)
+                    | بعد الفلترة: <strong>{{ $orders->total() }}</strong>
+                    @endif
+                </p>
+                @elseif(isset($orders) && $orders->total() > 0)
                 <p class="text-sm text-gray-500 mt-1">إجمالي الطلبات: {{ $orders->total() }}</p>
                 @endif
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
+                <form method="POST" action="{{ route('admin.orders.seed-demo') }}" class="inline" onsubmit="return confirm('⚠️ سيتم حذف جميع الطلبات القديمة وإنشاء طلبات ديمو جديدة. هل أنت متأكد؟')">
+                    @csrf
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                        </svg>
+                        إنشاء طلبات ديمو
+                    </button>
+                </form>
                 <a href="{{ route('admin.orders.export.excel', request()->query()) }}" 
                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -236,8 +253,17 @@
                             </svg>
                             <p class="text-lg font-medium">لا توجد طلبات</p>
                             <p class="text-sm text-gray-400">لم يتم العثور على أي طلبات في النظام</p>
+                            @if(isset($totalOrdersCount) && $totalOrdersCount == 0)
+                            <p class="text-sm text-orange-500 mt-2 font-semibold">
+                                ⚠️ لا توجد طلبات في قاعدة البيانات. يرجى التحقق من قاعدة البيانات أو إنشاء طلب تجريبي.
+                            </p>
+                            @elseif(isset($totalOrdersCount) && $totalOrdersCount > 0)
+                            <p class="text-sm text-blue-500 mt-2">
+                                ℹ️ يوجد {{ $totalOrdersCount }} طلب في قاعدة البيانات ولكن لا يظهر بسبب الفلترة المطبقة.
+                            </p>
+                            @endif
                             @if(isset($error))
-                            <p class="text-sm text-red-500 mt-2">{{ $error }}</p>
+                            <p class="text-sm text-red-500 mt-2 font-semibold">خطأ: {{ $error }}</p>
                             @endif
                         </div>
                     </td>

@@ -141,6 +141,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/services/sync-images', [ServiceController::class, 'syncAllImages'])->name('services.sync-images');
         Route::resource('orders', OrderController::class)->only(['index', 'update']);
         Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('orders.show');
+        Route::post('/orders/seed-demo', [OrderController::class, 'seedDemoOrders'])->name('orders.seed-demo');
         Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
         Route::get('/orders/export/pdf', [AdminController::class, 'exportOrdersPDF'])->name('orders.export.pdf');
         
