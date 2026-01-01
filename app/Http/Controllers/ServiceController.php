@@ -57,7 +57,10 @@ class ServiceController extends Controller
             $data['image'] = $request->file('image')->store('services', 'public');
             
             // Copy file to public/storage for hosting providers that don't support symlinks
-            $this->copyToPublicStorage($data['image']);
+            $copied = $this->copyToPublicStorage($data['image']);
+            if (!$copied) {
+                Log::warning('Failed to copy service image to public storage, but continuing: ' . $data['image']);
+            }
         }
         
         // Set default values
@@ -105,11 +108,16 @@ class ServiceController extends Controller
             // Delete old image if it exists
             if ($service->image && Storage::disk('public')->exists($service->image)) {
                 Storage::disk('public')->delete($service->image);
+                // Also delete from public/storage
+                $this->deleteFromPublicStorage($service->image);
             }
             $data['image'] = $request->file('image')->store('services', 'public');
             
             // Copy file to public/storage for hosting providers that don't support symlinks
-            $this->copyToPublicStorage($data['image']);
+            $copied = $this->copyToPublicStorage($data['image']);
+            if (!$copied) {
+                Log::warning('Failed to copy service image to public storage, but continuing: ' . $data['image']);
+            }
         }
         
         $service->update($data);
@@ -123,6 +131,8 @@ class ServiceController extends Controller
         // Delete the image file if it exists
         if ($service->image && Storage::disk('public')->exists($service->image)) {
             Storage::disk('public')->delete($service->image);
+            // Also delete from public/storage
+            $this->deleteFromPublicStorage($service->image);
         }
         
         $service->delete();
@@ -140,22 +150,91 @@ class ServiceController extends Controller
             $sourcePath = storage_path('app/public/' . $filePath);
             $targetPath = public_path('storage/' . $filePath);
             
+            // Check if source file exists
+            if (!file_exists($sourcePath)) {
+                Log::warning('Source file does not exist: ' . $sourcePath);
+                return false;
+            }
+            
             // Create directory if it doesn't exist
             $targetDir = dirname($targetPath);
             if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
+                if (!mkdir($targetDir, 0755, true)) {
+                    Log::error('Failed to create directory: ' . $targetDir);
+                    return false;
+                }
             }
             
             // Copy file
-            if (file_exists($sourcePath)) {
-                copy($sourcePath, $targetPath);
-                
-                // Set permissions
-                chmod($targetPath, 0644);
+            if (!copy($sourcePath, $targetPath)) {
+                Log::error('Failed to copy file from ' . $sourcePath . ' to ' . $targetPath);
+                return false;
+            }
+            
+            // Set permissions
+            chmod($targetPath, 0644);
+            
+            // Verify the copy was successful
+            if (!file_exists($targetPath)) {
+                Log::error('File copy verification failed: ' . $targetPath);
+                return false;
+            }
+            
+            Log::info('Successfully copied file to public storage: ' . $filePath);
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Exception in copyToPublicStorage: ' . $e->getMessage() . ' | File: ' . $filePath);
+            return false;
+        }
+    }
+    
+    /**
+     * Delete file from public/storage directory
+     */
+    private function deleteFromPublicStorage($filePath)
+    {
+        try {
+            $targetPath = public_path('storage/' . $filePath);
+            if (file_exists($targetPath)) {
+                unlink($targetPath);
+                Log::info('Deleted file from public storage: ' . $filePath);
             }
         } catch (\Exception $e) {
-            // Log error but don't break the flow
-            Log::info('Failed to copy file to public storage: ' . $e->getMessage());
+            Log::warning('Failed to delete file from public storage: ' . $e->getMessage());
         }
+    }
+    
+    /**
+     * Copy all existing service images to public/storage
+     * This is useful for fixing images after deployment or when symlinks don't work
+     */
+    public function syncAllImages(Request $request)
+    {
+        $services = Service::whereNotNull('image')->get();
+        $successCount = 0;
+        $failCount = 0;
+        
+        foreach ($services as $service) {
+            if ($this->copyToPublicStorage($service->image)) {
+                $successCount++;
+            } else {
+                $failCount++;
+                Log::warning('Failed to sync image for service ID: ' . $service->id . ' - Image: ' . $service->image);
+            }
+        }
+        
+        $message = "تم نسخ {$successCount} صورة بنجاح" . ($failCount > 0 ? " وفشل نسخ {$failCount} صورة" : "");
+        
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'success_count' => $successCount,
+                'fail_count' => $failCount
+            ]);
+        }
+        
+        return redirect()->route('admin.services.index')
+            ->with('success', $message);
     }
 }

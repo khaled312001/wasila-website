@@ -6,9 +6,17 @@
 @section('content')
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <h2 class="text-xl md:text-2xl font-bold text-primary-dark">الخدمات</h2>
-    <a href="{{ route('admin.services.create') }}" class="btn-primary text-white px-4 py-2 rounded-lg font-semibold mobile-btn">
-        إضافة خدمة جديدة
-    </a>
+    <div class="flex flex-col sm:flex-row gap-2">
+        <form method="POST" action="{{ route('admin.services.sync-images') }}" class="inline" onsubmit="return confirm('هل تريد نسخ جميع صور الخدمات إلى public/storage؟')">
+            @csrf
+            <button type="submit" class="btn-secondary text-white px-4 py-2 rounded-lg font-semibold mobile-btn">
+                مزامنة الصور
+            </button>
+        </form>
+        <a href="{{ route('admin.services.create') }}" class="btn-primary text-white px-4 py-2 rounded-lg font-semibold mobile-btn">
+            إضافة خدمة جديدة
+        </a>
+    </div>
 </div>
 
 <div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden mobile-card">
@@ -29,12 +37,8 @@
                 @forelse($services as $service)
                 <tr class="table-row">
                     <td class="px-3 md:px-6 py-4 whitespace-nowrap">
-                        @if($service->image)
-                            @php
-                                $cleanImage = str_replace('storage/', '', $service->image);
-                                $imageUrl = \Storage::disk('public')->url($cleanImage);
-                            @endphp
-                            <img src="{{ $imageUrl }}" alt="{{ $service->name_ar }}" class="h-10 w-10 md:h-12 md:w-12 rounded-lg object-cover" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-service.png') }}'; this.style.display='block';">
+                        @if($service->image_url)
+                            <img src="{{ $service->image_url }}" alt="{{ $service->name_ar }}" class="h-10 w-10 md:h-12 md:w-12 rounded-lg object-cover" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-service.png') }}'; this.style.display='block';">
                         @else
                         <div class="h-10 w-10 md:h-12 md:w-12 bg-gray-200 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 md:w-6 md:h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">

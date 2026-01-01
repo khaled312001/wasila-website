@@ -208,20 +208,8 @@
                     <a href="{{ route('orders.checkout') }}?service_id={{ $service->id }}&service_name={{ urlencode(app()->getLocale() === 'en' ? $service->name_en : $service->name_ar) }}&service_price={{ $service->price }}&service_description={{ urlencode(app()->getLocale() === 'en' ? $service->description_en : $service->description_ar) }}" class="text-decoration-none">
                         <div class="service-card">
                             <div class="service-image-wrapper" style="overflow: hidden; height: 250px;">
-                        @if($service->image)
-                            @php
-                                // Remove 'storage/' prefix if exists to avoid duplication
-                                $cleanImage = str_replace('storage/', '', $service->image);
-                                $imagePath = 'storage/' . $cleanImage;
-                                $imageExists = \Storage::disk('public')->exists($cleanImage) || file_exists(storage_path('app/public/' . $cleanImage));
-                            @endphp
-                            @if($imageExists)
-                                <img src="{{ \Storage::disk('public')->url($cleanImage) }}" alt="{{ $service->name }}" class="service-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width:100%;height:250px;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-4xl\'></i></div>';">
-                            @else
-                                <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-image text-white text-4xl"></i>
-                                </div>
-                            @endif
+                        @if($service->image_url)
+                            <img src="{{ $service->image_url }}" alt="{{ $service->name }}" class="service-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width:100%;height:250px;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-4xl\'></i></div>';">
                         @else
                             <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-image text-white text-4xl"></i>

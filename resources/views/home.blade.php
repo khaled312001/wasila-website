@@ -293,13 +293,8 @@
                 
                 <!-- Image Section -->
                 <div class="relative overflow-hidden">
-                    @if($service->image)
-                    @php
-                        $imageUrl = \Storage::disk('public')->exists($service->image) 
-                            ? \Storage::disk('public')->url($service->image)
-                            : asset('storage/' . (str_starts_with($service->image, 'storage/') ? substr($service->image, 8) : $service->image));
-                    @endphp
-                    <img src="{{ $imageUrl }}" 
+                    @if($service->image_url)
+                    <img src="{{ $service->image_url }}" 
                          alt="{{ $service->name }} - {{ __('messages.charity_service_from_wasila') }}" 
                          class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500" 
                          loading="lazy"

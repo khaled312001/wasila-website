@@ -138,6 +138,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth.admin')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::resource('services', ServiceController::class);
+        Route::post('/services/sync-images', [ServiceController::class, 'syncAllImages'])->name('services.sync-images');
         Route::resource('orders', OrderController::class)->only(['index', 'update']);
         Route::get('/orders/{order}', [OrderController::class, 'adminShow'])->name('orders.show');
         Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])->name('orders.export.excel');
