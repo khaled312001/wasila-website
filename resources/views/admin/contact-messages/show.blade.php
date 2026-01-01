@@ -167,7 +167,7 @@
                 <p class="text-sm text-gray-500">هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.</p>
             </div>
             <div class="items-center px-4 py-3">
-                <button id="confirmDelete" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                <button id="confirmDelete" class="px-4 py-2 text-white text-base font-medium rounded-md w-24 mr-2 focus:outline-none focus:ring-2 focus:ring-primary-medium" style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);" onmouseover="this.style.background='linear-gradient(135deg, #065a6b 0%, #2a8a96 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #08788B 0%, #3CA6B4 100%)'">
                     حذف
                 </button>
                 <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-24 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">

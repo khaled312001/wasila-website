@@ -59,8 +59,8 @@
     
     .stat-label {
         font-size: 0.875rem;
-        color: #64748b;
-        font-weight: 500;
+        color: #475569;
+        font-weight: 600;
     }
     
     .chart-card-modern {
@@ -152,7 +152,12 @@
     
     .table-modern tbody td {
         padding: 1rem 1.5rem;
-        color: #334155;
+        color: #1e293b;
+    }
+    
+    .table-modern thead th {
+        color: #ffffff;
+        background: linear-gradient(135deg, #08788B 0%, #025469 100%);
     }
     
     .status-badge-modern {
@@ -198,12 +203,12 @@
 @section('content')
 <!-- Welcome Section -->
 <div class="mb-8 fade-in">
-    <div class="bg-gradient-to-r from-primary-medium via-primary-dark to-indigo-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
+    <div class="rounded-2xl shadow-2xl p-8 relative overflow-hidden" style="background: linear-gradient(135deg, #08788B 0%, #025469 50%, #08788B 100%);">
         <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
         <div class="relative z-10">
-            <h1 class="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
-            <p class="text-white/90 text-lg">إدارة شاملة لجميع عمليات المنصة</p>
+            <h1 class="text-3xl font-bold mb-2" style="color: #ffffff;">مرحباً بك في لوحة التحكم</h1>
+            <p class="text-lg" style="color: rgba(255, 255, 255, 0.95);">إدارة شاملة لجميع عمليات المنصة</p>
         </div>
     </div>
 </div>
@@ -265,9 +270,9 @@
             <i class="fas fa-envelope text-white text-xl"></i>
         </div>
         <p class="stat-label">الرسائل غير المقروءة</p>
-        <p class="stat-value" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $stats['unread_messages'] }}</p>
+        <p class="stat-value" style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $stats['unread_messages'] }}</p>
         @if($stats['unread_messages'] > 0)
-        <div class="flex items-center gap-1 mt-2 text-xs text-red-600">
+        <div class="flex items-center gap-1 mt-2 text-xs" style="color: #08788B;">
             <i class="fas fa-bell"></i>
             <span>جديد</span>
         </div>
@@ -319,8 +324,8 @@
                     <div class="flex items-center gap-4">
                         <div class="service-rank">{{ $loop->iteration }}</div>
                         <div>
-                            <p class="font-semibold text-gray-900 text-lg">{{ $service->name_ar }}</p>
-                            <p class="text-sm text-gray-500 mt-1">
+                            <p class="font-semibold text-lg" style="color: #1e293b;">{{ $service->name_ar }}</p>
+                            <p class="text-sm mt-1" style="color: #475569;">
                                 <i class="fas fa-shopping-cart ml-1"></i>
                                 {{ $service->orders_count }} طلب
                             </p>
@@ -328,7 +333,7 @@
                     </div>
                     <div class="text-left">
                         <p class="text-lg font-bold text-primary-dark">{{ number_format($service->total_revenue, 2) }}</p>
-                        <p class="text-xs text-gray-500">ريال</p>
+                        <p class="text-xs" style="color: #64748b;">ريال</p>
                     </div>
                 </div>
             </div>
@@ -349,7 +354,7 @@
 <div class="table-modern fade-in" style="animation-delay: 1.1s">
     <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <h2 class="text-xl font-bold flex items-center gap-2" style="color: #1e293b;">
                 <i class="fas fa-list text-primary-medium"></i>
                 الطلبات الأخيرة
             </h2>
@@ -375,10 +380,10 @@
                 @forelse($recent_orders as $order)
                 <tr>
                     <td class="px-6 py-4">
-                        <span class="font-semibold text-gray-900">#{{ $order->order_number }}</span>
+                        <span class="font-semibold" style="color: #1e293b;">#{{ $order->order_number }}</span>
                     </td>
                     <td class="px-6 py-4 hidden sm:table-cell">
-                        <span class="text-gray-700">{{ $order->customer_name }}</span>
+                        <span style="color: #334155;">{{ $order->customer_name }}</span>
                     </td>
                     <td class="px-6 py-4">
                         <span class="font-bold text-primary-dark">{{ number_format($order->total_amount, 2) }} ريال</span>
@@ -410,7 +415,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 hidden md:table-cell">
-                        <span class="text-gray-600 text-sm">{{ $order->created_at->format('Y-m-d H:i') }}</span>
+                        <span class="text-sm" style="color: #475569;">{{ $order->created_at->format('Y-m-d H:i') }}</span>
                     </td>
                     <td class="px-6 py-4">
                         <a href="{{ route('admin.orders.show', $order) }}" class="bg-gradient-to-r from-primary-light to-primary-medium text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-md transform hover:scale-105 transition-all duration-200 inline-flex items-center gap-2">
@@ -423,8 +428,8 @@
                 <tr>
                     <td colspan="6" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center">
-                            <i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
-                            <p class="text-gray-600 text-lg">لا توجد طلبات</p>
+                            <i class="fas fa-inbox text-4xl mb-4" style="color: #94a3b8;"></i>
+                            <p class="text-lg" style="color: #475569;">لا توجد طلبات</p>
                         </div>
                     </td>
                 </tr>

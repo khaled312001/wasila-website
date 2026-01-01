@@ -76,7 +76,7 @@
                     </li>
                     <li class="wasila-nav-item">
                         <a href="{{ url('/') }}#services" class="wasila-nav-link">
-                            <i class="wasila-nav-icon fas fa-concierge-bell"></i>
+                            <i class="wasila-nav-icon fas fa-kaaba"></i>
                             <span>{{ __('messages.services') }}</span>
                         </a>
                     </li>
@@ -129,7 +129,7 @@
         <div class="wasila-mobile-menu" id="wasilaMobileMenu">
             <ul class="wasila-mobile-nav-list">
                 <li><a href="{{ url('/') }}#home"><i class="fas fa-home"></i> {{ __('messages.home') }}</a></li>
-                <li><a href="{{ url('/') }}#services"><i class="fas fa-concierge-bell"></i> {{ __('messages.services') }}</a></li>
+                <li><a href="{{ url('/') }}#services"><i class="fas fa-kaaba"></i> {{ __('messages.services') }}</a></li>
                 <li><a href="{{ url('/') }}#about"><i class="fas fa-info-circle"></i> {{ __('messages.about') }}</a></li>
                 <li><a href="{{ url('/') }}#contact"><i class="fas fa-envelope"></i> {{ __('messages.contact') }}</a></li>
                 <li class="wasila-mobile-divider"></li>
@@ -457,27 +457,11 @@
                         <i class="fas fa-copyright"></i>
                         {{ date('Y') }} {{ __('messages.copyright_2025_wasila') }}
                     </p>
-                    <p class="wasila-footer-made">
-                        <i class="fas fa-heart"></i>
-                        صنع بـ
-                    </p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Floating Buttons -->
-    <div class="floating-btn">
-        <button onclick="scrollToServices()" class="btn btn-primary btn-lg rounded-pill shadow-lg">
-            <i class="fas fa-shopping-cart me-2"></i>{{ __('messages.request_service_footer') }}
-        </button>
-    </div>
-
-    <div class="whatsapp-btn">
-        <a href="https://wa.me/966501234567?text={{ urlencode(__('messages.whatsapp_message', ['default' => 'مرحباً، أريد الاستفسار عن خدمات وسيلة الخيرية'])) }}" target="_blank" class="btn btn-success btn-lg rounded-pill shadow-lg">
-            <i class="fab fa-whatsapp me-2"></i>{{ __('messages.whatsapp_footer') }}
-        </a>
-    </div>
 
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox">

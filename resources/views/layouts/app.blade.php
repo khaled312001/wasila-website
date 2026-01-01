@@ -348,7 +348,7 @@
                         <span>{{ __('messages.home') }}</span>
                     </a>
                     <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" class="text-gray-700 hover:text-primary-medium transition duration-300 flex items-center gap-2">
-                        <i class="fas fa-handshake text-sm"></i>
+                        <i class="fas fa-kaaba text-sm"></i>
                         <span>{{ __('messages.services') }}</span>
                     </a>
                     <a href="#about" class="text-gray-700 hover:text-primary-medium transition duration-300 flex items-center gap-2">
@@ -644,16 +644,5 @@
     
     @stack('scripts')
     
-    <!-- Floating Login Button -->
-    @guest('customer')
-    <div class="fixed bottom-6 {{ app()->getLocale() === 'ar' ? 'left-6' : 'right-6' }} z-50 animate-bounce">
-        <a href="{{ route('customer.login') }}" 
-           class="flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-800 font-semibold py-3 px-6 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-2 border-gray-200"
-           title="{{ __('messages.login') }}">
-            <i class="fas fa-sign-in-alt text-primary-medium"></i>
-            <span class="hidden sm:inline">{{ __('messages.login') }}</span>
-        </a>
-    </div>
-    @endguest
 </body>
 </html>

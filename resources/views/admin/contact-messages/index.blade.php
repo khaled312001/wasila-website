@@ -3,22 +3,126 @@
 @section('title', 'إدارة الرسائل')
 @section('page-title', 'إدارة الرسائل')
 
+@push('styles')
+<style>
+    .message-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid rgba(8, 120, 139, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .message-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(8, 120, 139, 0.15);
+        border-color: rgba(8, 120, 139, 0.3);
+    }
+    
+    .message-card.unread {
+        background: linear-gradient(135deg, rgba(8, 120, 139, 0.05) 0%, rgba(60, 166, 180, 0.05) 100%);
+        border-left: 4px solid #08788B;
+    }
+    
+    .message-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.125rem;
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
+    }
+    
+    .status-badge {
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+    
+    .status-read {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .status-unread {
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
+        color: white;
+    }
+    
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-view {
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: linear-gradient(135deg, #065a6b 0%, #2a8a96 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
+    }
+    
+    .btn-mark {
+        background: rgba(8, 120, 139, 0.1);
+        color: #08788B;
+        border: 1px solid rgba(8, 120, 139, 0.2);
+    }
+    
+    .btn-mark:hover {
+        background: rgba(8, 120, 139, 0.2);
+        color: #065a6b;
+    }
+    
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #dc2626;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
+    <div class="rounded-2xl shadow-lg p-6" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(8, 120, 139, 0.1);">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">إدارة الرسائل</h1>
-                <p class="text-gray-600 mt-1">إدارة رسائل التواصل من الموقع</p>
+                <h1 class="text-3xl font-bold mb-2" style="color: #025469;">إدارة الرسائل</h1>
+                <p class="text-lg" style="color: #64748b;">إدارة رسائل التواصل من الموقع</p>
             </div>
             <div class="mt-4 md:mt-0">
-                <div class="flex items-center space-x-4 space-x-reverse">
-                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="px-4 py-2 rounded-full text-sm font-semibold" style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%); color: white; box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);">
+                        <i class="fas fa-envelope ml-2"></i>
                         إجمالي الرسائل: {{ $messages->total() }}
                     </div>
                     @if($unreadCount > 0)
-                    <div class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                    <div class="px-4 py-2 rounded-full text-sm font-semibold" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+                        <i class="fas fa-bell ml-2"></i>
                         غير مقروءة: {{ $unreadCount }}
                     </div>
                     @endif
@@ -28,147 +132,131 @@
     </div>
 
     <!-- Messages List -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="space-y-4">
         @if($messages->count() > 0)
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            المرسل
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            البريد الإلكتروني
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            الموضوع
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            التاريخ
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            الحالة
-                        </th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            الإجراءات
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($messages as $message)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200 {{ !$message->is_read ? 'bg-blue-50' : '' }}">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <div class="h-10 w-10 rounded-full bg-primary-medium flex items-center justify-center">
-                                        <span class="text-white font-medium text-sm">
-                                            {{ substr($message->name, 0, 1) }}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="mr-4">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ $message->name }}
-                                        @if(!$message->is_read)
-                                        <span class="inline-block w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                                        @endif
-                                    </div>
-                                    @if($message->phone)
-                                    <div class="text-sm text-gray-500">{{ $message->phone }}</div>
-                                    @endif
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $message->email }}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900">
-                                {{ $message->subject ?: 'لا يوجد موضوع' }}
-                            </div>
-                            <div class="text-sm text-gray-500 truncate max-w-xs">
-                                {{ Str::limit($message->message, 50) }}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $message->formatted_created_at }}</div>
-                            <div class="text-sm text-gray-500">{{ $message->time_ago }}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($message->is_read)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                مقروءة
-                            </span>
-                            @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                غير مقروءة
-                            </span>
+        @foreach($messages as $message)
+        <div class="message-card {{ !$message->is_read ? 'unread' : '' }}">
+            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <!-- Avatar & Sender Info -->
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="message-avatar">
+                        {{ mb_substr($message->name, 0, 1, 'UTF-8') }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h3 class="text-lg font-bold" style="color: #1e293b;">
+                                {{ $message->name }}
+                            </h3>
+                            @if(!$message->is_read)
+                            <span class="w-3 h-3 rounded-full animate-pulse" style="background: #08788B;"></span>
                             @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex items-center space-x-2 space-x-reverse">
-                                <a href="{{ route('admin.contact-messages.show', $message) }}" 
-                                   class="text-primary-medium hover:text-primary-dark transition-colors duration-200">
-                                    عرض
-                                </a>
-                                @if($message->is_read)
-                                <button onclick="markAsUnread({{ $message->id }})" 
-                                        class="text-yellow-600 hover:text-yellow-800 transition-colors duration-200">
-                                    تمييز كغير مقروءة
-                                </button>
-                                @else
-                                <button onclick="markAsRead({{ $message->id }})" 
-                                        class="text-green-600 hover:text-green-800 transition-colors duration-200">
-                                    تمييز كمقروءة
-                                </button>
-                                @endif
-                                <button onclick="deleteMessage({{ $message->id }})" 
-                                        class="text-red-600 hover:text-red-800 transition-colors duration-200">
-                                    حذف
-                                </button>
+                        </div>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-envelope text-sm" style="color: #64748b;"></i>
+                                <span class="text-sm" style="color: #475569;">{{ $message->email }}</span>
                             </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            @if($message->phone)
+                            <div class="flex items-center gap-1">
+                                <i class="fas fa-phone text-sm" style="color: #64748b;"></i>
+                                <span class="text-sm" style="color: #475569;">{{ $message->phone }}</span>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Status & Actions -->
+                <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+                    <div class="flex flex-col gap-2">
+                        <span class="status-badge {{ $message->is_read ? 'status-read' : 'status-unread' }}">
+                            <i class="fas {{ $message->is_read ? 'fa-check-circle' : 'fa-envelope' }}"></i>
+                            {{ $message->is_read ? 'مقروءة' : 'غير مقروءة' }}
+                        </span>
+                        <div class="text-xs" style="color: #64748b;">
+                            <i class="fas fa-clock ml-1"></i>
+                            {{ $message->time_ago }}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <a href="{{ route('admin.contact-messages.show', $message) }}" 
+                           class="action-btn btn-view">
+                            <i class="fas fa-eye ml-1"></i>
+                            عرض
+                        </a>
+                        @if($message->is_read)
+                        <button onclick="markAsUnread({{ $message->id }})" 
+                                class="action-btn btn-mark">
+                            <i class="fas fa-envelope ml-1"></i>
+                            غير مقروءة
+                        </button>
+                        @else
+                        <button onclick="markAsRead({{ $message->id }})" 
+                                class="action-btn btn-mark">
+                            <i class="fas fa-check ml-1"></i>
+                            مقروءة
+                        </button>
+                        @endif
+                        <button onclick="deleteMessage({{ $message->id }})" 
+                                class="action-btn btn-delete">
+                            <i class="fas fa-trash ml-1"></i>
+                            حذف
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Subject & Message Preview -->
+            <div class="mt-4 pt-4 border-t" style="border-color: rgba(8, 120, 139, 0.1);">
+                <h4 class="font-semibold mb-2" style="color: #025469;">
+                    <i class="fas fa-tag ml-2" style="color: #08788B;"></i>
+                    {{ $message->subject ?: 'لا يوجد موضوع' }}
+                </h4>
+                <p class="text-sm leading-relaxed" style="color: #475569;">
+                    {{ Str::limit($message->message, 150) }}
+                </p>
+            </div>
         </div>
+        @endforeach
 
         <!-- Pagination -->
-        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-            {{ $messages->links() }}
+        <div class="mt-6 flex justify-center">
+            <div class="rounded-lg p-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(8, 120, 139, 0.1);">
+                {{ $messages->links() }}
+            </div>
         </div>
         @else
         <!-- Empty State -->
-        <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">لا توجد رسائل</h3>
-            <p class="mt-1 text-sm text-gray-500">لم يتم إرسال أي رسائل بعد.</p>
+        <div class="text-center py-16 rounded-2xl" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(8, 120, 139, 0.1);">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, rgba(8, 120, 139, 0.1) 0%, rgba(60, 166, 180, 0.1) 100%);">
+                <i class="fas fa-inbox text-4xl" style="color: #08788B;"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2" style="color: #1e293b;">لا توجد رسائل</h3>
+            <p class="text-base" style="color: #64748b;">لم يتم إرسال أي رسائل بعد.</p>
         </div>
         @endif
     </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md rounded-2xl shadow-2xl" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1px solid rgba(8, 120, 139, 0.1);">
+        <div class="p-6 text-center">
+            <div class="mx-auto flex items-center justify-center w-16 h-16 rounded-full mb-4" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);">
+                <i class="fas fa-exclamation-triangle text-3xl" style="color: #ef4444;"></i>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mt-4">تأكيد الحذف</h3>
-            <div class="mt-2 px-7 py-3">
-                <p class="text-sm text-gray-500">هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <h3 class="text-xl font-bold mb-2" style="color: #1e293b;">تأكيد الحذف</h3>
+            <div class="mt-4 mb-6">
+                <p class="text-base leading-relaxed" style="color: #475569;">هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.</p>
             </div>
-            <div class="items-center px-4 py-3">
-                <button id="confirmDelete" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+            <div class="flex items-center justify-center gap-3">
+                <button id="confirmDelete" class="px-6 py-3 text-white text-base font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-medium" style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%); box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);" onmouseover="this.style.background='linear-gradient(135deg, #065a6b 0%, #2a8a96 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(8, 120, 139, 0.4)';" onmouseout="this.style.background='linear-gradient(135deg, #08788B 0%, #3CA6B4 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(8, 120, 139, 0.3)';">
+                    <i class="fas fa-trash ml-2"></i>
                     حذف
                 </button>
-                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-24 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                <button onclick="closeDeleteModal()" class="px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300" style="background: rgba(107, 114, 128, 0.1); color: #475569; border: 1px solid rgba(107, 114, 128, 0.2);" onmouseover="this.style.background='rgba(107, 114, 128, 0.2)';" onmouseout="this.style.background='rgba(107, 114, 128, 0.1)';">
+                    <i class="fas fa-times ml-2"></i>
                     إلغاء
                 </button>
             </div>

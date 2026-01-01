@@ -24,7 +24,7 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             direction: rtl;
-            unicode-bidi: embed;
+            unicode-bidi: bidi-override;
             text-align: right;
             padding: 30px;
             font-size: 14px;
@@ -34,8 +34,14 @@
             -moz-osx-font-smoothing: grayscale;
         }
         * {
-            unicode-bidi: embed;
+            unicode-bidi: bidi-override;
             direction: rtl;
+            text-align: right;
+        }
+        h1, h2, h3, h4, h5, h6, p, div, span, td, th, li {
+            unicode-bidi: bidi-override;
+            direction: rtl;
+            text-align: right;
         }
         .header {
             text-align: center;
