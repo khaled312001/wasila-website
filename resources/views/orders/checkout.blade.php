@@ -445,19 +445,24 @@
                         <!-- Google Login Button (if not logged in) -->
                         @guest('customer')
                         <div class="mt-6 mb-4">
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                <p class="text-sm text-blue-800 mb-3 text-center">
-                                    {{ app()->getLocale() === 'ar' ? 'يجب تسجيل الدخول قبل إكمال الطلب' : 'You must login before completing the order' }}
-                                </p>
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg p-5 mb-4">
+                                <div class="flex items-center justify-center mb-3">
+                                    <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <p class="text-sm font-bold text-blue-800 text-center">
+                                        {{ app()->getLocale() === 'ar' ? 'يجب تسجيل الدخول قبل إكمال الطلب' : 'You must login before completing the order' }}
+                                    </p>
+                                </div>
                                 <a href="{{ route('auth.google') }}" 
-                                   class="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-3 transition-all duration-200 shadow-sm hover:shadow-md">
+                                   class="w-full bg-white border-2 border-gray-300 hover:border-blue-500 text-gray-700 hover:text-blue-700 py-3 px-6 rounded-lg font-semibold flex items-center justify-center gap-3 transition-all duration-200 shadow-sm hover:shadow-md">
                                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                                     </svg>
-                                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول بالجيميل' : 'Sign in with Google' }}</span>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول بالجيميل لإكمال الطلب' : 'Sign in with Google to complete order' }}</span>
                                 </a>
                             </div>
                         </div>
@@ -471,15 +476,16 @@
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
                                 </svg>
-                                <span id="submit-text">{{ app()->getLocale() === 'ar' ? 'الدفع الآمن' : 'Secure Payment' }}</span>
+                                <span id="submit-text">{{ app()->getLocale() === 'ar' ? 'إكمال الطلب والدفع الآمن' : 'Complete Order & Secure Payment' }}</span>
                             </button>
                             @else
-                            <button type="button" disabled
-                                    class="btn-primary text-white w-full py-4 px-6 rounded-lg font-semibold text-lg flex items-center justify-center opacity-50 cursor-not-allowed">
+                            <button type="button" 
+                                    onclick="window.location.href='{{ route('auth.google') }}'"
+                                    class="btn-primary text-white w-full py-4 px-6 rounded-lg font-semibold text-lg flex items-center justify-center opacity-75 hover:opacity-100 transition-opacity">
                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/>
                                 </svg>
-                                <span>{{ app()->getLocale() === 'ar' ? 'يجب تسجيل الدخول أولاً' : 'Please login first' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول لإكمال الطلب' : 'Login to complete order' }}</span>
                             </button>
                             @endauth
                         </div>
@@ -507,6 +513,10 @@
             const totalAmountElement = document.getElementById('total-amount');
             const serviceQuantityElement = document.getElementById('service-quantity');
             const serviceCountryElement = document.getElementById('service-country');
+            
+            // Check if user is logged in
+            const isLoggedIn = @json(auth('customer')->check());
+            const loginUrl = @json(route('auth.google'));
 
             // Country codes mapping
             const countryCodes = {
@@ -716,6 +726,15 @@
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                // Check if user is logged in before submitting
+                if (!isLoggedIn) {
+                    showNotification('{{ app()->getLocale() === "ar" ? "يجب تسجيل الدخول أولاً لإكمال الطلب" : "You must login first to complete the order" }}', 'error');
+                    setTimeout(() => {
+                        window.location.href = loginUrl;
+                    }, 1500);
+                    return;
+                }
+                
                 // Validate form
                 const requiredFields = form.querySelectorAll('[required]');
                 let isValid = true;
@@ -783,7 +802,15 @@
                             }, 1500);
                         }
                     } else {
-                        showNotification(data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الطلب" : "An error occurred while processing the order" }}', 'error');
+                        // If login required, redirect to Google login
+                        if (data.message && (data.message.includes('تسجيل الدخول') || data.message.includes('login'))) {
+                            showNotification(data.message, 'error');
+                            setTimeout(() => {
+                                window.location.href = loginUrl;
+                            }, 1500);
+                        } else {
+                            showNotification(data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الطلب" : "An error occurred while processing the order" }}', 'error');
+                        }
                     }
                 })
                 .catch(error => {

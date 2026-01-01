@@ -19,15 +19,6 @@ class OrderController extends Controller
 {
     public function checkout(Request $request)
     {
-        // Check if customer is logged in
-        if (!auth('customer')->check()) {
-            session(['checkout_redirect' => $request->fullUrl()]);
-            return redirect()->route('auth.google')
-                ->with('info', app()->getLocale() === 'ar' 
-                    ? 'يرجى تسجيل الدخول أولاً لإتمام الطلب' 
-                    : 'Please login first to complete your order');
-        }
-        
         // Get service data from URL parameters
         $serviceId = $request->get('service_id');
         $serviceName = $request->get('service_name');
@@ -40,7 +31,13 @@ class OrderController extends Controller
                 ->with('error', app()->getLocale() === 'ar' ? 'يرجى اختيار خدمة أولاً' : 'Please select a service first');
         }
         
-        $customer = auth('customer')->user();
+        // Get customer if logged in (optional - page works without login)
+        $customer = auth('customer')->check() ? auth('customer')->user() : null;
+        
+        // Store checkout URL in session for redirect after login
+        if (!$customer) {
+            session(['checkout_redirect' => $request->fullUrl()]);
+        }
         
         return view('orders.checkout', compact('serviceId', 'serviceName', 'servicePrice', 'serviceDescription', 'customer'));
     }
