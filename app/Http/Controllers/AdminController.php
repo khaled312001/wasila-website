@@ -12,6 +12,7 @@ use App\Models\OrderDocumentation;
 use App\Models\CustomerMessage;
 use App\Models\Customer;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\PdfService;
 use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
@@ -170,17 +171,15 @@ class AdminController extends Controller
         
         $orders = $query->orderBy('created_at', 'desc')->get();
         
-        $pdf = Pdf::loadView('admin.reports.orders-pdf', compact('orders'))
-            ->setPaper('a4', 'landscape')
-            ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', public_path());
-        
-        return $pdf->download('orders-report-' . date('Y-m-d') . '.pdf');
+        return PdfService::download(
+            'admin.reports.orders-pdf',
+            compact('orders'),
+            'orders-report-' . date('Y-m-d') . '.pdf',
+            [
+                'format' => 'A4-L',
+                'orientation' => 'L',
+            ]
+        );
     }
     
     // Export Statistics PDF
@@ -203,17 +202,15 @@ class AdminController extends Controller
                 ->get(),
         ];
         
-        $pdf = Pdf::loadView('admin.reports.statistics-pdf', compact('stats'))
-            ->setPaper('a4')
-            ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', public_path());
-        
-        return $pdf->download('statistics-report-' . date('Y-m-d') . '.pdf');
+        return PdfService::download(
+            'admin.reports.statistics-pdf',
+            compact('stats'),
+            'statistics-report-' . date('Y-m-d') . '.pdf',
+            [
+                'format' => 'A4',
+                'orientation' => 'P',
+            ]
+        );
     }
     
     // Customer Messages Management
@@ -472,16 +469,14 @@ class AdminController extends Controller
         
         $customers = $query->orderBy('created_at', 'desc')->get();
         
-        $pdf = Pdf::loadView('admin.reports.customers-pdf', compact('customers'))
-            ->setPaper('a4', 'landscape')
-            ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', public_path());
-        
-        return $pdf->download('customers-report-' . date('Y-m-d') . '.pdf');
+        return PdfService::download(
+            'admin.reports.customers-pdf',
+            compact('customers'),
+            'customers-report-' . date('Y-m-d') . '.pdf',
+            [
+                'format' => 'A4-L',
+                'orientation' => 'L',
+            ]
+        );
     }
 }

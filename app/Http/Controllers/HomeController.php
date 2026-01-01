@@ -12,17 +12,30 @@ class HomeController extends Controller
     public function index()
     {
         try {
-            $services = Service::where('is_active', true)
-                ->orderBy('sort_order')
-                ->get();
+            // Get services with fallback
+            try {
+                $services = Service::where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->get();
+            } catch (\Exception $serviceException) {
+                Log::warning('Service query failed: ' . $serviceException->getMessage());
+                $services = collect([]);
+            }
+            
+            // Ensure services is always a collection
+            if (!($services instanceof \Illuminate\Support\Collection)) {
+                $services = collect([]);
+            }
                 
             return view('single-page', compact('services'));
         } catch (\Exception $e) {
             Log::error('HomeController error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
-            // Return a simple error view or fallback
+            // Return view with empty services collection
             return view('single-page', ['services' => collect([])]);
         }
     }

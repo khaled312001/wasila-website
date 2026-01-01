@@ -150,11 +150,25 @@
         <div class="hero-overlay"></div>
         <div class="hero-content" data-aos="fade-up">
             <h1 class="hero-title">
-                            {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_title_ar' : 'hero_title_en', __('messages.hero_title') . ' - ' . __('messages.hero_subtitle')) }}
-                </h1>
+                @php
+                    try {
+                        $heroTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_title_ar' : 'hero_title_en', __('messages.hero_title') . ' - ' . __('messages.hero_subtitle'));
+                        echo $heroTitle ?: __('messages.hero_title') . ' - ' . __('messages.hero_subtitle');
+                    } catch (\Exception $e) {
+                        echo __('messages.hero_title') . ' - ' . __('messages.hero_subtitle');
+                    }
+                @endphp
+            </h1>
             <p class="hero-subtitle">
-                    {{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_description_ar' : 'hero_description_en', __('messages.hero_description')) }}
-                </p>
+                @php
+                    try {
+                        $heroDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'hero_description_ar' : 'hero_description_en', __('messages.hero_description'));
+                        echo $heroDesc ?: __('messages.hero_description');
+                    } catch (\Exception $e) {
+                        echo __('messages.hero_description');
+                    }
+                @endphp
+            </p>
             <div class="hero-buttons">
                 <a href="{{ url('/') }}#services" class="btn btn-hero btn-hero-primary">
                     <i class="fas fa-list me-2"></i>{{ __('messages.browse_services') }}
@@ -210,9 +224,33 @@
         <div class="container">
             <div class="about-content">
                 <div class="about-text" data-aos="fade-right">
-                    <h2>{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_title_ar' : 'about_title_en', __('messages.about_title')) }}</h2>
-                    <p>{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_description_ar' : 'about_description_en', __('messages.about_description')) }}</p>
-                    <p>{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_mission_ar' : 'about_mission_en', __('messages.about_mission')) }}</p>
+                    <h2>
+                        @php
+                            try {
+                                echo \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_title_ar' : 'about_title_en', __('messages.about_title')) ?: __('messages.about_title');
+                            } catch (\Exception $e) {
+                                echo __('messages.about_title');
+                            }
+                        @endphp
+                    </h2>
+                    <p>
+                        @php
+                            try {
+                                echo \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_description_ar' : 'about_description_en', __('messages.about_description')) ?: __('messages.about_description');
+                            } catch (\Exception $e) {
+                                echo __('messages.about_description');
+                            }
+                        @endphp
+                    </p>
+                    <p>
+                        @php
+                            try {
+                                echo \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'about_mission_ar' : 'about_mission_en', __('messages.about_mission')) ?: __('messages.about_mission');
+                            } catch (\Exception $e) {
+                                echo __('messages.about_mission');
+                            }
+                        @endphp
+                    </p>
                     <div class="stats-grid">
                         <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
                             <div class="stat-number">{{ \App\Models\Setting::get('stat1_number', '500+') }}</div>

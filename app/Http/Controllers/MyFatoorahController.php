@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\PdfService;
 use Exception;
 
 class MyFatoorahController extends Controller
@@ -696,17 +697,15 @@ class MyFatoorahController extends Controller
     
     private function exportToPDF($transactions)
     {
-        $pdf = Pdf::loadView('admin.reports.myfatoorah-pdf', compact('transactions'))
-            ->setPaper('a4', 'landscape')
-            ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', public_path());
-        
-        return $pdf->download('myfatoorah-transactions-' . date('Y-m-d') . '.pdf');
+        return PdfService::download(
+            'admin.reports.myfatoorah-pdf',
+            compact('transactions'),
+            'myfatoorah-transactions-' . date('Y-m-d') . '.pdf',
+            [
+                'format' => 'A4-L', // Landscape
+                'orientation' => 'L',
+            ]
+        );
     }
     
     private function exportToCSV($transactions)

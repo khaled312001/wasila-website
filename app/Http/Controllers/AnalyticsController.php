@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\PdfService;
 
 class AnalyticsController extends Controller
 {
@@ -248,17 +249,15 @@ class AnalyticsController extends Controller
             ->take(100)
             ->get();
         
-        $pdf = Pdf::loadView('admin.reports.analytics-pdf', compact('stats', 'orders', 'dateRange', 'startDate', 'endDate'))
-            ->setPaper('a4', 'landscape')
-            ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', public_path());
-        
-        return $pdf->download('analytics-report-' . date('Y-m-d') . '.pdf');
+        return PdfService::download(
+            'admin.reports.analytics-pdf',
+            compact('stats', 'orders', 'dateRange', 'startDate', 'endDate'),
+            'analytics-report-' . date('Y-m-d') . '.pdf',
+            [
+                'format' => 'A4-L',
+                'orientation' => 'L',
+            ]
+        );
     }
 
     private function exportToCsv($orders)

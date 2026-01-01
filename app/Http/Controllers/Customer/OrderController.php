@@ -66,17 +66,15 @@ class OrderController extends Controller
 
         $order->load('service');
 
-        $pdf = \PDF::loadView('customer.orders.invoice-pdf', compact('order'))
-            ->setPaper('a4')
-            ->setOption('enable-local-file-access', true)
-            ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', public_path());
-        
-        return $pdf->download('invoice-' . $order->order_number . '.pdf');
+        return \App\Services\PdfService::download(
+            'customer.orders.invoice-pdf',
+            compact('order'),
+            'invoice-' . $order->order_number . '.pdf',
+            [
+                'format' => 'A4',
+                'orientation' => 'P',
+            ]
+        );
     }
 }
 

@@ -4,57 +4,26 @@
     <meta charset="UTF-8">
     <title>تقرير التقارير والإحصائيات</title>
     <style>
-        @font-face {
-            font-family: 'DejaVu Sans';
-            src: url('{{ storage_path('fonts/DejaVuSans.ttf') }}');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'DejaVu Sans';
-            src: url('{{ storage_path('fonts/DejaVuSans-Bold.ttf') }}');
-            font-weight: bold;
-            font-style: normal;
-        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-family: 'dejavusans', Arial, sans-serif;
             direction: rtl;
-            unicode-bidi: bidi-override;
             text-align: right;
-            writing-mode: horizontal-tb;
             font-size: 14px;
             line-height: 1.8;
             color: #333;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        * {
-            unicode-bidi: bidi-override;
-            direction: rtl;
-            text-align: right;
-        }
-        h1, h2, h3, h4, h5, h6, p, div, span, td, th, li {
-            unicode-bidi: bidi-override;
-            direction: rtl;
-            text-align: right;
-        }
-        .arabic-text {
-            direction: rtl;
-            unicode-bidi: bidi-override;
-            text-align: right;
+            padding: 30px;
         }
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding-bottom: 20px;
+            padding: 25px;
             border-bottom: 3px solid #08788B;
             background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
@@ -157,72 +126,72 @@
 </head>
 <body>
     <div class="header">
-        <h1>{{ \App\Helpers\PdfHelper::fixArabic('تقرير التقارير والإحصائيات') }}</h1>
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التصدير: ') }}{{ date('Y-m-d H:i:s') }}</p>
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('الفترة: آخر ') }}{{ $dateRange }} {{ \App\Helpers\PdfHelper::fixArabic('يوم') }}</p>
+        <h1>تقرير التقارير والإحصائيات</h1>
+        <p>تاريخ التصدير: {{ date('Y-m-d H:i:s') }}</p>
+        <p>الفترة: آخر {{ $dateRange }} يوم</p>
     </div>
     
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>{{ \App\Helpers\PdfHelper::fixArabic('إجمالي الطلبات') }}</h3>
+            <h3>إجمالي الطلبات</h3>
             <p>{{ $stats['total_orders'] }}</p>
         </div>
         <div class="stat-card">
-            <h3>{{ \App\Helpers\PdfHelper::fixArabic('إجمالي الإيرادات') }}</h3>
-            <p>{{ number_format($stats['total_revenue'], 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}</p>
+            <h3>إجمالي الإيرادات</h3>
+            <p>{{ number_format($stats['total_revenue'], 2) }} ريال</p>
         </div>
         <div class="stat-card">
-            <h3>{{ \App\Helpers\PdfHelper::fixArabic('إجمالي العملاء') }}</h3>
+            <h3>إجمالي العملاء</h3>
             <p>{{ $stats['total_customers'] }}</p>
         </div>
         <div class="stat-card">
-            <h3>{{ \App\Helpers\PdfHelper::fixArabic('الطلبات حسب الحالة') }}</h3>
+            <h3>الطلبات حسب الحالة</h3>
             <p>
                 @foreach($stats['orders_by_status'] as $status)
-                {{ \App\Helpers\PdfHelper::fixArabic($status->status) }}: {{ $status->count }}<br>
+                {{ $status->status }}: {{ $status->count }}<br>
                 @endforeach
             </p>
         </div>
     </div>
     
-    <h2 style="margin-top: 20px; margin-bottom: 10px; color: #025469;">{{ \App\Helpers\PdfHelper::fixArabic('أفضل الخدمات') }}</h2>
+    <h2 style="margin-top: 20px; margin-bottom: 10px; color: #025469;">أفضل الخدمات</h2>
     <table>
         <thead>
             <tr>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('اسم الخدمة') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('عدد الطلبات') }}</th>
+                <th>اسم الخدمة</th>
+                <th>عدد الطلبات</th>
             </tr>
         </thead>
         <tbody>
             @foreach($stats['top_services'] as $service)
             <tr>
-                <td>{{ \App\Helpers\PdfHelper::fixArabic($service->name_ar ?? $service->name) }}</td>
+                <td>{{ $service->name_ar ?? $service->name }}</td>
                 <td>{{ $service->orders_count ?? 0 }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
     
-    <h2 style="margin-top: 20px; margin-bottom: 10px; color: #025469;">{{ \App\Helpers\PdfHelper::fixArabic('الطلبات') }}</h2>
+    <h2 style="margin-top: 20px; margin-bottom: 10px; color: #025469;">الطلبات</h2>
     <table>
         <thead>
             <tr>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('رقم الطلب') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('اسم العميل') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('البريد الإلكتروني') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('المبلغ') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('الحالة') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('التاريخ') }}</th>
+                <th>رقم الطلب</th>
+                <th>اسم العميل</th>
+                <th>البريد الإلكتروني</th>
+                <th>المبلغ</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
             </tr>
         </thead>
         <tbody>
             @foreach($orders as $order)
             <tr>
-                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->order_number) }}</td>
-                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->customer_name) }}</td>
+                <td>{{ $order->order_number }}</td>
+                <td>{{ $order->customer_name }}</td>
                 <td dir="ltr">{{ $order->customer_email }}</td>
-                <td>{{ number_format($order->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}</td>
-                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->status) }}</td>
+                <td>{{ number_format($order->total_amount, 2) }} ريال</td>
+                <td>{{ $order->status }}</td>
                 <td dir="ltr">{{ $order->created_at->format('Y-m-d') }}</td>
             </tr>
             @endforeach
@@ -230,8 +199,7 @@
     </table>
     
     <div class="footer">
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('تم إنشاء هذا التقرير تلقائياً من نظام وسيلة الخيرية') }}</p>
+        <p>تم إنشاء هذا التقرير تلقائياً من نظام وسيلة الخيرية</p>
     </div>
 </body>
 </html>
-
