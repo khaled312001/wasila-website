@@ -644,5 +644,75 @@
     
     @stack('scripts')
     
+    <!-- Floating WhatsApp Button -->
+    @php
+        $whatsappLink = \App\Helpers\SettingsHelper::get('whatsapp_link', 'https://wa.me/966559229980');
+    @endphp
+    <div class="whatsapp-btn">
+        <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" 
+           class="bg-gradient-to-br from-green-500 via-green-600 to-green-700 hover:from-green-600 hover:via-green-700 hover:to-green-800 text-white rounded-full p-4 md:p-5 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center group"
+           aria-label="تواصل معنا عبر الواتساب"
+           title="تواصل معنا عبر الواتساب">
+            <i class="fab fa-whatsapp text-2xl md:text-3xl group-hover:rotate-12 transition-transform duration-300"></i>
+            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse">!</span>
+        </a>
+    </div>
+
+    <style>
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 9999;
+            animation: floatWhatsApp 3s ease-in-out infinite;
+        }
+
+        @keyframes floatWhatsApp {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .whatsapp-btn a {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-btn {
+                bottom: 20px;
+                left: 20px;
+            }
+            
+            .whatsapp-btn a {
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        .whatsapp-btn a:hover {
+            animation: pulseWhatsApp 1s infinite;
+        }
+
+        @keyframes pulseWhatsApp {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+    </style>
+    
 </body>
 </html>

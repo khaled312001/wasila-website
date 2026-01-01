@@ -11,12 +11,13 @@
     backdrop-filter: blur(20px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(8, 120, 139, 0.05);
     z-index: 1000;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 1rem 0;
     border-bottom: 2px solid transparent;
     background-image: linear-gradient(white, white), linear-gradient(135deg, var(--primary-medium), var(--primary-light));
     background-origin: border-box;
     background-clip: padding-box, border-box;
+    transform: translateY(0);
 }
 
 .wasila-header.scrolled {
@@ -82,13 +83,19 @@
     font-weight: 500;
     font-size: 0.95rem;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    transform: translateY(0);
 }
 
 .wasila-nav-link:hover {
     color: var(--primary-medium);
     background: rgba(8, 120, 139, 0.08);
+    transform: translateY(-2px);
+}
+
+.wasila-nav-link:active {
+    transform: translateY(0);
 }
 
 .wasila-nav-link.active {
@@ -313,12 +320,21 @@
 }
 
 @media (max-width: 768px) {
+    .wasila-header {
+        padding: 0.75rem 0;
+    }
+    
+    .wasila-header.scrolled {
+        padding: 0.5rem 0;
+    }
+    
     .wasila-header-container {
         padding: 0 1rem;
+        gap: 1rem;
     }
     
     .wasila-logo-img {
-        height: 55px;
+        height: 50px;
     }
     
     .wasila-btn span {
@@ -326,11 +342,69 @@
     }
     
     .wasila-btn {
-        padding: 0.625rem;
+        padding: 0.5rem;
+        min-width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .wasila-btn i {
+        font-size: 1.1rem;
     }
     
     .wasila-lang-switcher {
         display: none;
+    }
+    
+    .wasila-mobile-menu {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        border-top: 2px solid var(--primary-medium);
+    }
+    
+    .wasila-mobile-nav-list {
+        padding: 0.5rem 0;
+    }
+    
+    .wasila-mobile-nav-list a {
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+    }
+    
+    .wasila-menu-toggle {
+        padding: 0.5rem;
+        gap: 5px;
+    }
+    
+    .wasila-menu-line {
+        width: 26px;
+        height: 3px;
+    }
+}
+
+@media (max-width: 576px) {
+    .wasila-header-container {
+        padding: 0 0.75rem;
+    }
+    
+    .wasila-logo-img {
+        height: 45px;
+    }
+    
+    .wasila-btn {
+        padding: 0.4rem;
+        min-width: 36px;
+        height: 36px;
+    }
+    
+    .wasila-btn i {
+        font-size: 1rem;
+    }
+    
+    .wasila-mobile-nav-list a {
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
     }
 }
 

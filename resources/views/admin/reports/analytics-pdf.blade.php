@@ -24,8 +24,9 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             direction: rtl;
-            unicode-bidi: bidi-override;
+            unicode-bidi: embed;
             text-align: right;
+            writing-mode: horizontal-tb;
             font-size: 14px;
             line-height: 1.8;
             color: #333;
@@ -33,13 +34,18 @@
             -moz-osx-font-smoothing: grayscale;
         }
         * {
-            unicode-bidi: bidi-override;
+            unicode-bidi: embed;
             direction: rtl;
             text-align: right;
         }
         h1, h2, h3, h4, h5, h6, p, div, span, td, th, li {
-            unicode-bidi: bidi-override;
+            unicode-bidi: embed;
             direction: rtl;
+            text-align: right;
+        }
+        .arabic-text {
+            direction: rtl;
+            unicode-bidi: embed;
             text-align: right;
         }
         .header {

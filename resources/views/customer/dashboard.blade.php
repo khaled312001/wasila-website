@@ -369,8 +369,8 @@
                 </span>
                 @endif
                 <a href="{{ route('customer.messages.index') }}" class="bg-gradient-to-r from-primary-light to-primary-medium text-white px-5 py-2 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm">
-                    <i class="fas fa-eye ml-2"></i>
-                    {{ __('messages.view_all') }}
+                    <i class="fas fa-comments ml-2"></i>
+                    {{ __('messages.open_chat') }}
                 </a>
             </div>
         </div>

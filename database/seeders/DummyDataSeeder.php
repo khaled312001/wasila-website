@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use App\Models\Admin;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Order;
@@ -49,7 +49,7 @@ class DummyDataSeeder extends Seeder
     {
         $this->command->info('👤 إنشاء المستخدمين...');
         
-        $users = [
+        $admins = [
             [
                 'name' => 'مدير النظام',
                 'email' => 'admin@wasila.org',
@@ -68,11 +68,11 @@ class DummyDataSeeder extends Seeder
             ],
         ];
 
-        foreach ($users as $user) {
-            User::firstOrCreate(['email' => $user['email']], $user);
+        foreach ($admins as $admin) {
+            Admin::firstOrCreate(['email' => $admin['email']], $admin);
         }
         
-        $this->command->info('✅ تم إنشاء ' . count($users) . ' مستخدم');
+        $this->command->info('✅ تم إنشاء ' . count($admins) . ' مستخدم');
     }
 
     private function seedCustomers()
@@ -335,7 +335,7 @@ class DummyDataSeeder extends Seeder
         
         $customers = Customer::all();
         $orders = Order::all();
-        $admins = User::all();
+        $admins = Admin::all();
         
         if ($customers->isEmpty() || $admins->isEmpty()) {
             $this->command->error('⚠️  يجب إنشاء العملاء والمستخدمين أولاً');

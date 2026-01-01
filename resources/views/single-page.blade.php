@@ -480,20 +480,163 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Initialize AOS
+        // Initialize AOS with enhanced settings
         AOS.init({
-            duration: 1000,
+            duration: 1200,
             once: true,
-            offset: 100
+            offset: 100,
+            easing: 'ease-out-cubic',
+            delay: 0,
+            anchorPlacement: 'top-bottom'
         });
 
-        // Wasila Header scroll effect
+        // Enhanced Header scroll effect with smooth transitions
+        let lastScroll = 0;
         window.addEventListener('scroll', function() {
             const header = document.querySelector('.wasila-header');
-            if (window.scrollY > 50) {
+            const currentScroll = window.scrollY;
+            
+            if (currentScroll > 50) {
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
+            }
+            
+            // Hide/show header on scroll
+            if (currentScroll > lastScroll && currentScroll > 200) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Smooth scroll with offset
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    // Add specific animation based on data attribute
+                    const animationType = entry.target.dataset.animation || 'fade-in-up';
+                    entry.target.classList.add(animationType);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements with animate-on-scroll class
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Parallax effect for hero section
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.parallax');
+            parallaxElements.forEach(element => {
+                const speed = element.dataset.speed || 0.5;
+                element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+
+        // Add hover effects to cards
+        document.querySelectorAll('.service-card, .feature-card, .stat-card').forEach(card => {
+            card.classList.add('hover-lift');
+        });
+
+        // Add animated buttons
+        document.querySelectorAll('.btn-submit, .wasila-btn').forEach(btn => {
+            btn.classList.add('btn-animated');
+        });
+
+        // Text reveal animation
+        const textRevealElements = document.querySelectorAll('.text-reveal');
+        textRevealElements.forEach(element => {
+            const text = element.textContent;
+            element.innerHTML = '';
+            text.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                span.style.animationDelay = `${index * 0.05}s`;
+                element.appendChild(span);
+            });
+        });
+
+        // Counter animation for stats
+        const animateCounter = (element, target, duration = 2000) => {
+            let start = 0;
+            const increment = target / (duration / 16);
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= target) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(start);
+                }
+            }, 16);
+        };
+
+        // Observe stat numbers for counter animation
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                    const target = parseInt(entry.target.textContent) || parseInt(entry.target.dataset.target);
+                    if (target) {
+                        entry.target.classList.add('counted');
+                        animateCounter(entry.target, target);
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-number, [data-counter]').forEach(stat => {
+            statObserver.observe(stat);
+        });
+
+        // Cursor trail effect (optional, can be disabled for performance)
+        let cursorTrail = [];
+        const maxTrailLength = 10;
+        
+        document.addEventListener('mousemove', (e) => {
+            if (window.innerWidth > 768) { // Only on desktop
+                cursorTrail.push({ x: e.clientX, y: e.clientY, time: Date.now() });
+                if (cursorTrail.length > maxTrailLength) {
+                    cursorTrail.shift();
+                }
+            }
+        });
+
+        // Page load animation
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+            // Animate hero content
+            const heroContent = document.querySelector('.hero-content');
+            if (heroContent) {
+                heroContent.style.animation = 'fadeInUp 1s ease-out';
             }
         });
         
@@ -656,6 +799,76 @@
             observer.observe(el);
         });
     </script>
+
+    <!-- Floating WhatsApp Button -->
+    @php
+        $whatsappLink = \App\Helpers\SettingsHelper::get('whatsapp_link', 'https://wa.me/966559229980');
+    @endphp
+    <div class="whatsapp-btn">
+        <a href="{{ $whatsappLink }}" target="_blank" rel="noopener noreferrer" 
+           class="bg-gradient-to-br from-green-500 via-green-600 to-green-700 hover:from-green-600 hover:via-green-700 hover:to-green-800 text-white rounded-full p-4 md:p-5 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center group"
+           aria-label="تواصل معنا عبر الواتساب"
+           title="تواصل معنا عبر الواتساب">
+            <i class="fab fa-whatsapp text-2xl md:text-3xl group-hover:rotate-12 transition-transform duration-300"></i>
+            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center animate-pulse">!</span>
+        </a>
+    </div>
+
+    <style>
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 9999;
+            animation: floatWhatsApp 3s ease-in-out infinite;
+        }
+
+        @keyframes floatWhatsApp {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .whatsapp-btn a {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-btn {
+                bottom: 20px;
+                left: 20px;
+            }
+            
+            .whatsapp-btn a {
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        .whatsapp-btn a:hover {
+            animation: pulseWhatsApp 1s infinite;
+        }
+
+        @keyframes pulseWhatsApp {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+    </style>
 </body>
 </html>
 

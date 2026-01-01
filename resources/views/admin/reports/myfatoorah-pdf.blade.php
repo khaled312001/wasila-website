@@ -16,16 +16,23 @@
             font-weight: bold;
             font-style: normal;
         }
+        @font-face {
+            font-family: 'Arabic';
+            src: url('{{ storage_path('fonts/DejaVuSans.ttf') }}');
+            font-weight: normal;
+            font-style: normal;
+        }
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-family: 'DejaVu Sans', 'Arabic', Arial, sans-serif;
             direction: rtl;
-            unicode-bidi: bidi-override;
+            unicode-bidi: embed;
             text-align: right;
+            writing-mode: horizontal-tb;
             font-size: 14px;
             line-height: 1.8;
             color: #333;
@@ -34,14 +41,20 @@
             -moz-osx-font-smoothing: grayscale;
         }
         * {
-            unicode-bidi: bidi-override;
+            unicode-bidi: embed;
             direction: rtl;
             text-align: right;
         }
         h1, h2, h3, h4, h5, h6, p, div, span, td, th, li {
-            unicode-bidi: bidi-override;
+            unicode-bidi: embed;
             direction: rtl;
             text-align: right;
+        }
+        .arabic-text {
+            direction: rtl;
+            unicode-bidi: embed;
+            text-align: right;
+            font-family: 'DejaVu Sans', 'Arabic', Arial, sans-serif;
         }
         .header {
             text-align: center;
@@ -114,53 +127,53 @@
 </head>
 <body>
     <div class="header">
-        <h1>تقرير معاملات MyFatoorah</h1>
-        <p>تاريخ التصدير: {{ date('Y-m-d H:i:s') }}</p>
+        <h1 class="arabic-text">&#x200F;تقرير معاملات MyFatoorah</h1>
+        <p class="arabic-text">&#x200F;تاريخ التصدير: {{ date('Y-m-d H:i:s') }}</p>
     </div>
     
     <table>
         <thead>
             <tr>
-                <th>رقم الطلب</th>
-                <th>اسم العميل</th>
-                <th>البريد الإلكتروني</th>
-                <th>رقم الهاتف</th>
-                <th>المبلغ</th>
-                <th>طريقة الدفع</th>
-                <th>حالة الدفع</th>
-                <th>تاريخ الطلب</th>
-                <th>مرجع الدفع</th>
+                <th class="arabic-text">&#x200F;رقم الطلب</th>
+                <th class="arabic-text">&#x200F;اسم العميل</th>
+                <th class="arabic-text">&#x200F;البريد الإلكتروني</th>
+                <th class="arabic-text">&#x200F;رقم الهاتف</th>
+                <th class="arabic-text">&#x200F;المبلغ</th>
+                <th class="arabic-text">&#x200F;طريقة الدفع</th>
+                <th class="arabic-text">&#x200F;حالة الدفع</th>
+                <th class="arabic-text">&#x200F;تاريخ الطلب</th>
+                <th class="arabic-text">&#x200F;مرجع الدفع</th>
             </tr>
         </thead>
         <tbody>
             @foreach($transactions as $transaction)
             <tr>
-                <td>{{ $transaction->order_number }}</td>
-                <td>{{ $transaction->customer_name }}</td>
+                <td class="arabic-text">{{ $transaction->order_number }}</td>
+                <td class="arabic-text">&#x200F;{{ $transaction->customer_name }}</td>
                 <td>{{ $transaction->customer_email }}</td>
                 <td>{{ $transaction->customer_phone }}</td>
-                <td>{{ number_format($transaction->total_amount, 2) }} ريال</td>
-                <td>{{ $transaction->payment_method ?? 'غير محدد' }}</td>
-                <td>
+                <td class="arabic-text">&#x200F;{{ number_format($transaction->total_amount, 2) }} ريال</td>
+                <td class="arabic-text">&#x200F;{{ $transaction->payment_method ?? 'غير محدد' }}</td>
+                <td class="arabic-text">
                     @if($transaction->payment_status === 'paid')
-                        مدفوع
+                        &#x200F;مدفوع
                     @elseif($transaction->payment_status === 'pending')
-                        في الانتظار
+                        &#x200F;في الانتظار
                     @else
-                        فشل
+                        &#x200F;فشل
                     @endif
                 </td>
                 <td>{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
-                <td>{{ $transaction->payment_reference ?? 'غير محدد' }}</td>
+                <td class="arabic-text">&#x200F;{{ $transaction->payment_reference ?? 'غير محدد' }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
     
     <div class="footer">
-        <p>تم إنشاء هذا التقرير تلقائياً من نظام وسيلة الخيرية</p>
-        <p>إجمالي المعاملات: {{ $transactions->count() }}</p>
-        <p>إجمالي المبلغ: {{ number_format($transactions->sum('total_amount'), 2) }} ريال</p>
+        <p class="arabic-text">&#x200F;تم إنشاء هذا التقرير تلقائياً من نظام وسيلة الخيرية</p>
+        <p class="arabic-text">&#x200F;إجمالي المعاملات: {{ $transactions->count() }}</p>
+        <p class="arabic-text">&#x200F;إجمالي المبلغ: {{ number_format($transactions->sum('total_amount'), 2) }} ريال</p>
     </div>
 </body>
 </html>
