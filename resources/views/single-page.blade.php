@@ -345,11 +345,28 @@
             </div>
             
             @php
-                $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->get();
+                // Get ALL active portfolio items
+                $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
+                    ->orderBy('sort_order', 'asc')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                
+                // Filter items that have valid file paths
+                $validItems = $portfolioItems->filter(function($item) {
+                    if (empty($item->file_path)) {
+                        return false;
+                    }
+                    $cleanFilePath = str_replace('storage/', '', $item->file_path);
+                    $cleanFilePath = ltrim($cleanFilePath, '/');
+                    return \Storage::disk('public')->exists($cleanFilePath) || 
+                           file_exists(storage_path('app/public/' . $cleanFilePath));
+                });
+                
+                // Use valid items, or fallback to all items if none are valid
+                $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
+                
                 // Duplicate items multiple times for seamless infinite loop
-                // We need enough duplicates to ensure smooth infinite scrolling without gaps
-                // Create enough copies to cover at least 3x viewport width for seamless loop
-                $itemCount = max($portfolioItems->count(), 1);
+                $itemCount = max($itemsToUse->count(), 1);
                 $cardWidth = 300; // Card width in pixels
                 $gap = 24; // Gap between cards
                 $oneSetWidth = $itemCount * ($cardWidth + $gap);
@@ -358,28 +375,52 @@
                 $duplicates = max(10, ceil($minTotalWidth / max($oneSetWidth, 1))); // At least 10 copies
                 $allItems = collect();
                 for ($i = 0; $i < $duplicates; $i++) {
-                    $allItems = $allItems->merge($portfolioItems);
+                    $allItems = $allItems->merge($itemsToUse);
                 }
             @endphp
             
-            @if($portfolioItems->count() > 0)
+            @if($itemsToUse->count() > 0)
             <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $portfolioItems->count() }}">
+                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}">
                     @foreach($allItems as $item)
                         @php
+                            // Clean file path - remove 'storage/' prefix if exists
                             $cleanFilePath = str_replace('storage/', '', $item->file_path);
-                            $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                            $cleanFilePath = ltrim($cleanFilePath, '/');
+                            
+                            // Check if file exists
+                            $fileExists = \Storage::disk('public')->exists($cleanFilePath) || 
+                                         file_exists(storage_path('app/public/' . $cleanFilePath));
+                            
+                            // Get file URL
+                            if ($fileExists) {
+                                $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                            } else {
+                                // Try alternative path
+                                $fileUrl = asset('storage/' . $cleanFilePath);
+                            }
                         @endphp
                         <div class="our-work-card">
                             @if($item->type === 'image')
-                                <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
+                                @if($fileExists)
+                                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
+                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
+                                @else
+                                    <img src="{{ asset('images/placeholder-portfolio.png') }}" alt="{{ $item->title_ar }}">
+                                @endif
                             @else
-                                <video muted loop playsinline>
-                                    <source src="{{ $fileUrl }}" type="video/mp4">
-                                    <source src="{{ $fileUrl }}" type="video/webm">
-                                    <source src="{{ $fileUrl }}" type="video/ogg">
-                                    متصفحك لا يدعم تشغيل الفيديو.
-                                </video>
+                                @if($fileExists)
+                                    <video muted loop playsinline>
+                                        <source src="{{ $fileUrl }}" type="video/mp4">
+                                        <source src="{{ $fileUrl }}" type="video/webm">
+                                        <source src="{{ $fileUrl }}" type="video/ogg">
+                                        متصفحك لا يدعم تشغيل الفيديو.
+                                    </video>
+                                @else
+                                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-video fa-3x text-white"></i>
+                                    </div>
+                                @endif
                             @endif
                             <div class="our-work-overlay">
                                 <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-2x text-white"></i>
