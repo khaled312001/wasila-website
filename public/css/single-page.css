@@ -662,9 +662,16 @@ body.loaded {
 .our-work-track {
     display: flex;
     gap: 1.5rem;
-    animation: scroll-infinite 40s linear infinite;
+    animation: scroll-infinite 60s linear infinite;
     will-change: transform;
     width: max-content;
+    flex-shrink: 0;
+    min-width: 100%;
+}
+
+/* Ensure cards don't shrink */
+.our-work-track > * {
+    flex-shrink: 0;
 }
 
 .our-work-track:hover {

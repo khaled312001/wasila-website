@@ -347,8 +347,15 @@
             @php
                 $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->get();
                 // Duplicate items multiple times for seamless infinite loop
-                // We need enough duplicates to ensure smooth infinite scrolling
-                $duplicates = 5; // Create 5 copies for seamless loop
+                // We need enough duplicates to ensure smooth infinite scrolling without gaps
+                // Create enough copies to cover at least 3x viewport width for seamless loop
+                $itemCount = max($portfolioItems->count(), 1);
+                $cardWidth = 300; // Card width in pixels
+                $gap = 24; // Gap between cards
+                $oneSetWidth = $itemCount * ($cardWidth + $gap);
+                $viewportWidth = 1920; // Assume max viewport width
+                $minTotalWidth = $viewportWidth * 3; // Need at least 3x viewport width
+                $duplicates = max(10, ceil($minTotalWidth / max($oneSetWidth, 1))); // At least 10 copies
                 $allItems = collect();
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($portfolioItems);
@@ -390,7 +397,8 @@
                         $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
                         $imageCount = count($imageFiles);
                         if ($imageCount > 0) {
-                            $duplicates = 5;
+                            // Create enough duplicates for seamless infinite loop
+                            $duplicates = max(8, ceil(2000 / max($imageCount, 1)));
                             for ($d = 0; $d < $duplicates; $d++) {
                                 foreach ($imageFiles as $imageFile) {
                                     $imageName = basename($imageFile);
@@ -406,8 +414,10 @@
                             }
                         } else {
                             // Fallback: show placeholder images
-                            for ($i = 1; $i <= 6; $i++) {
-                                for ($j = 0; $j < 3; $j++) {
+                            $placeholderCount = 6;
+                            $duplicates = max(8, ceil(2000 / max($placeholderCount, 1)));
+                            for ($d = 0; $d < $duplicates; $d++) {
+                                for ($i = 1; $i <= $placeholderCount; $i++) {
                                     echo '<div class="our-work-card">';
                                     echo '<img src="' . asset('images/' . $i . '.png') . '" alt="صورة ' . $i . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
                                     echo '<div class="our-work-overlay">';
@@ -747,21 +757,37 @@
             // Setup infinite scroll for our work section
             const ourWorkTrack = document.getElementById('ourWorkTrack');
             if (ourWorkTrack) {
-                const items = ourWorkTrack.querySelectorAll('.our-work-card');
-                const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || Math.floor(items.length / 5);
-                
-                // Calculate the width of one set of items (original items)
-                const cardWidth = 300; // 300px per card
-                const gap = 24; // 1.5rem = 24px gap
-                const oneSetWidth = originalItemCount * (cardWidth + gap);
-                
-                // Set animation to move exactly one set width for seamless loop
-                ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
-                
-                // Calculate animation duration (slower for more items, faster for fewer)
-                const baseDuration = 40; // seconds
-                const duration = baseDuration + (originalItemCount * 2);
-                ourWorkTrack.style.animationDuration = duration + 's';
+                // Wait for images to load to get accurate dimensions
+                setTimeout(() => {
+                    const items = ourWorkTrack.querySelectorAll('.our-work-card');
+                    const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || 1;
+                    
+                    if (originalItemCount > 0 && items.length > 0) {
+                        // Get actual card width from first card
+                        const firstCard = items[0];
+                        const cardWidth = firstCard.offsetWidth || 300;
+                        const gap = 24; // 1.5rem = 24px gap
+                        const oneSetWidth = originalItemCount * (cardWidth + gap);
+                        
+                        // Set animation to move exactly one set width for seamless loop
+                        ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
+                        
+                        // Calculate animation duration based on number of items
+                        // More items = slower animation, fewer items = faster
+                        const baseDuration = 50; // seconds
+                        const duration = Math.max(30, baseDuration + (originalItemCount * 1.5));
+                        ourWorkTrack.style.animationDuration = duration + 's';
+                        
+                        // Verify we have enough items for seamless scrolling
+                        const totalWidth = items.length * (cardWidth + gap);
+                        const viewportWidth = window.innerWidth;
+                        
+                        // If we don't have enough items, log a warning (but don't break)
+                        if (totalWidth < viewportWidth * 2.5) {
+                            console.warn('Consider adding more portfolio items for smoother scrolling');
+                        }
+                    }
+                }, 100);
             }
         });
         
