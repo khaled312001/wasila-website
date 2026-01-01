@@ -212,11 +212,25 @@ class ContactMessageController extends Controller
         }
 
         $reply = ContactMessageReply::create($data);
+        $reply->load('admin');
 
         return response()->json([
             'success' => true,
             'message' => 'تم إرسال الرد بنجاح',
-            'data' => $reply->load('admin')
+            'data' => [
+                'id' => $reply->id,
+                'message' => $reply->message,
+                'file_path' => $reply->file_path,
+                'file_name' => $reply->file_name,
+                'file_type' => $reply->file_type,
+                'mime_type' => $reply->mime_type,
+                'file_url' => $reply->file_url,
+                'is_image' => $reply->is_image,
+                'is_video' => $reply->is_video,
+                'is_audio' => $reply->is_audio,
+                'sender_type' => $reply->sender_type,
+                'created_at' => $reply->created_at->toISOString(),
+            ]
         ]);
     }
 
@@ -239,9 +253,27 @@ class ContactMessageController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true, 'read_at' => now()]);
         
+        // Format replies for JSON response
+        $formattedReplies = $replies->map(function($reply) {
+            return [
+                'id' => $reply->id,
+                'message' => $reply->message,
+                'file_path' => $reply->file_path,
+                'file_name' => $reply->file_name,
+                'file_type' => $reply->file_type,
+                'mime_type' => $reply->mime_type,
+                'file_url' => $reply->file_url,
+                'is_image' => $reply->is_image,
+                'is_video' => $reply->is_video,
+                'is_audio' => $reply->is_audio,
+                'sender_type' => $reply->sender_type,
+                'created_at' => $reply->created_at->toISOString(),
+            ];
+        });
+        
         return response()->json([
             'success' => true,
-            'replies' => $replies,
+            'replies' => $formattedReplies,
         ]);
     }
 }

@@ -35,10 +35,14 @@
     // Global error handler
     window.addEventListener('error', function(e) {
         // Only log non-critical errors
-        if (!e.message.includes('youtube') && !e.message.includes('YOUTUBEJS')) {
+        if (!e.message.includes('youtube') && !e.message.includes('YOUTUBEJS') && !e.message.includes('404')) {
+            // Suppress 404 errors for images
+            if (e.target && e.target.tagName === 'IMG') {
+                return;
+            }
             console.log('Wasila Error Fixes: JavaScript error handled:', e.message);
         }
-    });
+    }, true);
     
     // Unhandled promise rejection handler
     window.addEventListener('unhandledrejection', function(e) {

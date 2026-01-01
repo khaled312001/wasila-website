@@ -5,24 +5,42 @@
 
 @push('styles')
 <style>
+    :root {
+        --primary-medium: #08788B;
+        --primary-dark: #025469;
+    }
+    
     .chat-container {
-        height: calc(100vh - 250px);
-        min-height: 600px;
-        max-height: 800px;
+        height: calc(100vh - 200px);
+        min-height: 700px;
+        max-height: 900px;
+        display: flex;
+        flex-direction: column;
     }
     
     .messages-container {
-        height: calc(100% - 120px);
+        flex: 1;
         overflow-y: auto;
-        padding: 1rem;
-        background: linear-gradient(to bottom, #e5e7eb 0%, #f3f4f6 100%);
+        overflow-x: hidden;
+        padding: 1.5rem;
+        background: linear-gradient(to bottom, #f8fafc 0%, #e5e7eb 100%);
+        position: relative;
+    }
+    
+    .messages-container #messagesList {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-height: 100%;
     }
     
     .message-bubble {
-        max-width: 70%;
+        max-width: 75%;
         word-wrap: break-word;
         position: relative;
         animation: slideIn 0.3s ease-out;
+        display: flex;
+        flex-direction: column;
     }
     
     @keyframes slideIn {
@@ -37,76 +55,111 @@
     }
     
     .message-admin {
-        background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%);
+        background: linear-gradient(135deg, #08788B 0%, #025469 100%);
         color: white;
         margin-left: auto;
-        border-radius: 1rem 1rem 0.25rem 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        margin-right: 0;
+        border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
+        align-self: flex-end;
     }
     
     .message-customer {
         background: white;
         color: #1f2937;
         margin-right: auto;
-        border-radius: 1rem 1rem 1rem 0.25rem;
+        margin-left: 0;
+        border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        align-self: flex-start;
+    }
+    
+    .message-bubble .p-4 {
+        padding: 1rem 1.25rem;
     }
     
     .message-time {
-        font-size: 0.7rem;
-        opacity: 0.7;
-        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        opacity: 0.8;
+        margin-top: 0.5rem;
+        display: block;
     }
     
     .file-preview {
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
         overflow: hidden;
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
+        background: rgba(0,0,0,0.05);
     }
     
     .file-preview img {
         max-width: 100%;
-        max-height: 300px;
+        max-height: 350px;
         object-fit: cover;
         cursor: pointer;
+        display: block;
+        width: 100%;
+    }
+    
+    .file-preview video {
+        max-width: 100%;
+        max-height: 350px;
+        border-radius: 0.75rem;
     }
     
     .file-attachment {
-        background: rgba(0,0,0,0.05);
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        margin-top: 0.5rem;
+        background: rgba(0,0,0,0.08);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-top: 0.75rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
     }
     
     .file-attachment i {
-        font-size: 2rem;
-        color: var(--primary-medium);
+        font-size: 2.5rem;
+        color: #08788B;
+    }
+    
+    .file-attachment div {
+        flex: 1;
     }
     
     .chat-input-container {
         background: white;
-        border-top: 1px solid #e5e7eb;
-        padding: 1rem;
+        border-top: 2px solid #e5e7eb;
+        padding: 1.25rem;
+        flex-shrink: 0;
+    }
+    
+    .chat-input-container .flex {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
     }
     
     .scroll-to-bottom {
         position: absolute;
-        bottom: 80px;
+        bottom: 100px;
         right: 20px;
-        background: var(--primary-medium);
+        background: linear-gradient(135deg, #08788B 0%, #025469 100%);
         color: white;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
         display: none;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         z-index: 10;
+        transition: all 0.3s ease;
+    }
+    
+    .scroll-to-bottom:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     }
     
     .scroll-to-bottom.visible {
@@ -114,20 +167,63 @@
     }
     
     .messages-container::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
     }
     
     .messages-container::-webkit-scrollbar-track {
-        background: transparent;
+        background: rgba(0,0,0,0.05);
+        border-radius: 4px;
     }
     
     .messages-container::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 3px;
+        background: #08788B;
+        border-radius: 4px;
     }
     
     .messages-container::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: #025469;
+    }
+    
+    #messageInput {
+        min-height: 50px;
+        max-height: 150px;
+        font-size: 15px;
+        line-height: 1.5;
+    }
+    
+    #sendButton {
+        min-width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #fileInput + label {
+        min-width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .chat-header {
+        flex-shrink: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .chat-container {
+            height: calc(100vh - 150px);
+            min-height: 500px;
+        }
+        
+        .message-bubble {
+            max-width: 85%;
+        }
+        
+        .messages-container {
+            padding: 1rem;
+        }
     }
 </style>
 @endpush
@@ -148,7 +244,7 @@
     <!-- Chat Container -->
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden chat-container">
         <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-4 flex items-center justify-between">
+        <div class="chat-header bg-gradient-to-r from-primary-medium to-primary-dark text-white p-4 flex items-center justify-between flex-wrap gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-white/20 p-2 rounded-full">
                     <span class="text-xl font-bold">{{ substr($contactMessage->name, 0, 1) }}</span>
@@ -177,7 +273,7 @@
 
         <!-- Messages Container -->
         <div class="messages-container relative" id="messagesContainer">
-            <div class="space-y-3" id="messagesList">
+            <div id="messagesList" style="display: flex; flex-direction: column; gap: 1rem;">
                 <!-- Original Message -->
                 <div class="message-bubble message-customer">
                     <div class="p-4">

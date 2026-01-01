@@ -47,8 +47,22 @@
     <link rel="stylesheet" href="{{ asset('css/wasila-header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/wasila-footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
+    <script>
+        // Ensure body is visible immediately - no waiting for page load
+        (function() {
+            if (document.body) {
+                document.body.style.opacity = '1';
+                document.body.classList.add('loaded');
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.style.opacity = '1';
+                    document.body.classList.add('loaded');
+                });
+            }
+        })();
+    </script>
 </head>
-<body>
+<body style="opacity: 1 !important;">
     <!-- Main Header -->
     <header class="wasila-header">
         <div class="wasila-header-container">
@@ -196,11 +210,13 @@
                             <div class="service-image-wrapper" style="overflow: hidden; height: 250px;">
                         @if($service->image)
                             @php
-                                $imagePath = str_starts_with($service->image, 'storage/') ? $service->image : 'storage/' . $service->image;
-                                $imageExists = \Storage::disk('public')->exists(str_replace('storage/', '', $imagePath)) || file_exists(public_path($imagePath));
+                                // Remove 'storage/' prefix if exists to avoid duplication
+                                $cleanImage = str_replace('storage/', '', $service->image);
+                                $imagePath = 'storage/' . $cleanImage;
+                                $imageExists = \Storage::disk('public')->exists($cleanImage) || file_exists(storage_path('app/public/' . $cleanImage));
                             @endphp
                             @if($imageExists)
-                                <img src="{{ asset($imagePath) }}" alt="{{ $service->name }}" class="service-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width:100%;height:250px;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-4xl\'></i></div>';">
+                                <img src="{{ \Storage::disk('public')->url($cleanImage) }}" alt="{{ $service->name }}" class="service-image" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'width:100%;height:250px;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-4xl\'></i></div>';">
                             @else
                                 <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-image text-white text-4xl"></i>
@@ -333,12 +349,16 @@
                 @if($portfolioItems->count() > 0)
             <div class="gallery-grid">
                     @foreach($portfolioItems as $index => $item)
-                <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $index * 50 }}" onclick="openLightbox({{ $index + 1 }}, '{{ $item->type }}', '{{ asset('storage/' . $item->file_path) }}', '{{ $item->title_ar }}')">
+                @php
+                    $cleanFilePath = str_replace('storage/', '', $item->file_path);
+                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                @endphp
+                <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $index * 50 }}" onclick="openLightbox({{ $index + 1 }}, '{{ $item->type }}', '{{ $fileUrl }}', '{{ $item->title_ar }}')">
                             @if($item->type === 'image')
-                    <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title_ar }}">
+                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-3xl\'></i></div>';">
                             @else
                     <video muted>
-                                    <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
+                                    <source src="{{ $fileUrl }}" type="video/mp4">
                                 </video>
                             @endif
                             <div class="gallery-overlay">

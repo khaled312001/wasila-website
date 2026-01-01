@@ -21,7 +21,7 @@ body {
     font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
     overflow-x: hidden;
     scroll-behavior: smooth;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.5s ease-in;
 }
 
