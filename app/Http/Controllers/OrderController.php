@@ -360,52 +360,72 @@ class OrderController extends Controller
     // Admin methods
     public function index(Request $request)
     {
-        $query = Order::with('orderItems.service');
-        
-        // Advanced Filters
-        if ($request->filled('order_number')) {
-            $query->where('order_number', 'like', '%' . $request->order_number . '%');
+        try {
+            $query = Order::with(['orderItems' => function($q) {
+                $q->with('service');
+            }]);
+            
+            // Advanced Filters
+            if ($request->filled('order_number')) {
+                $query->where('order_number', 'like', '%' . $request->order_number . '%');
+            }
+            
+            if ($request->filled('customer_name')) {
+                $query->where('customer_name', 'like', '%' . $request->customer_name . '%');
+            }
+            
+            if ($request->filled('customer_email')) {
+                $query->where('customer_email', 'like', '%' . $request->customer_email . '%');
+            }
+            
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            
+            if ($request->filled('payment_status')) {
+                $query->where('payment_status', $request->payment_status);
+            }
+            
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+            
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+            
+            if ($request->filled('amount_min')) {
+                $query->where('total_amount', '>=', $request->amount_min);
+            }
+            
+            if ($request->filled('amount_max')) {
+                $query->where('total_amount', '<=', $request->amount_max);
+            }
+            
+            $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+            
+            // Log for debugging
+            Log::info('Admin orders index', [
+                'total_orders' => $orders->total(),
+                'current_page' => $orders->currentPage(),
+                'filters' => $request->all()
+            ]);
+            
+            return view('admin.orders.index', compact('orders'));
+        } catch (\Exception $e) {
+            Log::error('Error loading orders: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return view('admin.orders.index', [
+                'orders' => collect([])->paginate(20),
+                'error' => 'حدث خطأ أثناء تحميل الطلبات: ' . $e->getMessage()
+            ]);
         }
-        
-        if ($request->filled('customer_name')) {
-            $query->where('customer_name', 'like', '%' . $request->customer_name . '%');
-        }
-        
-        if ($request->filled('customer_email')) {
-            $query->where('customer_email', 'like', '%' . $request->customer_email . '%');
-        }
-        
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-        
-        if ($request->filled('payment_status')) {
-            $query->where('payment_status', $request->payment_status);
-        }
-        
-        if ($request->filled('payment_method')) {
-            $query->where('payment_method', $request->payment_method);
-        }
-        
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-        
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-        
-        if ($request->filled('amount_min')) {
-            $query->where('total_amount', '>=', $request->amount_min);
-        }
-        
-        if ($request->filled('amount_max')) {
-            $query->where('total_amount', '<=', $request->amount_max);
-        }
-        
-        $orders = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-        
-        return view('admin.orders.index', compact('orders'));
     }
     
     public function adminShow(Order $order)

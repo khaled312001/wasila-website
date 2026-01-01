@@ -106,7 +106,12 @@
 <div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden mobile-card">
     <div class="p-4 md:p-6 border-b border-gray-200">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 class="text-lg md:text-xl font-semibold text-primary-dark">جميع الطلبات</h2>
+            <div>
+                <h2 class="text-lg md:text-xl font-semibold text-primary-dark">جميع الطلبات</h2>
+                @if(isset($orders) && $orders->total() > 0)
+                <p class="text-sm text-gray-500 mt-1">إجمالي الطلبات: {{ $orders->total() }}</p>
+                @endif
+            </div>
             <div class="flex gap-2">
                 <a href="{{ route('admin.orders.export.excel', request()->query()) }}" 
                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
@@ -157,8 +162,11 @@
                     </td>
                     <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
                         @foreach($order->orderItems as $item)
-                        <div class="text-xs">{{ $item->service->name_ar }} ({{ $item->quantity }})</div>
+                        <div class="text-xs">{{ $item->service->name_ar ?? 'خدمة محذوفة' }} ({{ $item->quantity }})</div>
                         @endforeach
+                        @if($order->orderItems->isEmpty())
+                        <span class="text-xs text-gray-400">لا توجد خدمات</span>
+                        @endif
                     </td>
                     <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div class="flex flex-col">
@@ -228,6 +236,9 @@
                             </svg>
                             <p class="text-lg font-medium">لا توجد طلبات</p>
                             <p class="text-sm text-gray-400">لم يتم العثور على أي طلبات في النظام</p>
+                            @if(isset($error))
+                            <p class="text-sm text-red-500 mt-2">{{ $error }}</p>
+                            @endif
                         </div>
                     </td>
                 </tr>
