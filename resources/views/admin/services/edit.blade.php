@@ -97,7 +97,11 @@
                 @if($service->image)
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">الصورة الحالية</label>
-                    <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name_ar }}" class="h-32 w-32 object-cover rounded-lg">
+                    @php
+                        $cleanImage = str_replace('storage/', '', $service->image);
+                        $imageUrl = \Storage::disk('public')->url($cleanImage);
+                    @endphp
+                    <img src="{{ $imageUrl }}" alt="{{ $service->name_ar }}" class="h-32 w-32 object-cover rounded-lg" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-service.png') }}';">
                 </div>
                 @endif
                 

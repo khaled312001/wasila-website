@@ -336,49 +336,61 @@
         </div>
     </section>
 
-    <!-- Gallery Section -->
-    <section class="section gallery-section">
+    <!-- Our Work Section with Infinite Scroll Animation -->
+    <section class="section our-work-section">
         <div class="container">
-            <div class="text-center mb-5" data-aos="fade-up">
+            <div class="text-center mb-8" data-aos="fade-up">
                 <h2 class="section-title">{{ __('messages.our_work') }}</h2>
                 <p class="section-subtitle">{{ __('messages.discover_images_from_activities') }}</p>
-        </div>
+            </div>
+            
             @php
-                    $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->take(12)->get();
-                @endphp
-                @if($portfolioItems->count() > 0)
-            <div class="gallery-grid">
-                    @foreach($portfolioItems as $index => $item)
-                @php
-                    $cleanFilePath = str_replace('storage/', '', $item->file_path);
-                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
-                @endphp
-                <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $index * 50 }}" onclick="openLightbox({{ $index + 1 }}, '{{ $item->type }}', '{{ $fileUrl }}', '{{ $item->title_ar }}')">
+                $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->get();
+                // Duplicate items for seamless loop
+                $allItems = $portfolioItems->merge($portfolioItems)->merge($portfolioItems);
+            @endphp
+            
+            @if($portfolioItems->count() > 0)
+            <div class="our-work-container">
+                <div class="our-work-track" id="ourWorkTrack">
+                    @foreach($allItems as $index => $item)
+                        @php
+                            $cleanFilePath = str_replace('storage/', '', $item->file_path);
+                            $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                        @endphp
+                        <div class="our-work-card" onclick="openLightbox({{ $index + 1 }}, '{{ $item->type }}', '{{ $fileUrl }}', '{{ $item->title_ar }}')">
                             @if($item->type === 'image')
-                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-3xl\'></i></div>';">
+                                <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
                             @else
-                    <video muted>
+                                <video muted>
                                     <source src="{{ $fileUrl }}" type="video/mp4">
                                 </video>
                             @endif
-                            <div class="gallery-overlay">
-                        <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-3x text-white"></i>
-                                    </div>
-                                </div>
-                @endforeach
+                            <div class="our-work-overlay">
+                                <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-2x text-white"></i>
+                                <p class="text-white mt-2 text-sm font-semibold">{{ $item->title_ar }}</p>
                             </div>
-                                @else
-            <div class="gallery-grid">
-                    @for($i = 1; $i <= 12; $i++)
-                <div class="gallery-item" data-aos="zoom-in" data-aos-delay="{{ $i * 50 }}" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة {{ $i }}')">
-                    <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#08788B 0%,#025469 100%);display:flex;align-items:center;justify-content:center;\'><i class=\'fas fa-image text-white text-3xl\'></i></div>';">
-                            <div class="gallery-overlay">
-                        <i class="fas fa-image fa-3x text-white"></i>
                         </div>
-                    </div>
-                    @endfor
+                    @endforeach
+                </div>
             </div>
-                @endif
+            @else
+            <div class="our-work-container">
+                <div class="our-work-track" id="ourWorkTrack">
+                    @for($i = 1; $i <= 6; $i++)
+                        @for($j = 0; $j < 3; $j++)
+                            <div class="our-work-card" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة {{ $i }}')">
+                                <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
+                                <div class="our-work-overlay">
+                                    <i class="fas fa-image fa-2x text-white"></i>
+                                    <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
+                                </div>
+                            </div>
+                        @endfor
+                    @endfor
+                </div>
+            </div>
+            @endif
         </div>
     </section>
     
@@ -699,6 +711,20 @@
             const heroContent = document.querySelector('.hero-content');
             if (heroContent) {
                 heroContent.style.animation = 'fadeInUp 1s ease-out';
+            }
+            
+            // Setup infinite scroll for our work section
+            const ourWorkTrack = document.getElementById('ourWorkTrack');
+            if (ourWorkTrack) {
+                const items = ourWorkTrack.querySelectorAll('.our-work-card');
+                const itemCount = items.length;
+                // Set CSS variable for animation
+                ourWorkTrack.style.setProperty('--item-count', itemCount);
+                
+                // Calculate animation duration based on item count (faster with more items)
+                const baseDuration = 30; // seconds
+                const duration = baseDuration + (itemCount * 0.5);
+                ourWorkTrack.style.animationDuration = duration + 's';
             }
         });
         

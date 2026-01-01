@@ -30,7 +30,11 @@
                 <tr class="table-row">
                     <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                         @if($service->image)
-                        <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->name_ar }}" class="h-10 w-10 md:h-12 md:w-12 rounded-lg object-cover">
+                            @php
+                                $cleanImage = str_replace('storage/', '', $service->image);
+                                $imageUrl = \Storage::disk('public')->url($cleanImage);
+                            @endphp
+                            <img src="{{ $imageUrl }}" alt="{{ $service->name_ar }}" class="h-10 w-10 md:h-12 md:w-12 rounded-lg object-cover" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-service.png') }}'; this.style.display='block';">
                         @else
                         <div class="h-10 w-10 md:h-12 md:w-12 bg-gray-200 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 md:w-6 md:h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
