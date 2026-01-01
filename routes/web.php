@@ -74,29 +74,28 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/register', [App\Http\Controllers\Auth\CustomerAuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [App\Http\Controllers\Auth\CustomerAuthController::class, 'register'])->name('register.post');
     Route::post('/logout', [App\Http\Controllers\Auth\CustomerAuthController::class, 'logout'])->name('logout');
+    
+    // Customer login route (with email parameter) - must have a valid email format
+    Route::get('/login/{email}', function($email) {
+        // Validate email format
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->route('admin.login')
+                ->with('error', 'البريد الإلكتروني غير صحيح');
+        }
+        
+        $customer = \App\Models\Customer::where('email', $email)->first();
+        if ($customer) {
+            auth('customer')->login($customer);
+            return redirect()->route('customer.dashboard')
+                ->with('success', 'تم تسجيل الدخول بنجاح كـ ' . $customer->name);
+        }
+        return redirect()->route('home')
+            ->with('error', 'العميل غير موجود');
+    })->where('email', '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')->name('login.email');
 });
 
 // Admin login route
 Route::get('/admin/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
-Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
-
-// Customer login route (with email parameter) - must have a valid email format
-Route::get('/login/{email}', function($email) {
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        return redirect()->route('admin.login')
-            ->with('error', 'البريد الإلكتروني غير صحيح');
-    }
-    
-    $customer = \App\Models\Customer::where('email', $email)->first();
-    if ($customer) {
-        auth('customer')->login($customer);
-        return redirect()->route('customer.dashboard')
-            ->with('success', 'تم تسجيل الدخول بنجاح كـ ' . $customer->name);
-    }
-    return redirect()->route('home')
-        ->with('error', 'العميل غير موجود');
-})->where('email', '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}')->name('customer.login');
 
 // Customer Dashboard routes
 Route::prefix('customer')->name('customer.')->middleware('auth:customer')->group(function () {

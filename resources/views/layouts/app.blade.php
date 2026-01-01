@@ -34,6 +34,9 @@
     <!-- Error Fixes Script - Must be loaded first -->
     <script src="{{ asset('js/error-fixes.js') }}"></script>
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/wasila.css') }}">
     
@@ -340,17 +343,21 @@
                 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-12 {{ app()->getLocale() === 'ar' ? 'space-x-reverse' : '' }}">
-                    <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}" class="text-gray-700 hover:text-primary-medium transition duration-300">
-                        {{ __('messages.home') }}
+                    <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}" class="text-gray-700 hover:text-primary-medium transition duration-300 flex items-center gap-2">
+                        <i class="fas fa-home text-sm"></i>
+                        <span>{{ __('messages.home') }}</span>
                     </a>
-                    <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" class="text-gray-700 hover:text-primary-medium transition duration-300">
-                        {{ __('messages.services') }}
+                    <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" class="text-gray-700 hover:text-primary-medium transition duration-300 flex items-center gap-2">
+                        <i class="fas fa-handshake text-sm"></i>
+                        <span>{{ __('messages.services') }}</span>
                     </a>
-                    <a href="#about" class="text-gray-700 hover:text-primary-medium transition duration-300">
-                        {{ __('messages.about') }}
+                    <a href="#about" class="text-gray-700 hover:text-primary-medium transition duration-300 flex items-center gap-2">
+                        <i class="fas fa-info-circle text-sm"></i>
+                        <span>{{ __('messages.about') }}</span>
                     </a>
-                    <a href="#contact" class="text-gray-700 hover:text-primary-medium transition duration-300">
-                        {{ __('messages.contact') }}
+                    <a href="#contact" class="text-gray-700 hover:text-primary-medium transition duration-300 flex items-center gap-2">
+                        <i class="fas fa-envelope text-sm"></i>
+                        <span>{{ __('messages.contact') }}</span>
                     </a>
                 </div>
                 
@@ -479,8 +486,8 @@
                                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                             </svg>
                             <div>
-                                <p class="font-medium" style="color: rgba(255, 255, 255, 0.9);">{{ __('messages.contact_email') }}</p>
-                                <a href="mailto:{{ \App\Helpers\SettingsHelper::contactEmail() }}" class="hover:text-green-500 transition duration-300" style="color: rgba(255, 255, 255, 0.7);">{{ \App\Helpers\SettingsHelper::contactEmail() }}</a>
+                                <p class="font-medium" style="color: rgba(255, 255, 255, 1);">{{ __('messages.contact_email') }}</p>
+                                <a href="mailto:{{ \App\Helpers\SettingsHelper::contactEmail() }}" class="hover:text-green-500 transition duration-300" style="color: rgba(255, 255, 255, 0.95);">{{ \App\Helpers\SettingsHelper::contactEmail() }}</a>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -488,8 +495,8 @@
                                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
                             </svg>
                             <div>
-                                <p class="font-medium" style="color: rgba(255, 255, 255, 0.9);">{{ __('messages.contact_phone') }}</p>
-                                <a href="tel:{{ \App\Helpers\SettingsHelper::contactPhone() }}" class="hover:text-green-500 transition duration-300" style="color: rgba(255, 255, 255, 0.7);">{{ \App\Helpers\SettingsHelper::contactPhone() }}</a>
+                                <p class="font-medium" style="color: rgba(255, 255, 255, 1);">{{ __('messages.contact_phone') }}</p>
+                                <a href="tel:{{ \App\Helpers\SettingsHelper::contactPhone() }}" class="hover:text-green-500 transition duration-300" style="color: rgba(255, 255, 255, 0.95);">{{ \App\Helpers\SettingsHelper::contactPhone() }}</a>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -497,8 +504,8 @@
                                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
                             </svg>
                             <div>
-                                <p class="font-medium" style="color: rgba(255, 255, 255, 0.9);">{{ __('messages.contact_address') }}</p>
-                                <p style="color: rgba(255, 255, 255, 0.7);">{{ \App\Helpers\SettingsHelper::address() }}</p>
+                                <p class="font-medium" style="color: rgba(255, 255, 255, 1);">{{ __('messages.contact_address') }}</p>
+                                <p style="color: rgba(255, 255, 255, 0.95);">{{ \App\Helpers\SettingsHelper::address() }}</p>
                             </div>
                         </div>
                     </div>
