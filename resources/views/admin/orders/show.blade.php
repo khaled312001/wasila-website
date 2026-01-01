@@ -11,6 +11,173 @@
         <span class="block sm:inline">{{ session('success') }}</span>
     </div>
     @endif
+
+    <!-- Order Documentation (Video/Audio Upload) - FIRST SECTION -->
+    <div class="bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl shadow-2xl border-2 border-primary-light/30 p-8 mb-8 relative overflow-hidden">
+        <!-- Decorative Background Elements -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-light/10 to-transparent rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-primary-medium/10 to-transparent rounded-full blur-3xl"></div>
+        
+        <div class="relative z-10">
+            <!-- Header Section -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="bg-gradient-to-br from-primary-medium via-primary-dark to-indigo-600 p-4 rounded-xl shadow-xl transform hover:scale-105 transition-transform duration-300">
+                        <i class="fas fa-video text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-bold text-primary-dark mb-1">توثيق الطلب (فيديو)</h2>
+                        <p class="text-sm text-gray-600 flex items-center gap-2">
+                            <i class="fas fa-info-circle text-primary-medium"></i>
+                            رفع وتوثيق فيديو تنفيذ الطلب للعميل
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upload Form -->
+            <form method="POST" action="{{ route('admin.orders.documentation.upload', $order) }}" enctype="multipart/form-data" class="mb-8 bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="title" class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                            <i class="fas fa-heading text-primary-medium"></i>
+                            عنوان الملف <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="title" name="title" 
+                               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-primary-medium transition-all shadow-sm hover:shadow-md"
+                               placeholder="مثال: توثيق تنفيذ الطلب" required>
+                    </div>
+                    
+                    <div>
+                        <label for="video" class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                            <i class="fas fa-video text-primary-medium"></i>
+                            رفع ملف (فيديو/صوت) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="file" id="video" name="video" accept="video/*,audio/*" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-primary-medium transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-primary-light file:to-primary-medium file:text-white hover:file:from-primary-medium hover:file:to-primary-dark shadow-sm hover:shadow-md" required>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                            <i class="fas fa-info-circle text-primary-medium"></i>
+                            الصيغ المدعومة: MP4, MOV, AVI, WMV (حد أقصى 100MB)
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label for="description" class="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                        <i class="fas fa-align-right text-primary-medium"></i>
+                        وصف الملف (اختياري)
+                    </label>
+                    <textarea id="description" name="description" rows="3"
+                              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-primary-medium transition-all resize-none shadow-sm hover:shadow-md"
+                              placeholder="وصف مختصر للملف..."></textarea>
+                </div>
+                
+                <div class="flex justify-end mt-6">
+                    <button type="submit" class="bg-gradient-to-r from-primary-medium via-primary-dark to-indigo-600 text-white px-8 py-3 rounded-lg font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+                        <i class="fas fa-upload"></i>
+                        رفع الملف
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Existing Documentation -->
+            @if(isset($order->documentation) && $order->documentation && $order->documentation->count() > 0)
+            <div class="border-t-2 border-gray-200 pt-8 mt-8">
+                <h3 class="text-2xl font-bold text-primary-dark mb-6 flex items-center gap-3">
+                    <div class="bg-gradient-to-br from-primary-light to-primary-medium p-2 rounded-lg">
+                        <i class="fas fa-folder-open text-white"></i>
+                    </div>
+                    الملفات المرفوعة ({{ $order->documentation->count() }})
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    @foreach($order->documentation as $doc)
+                    <div class="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group">
+                        <!-- Hover Effect Background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-primary-light/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
+                                        <i class="fas fa-file-video text-primary-medium text-xl"></i>
+                                        {{ $doc->title ?? ($doc->description ?: 'ملف توثيق') }}
+                                    </h4>
+                                    @if($doc->description)
+                                    <p class="text-sm text-gray-600 mb-3">{{ $doc->description }}</p>
+                                    @endif
+                                    <div class="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
+                                        <span class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
+                                            <i class="fas fa-calendar text-primary-medium"></i>
+                                            {{ $doc->created_at->format('Y-m-d H:i') }}
+                                        </span>
+                                        @if($doc->formatted_file_size)
+                                        <span class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
+                                            <i class="fas fa-hdd text-primary-medium"></i>
+                                            {{ $doc->formatted_file_size }}
+                                        </span>
+                                        @endif
+                                        @if($doc->formatted_duration)
+                                        <span class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded">
+                                            <i class="fas fa-clock text-primary-medium"></i>
+                                            {{ $doc->formatted_duration }}
+                                        </span>
+                                        @endif
+                                        @if($doc->is_visible_to_customer)
+                                        <span class="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded">
+                                            <i class="fas fa-eye text-green-600"></i>
+                                            مرئي للعميل
+                                        </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ $doc->video_url }}" target="_blank" 
+                                       class="bg-gradient-to-r from-primary-light to-primary-medium hover:from-primary-medium hover:to-primary-dark text-white p-3 rounded-lg transition-all duration-200 hover:scale-110 shadow-md hover:shadow-lg" title="عرض الفيديو">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form method="POST" action="{{ route('admin.documentation.delete', $doc) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white p-3 rounded-lg transition-all duration-200 hover:scale-110 shadow-md hover:shadow-lg" 
+                                                onclick="return confirm('هل أنت متأكد من حذف هذا الملف؟')" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            @if($doc->video_path)
+                            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700 relative">
+                                <video controls class="w-full" style="max-height: 400px; min-height: 300px;" preload="metadata" playsinline webkit-playsinline>
+                                    <source src="{{ $doc->video_url }}" type="video/mp4">
+                                    <source src="{{ $doc->video_url }}" type="video/webm">
+                                    <source src="{{ $doc->video_url }}" type="video/ogg">
+                                    <div class="text-white p-4 text-center">
+                                        متصفحك لا يدعم تشغيل الفيديو. 
+                                        <a href="{{ $doc->video_url }}" class="text-blue-400 underline hover:text-blue-300" download>اضغط هنا لتحميل الفيديو</a>
+                                    </div>
+                                </video>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @else
+            <div class="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+                <div class="bg-white rounded-full p-6 w-24 h-24 mx-auto mb-4 shadow-lg flex items-center justify-center">
+                    <i class="fas fa-video text-4xl text-gray-400"></i>
+                </div>
+                <p class="text-gray-600 text-lg font-semibold mb-2">لا توجد ملفات توثيق مرفوعة بعد</p>
+                <p class="text-gray-400 text-sm">قم برفع أول ملف توثيق للطلب</p>
+            </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Order Header -->
     <div class="bg-white rounded-lg shadow-lg card-shadow p-6 mb-6">
         <div class="flex justify-between items-start">
@@ -265,87 +432,42 @@
         </form>
     </div>
 
-    <!-- Order Documentation (Video/Audio Upload) -->
-    <div class="bg-white rounded-lg shadow-lg card-shadow p-6 mt-6">
-        <h2 class="text-xl font-semibold text-primary-dark mb-4">توثيق الطلب (فيديو)</h2>
-        
-        <!-- Upload Form -->
-        <form method="POST" action="{{ route('admin.orders.documentation.upload', $order) }}" enctype="multipart/form-data" class="mb-6">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">عنوان الملف <span class="text-red-500">*</span></label>
-                    <input type="text" id="title" name="title" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent"
-                           placeholder="مثال: توثيق تنفيذ الطلب" required>
-                </div>
-                
-                <div>
-                    <label for="video" class="block text-sm font-medium text-gray-700 mb-2">رفع ملف (فيديو/صوت) <span class="text-red-500">*</span></label>
-                    <input type="file" id="video" name="video" accept="video/*,audio/*" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent" required>
-                    <p class="text-xs text-gray-500 mt-1">الصيغ المدعومة: MP4, MOV, AVI, WMV (حد أقصى 100MB)</p>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">وصف الملف (اختياري)</label>
-                <textarea id="description" name="description" rows="3"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent"
-                          placeholder="وصف مختصر للملف..."></textarea>
-            </div>
-            
-            <div class="flex justify-end mt-4">
-                <button type="submit" class="btn-primary text-white px-6 py-2 rounded-lg font-semibold">
-                    رفع الملف
-                </button>
-            </div>
-        </form>
-        
-        <!-- Existing Documentation -->
-        @if(isset($order->documentation) && $order->documentation && $order->documentation->count() > 0)
-        <div class="border-t border-gray-200 pt-6 mt-6">
-            <h3 class="text-lg font-semibold text-primary-dark mb-4">الملفات المرفوعة</h3>
-            <div class="space-y-4">
-                @foreach($order->documentation as $doc)
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div class="flex items-center space-x-4">
-                        <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                        </svg>
-                        <div>
-                            <p class="font-medium text-gray-900">{{ $doc->title ?? ($doc->description ?: 'ملف توثيق') }}</p>
-                            <p class="text-sm text-gray-500">{{ $doc->description ?? '' }}</p>
-                            <p class="text-xs text-gray-400 mt-1">{{ $doc->formatted_file_size ?? '' }} - {{ $doc->created_at->format('Y-m-d H:i') }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <a href="{{ $doc->video_url }}" target="_blank" 
-                           class="text-primary-medium hover:text-primary-dark">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-                            </svg>
-                        </a>
-                        <form method="POST" action="{{ route('admin.documentation.delete', $doc) }}" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:text-red-700" onclick="return confirm('هل أنت متأكد من حذف هذا الملف؟')">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @else
-        <div class="text-center py-8 text-gray-500">
-            <p>لا توجد ملفات توثيق مرفوعة بعد</p>
-        </div>
-        @endif
-    </div>
 </div>
+
+@push('scripts')
+<script>
+    // Enhance video player experience
+    document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            // Add error handling
+            video.addEventListener('error', function(e) {
+                console.error('Video error:', e);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'text-white p-4 text-center bg-red-600 rounded';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>حدث خطأ في تحميل الفيديو. يرجى المحاولة مرة أخرى.';
+                video.parentElement.appendChild(errorDiv);
+            });
+            
+            // Add loading indicator
+            video.addEventListener('loadstart', function() {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 rounded';
+                loadingDiv.id = 'loading-' + video.id;
+                loadingDiv.innerHTML = '<div class="text-white"><i class="fas fa-spinner fa-spin text-3xl"></i></div>';
+                video.parentElement.style.position = 'relative';
+                video.parentElement.appendChild(loadingDiv);
+            });
+            
+            // Remove loading indicator when video can play
+            video.addEventListener('canplay', function() {
+                const loadingDiv = video.parentElement.querySelector('#loading-' + video.id);
+                if (loadingDiv) {
+                    loadingDiv.remove();
+                }
+            });
+        });
+    });
+</script>
+@endpush
 @endsection

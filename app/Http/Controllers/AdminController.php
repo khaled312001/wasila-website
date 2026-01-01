@@ -55,8 +55,8 @@ class AdminController extends Controller
             'total_services' => Service::count(),
             'active_services' => Service::where('is_active', true)->count(),
             'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
-            'total_messages' => ContactMessage::count(),
-            'unread_messages' => ContactMessage::unread()->count(),
+            'total_messages' => CustomerMessage::count(),
+            'unread_messages' => CustomerMessage::where('is_read', false)->where('sender_type', 'customer')->count(),
         ];
         
         $recent_orders = Order::with('orderItems.service')
@@ -176,7 +176,9 @@ class AdminController extends Controller
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isRemoteEnabled', true)
             ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1);
+            ->setOption('fontHeightRatio', 1.1)
+            ->setOption('isPhpEnabled', true)
+            ->setOption('chroot', public_path());
         
         return $pdf->download('orders-report-' . date('Y-m-d') . '.pdf');
     }
@@ -207,7 +209,9 @@ class AdminController extends Controller
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isRemoteEnabled', true)
             ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1);
+            ->setOption('fontHeightRatio', 1.1)
+            ->setOption('isPhpEnabled', true)
+            ->setOption('chroot', public_path());
         
         return $pdf->download('statistics-report-' . date('Y-m-d') . '.pdf');
     }
@@ -226,18 +230,114 @@ class AdminController extends Controller
     public function replyToCustomer(Request $request, CustomerMessage $message)
     {
         $request->validate([
-            'reply' => 'required|string|max:5000',
+            'reply' => 'nullable|string|max:5000',
+            'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
         ]);
         
-        CustomerMessage::create([
+        $data = [
             'customer_id' => $message->customer_id,
             'order_id' => $message->order_id,
-            'message' => $request->reply,
+            'message' => $request->reply ?? '',
             'sender_type' => 'admin',
             'admin_id' => Auth::id(),
-        ]);
+        ];
+
+        // Handle file upload
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('customer-messages', 'public');
+            
+            // Determine file type
+            $mimeType = $file->getMimeType();
+            $fileType = 'document';
+            if (str_starts_with($mimeType, 'image/')) {
+                $fileType = 'image';
+            } elseif (str_starts_with($mimeType, 'video/')) {
+                $fileType = 'video';
+            } elseif (str_starts_with($mimeType, 'audio/')) {
+                $fileType = 'audio';
+            }
+
+            $data['file_path'] = $filePath;
+            $data['file_name'] = $file->getClientOriginalName();
+            $data['file_type'] = $fileType;
+            $data['file_size'] = $file->getSize();
+            $data['mime_type'] = $mimeType;
+        }
+        
+        CustomerMessage::create($data);
         
         return back()->with('success', 'تم إرسال الرد بنجاح');
+    }
+
+    public function getCustomerMessages(Request $request, Customer $customer)
+    {
+        $query = $customer->messages()->with(['admin', 'order']);
+        
+        if ($request->last_message_id) {
+            $query->where('id', '>', $request->last_message_id);
+        }
+        
+        $messages = $query->latest()->limit(50)->get()->reverse();
+        
+        // Mark as read
+        $customer->messages()
+            ->where('sender_type', 'customer')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+        
+        return response()->json([
+            'success' => true,
+            'messages' => $messages,
+        ]);
+    }
+
+    public function sendMessageToCustomer(Request $request, Customer $customer)
+    {
+        $request->validate([
+            'message' => 'nullable|string|max:5000',
+            'order_id' => 'nullable|exists:orders,id',
+            'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
+        ]);
+
+        $data = [
+            'customer_id' => $customer->id,
+            'order_id' => $request->order_id,
+            'message' => $request->message ?? '',
+            'sender_type' => 'admin',
+            'admin_id' => Auth::id(),
+        ];
+
+        // Handle file upload
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('customer-messages', 'public');
+            
+            // Determine file type
+            $mimeType = $file->getMimeType();
+            $fileType = 'document';
+            if (str_starts_with($mimeType, 'image/')) {
+                $fileType = 'image';
+            } elseif (str_starts_with($mimeType, 'video/')) {
+                $fileType = 'video';
+            } elseif (str_starts_with($mimeType, 'audio/')) {
+                $fileType = 'audio';
+            }
+
+            $data['file_path'] = $filePath;
+            $data['file_name'] = $file->getClientOriginalName();
+            $data['file_type'] = $fileType;
+            $data['file_size'] = $file->getSize();
+            $data['mime_type'] = $mimeType;
+        }
+
+        $message = CustomerMessage::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إرسال الرسالة بنجاح',
+            'data' => $message->load('admin', 'order'),
+        ]);
     }
     
     // Customers Management
@@ -378,7 +478,9 @@ class AdminController extends Controller
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isRemoteEnabled', true)
             ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1);
+            ->setOption('fontHeightRatio', 1.1)
+            ->setOption('isPhpEnabled', true)
+            ->setOption('chroot', public_path());
         
         return $pdf->download('customers-report-' . date('Y-m-d') . '.pdf');
     }

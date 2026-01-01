@@ -254,7 +254,9 @@ class AnalyticsController extends Controller
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isRemoteEnabled', true)
             ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('fontHeightRatio', 1.1);
+            ->setOption('fontHeightRatio', 1.1)
+            ->setOption('isPhpEnabled', true)
+            ->setOption('chroot', public_path());
         
         return $pdf->download('analytics-report-' . date('Y-m-d') . '.pdf');
     }

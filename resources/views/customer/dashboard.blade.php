@@ -4,105 +4,351 @@
 @section('page-title', __('messages.dashboard'))
 @section('page-subtitle', __('messages.welcome_back') . ' ' . $customer->name)
 
+@push('styles')
+<style>
+    .stat-card-modern {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 2px solid transparent;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card-modern::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 120px;
+        height: 120px;
+        background: radial-gradient(circle, rgba(8, 120, 139, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+    }
+    
+    .stat-card-modern:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stat-card-modern.primary {
+        background: linear-gradient(135deg, #025469 0%, #08788B 100%);
+        color: white;
+    }
+    
+    .stat-card-modern.warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+    
+    .stat-card-modern.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .stat-card-modern.purple {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+    }
+    
+    .stat-icon-wrapper {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card-modern.primary .stat-icon-wrapper,
+    .stat-card-modern.warning .stat-icon-wrapper,
+    .stat-card-modern.success .stat-icon-wrapper,
+    .stat-card-modern.purple .stat-icon-wrapper {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0.75rem 0;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-card-modern {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid rgba(8, 120, 139, 0.1);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card-modern:hover {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header-modern {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(8, 120, 139, 0.1);
+    }
+    
+    .card-title-modern {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #025469;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .card-title-modern::before {
+        content: '';
+        width: 4px;
+        height: 28px;
+        background: linear-gradient(135deg, #025469 0%, #08788B 100%);
+        border-radius: 2px;
+    }
+    
+    .order-item-modern {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid rgba(8, 120, 139, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .order-item-modern::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #025469 0%, #08788B 100%);
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .order-item-modern:hover {
+        transform: translateX(-8px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        border-color: rgba(8, 120, 139, 0.3);
+    }
+    
+    .order-item-modern:hover::before {
+        transform: scaleY(1);
+    }
+    
+    .message-item-modern {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid rgba(8, 120, 139, 0.1);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .message-item-modern:hover {
+        transform: translateX(-8px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        border-color: rgba(8, 120, 139, 0.3);
+    }
+    
+    .status-badge-modern {
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, rgba(8, 120, 139, 0.1) 0%, rgba(8, 120, 139, 0.05) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+@endpush
+
 @section('content')
+<!-- Welcome Banner -->
+<div class="mb-8 fade-in">
+    <div class="bg-gradient-to-r from-primary-medium via-primary-dark to-indigo-600 rounded-2xl shadow-2xl p-8 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="relative z-10">
+            <h1 class="text-3xl font-bold mb-2">{{ __('messages.welcome_back') }}, {{ $customer->name }}!</h1>
+            <p class="text-white/90 text-lg">{{ __('messages.dashboard_subtitle') ?? 'تابع طلباتك ورسائلك من مكان واحد' }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Orders -->
-    <div class="stat-card">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                </svg>
-            </div>
+    <div class="stat-card-modern primary fade-in" style="animation-delay: 0.1s">
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-shopping-cart text-white text-2xl"></i>
         </div>
-        <h3 class="text-white/80 text-sm mb-2">{{ __('messages.total_orders') }}</h3>
-        <p class="text-3xl font-bold text-white">{{ $stats['total_orders'] }}</p>
+        <h3 class="stat-label">{{ __('messages.total_orders') }}</h3>
+        <p class="stat-value">{{ $stats['total_orders'] }}</p>
+        <div class="flex items-center gap-2 mt-3 text-sm opacity-90">
+            <i class="fas fa-chart-line"></i>
+            <span>جميع الطلبات</span>
+        </div>
     </div>
 
     <!-- Pending Orders -->
-    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-            </div>
+    <div class="stat-card-modern warning fade-in" style="animation-delay: 0.2s">
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-clock text-white text-2xl"></i>
         </div>
-        <h3 class="text-white/80 text-sm mb-2">{{ __('messages.pending_orders') }}</h3>
-        <p class="text-3xl font-bold text-white">{{ $stats['pending_orders'] }}</p>
+        <h3 class="stat-label">{{ __('messages.pending_orders') }}</h3>
+        <p class="stat-value">{{ $stats['pending_orders'] }}</p>
+        <div class="flex items-center gap-2 mt-3 text-sm opacity-90">
+            <i class="fas fa-hourglass-half"></i>
+            <span>قيد المراجعة</span>
+        </div>
     </div>
 
     <!-- Completed Orders -->
-    <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                </svg>
-            </div>
+    <div class="stat-card-modern success fade-in" style="animation-delay: 0.3s">
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-check-circle text-white text-2xl"></i>
         </div>
-        <h3 class="text-white/80 text-sm mb-2">{{ __('messages.completed_orders') }}</h3>
-        <p class="text-3xl font-bold text-white">{{ $stats['completed_orders'] }}</p>
+        <h3 class="stat-label">{{ __('messages.completed_orders') }}</h3>
+        <p class="stat-value">{{ $stats['completed_orders'] }}</p>
+        <div class="flex items-center gap-2 mt-3 text-sm opacity-90">
+            <i class="fas fa-check-double"></i>
+            <span>مكتملة</span>
+        </div>
     </div>
 
     <!-- Total Spent -->
-    <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-        <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
-                </svg>
-            </div>
+    <div class="stat-card-modern purple fade-in" style="animation-delay: 0.4s">
+        <div class="stat-icon-wrapper">
+            <i class="fas fa-money-bill-wave text-white text-2xl"></i>
         </div>
-        <h3 class="text-white/80 text-sm mb-2">{{ __('messages.total_spent') }}</h3>
-        <p class="text-3xl font-bold text-white">{{ number_format($stats['total_spent'], 2) }} ر.س</p>
+        <h3 class="stat-label">{{ __('messages.total_spent') }}</h3>
+        <p class="stat-value">{{ number_format($stats['total_spent'], 2) }}</p>
+        <p class="text-sm opacity-90 mt-2">ريال سعودي</p>
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Recent Orders -->
-    <div class="dashboard-card">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-gray-800">{{ __('messages.recent_orders') }}</h2>
-            <a href="{{ route('customer.orders.index') }}" class="text-primary-medium hover:text-primary-dark text-sm">
+    <div class="dashboard-card-modern fade-in" style="animation-delay: 0.5s">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern">
+                <i class="fas fa-shopping-bag text-primary-medium"></i>
+                {{ __('messages.recent_orders') }}
+            </h2>
+            <a href="{{ route('customer.orders.index') }}" class="bg-gradient-to-r from-primary-light to-primary-medium text-white px-5 py-2 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm">
+                <i class="fas fa-eye ml-2"></i>
                 {{ __('messages.view_all') }}
             </a>
         </div>
         
         @if($recentOrders->count() > 0)
-        <div class="space-y-4">
+        <div class="space-y-3">
             @foreach($recentOrders as $order)
-            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div class="flex items-center justify-between mb-2">
-                    <div>
-                        <h3 class="font-semibold text-gray-800">{{ $order->service_name ?? __('messages.service') }}</h3>
-                        <p class="text-sm text-gray-600">{{ $order->order_number }}</p>
+            <div class="order-item-modern">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-900 text-lg mb-1">{{ $order->service_name ?? __('messages.service') }}</h3>
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-hashtag ml-1"></i>
+                            {{ $order->order_number }}
+                        </p>
                     </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                    <span class="status-badge-modern
                         @if($order->status === 'completed') bg-green-100 text-green-800
                         @elseif($order->status === 'pending') bg-yellow-100 text-yellow-800
                         @else bg-gray-100 text-gray-800
                         @endif">
+                        @if($order->status === 'completed')
+                            <i class="fas fa-check-circle"></i>
+                        @elseif($order->status === 'pending')
+                            <i class="fas fa-clock"></i>
+                        @else
+                            <i class="fas fa-info-circle"></i>
+                        @endif
                         {{ __('messages.' . $order->status) }}
                     </span>
                 </div>
-                <div class="flex items-center justify-between mt-3">
-                    <p class="text-sm text-gray-600">{{ $order->created_at->format('Y-m-d') }}</p>
-                    <a href="{{ route('customer.orders.show', $order) }}" class="text-primary-medium hover:text-primary-dark text-sm font-semibold">
-                        {{ __('messages.view_details') }} →
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-calendar ml-1"></i>
+                        {{ $order->created_at->format('Y-m-d') }}
+                    </p>
+                    <a href="{{ route('customer.orders.show', $order) }}" class="bg-gradient-to-r from-primary-light to-primary-medium text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-md transform hover:scale-105 transition-all duration-200 inline-flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i>
+                        {{ __('messages.view_details') }}
                     </a>
                 </div>
             </div>
             @endforeach
         </div>
         @else
-        <div class="text-center py-8">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-            </svg>
-            <p class="text-gray-600">{{ __('messages.no_orders_yet') }}</p>
-            <a href="{{ route('services') }}" class="btn-primary mt-4 inline-block">
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-shopping-cart text-4xl text-primary-medium"></i>
+            </div>
+            <p class="text-gray-600 text-lg font-semibold mb-2">{{ __('messages.no_orders_yet') }}</p>
+            <a href="{{ route('services') }}" class="bg-gradient-to-r from-primary-medium to-primary-dark text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 inline-block mt-4">
+                <i class="fas fa-search ml-2"></i>
                 {{ __('messages.browse_services') }}
             </a>
         </div>
@@ -110,54 +356,71 @@
     </div>
 
     <!-- Recent Messages -->
-    <div class="dashboard-card">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-gray-800">{{ __('messages.recent_messages') }}</h2>
-            <a href="{{ route('customer.messages.index') }}" class="text-primary-medium hover:text-primary-dark text-sm">
-                {{ __('messages.view_all') }}
-            </a>
-            @if($stats['unread_messages'] > 0)
-            <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1">
-                {{ $stats['unread_messages'] }}
-            </span>
-            @endif
+    <div class="dashboard-card-modern fade-in" style="animation-delay: 0.6s">
+        <div class="card-header-modern">
+            <h2 class="card-title-modern">
+                <i class="fas fa-comments text-primary-medium"></i>
+                {{ __('messages.recent_messages') }}
+            </h2>
+            <div class="flex items-center gap-3">
+                @if($stats['unread_messages'] > 0)
+                <span class="bg-red-500 text-white text-xs rounded-full px-3 py-1 font-bold animate-pulse">
+                    {{ $stats['unread_messages'] }}
+                </span>
+                @endif
+                <a href="{{ route('customer.messages.index') }}" class="bg-gradient-to-r from-primary-light to-primary-medium text-white px-5 py-2 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200 text-sm">
+                    <i class="fas fa-eye ml-2"></i>
+                    {{ __('messages.view_all') }}
+                </a>
+            </div>
         </div>
         
         @if($recentMessages->count() > 0)
-        <div class="space-y-4">
+        <div class="space-y-3">
             @foreach($recentMessages as $message)
-            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="message-item-modern">
                 <div class="flex items-start justify-between mb-2">
                     <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-semibold
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-bold
                                 @if($message->sender_type === 'admin') text-primary-medium
                                 @else text-gray-600
                                 @endif">
                                 @if($message->sender_type === 'admin')
+                                    <i class="fas fa-user-shield ml-1"></i>
                                     {{ $message->admin->name ?? __('messages.admin') }}
                                 @else
+                                    <i class="fas fa-user ml-1"></i>
                                     {{ __('messages.you') }}
                                 @endif
                             </span>
                             @if(!$message->is_read && $message->sender_type === 'admin')
-                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                             @endif
                         </div>
-                        <p class="text-sm text-gray-700 line-clamp-2">{{ Str::limit($message->message, 100) }}</p>
+                        <p class="text-sm text-gray-700 line-clamp-2 leading-relaxed">{{ Str::limit($message->message, 100) }}</p>
                     </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">{{ $message->created_at->diffForHumans() }}</p>
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <p class="text-xs text-gray-500">
+                        <i class="fas fa-clock ml-1"></i>
+                        {{ $message->created_at->diffForHumans() }}
+                    </p>
+                    <a href="{{ route('customer.messages.index') }}" class="text-primary-medium hover:text-primary-dark text-sm font-semibold">
+                        <i class="fas fa-arrow-left ml-1"></i>
+                        رد
+                    </a>
+                </div>
             </div>
             @endforeach
         </div>
         @else
-        <div class="text-center py-8">
-            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
-                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
-            </svg>
-            <p class="text-gray-600">{{ __('messages.no_messages_yet') }}</p>
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-comments text-4xl text-primary-medium"></i>
+            </div>
+            <p class="text-gray-600 text-lg font-semibold mb-2">{{ __('messages.no_messages_yet') }}</p>
+            <p class="text-gray-500 text-sm">ابدأ محادثة مع فريق الدعم</p>
         </div>
         @endif
     </div>

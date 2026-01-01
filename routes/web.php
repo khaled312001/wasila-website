@@ -111,6 +111,7 @@ Route::prefix('customer')->name('customer.')->middleware('auth:customer')->group
     // Messages
     Route::get('/messages', [CustomerMessageController::class, 'index'])->name('messages.index');
     Route::post('/messages', [CustomerMessageController::class, 'store'])->name('messages.store');
+    Route::get('/messages/get', [CustomerMessageController::class, 'getMessages'])->name('messages.get');
 });
 
 // Deployment tools (remove these routes after fixing production issues)
@@ -153,6 +154,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{customer}', [AdminController::class, 'customersShow'])->name('show');
             Route::get('/{customer}/orders', [AdminController::class, 'customersOrders'])->name('orders');
             Route::get('/{customer}/messages', [AdminController::class, 'customersMessages'])->name('messages');
+            Route::get('/{customer}/messages/get', [AdminController::class, 'getCustomerMessages'])->name('messages.get');
             Route::get('/export/excel', [AdminController::class, 'exportCustomersExcel'])->name('export.excel');
             Route::get('/export/pdf', [AdminController::class, 'exportCustomersPDF'])->name('export.pdf');
         });
@@ -160,6 +162,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Customer Messages
         Route::get('/customer-messages', [AdminController::class, 'customerMessages'])->name('customer.messages');
         Route::post('/customer-messages/{message}/reply', [AdminController::class, 'replyToCustomer'])->name('customer.messages.reply');
+        Route::post('/customers/{customer}/messages/send', [AdminController::class, 'sendMessageToCustomer'])->name('customers.messages.send');
         
         // Statistics PDF Export
         Route::get('/statistics/export/pdf', [AdminController::class, 'exportStatisticsPDF'])->name('statistics.export.pdf');

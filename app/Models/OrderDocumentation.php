@@ -22,6 +22,10 @@ class OrderDocumentation extends Model
         'uploaded_by',
         'is_visible_to_customer',
         'viewed_at',
+        'file_path',
+        'file_name',
+        'file_type',
+        'mime_type',
     ];
 
     protected $casts = [

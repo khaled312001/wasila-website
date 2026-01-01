@@ -25,6 +25,7 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             direction: rtl;
+            unicode-bidi: embed;
             text-align: right;
             color: #333;
             padding: 40px;
@@ -33,6 +34,10 @@
             line-height: 1.8;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+        * {
+            unicode-bidi: embed;
+            direction: rtl;
         }
         .header {
             text-align: center;

@@ -24,12 +24,18 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             direction: rtl;
+            unicode-bidi: embed;
+            text-align: right;
             padding: 30px;
             font-size: 14px;
             line-height: 1.8;
             color: #333;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+        * {
+            unicode-bidi: embed;
+            direction: rtl;
         }
         .header {
             text-align: center;

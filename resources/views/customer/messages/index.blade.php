@@ -6,88 +6,238 @@
 
 @push('styles')
 <style>
+    .chat-container {
+        height: calc(100vh - 300px);
+        min-height: 600px;
+        max-height: 800px;
+    }
+    
+    .messages-container {
+        height: calc(100% - 120px);
+        overflow-y: auto;
+        padding: 1rem;
+        background: linear-gradient(to bottom, #e5e7eb 0%, #f3f4f6 100%);
+    }
+    
     .message-bubble {
         max-width: 70%;
         word-wrap: break-word;
+        position: relative;
+        animation: slideIn 0.3s ease-out;
     }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
     .message-customer {
-        background: linear-gradient(135deg, #3CA6B4 0%, #08788B 100%);
+        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
         color: white;
         margin-left: auto;
-        border-radius: 1rem 1rem 0 1rem;
+        border-radius: 1rem 1rem 0.25rem 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
+    
     .message-admin {
-        background: #f3f4f6;
+        background: white;
         color: #1f2937;
         margin-right: auto;
-        border-radius: 1rem 1rem 1rem 0;
+        border-radius: 1rem 1rem 1rem 0.25rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+    }
+    
+    .file-preview {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .file-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+    }
+    
+    .file-attachment {
+        background: rgba(0,0,0,0.05);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .file-attachment i {
+        font-size: 2rem;
+        color: #3b82f6;
+    }
+    
+    .chat-input-container {
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        padding: 1rem;
+    }
+    
+    .typing-indicator {
+        display: none;
+        padding: 0.5rem 1rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .typing-indicator.active {
+        display: block;
+    }
+    
+    .scroll-to-bottom {
+        position: absolute;
+        bottom: 80px;
+        right: 20px;
+        background: #25D366;
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+    
+    .scroll-to-bottom.visible {
+        display: flex;
+    }
+    
+    /* Custom Scrollbar */
+    .messages-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .messages-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
     }
 </style>
 @endpush
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Messages List -->
-    <div class="lg:col-span-2">
-        <div class="dashboard-card">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">{{ __('messages.conversation') }}</h2>
-            
+<div class="max-w-6xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden chat-container">
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2 rounded-full">
+                    <i class="fas fa-headset text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold">{{ __('messages.support_team') }}</h2>
+                    <p class="text-xs opacity-90" id="statusText">متصل الآن</p>
+                </div>
+            </div>
             @if(request('order_id'))
-            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p class="text-sm text-blue-800">
-                    {{ __('messages.filtering_by_order') }}: 
-                    <a href="{{ route('customer.orders.show', request('order_id')) }}" class="font-semibold underline">
-                        #{{ \App\Models\Order::find(request('order_id'))->order_number ?? request('order_id') }}
-                    </a>
-                </p>
+            <div class="bg-white/20 px-3 py-1 rounded-lg text-sm">
+                <i class="fas fa-shopping-cart ml-1"></i>
+                طلب #{{ \App\Models\Order::find(request('order_id'))->order_number ?? request('order_id') }}
             </div>
             @endif
+        </div>
 
-            <div class="space-y-4 max-h-96 overflow-y-auto mb-6" id="messagesContainer">
+        <!-- Messages Container -->
+        <div class="messages-container relative" id="messagesContainer">
+            <div class="space-y-3" id="messagesList">
                 @forelse($messages as $message)
-                <div class="flex {{ $message->sender_type === 'customer' ? 'justify-end' : 'justify-start' }}">
-                    <div class="message-bubble message-{{ $message->sender_type }} p-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-semibold opacity-80">
-                                @if($message->sender_type === 'admin')
-                                    {{ $message->admin->name ?? __('messages.admin') }}
-                                @else
-                                    {{ __('messages.you') }}
-                                @endif
-                            </span>
-                            @if($message->order)
-                            <span class="text-xs opacity-60">• {{ __('messages.order') }} #{{ $message->order->order_number }}</span>
-                            @endif
-                        </div>
-                        <p class="text-sm">{{ $message->message }}</p>
-                        <p class="text-xs opacity-60 mt-2">{{ $message->created_at->format('Y-m-d H:i') }}</p>
-                    </div>
-                </div>
+                @include('customer.messages.message-item', ['message' => $message])
                 @empty
                 <div class="text-center py-12">
-                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
-                        <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
-                    </svg>
-                    <p class="text-gray-600">{{ __('messages.no_messages_yet') }}</p>
+                    <div class="bg-white rounded-full p-6 w-24 h-24 mx-auto mb-4 shadow-lg flex items-center justify-center">
+                        <i class="fas fa-comments text-4xl text-gray-400"></i>
+                    </div>
+                    <p class="text-gray-600 text-lg font-semibold mb-2">{{ __('messages.no_messages_yet') }}</p>
+                    <p class="text-gray-400 text-sm">ابدأ المحادثة مع فريق الدعم</p>
                 </div>
                 @endforelse
             </div>
+            <div class="scroll-to-bottom" id="scrollToBottom" onclick="scrollToBottom()">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+        </div>
 
-            <!-- Send Message Form -->
-            <form id="messageForm" class="border-t border-gray-200 pt-4">
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <span class="flex items-center gap-1">
+                <span class="animate-bounce">●</span>
+                <span class="animate-bounce" style="animation-delay: 0.1s">●</span>
+                <span class="animate-bounce" style="animation-delay: 0.2s">●</span>
+                فريق الدعم يكتب...
+            </span>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+            <form id="messageForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="order_id" value="{{ request('order_id') }}">
-                <div class="flex gap-3">
-                    <textarea 
-                        name="message" 
-                        id="messageInput"
-                        rows="3"
-                        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-medium focus:border-transparent"
-                        placeholder="{{ __('messages.type_your_message') }}"
-                        required></textarea>
-                    <button type="submit" class="btn-primary px-6 py-2 self-end">
-                        {{ __('messages.send') }}
+                <div class="flex items-end gap-2">
+                    <!-- File Input -->
+                    <label for="fileInput" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg cursor-pointer transition-colors" title="إرسال ملف">
+                        <i class="fas fa-paperclip text-gray-600"></i>
+                        <input type="file" id="fileInput" name="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx" class="hidden">
+                    </label>
+                    
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="hidden">
+                        <img id="previewImage" src="" alt="Preview" class="w-16 h-16 object-cover rounded-lg">
+                        <button type="button" onclick="removeImagePreview()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">×</button>
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="flex-1 relative">
+                        <textarea 
+                            name="message" 
+                            id="messageInput"
+                            rows="1"
+                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-primary-medium focus:border-primary-medium resize-none"
+                            placeholder="{{ __('messages.type_your_message') }}"
+                            onkeydown="handleKeyDown(event)"></textarea>
+                        <div class="absolute bottom-2 right-2 text-xs text-gray-400" id="charCount">0/5000</div>
+                    </div>
+                    
+                    <!-- Send Button -->
+                    <button type="submit" id="sendButton" class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <!-- File Info -->
+                <div id="fileInfo" class="hidden mt-2 p-2 bg-gray-100 rounded-lg text-sm text-gray-600">
+                    <i class="fas fa-file ml-1"></i>
+                    <span id="fileName"></span>
+                    <button type="button" onclick="removeFile()" class="text-red-500 hover:text-red-700 mr-2">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
             </form>
@@ -95,21 +245,24 @@
     </div>
 
     <!-- Orders Sidebar -->
-    <div>
-        <div class="dashboard-card">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">{{ __('messages.filter_by_order') }}</h2>
-            <div class="space-y-2">
-                <a href="{{ route('customer.messages.index') }}" 
-                   class="block px-4 py-2 rounded-lg {{ !request('order_id') ? 'bg-primary-medium text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                    {{ __('messages.all_messages') }}
-                </a>
-                @foreach(auth('customer')->user()->orders as $order)
-                <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" 
-                   class="block px-4 py-2 rounded-lg {{ request('order_id') == $order->id ? 'bg-primary-medium text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                    {{ __('messages.order') }} #{{ $order->order_number }}
-                </a>
-                @endforeach
-            </div>
+    <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-filter text-primary-medium"></i>
+            {{ __('messages.filter_by_order') }}
+        </h2>
+        <div class="space-y-2">
+            <a href="{{ route('customer.messages.index') }}" 
+               class="block px-4 py-3 rounded-lg transition-all {{ !request('order_id') ? 'bg-gradient-to-r from-primary-medium to-primary-dark text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <i class="fas fa-comments ml-2"></i>
+                {{ __('messages.all_messages') }}
+            </a>
+            @foreach(auth('customer')->user()->orders as $order)
+            <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" 
+               class="block px-4 py-3 rounded-lg transition-all {{ request('order_id') == $order->id ? 'bg-gradient-to-r from-primary-medium to-primary-dark text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                <i class="fas fa-shopping-cart ml-2"></i>
+                {{ __('messages.order') }} #{{ $order->order_number }}
+            </a>
+            @endforeach
         </div>
     </div>
 </div>
@@ -117,19 +270,188 @@
 
 @push('scripts')
 <script>
+let lastMessageId = {{ $messages->last()->id ?? 0 }};
+let pollingInterval;
+let isScrolledToBottom = true;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    scrollToBottom();
+    startPolling();
+    
+    // File input handler
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        handleFileSelect(e.target.files[0]);
+    });
+    
+    // Character counter
+    document.getElementById('messageInput').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('charCount').textContent = count + '/5000';
+    });
+    
+    // Auto-resize textarea
+    document.getElementById('messageInput').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+    
+    // Scroll detection
+    document.getElementById('messagesContainer').addEventListener('scroll', function() {
+        const container = this;
+        isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+        document.getElementById('scrollToBottom').classList.toggle('visible', !isScrolledToBottom);
+    });
+});
+
+// Handle file select
+function handleFileSelect(file) {
+    if (!file) return;
+    
+    // Check file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        alert('حجم الملف كبير جداً. الحد الأقصى 10MB');
+        return;
+    }
+    
+    // Show file info
+    document.getElementById('fileInfo').classList.remove('hidden');
+    document.getElementById('fileName').textContent = file.name;
+    
+    // If image, show preview
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('imagePreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Remove file
+function removeFile() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileInfo').classList.add('hidden');
+    document.getElementById('imagePreview').classList.add('hidden');
+}
+
+// Remove image preview
+function removeImagePreview() {
+    document.getElementById('imagePreview').classList.add('hidden');
+    removeFile();
+}
+
+// Handle key down
+function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+    }
+}
+
+// Scroll to bottom
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+    isScrolledToBottom = true;
+    document.getElementById('scrollToBottom').classList.remove('visible');
+}
+
+// Start polling for new messages
+function startPolling() {
+    pollingInterval = setInterval(function() {
+        fetch('{{ route("customer.messages.get") }}?order_id={{ request("order_id") }}&last_message_id=' + lastMessageId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.messages.length > 0) {
+                    data.messages.forEach(message => {
+                        addMessageToChat(message);
+                        lastMessageId = Math.max(lastMessageId, message.id);
+                    });
+                    
+                    if (isScrolledToBottom) {
+                        setTimeout(scrollToBottom, 100);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }, 3000); // Poll every 3 seconds
+}
+
+// Add message to chat
+function addMessageToChat(message) {
+    const messagesList = document.getElementById('messagesList');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'flex ' + (message.sender_type === 'customer' ? 'justify-end' : 'justify-start');
+    messageDiv.innerHTML = getMessageHTML(message);
+    messagesList.appendChild(messageDiv);
+}
+
+// Get message HTML
+function getMessageHTML(message) {
+    const isCustomer = message.sender_type === 'customer';
+    const senderName = isCustomer ? '{{ __("messages.you") }}' : (message.admin?.name || '{{ __("messages.admin") }}');
+    const time = new Date(message.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+    
+    let fileHTML = '';
+    if (message.file_path) {
+        if (message.file_type === 'image') {
+            fileHTML = `<div class="file-preview"><img src="${message.file_url}" alt="${message.file_name}" class="rounded-lg"></div>`;
+        } else {
+            const icon = message.file_type === 'video' ? 'fa-video' : 
+                        message.file_type === 'audio' ? 'fa-music' : 
+                        'fa-file';
+            fileHTML = `
+                <div class="file-attachment">
+                    <i class="fas ${icon}"></i>
+                    <div class="flex-1">
+                        <div class="font-semibold">${message.file_name}</div>
+                        <div class="text-xs opacity-70">${message.formatted_file_size || ''}</div>
+                    </div>
+                    <a href="${message.file_url}" download class="text-primary-medium hover:text-primary-dark">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
+            `;
+        }
+    }
+    
+    return `
+        <div class="message-bubble message-${message.sender_type} p-4">
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-semibold opacity-80">${senderName}</span>
+                ${message.order ? `<span class="text-xs opacity-60">• {{ __('messages.order') }} #${message.order.order_number}</span>` : ''}
+            </div>
+            ${message.message ? `<p class="text-sm mb-2">${escapeHtml(message.message)}</p>` : ''}
+            ${fileHTML}
+            <p class="message-time">${time}</p>
+        </div>
+    `;
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Form submit
 document.getElementById('messageForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const formData = new FormData(this);
     const messageInput = document.getElementById('messageInput');
-    const messageText = messageInput.value.trim();
+    const fileInput = document.getElementById('fileInput');
     
-    if (!messageText) return;
+    if (!messageInput.value.trim() && !fileInput.files[0]) {
+        return;
+    }
     
-    const submitBtn = this.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = '{{ __('messages.sending') }}...';
+    const sendButton = document.getElementById('sendButton');
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
     try {
         const response = await fetch('{{ route("customer.messages.store") }}', {
@@ -144,37 +466,54 @@ document.getElementById('messageForm').addEventListener('submit', async function
         const data = await response.json();
         
         if (data.success) {
-            // Add new message to container
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'flex justify-end';
-            messageDiv.innerHTML = `
-                <div class="message-bubble message-customer p-4">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="text-xs font-semibold opacity-80">{{ __('messages.you') }}</span>
-                    </div>
-                    <p class="text-sm">${messageText}</p>
-                    <p class="text-xs opacity-60 mt-2">${new Date().toLocaleString('ar-SA')}</p>
-                </div>
-            `;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Add message to chat immediately
+            addMessageToChat(data.data);
+            lastMessageId = Math.max(lastMessageId, data.data.id);
             
+            // Clear form
             messageInput.value = '';
+            messageInput.style.height = 'auto';
+            document.getElementById('charCount').textContent = '0/5000';
+            removeFile();
+            
+            scrollToBottom();
         } else {
-            alert(data.message || '{{ __('messages.error_occurred') }}');
+            alert(data.message || '{{ __("messages.error_occurred") }}');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('{{ __('messages.error_sending_message') }}');
+        alert('{{ __("messages.error_sending_message") }}');
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        sendButton.disabled = false;
+        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
     }
 });
 
-// Auto-scroll to bottom
-document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+// Open image modal
+function openImageModal(imageUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="relative max-w-4xl max-h-full p-4">
+            <img src="${imageUrl}" alt="Image" class="max-w-full max-h-screen rounded-lg">
+            <button onclick="this.closest('.fixed').remove()" class="absolute top-6 right-6 bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', function() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+    }
+});
 </script>
 @endpush
-
