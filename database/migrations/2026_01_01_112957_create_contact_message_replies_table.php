@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('contact_message_replies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('contact_message_id')->constrained()->onDelete('cascade');
-            $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->unsignedBigInteger('contact_message_id');
+            $table->unsignedBigInteger('admin_id')->nullable();
             $table->text('message')->nullable();
             $table->string('file_path')->nullable();
             $table->string('file_name')->nullable();
@@ -25,6 +25,9 @@ return new class extends Migration
             $table->boolean('is_read')->default(false);
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
+            
+            $table->foreign('contact_message_id')->references('id')->on('contact_messages')->onDelete('cascade');
+            $table->foreign('admin_id')->references('id')->on('admins')->onDelete('set null');
         });
     }
 

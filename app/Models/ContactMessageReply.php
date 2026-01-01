@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
+use App\Models\Admin;
 
 class ContactMessageReply extends Model
 {
@@ -37,7 +37,7 @@ class ContactMessageReply extends Model
 
     public function admin()
     {
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
     public function getFileUrlAttribute()
