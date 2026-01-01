@@ -142,55 +142,55 @@
 </head>
 <body>
     <div class="header">
-        <h1>تقرير الإحصائيات الشامل</h1>
-        <p>تاريخ التقرير: {{ date('Y-m-d H:i') }}</p>
+        <h1>{{ \App\Helpers\PdfHelper::fixArabic('تقرير الإحصائيات الشامل') }}</h1>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التقرير: ') }}{{ date('Y-m-d H:i') }}</p>
     </div>
     
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>إجمالي الطلبات</h3>
+            <h3>{{ \App\Helpers\PdfHelper::fixArabic('إجمالي الطلبات') }}</h3>
             <div class="value">{{ $stats['total_orders'] }}</div>
         </div>
         <div class="stat-card">
-            <h3>إجمالي الإيرادات</h3>
-            <div class="value">{{ number_format($stats['total_revenue'], 2) }} ر.س</div>
+            <h3>{{ \App\Helpers\PdfHelper::fixArabic('إجمالي الإيرادات') }}</h3>
+            <div class="value">{{ number_format($stats['total_revenue'], 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ر.س') }}</div>
         </div>
         <div class="stat-card">
-            <h3>إجمالي العملاء</h3>
+            <h3>{{ \App\Helpers\PdfHelper::fixArabic('إجمالي العملاء') }}</h3>
             <div class="value">{{ $stats['total_customers'] }}</div>
         </div>
     </div>
     
-    <h2 style="color: #025469; margin: 30px 0 15px;">الطلبات حسب الحالة</h2>
+    <h2 style="color: #025469; margin: 30px 0 15px;">{{ \App\Helpers\PdfHelper::fixArabic('الطلبات حسب الحالة') }}</h2>
     <table>
         <thead>
             <tr>
-                <th>الحالة</th>
-                <th>العدد</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الحالة') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('العدد') }}</th>
             </tr>
         </thead>
         <tbody>
             @foreach($stats['orders_by_status'] as $status)
             <tr>
-                <td>{{ $status->status === 'completed' ? 'مكتمل' : ($status->status === 'pending' ? 'معلق' : $status->status) }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($status->status === 'completed' ? 'مكتمل' : ($status->status === 'pending' ? 'معلق' : $status->status)) }}</td>
                 <td>{{ $status->count }}</td>
             </tr>
             @endforeach
         </tbody>
     </table>
     
-    <h2 style="color: #025469; margin: 30px 0 15px;">أفضل الخدمات</h2>
+    <h2 style="color: #025469; margin: 30px 0 15px;">{{ \App\Helpers\PdfHelper::fixArabic('أفضل الخدمات') }}</h2>
     <table>
         <thead>
             <tr>
-                <th>الخدمة</th>
-                <th>عدد الطلبات</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الخدمة') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('عدد الطلبات') }}</th>
             </tr>
         </thead>
         <tbody>
             @foreach($stats['top_services'] as $service)
             <tr>
-                <td>{{ $service->name }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($service->name) }}</td>
                 <td>{{ $service->orders_count }}</td>
             </tr>
             @endforeach

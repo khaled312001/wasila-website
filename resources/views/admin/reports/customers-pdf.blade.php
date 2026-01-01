@@ -109,32 +109,32 @@
 </head>
 <body>
     <div class="header">
-        <h1>تقرير العملاء</h1>
-        <p>تاريخ التصدير: {{ date('Y-m-d H:i:s') }}</p>
+        <h1>{{ \App\Helpers\PdfHelper::fixArabic('تقرير العملاء') }}</h1>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التصدير: ') }}{{ date('Y-m-d H:i:s') }}</p>
     </div>
     
     <table>
         <thead>
             <tr>
-                <th>الاسم</th>
-                <th>البريد الإلكتروني</th>
-                <th>الهاتف</th>
-                <th>العنوان</th>
-                <th>عدد الطلبات</th>
-                <th>عدد الرسائل</th>
-                <th>تاريخ التسجيل</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الاسم') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('البريد الإلكتروني') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الهاتف') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('العنوان') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('عدد الطلبات') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('عدد الرسائل') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التسجيل') }}</th>
             </tr>
         </thead>
         <tbody>
             @foreach($customers as $customer)
             <tr>
-                <td>{{ $customer->name }}</td>
-                <td>{{ $customer->email }}</td>
-                <td>{{ $customer->phone ?? 'غير محدد' }}</td>
-                <td>{{ $customer->address ?? 'غير محدد' }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($customer->name) }}</td>
+                <td dir="ltr">{{ $customer->email }}</td>
+                <td dir="ltr">{{ $customer->phone ?? \App\Helpers\PdfHelper::fixArabic('غير محدد') }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($customer->address ?? 'غير محدد') }}</td>
                 <td>{{ $customer->orders_count }}</td>
                 <td>{{ $customer->messages_count }}</td>
-                <td>{{ $customer->created_at->format('Y-m-d') }}</td>
+                <td dir="ltr">{{ $customer->created_at->format('Y-m-d') }}</td>
             </tr>
             @endforeach
         </tbody>

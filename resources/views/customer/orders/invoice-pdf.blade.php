@@ -173,58 +173,58 @@
 </head>
 <body>
     <div class="header">
-        <h1>فاتورة رقم: #{{ $order->order_number }}</h1>
-        <p>جمعية وسيلة الخيرية</p>
+        <h1>{{ \App\Helpers\PdfHelper::fixArabic('فاتورة رقم: #') }}{{ $order->order_number }}</h1>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('جمعية وسيلة الخيرية') }}</p>
     </div>
     
     <div class="invoice-info">
         <div class="info-section">
-            <h3>العميل:</h3>
-            <p><strong>الاسم:</strong> {{ $order->customer_name }}</p>
-            <p><strong>البريد:</strong> {{ $order->customer_email }}</p>
+            <h3>{{ \App\Helpers\PdfHelper::fixArabic('العميل:') }}</h3>
+            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('الاسم:') }}</strong> {{ \App\Helpers\PdfHelper::fixArabic($order->customer_name) }}</p>
+            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('البريد:') }}</strong> <span dir="ltr">{{ $order->customer_email }}</span></p>
             @if($order->customer_phone)
-            <p><strong>الهاتف:</strong> {{ $order->customer_phone }}</p>
+            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('الهاتف:') }}</strong> <span dir="ltr">{{ $order->customer_phone }}</span></p>
             @endif
         </div>
         <div class="info-section">
-            <h3>معلومات الفاتورة:</h3>
-            <p><strong>التاريخ:</strong> {{ $order->created_at->format('Y-m-d') }}</p>
-            <p><strong>الحالة:</strong> {{ $order->status === 'completed' ? 'مكتمل' : ($order->status === 'pending' ? 'معلق' : $order->status) }}</p>
-            <p><strong>حالة الدفع:</strong> {{ $order->payment_status === 'paid' ? 'مدفوع' : 'غير مدفوع' }}</p>
+            <h3>{{ \App\Helpers\PdfHelper::fixArabic('معلومات الفاتورة:') }}</h3>
+            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('التاريخ:') }}</strong> <span dir="ltr">{{ $order->created_at->format('Y-m-d') }}</span></p>
+            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('الحالة:') }}</strong> {{ \App\Helpers\PdfHelper::fixArabic($order->status === 'completed' ? 'مكتمل' : ($order->status === 'pending' ? 'معلق' : $order->status)) }}</p>
+            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('حالة الدفع:') }}</strong> {{ \App\Helpers\PdfHelper::fixArabic($order->payment_status === 'paid' ? 'مدفوع' : 'غير مدفوع') }}</p>
         </div>
     </div>
     
     <table>
         <thead>
             <tr>
-                <th>الخدمة</th>
-                <th>الوصف</th>
-                <th>المبلغ</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الخدمة') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الوصف') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('المبلغ') }}</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{ $order->service_name ?? 'خدمة' }}</td>
-                <td>{{ $order->service_description ?? '-' }}</td>
-                <td>{{ number_format($order->total_amount, 2) }} ريال</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->service_name ?? 'خدمة') }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->service_description ?? '-') }}</td>
+                <td>{{ number_format($order->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}</td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="2" style="text-align: left;">الإجمالي:</td>
-                <td>{{ number_format($order->total_amount, 2) }} ريال سعودي</td>
+                <td colspan="2" style="text-align: left;">{{ \App\Helpers\PdfHelper::fixArabic('الإجمالي:') }}</td>
+                <td>{{ number_format($order->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال سعودي') }}</td>
             </tr>
         </tfoot>
     </table>
     
     <div class="payment-info">
-        <h3>طريقة الدفع:</h3>
-        <p>{{ $order->payment_method }}</p>
+        <h3>{{ \App\Helpers\PdfHelper::fixArabic('طريقة الدفع:') }}</h3>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic($order->payment_method) }}</p>
     </div>
     
     <div class="footer">
-        <p>شكراً لثقتك بجمعية وسيلة الخيرية</p>
-        <p>© {{ date('Y') }} جميع الحقوق محفوظة</p>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('شكراً لثقتك بجمعية وسيلة الخيرية') }}</p>
+        <p>© {{ date('Y') }} {{ \App\Helpers\PdfHelper::fixArabic('جميع الحقوق محفوظة') }}</p>
     </div>
 </body>
 </html>

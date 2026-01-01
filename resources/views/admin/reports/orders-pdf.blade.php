@@ -107,30 +107,30 @@
 </head>
 <body>
     <div class="header">
-        <h1>تقرير الطلبات</h1>
-        <p>تاريخ التقرير: {{ date('Y-m-d') }}</p>
+        <h1>{{ \App\Helpers\PdfHelper::fixArabic('تقرير الطلبات') }}</h1>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التقرير: ') }}{{ date('Y-m-d') }}</p>
     </div>
     
     <table>
         <thead>
             <tr>
-                <th>رقم الطلب</th>
-                <th>العميل</th>
-                <th>الخدمة</th>
-                <th>المبلغ</th>
-                <th>الحالة</th>
-                <th>تاريخ الطلب</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('رقم الطلب') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('العميل') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الخدمة') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('المبلغ') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('الحالة') }}</th>
+                <th>{{ \App\Helpers\PdfHelper::fixArabic('تاريخ الطلب') }}</th>
             </tr>
         </thead>
         <tbody>
             @foreach($orders as $order)
             <tr>
-                <td>#{{ $order->order_number }}</td>
-                <td>{{ $order->customer_name }}</td>
-                <td>{{ $order->service_name ?? '-' }}</td>
-                <td>{{ number_format($order->total_amount, 2) }} ر.س</td>
-                <td>{{ $order->status === 'completed' ? 'مكتمل' : ($order->status === 'pending' ? 'معلق' : $order->status) }}</td>
-                <td>{{ $order->created_at->format('Y-m-d') }}</td>
+                <td>#{{ \App\Helpers\PdfHelper::fixArabic($order->order_number) }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->customer_name) }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->service_name ?? '-') }}</td>
+                <td>{{ number_format($order->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ر.س') }}</td>
+                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->status === 'completed' ? 'مكتمل' : ($order->status === 'pending' ? 'معلق' : $order->status)) }}</td>
+                <td dir="ltr">{{ $order->created_at->format('Y-m-d') }}</td>
             </tr>
             @endforeach
         </tbody>
