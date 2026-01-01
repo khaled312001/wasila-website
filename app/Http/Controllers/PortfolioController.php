@@ -263,4 +263,129 @@ class PortfolioController extends Controller
             ]);
         }
     }
+    
+    /**
+     * إضافة جميع الصور الموجودة في مجلد portfolio إلى قاعدة البيانات
+     */
+    public function addAllImagesFromFolder(Request $request)
+    {
+        try {
+            // محاولة عدة مسارات محتملة
+            $possibleDirs = [
+                storage_path('app/public/portfolio'),
+                public_path('storage/portfolio'),
+                storage_path('app/public/portfolio'),
+            ];
+            
+            $portfolioDir = null;
+            foreach ($possibleDirs as $dir) {
+                if (is_dir($dir)) {
+                    $portfolioDir = $dir;
+                    break;
+                }
+            }
+            
+            if (!$portfolioDir || !is_dir($portfolioDir)) {
+                throw new \Exception('مجلد portfolio غير موجود في: ' . implode(', ', $possibleDirs));
+            }
+            
+            $addedCount = 0;
+            $skippedCount = 0;
+            $errors = [];
+            
+            // الحصول على جميع ملفات الصور من المجلد
+            $imageFiles = glob($portfolioDir . '/*.{png,jpg,jpeg,gif,webp}', GLOB_BRACE);
+            
+            // ترتيب الملفات حسب الرقم في الاسم
+            usort($imageFiles, function($a, $b) {
+                $aNum = intval(preg_replace('/[^0-9]/', '', basename($a)));
+                $bNum = intval(preg_replace('/[^0-9]/', '', basename($b)));
+                return $aNum <=> $bNum;
+            });
+            
+            foreach ($imageFiles as $imageFile) {
+                $fileName = basename($imageFile);
+                
+                // تخطي ملفات اللوجو والعينات
+                if (strpos($fileName, 'logo') !== false || 
+                    strpos($fileName, 'sample') !== false) {
+                    continue;
+                }
+                
+                $relativePath = 'portfolio/' . $fileName;
+                
+                // التحقق من وجود العنصر في قاعدة البيانات
+                $existingItem = PortfolioItem::where('file_path', $relativePath)->first();
+                
+                if ($existingItem) {
+                    $skippedCount++;
+                    continue;
+                }
+                
+                // استخراج الرقم من اسم الملف
+                $fileNumber = intval(preg_replace('/[^0-9]/', '', $fileName));
+                
+                // إنشاء عنصر جديد
+                try {
+                    PortfolioItem::create([
+                        'title_ar' => 'صورة من أعمالنا ' . $fileNumber,
+                        'title_en' => 'Our Work Image ' . $fileNumber,
+                        'description_ar' => 'صورة توثيقية من أنشطة ومشاريع وسيلة الخيرية',
+                        'description_en' => 'Documentary image from Wasila Charity activities and projects',
+                        'type' => 'image',
+                        'file_path' => $relativePath,
+                        'sort_order' => $fileNumber,
+                        'is_active' => true
+                    ]);
+                    
+                    // نسخ الملف إلى public/storage
+                    $this->copyToPublicStorage($relativePath);
+                    
+                    $addedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = "خطأ في إضافة {$fileName}: " . $e->getMessage();
+                    Log::error('Failed to add portfolio image: ' . $fileName, [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+            
+            $message = "تم إضافة {$addedCount} صورة بنجاح";
+            if ($skippedCount > 0) {
+                $message .= " (تم تخطي {$skippedCount} صورة موجودة مسبقاً)";
+            }
+            if (count($errors) > 0) {
+                $message .= " (حدثت " . count($errors) . " أخطاء)";
+            }
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'added_count' => $addedCount,
+                    'skipped_count' => $skippedCount,
+                    'errors' => $errors
+                ]);
+            }
+            
+            return redirect()->route('admin.portfolio.index')
+                ->with('success', $message)
+                ->with('errors', $errors);
+                
+        } catch (\Exception $e) {
+            Log::error('Failed to add portfolio images from folder: ' . $e->getMessage());
+            
+            $errorMessage = 'حدث خطأ أثناء إضافة الصور: ' . $e->getMessage();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 500);
+            }
+            
+            return redirect()->route('admin.portfolio.index')
+                ->with('error', $errorMessage);
+        }
+    }
 }

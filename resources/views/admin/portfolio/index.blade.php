@@ -15,10 +15,16 @@
                     <div class="portfolio-header">
                         <h1>🎨 إدارة معرض الأعمال</h1>
                         <p>أضف وأدر عناصر معرض الأعمال من الصور والفيديوهات</p>
-                        <div class="mt-3">
+                        <div class="mt-3 d-flex gap-2 flex-wrap">
                             <a href="{{ route('admin.portfolio.create') }}" class="btn-add-new">
                                 <i class="fas fa-plus"></i> إضافة عنصر جديد
                             </a>
+                            <form method="POST" action="{{ route('admin.portfolio.add-all-images') }}" class="d-inline" onsubmit="return confirm('هل تريد إضافة جميع الصور الموجودة في مجلد portfolio إلى قاعدة البيانات؟')">
+                                @csrf
+                                <button type="submit" class="btn-add-new" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                                    <i class="fas fa-images"></i> إضافة جميع الصور من المجلد
+                                </button>
+                            </form>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -26,6 +32,31 @@
                             <div class="alert alert-success alert-dismissible fade show m-4" role="alert">
                                 <i class="fas fa-check-circle mr-2"></i>
                                 {{ session('success') }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show m-4" role="alert">
+                                <i class="fas fa-exclamation-circle mr-2"></i>
+                                {{ session('error') }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if(session('errors') && is_array(session('errors')) && count(session('errors')) > 0)
+                            <div class="alert alert-warning alert-dismissible fade show m-4" role="alert">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>تحذيرات:</strong>
+                                <ul class="mb-0 mt-2">
+                                    @foreach(session('errors') as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
