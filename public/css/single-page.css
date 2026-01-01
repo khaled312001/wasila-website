@@ -677,10 +677,11 @@ body.loaded {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    cursor: pointer;
+    cursor: default;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     background: linear-gradient(135deg, #08788B 0%, #025469 100%);
+    pointer-events: none;
 }
 
 .our-work-card:hover {
@@ -695,6 +696,11 @@ body.loaded {
     height: 100%;
     object-fit: cover;
     transition: transform 0.6s ease;
+    display: block;
+}
+
+.our-work-card video {
+    background: #000;
 }
 
 .our-work-card:hover img,
@@ -728,11 +734,11 @@ body.loaded {
 }
 
 @keyframes scroll-infinite {
-    from {
+    0% {
         transform: translateX(0);
     }
-    to {
-        transform: translateX(calc(-50% - 0.75rem));
+    100% {
+        transform: translateX(calc(-1 * var(--one-set-width, 300px)));
     }
 }
 
@@ -1385,11 +1391,40 @@ body.loaded {
     .row {
         margin-left: 0;
         margin-right: 0;
+        display: flex;
+        flex-wrap: wrap;
     }
     
     .row > * {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    /* Ensure all service cards are visible */
+    .services-section .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .services-section .col-md-6,
+    .services-section .col-lg-4 {
+        display: block !important;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+    }
+    
+    @media (min-width: 768px) {
+        .services-section .col-md-6 {
+            width: 50% !important;
+        }
+    }
+    
+    @media (min-width: 992px) {
+        .services-section .col-lg-4 {
+            width: 33.333333% !important;
+        }
     }
     
     .section-title {

@@ -12,11 +12,15 @@ class HomeController extends Controller
     public function index()
     {
         try {
-            // Get services with fallback
+            // Get services with fallback - get ALL active services
             try {
                 $services = Service::where('is_active', true)
                     ->orderBy('sort_order')
+                    ->orderBy('created_at', 'desc')
                     ->get();
+                    
+                // Log for debugging
+                Log::info('Services loaded: ' . $services->count());
             } catch (\Exception $serviceException) {
                 Log::warning('Service query failed: ' . $serviceException->getMessage());
                 $services = collect([]);

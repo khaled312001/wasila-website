@@ -346,24 +346,32 @@
             
             @php
                 $portfolioItems = \App\Models\PortfolioItem::active()->ordered()->get();
-                // Duplicate items for seamless loop
-                $allItems = $portfolioItems->merge($portfolioItems)->merge($portfolioItems);
+                // Duplicate items multiple times for seamless infinite loop
+                // We need enough duplicates to ensure smooth infinite scrolling
+                $duplicates = 5; // Create 5 copies for seamless loop
+                $allItems = collect();
+                for ($i = 0; $i < $duplicates; $i++) {
+                    $allItems = $allItems->merge($portfolioItems);
+                }
             @endphp
             
             @if($portfolioItems->count() > 0)
             <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack">
-                    @foreach($allItems as $index => $item)
+                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $portfolioItems->count() }}">
+                    @foreach($allItems as $item)
                         @php
                             $cleanFilePath = str_replace('storage/', '', $item->file_path);
                             $fileUrl = \Storage::disk('public')->url($cleanFilePath);
                         @endphp
-                        <div class="our-work-card" onclick="openLightbox({{ $index + 1 }}, '{{ $item->type }}', '{{ $fileUrl }}', '{{ $item->title_ar }}')">
+                        <div class="our-work-card">
                             @if($item->type === 'image')
                                 <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
                             @else
-                                <video muted>
+                                <video muted loop playsinline>
                                     <source src="{{ $fileUrl }}" type="video/mp4">
+                                    <source src="{{ $fileUrl }}" type="video/webm">
+                                    <source src="{{ $fileUrl }}" type="video/ogg">
+                                    متصفحك لا يدعم تشغيل الفيديو.
                                 </video>
                             @endif
                             <div class="our-work-overlay">
@@ -377,17 +385,40 @@
             @else
             <div class="our-work-container">
                 <div class="our-work-track" id="ourWorkTrack">
-                    @for($i = 1; $i <= 6; $i++)
-                        @for($j = 0; $j < 3; $j++)
-                            <div class="our-work-card" onclick="openLightbox({{ $i }}, 'image', '{{ asset('images/' . $i . '.png') }}', 'صورة {{ $i }}')">
-                                <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
-                                <div class="our-work-overlay">
-                                    <i class="fas fa-image fa-2x text-white"></i>
-                                    <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
-                                </div>
-                            </div>
-                        @endfor
-                    @endfor
+                    @php
+                        // Get all images from public/images folder
+                        $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
+                        $imageCount = count($imageFiles);
+                        if ($imageCount > 0) {
+                            $duplicates = 5;
+                            for ($d = 0; $d < $duplicates; $d++) {
+                                foreach ($imageFiles as $imageFile) {
+                                    $imageName = basename($imageFile);
+                                    $imageUrl = asset('images/' . $imageName);
+                                    echo '<div class="our-work-card">';
+                                    echo '<img src="' . $imageUrl . '" alt="' . $imageName . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
+                                    echo '<div class="our-work-overlay">';
+                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
+                                    echo '<p class="text-white mt-2 text-sm font-semibold">' . $imageName . '</p>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
+                            }
+                        } else {
+                            // Fallback: show placeholder images
+                            for ($i = 1; $i <= 6; $i++) {
+                                for ($j = 0; $j < 3; $j++) {
+                                    echo '<div class="our-work-card">';
+                                    echo '<img src="' . asset('images/' . $i . '.png') . '" alt="صورة ' . $i . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
+                                    echo '<div class="our-work-overlay">';
+                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
+                                    echo '<p class="text-white mt-2 text-sm font-semibold">صورة ' . $i . '</p>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
+                            }
+                        }
+                    @endphp
                 </div>
             </div>
             @endif
@@ -717,13 +748,19 @@
             const ourWorkTrack = document.getElementById('ourWorkTrack');
             if (ourWorkTrack) {
                 const items = ourWorkTrack.querySelectorAll('.our-work-card');
-                const itemCount = items.length;
-                // Set CSS variable for animation
-                ourWorkTrack.style.setProperty('--item-count', itemCount);
+                const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || Math.floor(items.length / 5);
                 
-                // Calculate animation duration based on item count (faster with more items)
-                const baseDuration = 30; // seconds
-                const duration = baseDuration + (itemCount * 0.5);
+                // Calculate the width of one set of items (original items)
+                const cardWidth = 300; // 300px per card
+                const gap = 24; // 1.5rem = 24px gap
+                const oneSetWidth = originalItemCount * (cardWidth + gap);
+                
+                // Set animation to move exactly one set width for seamless loop
+                ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
+                
+                // Calculate animation duration (slower for more items, faster for fewer)
+                const baseDuration = 40; // seconds
+                const duration = baseDuration + (originalItemCount * 2);
                 ourWorkTrack.style.animationDuration = duration + 's';
             }
         });

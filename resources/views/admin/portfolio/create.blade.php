@@ -91,10 +91,13 @@
 
                         <div class="form-group">
                             <label for="file">الملف *</label>
-                            <input type="file" class="form-control-file" id="file" name="file" required>
+                            <input type="file" class="form-control-file" id="file" name="file" required onchange="handleFileSelect(event)">
                             <small class="form-text text-muted" id="file-help">
                                 اختر نوع المحتوى أولاً
                             </small>
+                            <div id="file-preview" class="mt-3" style="display: none;">
+                                <div id="preview-content"></div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -128,17 +131,93 @@ function toggleFileInput() {
     const type = document.getElementById('type').value;
     const fileInput = document.getElementById('file');
     const fileHelp = document.getElementById('file-help');
+    const previewDiv = document.getElementById('file-preview');
+    const previewContent = document.getElementById('preview-content');
+    
+    // Clear preview when type changes
+    if (previewDiv) {
+        previewDiv.style.display = 'none';
+        previewContent.innerHTML = '';
+    }
     
     if (type === 'image') {
         fileInput.accept = 'image/*';
-        fileHelp.textContent = 'الصور المسموحة: JPG, PNG, GIF, SVG (حد أقصى 2MB)';
+        fileHelp.textContent = 'الصور المسموحة: JPG, PNG, GIF, SVG, WEBP (حد أقصى 10MB)';
     } else if (type === 'video') {
         fileInput.accept = 'video/*';
-        fileHelp.textContent = 'الفيديوهات المسموحة: MP4, AVI, MOV, WMV (حد أقصى 50MB)';
+        fileHelp.textContent = 'الفيديوهات المسموحة: MP4, AVI, MOV, WMV, WEBM (حد أقصى 50MB)';
     } else {
         fileInput.accept = '';
         fileHelp.textContent = 'اختر نوع المحتوى أولاً';
     }
+    
+    // Clear file input when type changes
+    fileInput.value = '';
 }
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    const type = document.getElementById('type').value;
+    const previewDiv = document.getElementById('file-preview');
+    const previewContent = document.getElementById('preview-content');
+    
+    if (!file || !type) {
+        if (previewDiv) previewDiv.style.display = 'none';
+        return;
+    }
+    
+    // Validate file size
+    const maxSize = type === 'video' ? 50 * 1024 * 1024 : 10 * 1024 * 1024; // 50MB for video, 10MB for image
+    if (file.size > maxSize) {
+        alert('حجم الملف كبير جداً. الحد الأقصى: ' + (type === 'video' ? '50MB' : '10MB'));
+        event.target.value = '';
+        if (previewDiv) previewDiv.style.display = 'none';
+        return;
+    }
+    
+    if (!previewDiv || !previewContent) return;
+    
+    previewDiv.style.display = 'block';
+    
+    if (type === 'image') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewContent.innerHTML = `
+                <div class="alert alert-info">
+                    <strong>معاينة الصورة:</strong>
+                </div>
+                <img src="${e.target.result}" alt="Preview" class="img-fluid rounded" style="max-height: 400px; width: auto; margin-top: 10px;">
+                <p class="mt-2 text-muted">اسم الملف: ${file.name}</p>
+                <p class="text-muted">الحجم: ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+            `;
+        };
+        reader.readAsDataURL(file);
+    } else if (type === 'video') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewContent.innerHTML = `
+                <div class="alert alert-info">
+                    <strong>معاينة الفيديو:</strong>
+                </div>
+                <video controls class="w-100 rounded" style="max-height: 400px; margin-top: 10px;">
+                    <source src="${e.target.result}" type="${file.type}">
+                    متصفحك لا يدعم تشغيل الفيديو.
+                </video>
+                <p class="mt-2 text-muted">اسم الملف: ${file.name}</p>
+                <p class="text-muted">الحجم: ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                <p class="text-muted">النوع: ${file.type}</p>
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    if (typeSelect && typeSelect.value) {
+        toggleFileInput();
+    }
+});
 </script>
 @endsection

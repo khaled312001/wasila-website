@@ -34,13 +34,35 @@
     
     // Global error handler
     window.addEventListener('error', function(e) {
-        // Only log non-critical errors
-        if (!e.message.includes('youtube') && !e.message.includes('YOUTUBEJS') && !e.message.includes('404')) {
-            // Suppress 404 errors for images
-            if (e.target && e.target.tagName === 'IMG') {
-                return;
+        try {
+            // Suppress 404 errors for images and videos
+            if (e && e.target) {
+                if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+                    return; // Silently ignore media loading errors
+                }
             }
-            console.log('Wasila Error Fixes: JavaScript error handled:', e.message);
+            
+            // Only log non-critical errors
+            if (e && e.message && typeof e.message === 'string') {
+                const message = e.message.toLowerCase();
+                if (!message.includes('youtube') && 
+                    !message.includes('youtubejs') && 
+                    !message.includes('404') &&
+                    !message.includes('failed to load resource')) {
+                    console.log('Wasila Error Fixes: JavaScript error handled:', e.message);
+                }
+            } else if (e && e.filename && typeof e.filename === 'string') {
+                // Handle errors without message but with filename
+                const filename = e.filename.toLowerCase();
+                if (!filename.includes('youtube') && !filename.includes('404')) {
+                    // Only log if it's not a media file error
+                    if (!filename.match(/\.(png|jpg|jpeg|gif|svg|mp4|avi|mov|wmv)$/i)) {
+                        console.log('Wasila Error Fixes: JavaScript error in file:', e.filename);
+                    }
+                }
+            }
+        } catch (err) {
+            // Silently ignore errors in error handler
         }
     }, true);
     

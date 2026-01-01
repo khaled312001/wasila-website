@@ -63,11 +63,11 @@ class PortfolioController extends Controller
         // التحقق من نوع الملف
         if ($type === 'video') {
             $validator = Validator::make(['file' => $file], [
-                'file' => 'required|mimes:mp4,avi,mov,wmv|max:50000'
+                'file' => 'required|mimes:mp4,avi,mov,wmv,webm|max:51200' // 50MB
             ]);
         } else {
             $validator = Validator::make(['file' => $file], [
-                'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240'
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240' // 10MB
             ]);
         }
 
@@ -154,11 +154,11 @@ class PortfolioController extends Controller
             // التحقق من نوع الملف
             if ($type === 'video') {
                 $validator = Validator::make(['file' => $file], [
-                    'file' => 'required|mimes:mp4,avi,mov,wmv|max:50000'
+                    'file' => 'required|mimes:mp4,avi,mov,wmv,webm|max:51200' // 50MB
                 ]);
             } else {
                 $validator = Validator::make(['file' => $file], [
-                    'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240'
+                    'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240' // 10MB
                 ]);
             }
 
