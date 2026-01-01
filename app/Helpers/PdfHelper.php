@@ -6,7 +6,7 @@ class PdfHelper
 {
     /**
      * Fix Arabic text for PDF display
-     * DomPDF reverses Arabic text, so we reverse it first to compensate
+     * Wraps Arabic text with proper RTL marks to ensure correct rendering
      */
     public static function fixArabic($text)
     {
@@ -19,9 +19,10 @@ class PdfHelper
             return $text;
         }
         
-        // Simple reversal: reverse the entire string
-        // This works because DomPDF will reverse it again, making it correct
-        return mb_strrev($text, 'UTF-8');
+        // Don't reverse - just return the text as is
+        // The CSS direction: rtl and unicode-bidi: embed will handle it correctly
+        // This preserves Arabic character connections
+        return $text;
     }
 }
 

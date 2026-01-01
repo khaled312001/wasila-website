@@ -30,7 +30,7 @@
         body {
             font-family: 'DejaVu Sans', 'Arabic', Arial, sans-serif;
             direction: rtl;
-            unicode-bidi: embed;
+            unicode-bidi: plaintext;
             text-align: right;
             writing-mode: horizontal-tb;
             font-size: 14px;
@@ -41,18 +41,18 @@
             -moz-osx-font-smoothing: grayscale;
         }
         * {
-            unicode-bidi: embed;
+            unicode-bidi: plaintext;
             direction: rtl;
             text-align: right;
         }
         h1, h2, h3, h4, h5, h6, p, div, span, td, th, li {
-            unicode-bidi: embed;
+            unicode-bidi: plaintext;
             direction: rtl;
             text-align: right;
         }
         .arabic-text {
             direction: rtl;
-            unicode-bidi: embed;
+            unicode-bidi: plaintext;
             text-align: right;
             font-family: 'DejaVu Sans', 'Arabic', Arial, sans-serif;
         }
@@ -127,8 +127,8 @@
 </head>
 <body>
     <div class="header">
-        <h1 class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic('تقرير معاملات MyFatoorah') }}</h1>
-        <p class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التصدير: ') }}{{ date('Y-m-d H:i:s') }}</p>
+        <h1 class="arabic-text" dir="rtl">&#x202B;{{ \App\Helpers\PdfHelper::fixArabic('تقرير معاملات') }}&#x200F; MyFatoorah&#x202C;</h1>
+        <p class="arabic-text" dir="rtl">&#x202B;{{ \App\Helpers\PdfHelper::fixArabic('تاريخ التصدير:') }}&#x200F; {{ date('Y-m-d H:i:s') }}&#x202C;</p>
     </div>
     
     <table>
@@ -152,7 +152,7 @@
                 <td class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic($transaction->customer_name) }}</td>
                 <td dir="ltr">{{ $transaction->customer_email }}</td>
                 <td dir="ltr">{{ $transaction->customer_phone }}</td>
-                <td class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic(number_format($transaction->total_amount, 2) . ' ريال') }}</td>
+                <td class="arabic-text" dir="rtl">&#x202B;{{ number_format($transaction->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}&#x202C;</td>
                 <td class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic($transaction->payment_method ?? 'غير محدد') }}</td>
                 <td class="arabic-text" dir="rtl">
                     @if($transaction->payment_status === 'paid')
@@ -172,8 +172,8 @@
     
     <div class="footer">
         <p class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic('تم إنشاء هذا التقرير تلقائياً من نظام وسيلة الخيرية') }}</p>
-        <p class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic('إجمالي المعاملات: ') }}{{ $transactions->count() }}</p>
-        <p class="arabic-text" dir="rtl">{{ \App\Helpers\PdfHelper::fixArabic('إجمالي المبلغ: ') }}{{ number_format($transactions->sum('total_amount'), 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}</p>
+        <p class="arabic-text" dir="rtl">&#x202B;{{ \App\Helpers\PdfHelper::fixArabic('إجمالي المعاملات:') }}&#x200F; {{ $transactions->count() }}&#x202C;</p>
+        <p class="arabic-text" dir="rtl">&#x202B;{{ \App\Helpers\PdfHelper::fixArabic('إجمالي المبلغ:') }}&#x200F; {{ number_format($transactions->sum('total_amount'), 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}&#x202C;</p>
     </div>
 </body>
 </html>

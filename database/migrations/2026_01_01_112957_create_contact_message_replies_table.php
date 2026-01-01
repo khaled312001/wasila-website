@@ -22,9 +22,31 @@ return new class extends Migration
             throw new \Exception('contact_messages table does not exist. Please run migrations first.');
         }
         
-        Schema::create('contact_message_replies', function (Blueprint $table) {
+        // Get the actual column type from contact_messages table
+        $contactMessagesIdType = 'unsignedBigInteger'; // default
+        try {
+            $result = DB::select("SHOW COLUMNS FROM contact_messages WHERE Field = 'id'");
+            if (!empty($result)) {
+                $type = strtoupper($result[0]->Type);
+                // Check if it's int or bigint
+                if (strpos($type, 'INT(') !== false && strpos($type, 'BIGINT') === false) {
+                    $contactMessagesIdType = 'unsignedInteger';
+                }
+            }
+        } catch (\Exception $e) {
+            // If we can't check, use default
+        }
+        
+        Schema::create('contact_message_replies', function (Blueprint $table) use ($contactMessagesIdType) {
             $table->id();
-            $table->unsignedBigInteger('contact_message_id');
+            
+            // Use the same type as contact_messages.id
+            if ($contactMessagesIdType === 'unsignedInteger') {
+                $table->unsignedInteger('contact_message_id');
+            } else {
+                $table->unsignedBigInteger('contact_message_id');
+            }
+            
             $table->unsignedBigInteger('admin_id')->nullable();
             $table->text('message')->nullable();
             $table->string('file_path')->nullable();
@@ -38,27 +60,7 @@ return new class extends Migration
             $table->timestamps();
         });
         
-        // Add foreign keys after table creation using raw SQL
-        // This allows MySQL to handle type conversion if needed
-        try {
-            DB::statement('ALTER TABLE contact_message_replies 
-                ADD CONSTRAINT fk_contact_message_replies_contact_message_id 
-                FOREIGN KEY (contact_message_id) REFERENCES contact_messages(id) ON DELETE CASCADE');
-        } catch (\Exception $e) {
-            // If foreign key fails, try without constraint name
-            DB::statement('ALTER TABLE contact_message_replies 
-                ADD FOREIGN KEY (contact_message_id) REFERENCES contact_messages(id) ON DELETE CASCADE');
-        }
-        
-        try {
-            DB::statement('ALTER TABLE contact_message_replies 
-                ADD CONSTRAINT fk_contact_message_replies_admin_id 
-                FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL');
-        } catch (\Exception $e) {
-            // If foreign key fails, try without constraint name
-            DB::statement('ALTER TABLE contact_message_replies 
-                ADD FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE SET NULL');
-        }
+        // Foreign keys will be added in a separate migration
     }
 
     /**
