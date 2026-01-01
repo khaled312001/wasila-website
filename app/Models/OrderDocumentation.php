@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class OrderDocumentation extends Model
 {
@@ -45,7 +46,27 @@ class OrderDocumentation extends Model
 
     public function getVideoUrlAttribute()
     {
-        return asset('storage/' . $this->video_path);
+        if (!$this->video_path) {
+            return null;
+        }
+
+        // Clean the video path (remove 'storage/' prefix if exists)
+        $cleanPath = str_replace('storage/', '', $this->video_path);
+        $cleanPath = ltrim($cleanPath, '/');
+        
+        // First, try to use Storage URL (works with symlinks)
+        if (Storage::disk('public')->exists($cleanPath)) {
+            return Storage::disk('public')->url($cleanPath);
+        }
+        
+        // Fallback: Check if file exists in public/storage (for non-symlink setups)
+        $publicPath = public_path('storage/' . $cleanPath);
+        if (file_exists($publicPath)) {
+            return asset('storage/' . $cleanPath);
+        }
+        
+        // Last resort: Try direct asset path
+        return asset('storage/' . $cleanPath);
     }
 
     public function getThumbnailUrlAttribute()

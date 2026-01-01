@@ -128,9 +128,18 @@
                         </div>
                         @if($doc->video_path)
                         <div class="doc-video-wrapper-new">
-                            <video controls class="doc-video-new" preload="metadata">
+                            <video controls class="doc-video-new" preload="metadata" playsinline webkit-playsinline>
                                 <source src="{{ $doc->video_url }}" type="video/mp4">
-                                متصفحك لا يدعم تشغيل الفيديو.
+                                <source src="{{ $doc->video_url }}" type="video/webm">
+                                <source src="{{ $doc->video_url }}" type="video/ogg">
+                                <div style="color: white; padding: 1.5rem; text-align: center; background: rgba(17, 24, 39, 0.9);">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 1.875rem; margin-bottom: 0.75rem; color: #fbbf24;"></i>
+                                    <p style="margin-bottom: 0.5rem;">متصفحك لا يدعم تشغيل الفيديو.</p>
+                                    <a href="{{ $doc->video_url }}" style="color: #667eea; text-decoration: underline; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem;" download>
+                                        <i class="fas fa-download"></i>
+                                        اضغط هنا لتحميل الفيديو
+                                    </a>
+                                </div>
                             </video>
                         </div>
                         @endif
