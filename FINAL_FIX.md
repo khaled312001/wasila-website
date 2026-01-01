@@ -136,3 +136,4 @@ The issue is likely in your hosting panel configuration. You need to:
 
 2. **Or use the root .htaccess method** (already created in step 4)
 
+

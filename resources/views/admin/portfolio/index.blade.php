@@ -50,13 +50,33 @@
                                 @forelse($portfolioItems as $item)
                                     <tr>
                                         <td>
+                                            @php
+                                                // Clean file path and get URL
+                                                $cleanFilePath = str_replace('storage/', '', $item->file_path);
+                                                $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                                                $fileExists = \Storage::disk('public')->exists($cleanFilePath) || file_exists(storage_path('app/public/' . $cleanFilePath));
+                                            @endphp
                                             @if($item->type === 'image')
-                                                <img src="{{ asset('storage/' . $item->file_path) }}" alt="{{ $item->title_ar }}" 
-                                                     class="media-preview">
+                                                @if($fileExists)
+                                                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
+                                                         class="media-preview" 
+                                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
+                                                @else
+                                                    <div class="media-preview-placeholder">
+                                                        <i class="fas fa-image fa-2x text-muted"></i>
+                                                    </div>
+                                                @endif
                                             @else
-                                                <video class="media-preview" controls>
-                                                    <source src="{{ asset('storage/' . $item->file_path) }}" type="video/mp4">
-                                                </video>
+                                                @if($fileExists)
+                                                    <video class="media-preview" controls>
+                                                        <source src="{{ $fileUrl }}" type="video/mp4">
+                                                        <source src="{{ $fileUrl }}" type="video/webm">
+                                                    </video>
+                                                @else
+                                                    <div class="media-preview-placeholder">
+                                                        <i class="fas fa-video fa-2x text-muted"></i>
+                                                    </div>
+                                                @endif
                                             @endif
                                         </td>
                                         <td>
@@ -64,27 +84,38 @@
                                             <div class="item-subtitle">{{ $item->title_en }}</div>
                                         </td>
                                         <td>
-                                            <span class="badge badge-{{ $item->type === 'image' ? 'info' : 'warning' }}">
+                                            <span class="badge badge-{{ $item->type === 'image' ? 'info' : 'warning' }}" 
+                                                  style="background: linear-gradient(135deg, {{ $item->type === 'image' ? '#08788B' : '#fbbf24' }} 0%, {{ $item->type === 'image' ? '#3CA6B4' : '#f59e0b' }} 100%); 
+                                                         color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'video' }}"></i>
                                                 {{ $item->type === 'image' ? 'صورة' : 'فيديو' }}
                                             </span>
                                         </td>
-                                        <td>{{ $item->sort_order }}</td>
                                         <td>
-                                            <span class="badge badge-{{ $item->is_active ? 'success' : 'danger' }}">
+                                            <span style="font-weight: 600; color: #08788B; font-size: 1.1rem;">{{ $item->sort_order }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{{ $item->is_active ? 'success' : 'danger' }}" 
+                                                  style="background: linear-gradient(135deg, {{ $item->is_active ? '#28a745' : '#dc3545' }} 0%, {{ $item->is_active ? '#20c997' : '#c82333' }} 100%); 
+                                                         color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-{{ $item->is_active ? 'check-circle' : 'times-circle' }}"></i>
                                                 {{ $item->is_active ? 'نشط' : 'غير نشط' }}
                                             </span>
                                         </td>
-                                        <td>{{ $item->created_at->format('Y-m-d H:i') }}</td>
+                                        <td style="color: #6c757d; font-size: 0.9rem;">{{ $item->created_at->format('H:i Y-m-d') }}</td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.portfolio.edit', $item) }}" class="btn btn-sm btn-primary">
+                                            <div class="btn-group" role="group" style="display: flex; gap: 0.5rem;">
+                                                <a href="{{ route('admin.portfolio.edit', $item) }}" 
+                                                   class="btn btn-sm btn-primary"
+                                                   style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%); border: none; border-radius: 8px; padding: 0.5rem 1rem; box-shadow: 0 2px 8px rgba(8, 120, 139, 0.3); color: white;">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <form action="{{ route('admin.portfolio.destroy', $item) }}" method="POST" 
                                                       style="display: inline-block;" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                            style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; border-radius: 8px; padding: 0.5rem 1rem; box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3); color: white;">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

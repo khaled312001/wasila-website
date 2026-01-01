@@ -130,3 +130,4 @@ echo "  - Check: ls -la public/.htaccess"
 echo "  - Check: ls -la storage/logs/"
 echo ""
 
+

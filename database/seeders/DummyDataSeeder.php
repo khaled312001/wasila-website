@@ -215,46 +215,130 @@ class DummyDataSeeder extends Seeder
             return;
         }
 
+        // Clear existing orders if any
+        DB::table('order_items')->delete();
+        DB::table('orders')->delete();
+
         $statuses = ['pending', 'confirmed', 'processing', 'completed', 'cancelled'];
         $paymentStatuses = ['pending', 'paid', 'failed'];
         $paymentMethods = ['credit_card', 'bank_transfer', 'cash', 'myfatoorah'];
+        
+        $addresses = [
+            'الرياض - حي النرجس - شارع الملك فهد',
+            'جدة - حي الزهراء - شارع التحلية',
+            'الدمام - حي الفيصلية - شارع الأمير سلطان',
+            'المدينة المنورة - حي العقيق - شارع قباء',
+            'مكة المكرمة - حي العزيزية - شارع الحجون',
+            'الطائف - حي الشهداء - شارع الملك عبدالعزيز',
+            'أبها - حي المطار - شارع الملك فيصل',
+            'بريدة - حي الصفراء - شارع الملك خالد',
+        ];
 
-        for ($i = 0; $i < 25; $i++) {
+        $notes = [
+            'يرجى التوصيل في الصباح',
+            'التوصيل بعد صلاة العصر',
+            'يرجى التواصل قبل التوصيل',
+            'لا توجد ملاحظات خاصة',
+            'يرجى التأكد من جودة الخدمة',
+            'شكراً لجهودكم',
+            null,
+            null,
+        ];
+
+        // Create 50 orders with diverse data
+        for ($i = 0; $i < 50; $i++) {
             $customer = $customers->random();
             $service = $services->random();
-            $status = $statuses[array_rand($statuses)];
-            $paymentStatus = $paymentStatuses[array_rand($paymentStatuses)];
-            $paymentMethod = $paymentMethods[array_rand($paymentMethods)];
+            $quantity = rand(1, 5);
+            $unitPrice = $service->price;
+            $totalPrice = $unitPrice * $quantity;
+            
+            // More realistic status distribution
+            $statusWeights = [
+                'pending' => 15,
+                'confirmed' => 10,
+                'processing' => 10,
+                'completed' => 12,
+                'cancelled' => 3,
+            ];
+            $status = $this->weightedRandom($statusWeights);
+            
+            // Payment status based on order status
+            if ($status === 'completed') {
+                $paymentStatus = 'paid';
+            } elseif ($status === 'cancelled') {
+                $paymentStatus = rand(0, 1) ? 'failed' : 'pending';
+            } else {
+                $paymentStatus = $paymentStatuses[array_rand($paymentStatuses)];
+            }
+            
+            $paymentMethod = $paymentStatus === 'paid' 
+                ? $paymentMethods[array_rand($paymentMethods)]
+                : ($paymentStatus === 'failed' ? null : null);
+            
+            // Create order with realistic dates
+            $daysAgo = rand(0, 90);
+            $hoursAgo = rand(0, 23);
+            $createdAt = Carbon::now()->subDays($daysAgo)->subHours($hoursAgo);
+            $updatedAt = $createdAt->copy()->addHours(rand(1, 48));
 
             $order = Order::create([
                 'order_number' => 'WAS-' . strtoupper(uniqid()),
                 'customer_id' => $customer->id,
                 'customer_name' => $customer->name,
                 'customer_email' => $customer->email,
-                'customer_phone' => $customer->phone ?? '+966501234567',
+                'customer_phone' => $customer->phone ?? '+96650' . rand(1000000, 9999999),
                 'customer_country' => 'SA',
                 'country_code' => '+966',
-                'full_phone_number' => $customer->phone ?? '+966501234567',
-                'customer_address' => 'المملكة العربية السعودية',
-                'total_amount' => $service->price * (rand(1, 5)),
+                'full_phone_number' => $customer->phone ?? '+96650' . rand(1000000, 9999999),
+                'customer_address' => $addresses[array_rand($addresses)],
+                'total_amount' => $totalPrice,
                 'status' => $status,
                 'payment_status' => $paymentStatus,
                 'payment_method' => $paymentMethod,
                 'payment_reference' => $paymentStatus === 'paid' ? 'REF-' . strtoupper(uniqid()) : null,
-                'created_at' => Carbon::now()->subDays(rand(0, 30))->subHours(rand(0, 23)),
-                'updated_at' => Carbon::now()->subDays(rand(0, 30))->subHours(rand(0, 23)),
+                'payment_details' => $paymentStatus === 'paid' ? json_encode([
+                    'transaction_id' => 'TXN-' . strtoupper(uniqid()),
+                    'payment_date' => $createdAt->toDateTimeString(),
+                    'method' => $paymentMethod,
+                ]) : null,
+                'notes' => $notes[array_rand($notes)],
+                'created_at' => $createdAt,
+                'updated_at' => $updatedAt,
             ]);
 
+            // Create order items
             OrderItem::create([
                 'order_id' => $order->id,
                 'service_id' => $service->id,
-                'quantity' => rand(1, 5),
-                'unit_price' => $service->price,
-                'total_price' => $service->price * rand(1, 5),
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'total_price' => $totalPrice,
+                'created_at' => $createdAt,
+                'updated_at' => $updatedAt,
             ]);
         }
         
-        $this->command->info('✅ تم إنشاء 25 طلب');
+        $this->command->info('✅ تم إنشاء 50 طلب مع تفاصيل متنوعة');
+    }
+
+    /**
+     * Helper function for weighted random selection
+     */
+    private function weightedRandom(array $weights)
+    {
+        $total = array_sum($weights);
+        $random = rand(1, $total);
+        $current = 0;
+        
+        foreach ($weights as $key => $weight) {
+            $current += $weight;
+            if ($random <= $current) {
+                return $key;
+            }
+        }
+        
+        return array_key_first($weights);
     }
 
     private function seedContactMessages()

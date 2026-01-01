@@ -103,3 +103,4 @@ echo "If still getting 500 error, check:"
 echo "  tail -200 storage/logs/laravel.log"
 echo ""
 
+

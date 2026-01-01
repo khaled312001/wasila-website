@@ -131,12 +131,14 @@
         border-top: 2px solid #e5e7eb;
         padding: 1.25rem;
         flex-shrink: 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
     
     .chat-input-container .flex {
         display: flex;
         align-items: flex-end;
         gap: 0.75rem;
+        flex-wrap: wrap;
     }
     
     .scroll-to-bottom {
@@ -189,26 +191,79 @@
         max-height: 150px;
         font-size: 15px;
         line-height: 1.5;
+        transition: all 0.2s ease;
+    }
+    
+    #messageInput:focus {
+        outline: none;
+        border-color: var(--primary-medium);
+        box-shadow: 0 0 0 3px rgba(8, 120, 139, 0.1);
     }
     
     #sendButton {
         min-width: 50px;
+        width: 50px;
         height: 50px;
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
+        font-size: 1.1rem;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+    }
+    
+    #sendButton i {
+        display: inline-block !important;
+        font-size: 1.1rem;
+    }
+    
+    #sendButton:not(:disabled):hover {
+        box-shadow: 0 6px 20px rgba(8, 120, 139, 0.4);
+        transform: scale(1.05);
+    }
+    
+    #sendButton:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
     }
     
     #fileInput + label {
         min-width: 50px;
+        width: 50px;
         height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    #fileInput + label:hover {
+        background-color: #d1d5db !important;
+        transform: scale(1.05);
     }
     
     .chat-header {
         flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .chat-container {
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    
+    .max-w-6xl {
+        padding: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+        .max-w-6xl {
+            padding: 1.5rem;
+        }
     }
     
     @media (max-width: 768px) {
@@ -326,8 +381,8 @@
                     </div>
                     
                     <!-- Send Button -->
-                    <button type="submit" id="sendButton" class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-paper-plane"></i>
+                    <button type="submit" id="sendButton" class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center" title="إرسال الرسالة">
+                        <i class="fas fa-paper-plane text-lg"></i>
                     </button>
                 </div>
                 

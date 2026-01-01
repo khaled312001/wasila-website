@@ -758,7 +758,7 @@
             const ourWorkTrack = document.getElementById('ourWorkTrack');
             if (ourWorkTrack) {
                 // Wait for images to load to get accurate dimensions
-                setTimeout(() => {
+                const setupAnimation = () => {
                     const items = ourWorkTrack.querySelectorAll('.our-work-card');
                     const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || 1;
                     
@@ -782,12 +782,21 @@
                         const totalWidth = items.length * (cardWidth + gap);
                         const viewportWidth = window.innerWidth;
                         
-                        // If we don't have enough items, log a warning (but don't break)
+                        // Ensure we have enough items - if not, the animation will still work but may show gaps
                         if (totalWidth < viewportWidth * 2.5) {
-                            console.warn('Consider adding more portfolio items for smoother scrolling');
+                            console.warn('Track has ' + items.length + ' items, consider adding more for smoother scrolling');
                         }
                     }
-                }, 100);
+                };
+                
+                // Try immediately
+                setupAnimation();
+                
+                // Also try after a delay to account for image loading
+                setTimeout(setupAnimation, 200);
+                
+                // And after window load
+                window.addEventListener('load', setupAnimation);
             }
         });
         

@@ -75,3 +75,4 @@ echo "6. Save and wait 2-3 minutes"
 echo "7. Test again: curl -I https://wasela.itegypt.org/"
 echo ""
 
+

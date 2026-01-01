@@ -99,3 +99,4 @@ echo "Alternative: If you can't change document root,"
 echo "you may need to move files or use a different approach."
 echo ""
 
+

@@ -234,18 +234,33 @@ class PortfolioController extends Controller
             $targetDir = dirname($targetPath);
             if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0755, true);
+                // Set directory permissions
+                chmod($targetDir, 0755);
             }
             
-            // Copy file
+            // Copy file if source exists
             if (file_exists($sourcePath)) {
+                // Ensure target directory exists
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+                
                 copy($sourcePath, $targetPath);
                 
-                // Set permissions
+                // Set file permissions (readable by web server)
                 chmod($targetPath, 0644);
+                
+                Log::info('File copied to public storage: ' . $filePath);
+            } else {
+                Log::warning('Source file not found: ' . $sourcePath);
             }
         } catch (\Exception $e) {
             // Log error but don't break the flow
-            Log::info('Failed to copy file to public storage: ' . $e->getMessage());
+            Log::error('Failed to copy file to public storage: ' . $e->getMessage(), [
+                'file_path' => $filePath,
+                'source' => $sourcePath ?? 'N/A',
+                'target' => $targetPath ?? 'N/A'
+            ]);
         }
     }
 }

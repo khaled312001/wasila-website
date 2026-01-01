@@ -94,13 +94,32 @@
                         <div class="form-group">
                             <label>الملف الحالي</label>
                             <div class="mt-2">
+                                @php
+                                    $cleanFilePath = str_replace('storage/', '', $portfolioItem->file_path);
+                                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                                    $fileExists = \Storage::disk('public')->exists($cleanFilePath) || file_exists(storage_path('app/public/' . $cleanFilePath));
+                                @endphp
                                 @if($portfolioItem->type === 'image')
-                                    <img src="{{ asset('storage/' . $portfolioItem->file_path) }}" alt="{{ $portfolioItem->title_ar }}" 
-                                         style="max-width: 300px; max-height: 200px; object-fit: cover;">
+                                    @if($fileExists)
+                                        <img src="{{ $fileUrl }}" alt="{{ $portfolioItem->title_ar }}" 
+                                             style="max-width: 300px; max-height: 200px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"
+                                             onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
+                                    @else
+                                        <div style="width: 300px; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6;">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    @endif
                                 @else
-                                    <video controls style="max-width: 300px; max-height: 200px;">
-                                        <source src="{{ asset('storage/' . $portfolioItem->file_path) }}" type="video/mp4">
-                                    </video>
+                                    @if($fileExists)
+                                        <video controls style="max-width: 300px; max-height: 200px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                            <source src="{{ $fileUrl }}" type="video/mp4">
+                                            <source src="{{ $fileUrl }}" type="video/webm">
+                                        </video>
+                                    @else
+                                        <div style="width: 300px; height: 200px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px dashed #dee2e6;">
+                                            <i class="fas fa-video fa-3x text-muted"></i>
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>
