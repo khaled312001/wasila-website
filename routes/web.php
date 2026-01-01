@@ -207,6 +207,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{contactMessage}/mark-read', [ContactMessageController::class, 'markAsRead'])->name('mark-read');
             Route::post('/{contactMessage}/mark-unread', [ContactMessageController::class, 'markAsUnread'])->name('mark-unread');
             Route::get('/api/unread-count', [ContactMessageController::class, 'getUnreadCount'])->name('unread-count');
+            Route::post('/{contactMessage}/reply', [ContactMessageController::class, 'sendReply'])->name('reply');
+            Route::get('/{contactMessage}/replies', [ContactMessageController::class, 'getReplies'])->name('replies');
         });
         
         // Content Management

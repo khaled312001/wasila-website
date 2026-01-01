@@ -46,15 +46,7 @@
     <link rel="stylesheet" href="{{ asset('css/wasila.css') }}">
     <link rel="stylesheet" href="{{ asset('css/wasila-header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/wasila-footer.css') }}">
-    @php
-        $cssFile = public_path('css/single-page.css');
-        $cssContent = file_exists($cssFile) ? file_get_contents($cssFile) : '';
-    @endphp
-    @if($cssContent)
-    <style>{!! $cssContent !!}</style>
-    @else
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
-    @endif
 </head>
 <body>
     <!-- Main Header -->

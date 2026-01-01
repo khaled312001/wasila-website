@@ -23,10 +23,29 @@ class Setting extends Model
      */
     public static function get($key, $default = null)
     {
-        return Cache::remember("setting.{$key}", 3600, function () use ($key, $default) {
+        try {
+            $cacheKey = "setting.{$key}";
+            
+            // Try to get from cache first
+            if (Cache::has($cacheKey)) {
+                return Cache::get($cacheKey);
+            }
+            
+            // Get from database
+            $setting = static::where('key', $key)->first();
+            $value = $setting ? $setting->value : $default;
+            
+            // Cache the value
+            if ($value !== null) {
+                Cache::put($cacheKey, $value, 3600);
+            }
+            
+            return $value;
+        } catch (\Exception $e) {
+            // If cache fails, just get from database
             $setting = static::where('key', $key)->first();
             return $setting ? $setting->value : $default;
-        });
+        }
     }
 
     /**

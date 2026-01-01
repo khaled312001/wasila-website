@@ -75,4 +75,12 @@ class ContactMessage extends Model
     {
         return $this->created_at->diffForHumans();
     }
+
+    /**
+     * Get replies for this contact message
+     */
+    public function replies()
+    {
+        return $this->hasMany(ContactMessageReply::class)->orderBy('created_at', 'asc');
+    }
 }

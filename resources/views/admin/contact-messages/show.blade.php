@@ -1,10 +1,139 @@
 @extends('admin.layouts.app')
 
-@section('title', 'عرض الرسالة')
-@section('page-title', 'عرض الرسالة')
+@section('title', 'رسالة الاتصال')
+@section('page-title', 'رسالة الاتصال')
+
+@push('styles')
+<style>
+    .chat-container {
+        height: calc(100vh - 250px);
+        min-height: 600px;
+        max-height: 800px;
+    }
+    
+    .messages-container {
+        height: calc(100% - 120px);
+        overflow-y: auto;
+        padding: 1rem;
+        background: linear-gradient(to bottom, #e5e7eb 0%, #f3f4f6 100%);
+    }
+    
+    .message-bubble {
+        max-width: 70%;
+        word-wrap: break-word;
+        position: relative;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-admin {
+        background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%);
+        color: white;
+        margin-left: auto;
+        border-radius: 1rem 1rem 0.25rem 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    .message-customer {
+        background: white;
+        color: #1f2937;
+        margin-right: auto;
+        border-radius: 1rem 1rem 1rem 0.25rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+    }
+    
+    .file-preview {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .file-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        cursor: pointer;
+    }
+    
+    .file-attachment {
+        background: rgba(0,0,0,0.05);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .file-attachment i {
+        font-size: 2rem;
+        color: var(--primary-medium);
+    }
+    
+    .chat-input-container {
+        background: white;
+        border-top: 1px solid #e5e7eb;
+        padding: 1rem;
+    }
+    
+    .scroll-to-bottom {
+        position: absolute;
+        bottom: 80px;
+        right: 20px;
+        background: var(--primary-medium);
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+    
+    .scroll-to-bottom.visible {
+        display: flex;
+    }
+    
+    .messages-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .messages-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="space-y-6">
+<div class="max-w-6xl mx-auto space-y-6">
     <!-- Back Button -->
     <div class="flex items-center">
         <a href="{{ route('admin.contact-messages.index') }}" 
@@ -16,164 +145,105 @@
         </a>
     </div>
 
-    <!-- Message Details -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-        <!-- Message Header -->
-        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 h-12 w-12">
-                        <div class="h-12 w-12 rounded-full bg-primary-medium flex items-center justify-center">
-                            <span class="text-white font-medium text-lg">
-                                {{ substr($contactMessage->name, 0, 1) }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mr-4">
-                        <h1 class="text-xl font-semibold text-gray-900">{{ $contactMessage->name }}</h1>
-                        <p class="text-sm text-gray-600">{{ $contactMessage->email }}</p>
-                        @if($contactMessage->phone)
-                        <p class="text-sm text-gray-600">{{ $contactMessage->phone }}</p>
+    <!-- Chat Container -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden chat-container">
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-2 rounded-full">
+                    <span class="text-xl font-bold">{{ substr($contactMessage->name, 0, 1) }}</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold">{{ $contactMessage->name }}</h2>
+                    <p class="text-xs opacity-90">{{ $contactMessage->email }}</p>
+                    @if($contactMessage->phone)
+                    <p class="text-xs opacity-90">{{ $contactMessage->phone }}</p>
+                    @endif
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                @if($contactMessage->phone)
+                <a href="tel:{{ $contactMessage->phone }}" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-phone ml-1"></i>
+                    {{ $contactMessage->phone }}
+                </a>
+                @endif
+                <a href="mailto:{{ $contactMessage->email }}" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm transition-colors">
+                    <i class="fas fa-envelope ml-1"></i>
+                    {{ $contactMessage->email }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container relative" id="messagesContainer">
+            <div class="space-y-3" id="messagesList">
+                <!-- Original Message -->
+                <div class="message-bubble message-customer">
+                    <div class="p-4">
+                        @if($contactMessage->subject)
+                        <div class="font-semibold mb-2 text-primary-medium">{{ $contactMessage->subject }}</div>
                         @endif
+                        <div class="text-gray-800 whitespace-pre-wrap">{{ $contactMessage->message }}</div>
+                        <div class="message-time text-gray-500">{{ $contactMessage->formatted_created_at }}</div>
                     </div>
                 </div>
-                <div class="mt-4 md:mt-0 flex items-center space-x-4 space-x-reverse">
-                    <div class="text-sm text-gray-500">
-                        <div>{{ $contactMessage->formatted_created_at }}</div>
-                        <div>{{ $contactMessage->time_ago }}</div>
-                    </div>
-                    @if($contactMessage->is_read)
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        مقروءة
-                    </span>
-                    @else
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        غير مقروءة
-                    </span>
-                    @endif
-                </div>
+
+                <!-- Replies -->
+                @forelse($contactMessage->replies as $reply)
+                @include('admin.contact-messages.reply-item', ['reply' => $reply])
+                @empty
+                @endforelse
+            </div>
+            <div class="scroll-to-bottom" id="scrollToBottom" onclick="scrollToBottom()">
+                <i class="fas fa-arrow-down"></i>
             </div>
         </div>
 
-        <!-- Message Content -->
-        <div class="px-6 py-6">
-            @if($contactMessage->subject)
-            <div class="mb-6">
-                <h2 class="text-lg font-medium text-gray-900 mb-2">الموضوع</h2>
-                <p class="text-gray-700 bg-gray-50 p-4 rounded-lg">{{ $contactMessage->subject }}</p>
-            </div>
-            @endif
-
-            <div>
-                <h2 class="text-lg font-medium text-gray-900 mb-2">محتوى الرسالة</h2>
-                <div class="text-gray-700 bg-gray-50 p-6 rounded-lg whitespace-pre-wrap leading-relaxed">
-                    {{ $contactMessage->message }}
-                </div>
-            </div>
-        </div>
-
-        <!-- Message Actions -->
-        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-center space-x-4 space-x-reverse mb-4 sm:mb-0">
-                    @if($contactMessage->is_read)
-                    <button onclick="markAsUnread({{ $contactMessage->id }})" 
-                            class="inline-flex items-center px-4 py-2 border border-yellow-300 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        تمييز كغير مقروءة
-                    </button>
-                    @else
-                    <button onclick="markAsRead({{ $contactMessage->id }})" 
-                            class="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        تمييز كمقروءة
-                    </button>
-                    @endif
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+            <form id="replyForm" enctype="multipart/form-data">
+                @csrf
+                <div class="flex items-end gap-2">
+                    <!-- File Input -->
+                    <label for="fileInput" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg cursor-pointer transition-colors" title="إرسال ملف">
+                        <i class="fas fa-paperclip text-gray-600"></i>
+                        <input type="file" id="fileInput" name="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx" class="hidden">
+                    </label>
                     
-                    <a href="mailto:{{ $contactMessage->email }}" 
-                       class="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        الرد بالبريد الإلكتروني
-                    </a>
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="hidden relative">
+                        <img id="previewImage" src="" alt="Preview" class="w-16 h-16 object-cover rounded-lg">
+                        <button type="button" onclick="removeImagePreview()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">×</button>
+                    </div>
+                    
+                    <!-- Message Input -->
+                    <div class="flex-1 relative">
+                        <textarea 
+                            name="message" 
+                            id="messageInput"
+                            rows="1"
+                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-primary-medium focus:border-primary-medium resize-none"
+                            placeholder="اكتب ردك..."
+                            onkeydown="handleKeyDown(event)"></textarea>
+                        <div class="absolute bottom-2 right-2 text-xs text-gray-400" id="charCount">0/5000</div>
+                    </div>
+                    
+                    <!-- Send Button -->
+                    <button type="submit" id="sendButton" class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
                 
-                <div class="flex items-center space-x-4 space-x-reverse">
-                    <button onclick="deleteMessage({{ $contactMessage->id }})" 
-                            class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        حذف الرسالة
+                <!-- File Info -->
+                <div id="fileInfo" class="hidden mt-2 p-2 bg-gray-100 rounded-lg text-sm text-gray-600">
+                    <i class="fas fa-file ml-1"></i>
+                    <span id="fileName"></span>
+                    <button type="button" onclick="removeFile()" class="text-red-500 hover:text-red-700 mr-2">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Message Info -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">معلومات الرسالة</h3>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-            <div>
-                <dt class="text-sm font-medium text-gray-500">تاريخ الإرسال</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $contactMessage->formatted_created_at }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-medium text-gray-500">وقت الإرسال</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $contactMessage->time_ago }}</dd>
-            </div>
-            @if($contactMessage->read_at)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">تاريخ القراءة</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $contactMessage->read_at->format('Y-m-d H:i') }}</dd>
-            </div>
-            @endif
-            <div>
-                <dt class="text-sm font-medium text-gray-500">حالة الرسالة</dt>
-                <dd class="mt-1">
-                    @if($contactMessage->is_read)
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        مقروءة
-                    </span>
-                    @else
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        غير مقروءة
-                    </span>
-                    @endif
-                </dd>
-            </div>
-        </dl>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mt-4">تأكيد الحذف</h3>
-            <div class="mt-2 px-7 py-3">
-                <p class="text-sm text-gray-500">هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.</p>
-            </div>
-            <div class="items-center px-4 py-3">
-                <button id="confirmDelete" class="px-4 py-2 text-white text-base font-medium rounded-md w-24 mr-2 focus:outline-none focus:ring-2 focus:ring-primary-medium" style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);" onmouseover="this.style.background='linear-gradient(135deg, #065a6b 0%, #2a8a96 100%)'" onmouseout="this.style.background='linear-gradient(135deg, #08788B 0%, #3CA6B4 100%)'">
-                    حذف
-                </button>
-                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-24 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                    إلغاء
-                </button>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -181,73 +251,249 @@
 
 @push('scripts')
 <script>
-let messageToDelete = null;
+let lastReplyId = {{ $contactMessage->replies->last()->id ?? 0 }};
+let pollingInterval;
+let isScrolledToBottom = true;
 
-function markAsRead(messageId) {
-    fetch(`/admin/contact-messages/${messageId}/mark-read`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    scrollToBottom();
+    startPolling();
+    
+    // File input handler
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        handleFileSelect(e.target.files[0]);
+    });
+    
+    // Character counter
+    document.getElementById('messageInput').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('charCount').textContent = count + '/5000';
+    });
+    
+    // Auto-resize textarea
+    document.getElementById('messageInput').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+    
+    // Scroll detection
+    document.getElementById('messagesContainer').addEventListener('scroll', function() {
+        const container = this;
+        isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+        document.getElementById('scrollToBottom').classList.toggle('visible', !isScrolledToBottom);
+    });
+});
+
+// Handle file select
+function handleFileSelect(file) {
+    if (!file) return;
+    
+    if (file.size > 10 * 1024 * 1024) {
+        alert('حجم الملف كبير جداً. الحد الأقصى 10MB');
+        return;
+    }
+    
+    document.getElementById('fileInfo').classList.remove('hidden');
+    document.getElementById('fileName').textContent = file.name;
+    
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('imagePreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeFile() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileInfo').classList.add('hidden');
+    document.getElementById('imagePreview').classList.add('hidden');
+}
+
+function removeImagePreview() {
+    document.getElementById('imagePreview').classList.add('hidden');
+    removeFile();
+}
+
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+    isScrolledToBottom = true;
+    document.getElementById('scrollToBottom').classList.remove('visible');
+}
+
+function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('replyForm').dispatchEvent(new Event('submit'));
+    }
+}
+
+// Polling for new messages
+function startPolling() {
+    pollingInterval = setInterval(function() {
+        fetch(`{{ route('admin.contact-messages.replies', $contactMessage) }}?last_reply_id=${lastReplyId}`, {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.replies.length > 0) {
+                data.replies.forEach(reply => {
+                    addReplyToChat(reply);
+                    lastReplyId = Math.max(lastReplyId, reply.id);
+                });
+                
+                if (isScrolledToBottom) {
+                    setTimeout(scrollToBottom, 100);
+                }
+            }
+        })
+        .catch(error => console.error('Polling error:', error));
+    }, 3000);
+}
+
+// Add reply to chat
+function addReplyToChat(reply) {
+    const messagesList = document.getElementById('messagesList');
+    const replyHtml = createReplyHTML(reply);
+    messagesList.insertAdjacentHTML('beforeend', replyHtml);
+}
+
+function createReplyHTML(reply) {
+    const isAdmin = reply.sender_type === 'admin';
+    const bubbleClass = isAdmin ? 'message-admin' : 'message-customer';
+    const time = new Date(reply.created_at).toLocaleString('ar-SA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    let fileHtml = '';
+    if (reply.file_path) {
+        if (reply.is_image) {
+            fileHtml = `
+                <div class="file-preview">
+                    <img src="${reply.file_url}" alt="${reply.file_name}" onclick="openImageModal('${reply.file_url}')" class="cursor-pointer">
+                </div>
+            `;
+        } else if (reply.is_video) {
+            fileHtml = `
+                <div class="file-preview">
+                    <video controls class="w-full max-h-64 rounded-lg">
+                        <source src="${reply.file_url}" type="${reply.mime_type}">
+                    </video>
+                </div>
+            `;
+        } else if (reply.is_audio) {
+            fileHtml = `
+                <div class="file-preview">
+                    <audio controls class="w-full">
+                        <source src="${reply.file_url}" type="${reply.mime_type}">
+                    </audio>
+                </div>
+            `;
+        } else {
+            fileHtml = `
+                <div class="file-attachment">
+                    <i class="fas fa-file"></i>
+                    <div>
+                        <div class="font-semibold">${reply.file_name}</div>
+                        <a href="${reply.file_url}" download class="text-primary-medium hover:underline">تحميل</a>
+                    </div>
+                </div>
+            `;
         }
-    })
-    .catch(error => console.error('Error:', error));
+    }
+    
+    return `
+        <div class="message-bubble ${bubbleClass}">
+            <div class="p-4">
+                ${reply.message ? `<div class="${isAdmin ? 'text-white' : 'text-gray-800'} whitespace-pre-wrap">${reply.message}</div>` : ''}
+                ${fileHtml}
+                <div class="message-time ${isAdmin ? 'text-white/70' : 'text-gray-500'}">${time}</div>
+            </div>
+        </div>
+    `;
 }
 
-function markAsUnread(messageId) {
-    fetch(`/admin/contact-messages/${messageId}/mark-unread`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
+// Form submit
+document.getElementById('replyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const messageInput = document.getElementById('messageInput');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (!messageInput.value.trim() && !fileInput.files[0]) {
+        return;
+    }
+    
+    const sendButton = document.getElementById('sendButton');
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    try {
+        const response = await fetch('{{ route("admin.contact-messages.reply", $contactMessage) }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+            }
+        });
+        
+        const data = await response.json();
+        
         if (data.success) {
-            location.reload();
+            addReplyToChat(data.data);
+            lastReplyId = Math.max(lastReplyId, data.data.id);
+            
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            document.getElementById('charCount').textContent = '0/5000';
+            removeFile();
+            
+            scrollToBottom();
+        } else {
+            alert(data.message || 'حدث خطأ');
         }
-    })
-    .catch(error => console.error('Error:', error));
-}
-
-function deleteMessage(messageId) {
-    messageToDelete = messageId;
-    document.getElementById('deleteModal').classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.add('hidden');
-    messageToDelete = null;
-}
-
-document.getElementById('confirmDelete').addEventListener('click', function() {
-    if (messageToDelete) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/contact-messages/${messageToDelete}`;
-        
-        const csrfToken = document.createElement('input');
-        csrfToken.type = 'hidden';
-        csrfToken.name = '_token';
-        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        const methodField = document.createElement('input');
-        methodField.type = 'hidden';
-        methodField.name = '_method';
-        methodField.value = 'DELETE';
-        
-        form.appendChild(csrfToken);
-        form.appendChild(methodField);
-        document.body.appendChild(form);
-        form.submit();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('حدث خطأ في إرسال الرسالة');
+    } finally {
+        sendButton.disabled = false;
+        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
     }
 });
+
+// Open image modal
+function openImageModal(imageUrl) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4';
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    };
+    
+    modal.innerHTML = `
+        <div class="relative max-w-4xl max-h-full">
+            <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="${imageUrl}" alt="Preview" class="max-w-full max-h-[90vh] rounded-lg">
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
 </script>
 @endpush

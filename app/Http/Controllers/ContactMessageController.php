@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ContactMessage;
+use App\Models\ContactMessageReply;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ContactMessageController extends Controller
 {
@@ -84,6 +87,9 @@ class ContactMessageController extends Controller
             $contactMessage->markAsRead();
         }
         
+        // Load replies with admin
+        $contactMessage->load(['replies.admin']);
+        
         return view('admin.contact-messages.show', compact('contactMessage'));
     }
 
@@ -155,6 +161,87 @@ class ContactMessageController extends Controller
         
         return response()->json([
             'count' => $count
+        ]);
+    }
+
+    /**
+     * Send reply to contact message
+     */
+    public function sendReply(Request $request, ContactMessage $contactMessage)
+    {
+        $request->validate([
+            'message' => 'nullable|string|max:5000',
+            'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
+        ]);
+
+        $data = [
+            'contact_message_id' => $contactMessage->id,
+            'admin_id' => Auth::id(),
+            'message' => $request->message ?? '',
+            'sender_type' => 'admin',
+        ];
+
+        // Handle file upload
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filePath = $file->store('contact-message-replies', 'public');
+            
+            // Determine file type
+            $mimeType = $file->getMimeType();
+            $fileType = 'document';
+            if (str_starts_with($mimeType, 'image/')) {
+                $fileType = 'image';
+            } elseif (str_starts_with($mimeType, 'video/')) {
+                $fileType = 'video';
+            } elseif (str_starts_with($mimeType, 'audio/')) {
+                $fileType = 'audio';
+            }
+
+            $data['file_path'] = $filePath;
+            $data['file_name'] = $file->getClientOriginalName();
+            $data['file_type'] = $fileType;
+            $data['file_size'] = $file->getSize();
+            $data['mime_type'] = $mimeType;
+        }
+
+        if (empty($data['message']) && !isset($data['file_path'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'يجب إدخال رسالة أو رفع ملف'
+            ], 422);
+        }
+
+        $reply = ContactMessageReply::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إرسال الرد بنجاح',
+            'data' => $reply->load('admin')
+        ]);
+    }
+
+    /**
+     * Get replies for a contact message
+     */
+    public function getReplies(Request $request, ContactMessage $contactMessage)
+    {
+        $query = $contactMessage->replies()->with('admin');
+        
+        if ($request->last_reply_id) {
+            $query->where('id', '>', $request->last_reply_id);
+        }
+        
+        $replies = $query->orderBy('created_at', 'asc')->get();
+        
+        // Mark customer replies as read
+        $contactMessage->replies()
+            ->where('sender_type', 'customer')
+            ->where('is_read', false)
+            ->update(['is_read' => true, 'read_at' => now()]);
+        
+        return response()->json([
+            'success' => true,
+            'replies' => $replies,
         ]);
     }
 }
