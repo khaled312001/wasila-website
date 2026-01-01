@@ -24,6 +24,13 @@ class Setting extends Model
     public static function get($key, $default = null)
     {
         try {
+            // Check if cache is available
+            if (!function_exists('cache') || !class_exists('Illuminate\Support\Facades\Cache')) {
+                // If cache is not available, get directly from database
+                $setting = static::where('key', $key)->first();
+                return $setting ? $setting->value : $default;
+            }
+            
             $cacheKey = "setting.{$key}";
             
             // Try to get from cache first
@@ -37,14 +44,23 @@ class Setting extends Model
             
             // Cache the value
             if ($value !== null) {
-                Cache::put($cacheKey, $value, 3600);
+                try {
+                    Cache::put($cacheKey, $value, 3600);
+                } catch (\Exception $cacheException) {
+                    // If caching fails, just continue without caching
+                }
             }
             
             return $value;
         } catch (\Exception $e) {
-            // If cache fails, just get from database
-            $setting = static::where('key', $key)->first();
-            return $setting ? $setting->value : $default;
+            // If everything fails, just get from database without caching
+            try {
+                $setting = static::where('key', $key)->first();
+                return $setting ? $setting->value : $default;
+            } catch (\Exception $dbException) {
+                // If database also fails, return default
+                return $default;
+            }
         }
     }
 
