@@ -185,10 +185,18 @@
             </p>
             <div class="hero-buttons">
                 <a href="{{ url('/') }}#services" class="btn btn-hero btn-hero-primary">
-                    <i class="fas fa-list me-2"></i>{{ __('messages.browse_services') }}
+                    <i class="fas fa-list me-2"></i>
+                    @php
+                        $browseServicesText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'browse_services_button_text_ar' : 'browse_services_button_text_en', __('messages.browse_services'));
+                        echo $browseServicesText ?: __('messages.browse_services');
+                    @endphp
                 </a>
                 <a href="{{ url('/') }}#about" class="btn btn-hero btn-hero-secondary">
-                    <i class="fas fa-info-circle me-2"></i>{{ __('messages.learn_more') }}
+                    <i class="fas fa-info-circle me-2"></i>
+                    @php
+                        $learnMoreText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'learn_more_button_text_ar' : 'learn_more_button_text_en', __('messages.learn_more'));
+                        echo $learnMoreText ?: __('messages.learn_more');
+                    @endphp
                 </a>
             </div>
         </div>
@@ -198,8 +206,18 @@
     <section id="services" class="section services-section">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="section-title">{{ __('messages.services_subtitle') }}</h2>
-                <p class="section-subtitle">{{ __('messages.services_description') }}</p>
+                <h2 class="section-title">
+                    @php
+                        $servicesTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'services_title_ar' : 'services_title_en', __('messages.services_title'));
+                        echo $servicesTitle ?: __('messages.services_title');
+                    @endphp
+                </h2>
+                <p class="section-subtitle">
+                    @php
+                        $servicesDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'services_description_ar' : 'services_description_en', __('messages.services_description'));
+                        echo $servicesDesc ?: __('messages.services_description');
+                    @endphp
+                </p>
         </div>
             @if($services->count() > 0)
             <div class="row g-4">
@@ -219,8 +237,18 @@
                             <div class="service-body">
                                 <h3 class="service-title">{{ app()->getLocale() === 'en' ? $service->name_en : $service->name_ar }}</h3>
                                 <p class="service-description">{{ app()->getLocale() === 'en' ? $service->description_en : $service->description_ar }}</p>
-                                <div class="service-price">{{ number_format($service->price, 2) }} {{ __('messages.currency') }}</div>
-                                <button class="btn btn-service">{{ __('messages.order_now') }}</button>
+                                <div class="service-price">{{ number_format($service->price, 2) }} 
+                                    @php
+                                        $currencyText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'saudi_riyal_text_ar' : 'saudi_riyal_text_en', __('messages.currency'));
+                                        echo $currencyText ?: __('messages.currency');
+                                    @endphp
+                                </div>
+                                <button class="btn btn-service">
+                                    @php
+                                        $orderNowText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'order_now_button_text_ar' : 'order_now_button_text_en', __('messages.order_now'));
+                                        echo $orderNowText ?: __('messages.order_now');
+                                    @endphp
+                                </button>
                         </div>
                     </div>
                 </a>
@@ -474,7 +502,12 @@
             <div class="row">
                 <div class="col-lg-6 mb-4" data-aos="fade-right">
                     <div class="contact-container">
-                        <h3 class="mb-4">{{ __('messages.contact_title') }}</h3>
+                        <h3 class="mb-4">
+                            @php
+                                $contactInfoTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'contact_information_title_ar' : 'contact_information_title_en', __('messages.contact_title'));
+                                echo $contactInfoTitle ?: __('messages.contact_title');
+                            @endphp
+                        </h3>
                         <div class="contact-info">
                             <div class="contact-icon">
                                 <i class="fas fa-envelope"></i>
@@ -506,7 +539,12 @@
                             </div>
                 <div class="col-lg-6" data-aos="fade-left">
                     <div class="contact-container">
-                        <h3 class="mb-4">{{ __('messages.send_us_message_title') }}</h3>
+                        <h3 class="mb-4">
+                            @php
+                                $sendMessageTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'send_us_message_title_ar' : 'send_us_message_title_en', __('messages.send_us_message_title'));
+                                echo $sendMessageTitle ?: __('messages.send_us_message_title');
+                            @endphp
+                        </h3>
                         <div id="contactSuccess" class="alert alert-success d-none">{{ __('messages.message_sent_success') }}</div>
                         <div id="contactError" class="alert alert-danger d-none">{{ __('messages.message_send_error') }}</div>
                         <form class="contact-form" id="contactForm" method="POST" action="{{ route('contact.store') }}">

@@ -236,13 +236,22 @@
             </p>
             <div class="hero-buttons flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('services') }}" class="btn-primary-enhanced">
-                    {{ __('messages.browse_services') }}
+                    @php
+                        $browseServicesText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'browse_services_button_text_ar' : 'browse_services_button_text_en', __('messages.browse_services'));
+                        echo $browseServicesText ?: __('messages.browse_services');
+                    @endphp
                 </a>
                 <a href="{{ route('portfolio') }}" class="btn-secondary-enhanced">
-                    {{ __('messages.our_work') }}
+                    @php
+                        $ourWorkText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'our_work_button_text_ar' : 'our_work_button_text_en', __('messages.our_work'));
+                        echo $ourWorkText ?: __('messages.our_work');
+                    @endphp
                 </a>
                 <a href="#about" class="btn-primary-enhanced">
-                    {{ __('messages.learn_more') }}
+                    @php
+                        $learnMoreText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'learn_more_button_text_ar' : 'learn_more_button_text_en', __('messages.learn_more'));
+                        echo $learnMoreText ?: __('messages.learn_more');
+                    @endphp
                 </a>
             </div>
         </div>
@@ -267,10 +276,16 @@
                 </svg>
             </div>
             <h2 class="text-xl md:text-2xl lg:text-2xl font-bold text-primary-dark mb-6" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                {{ __('messages.services_title') }}
+                @php
+                    $servicesTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'services_title_ar' : 'services_title_en', __('messages.services_title'));
+                    echo $servicesTitle ?: __('messages.services_title');
+                @endphp
             </h2>
             <p class="text-base md:text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                {{ __('messages.services_description') }}
+                @php
+                    $servicesDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'services_description_ar' : 'services_description_en', __('messages.services_description'));
+                    echo $servicesDesc ?: __('messages.services_description');
+                @endphp
             </p>
         </div>
         
@@ -287,7 +302,10 @@
                 <!-- Card Badge -->
                 <div class="absolute top-4 right-4 z-10">
                     <span class="text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                        {{ __('messages.premium') }}
+                        @php
+                            $premiumText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'premium_badge_text_ar' : 'premium_badge_text_en', __('messages.premium'));
+                            echo $premiumText ?: __('messages.premium');
+                        @endphp
                     </span>
                 </div>
                 
@@ -338,11 +356,17 @@
                                 {{ number_format($service->price, 2) }}
                             </span>
                             <span class="text-xs text-gray-500">
-                                {{ __('messages.saudi_riyal') }}
+                                @php
+                                    $currencyText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'saudi_riyal_text_ar' : 'saudi_riyal_text_en', __('messages.saudi_riyal'));
+                                    echo $currencyText ?: __('messages.saudi_riyal');
+                                @endphp
                             </span>
                         </div>
                         <button class="bg-gradient-to-r from-primary-medium to-primary-light hover:from-primary-dark hover:to-primary-medium text-white px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                            {{ __('messages.order_now') }}
+                            @php
+                                $orderNowText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'order_now_button_text_ar' : 'order_now_button_text_en', __('messages.order_now'));
+                                echo $orderNowText ?: __('messages.order_now');
+                            @endphp
                         </button>
                     </div>
                 </div>
@@ -359,14 +383,25 @@
                 <div class="absolute inset-0 bg-white opacity-10"></div>
                 <div class="relative z-10">
                     <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-white mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                        {{ __('messages.discover_more_services') }}
+                        @php
+                            $discoverTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'discover_more_services_title_ar' : 'discover_more_services_title_en', __('messages.discover_more_services'));
+                            echo $discoverTitle ?: __('messages.discover_more_services');
+                        @endphp
                     </h3>
                     <p class="text-base md:text-lg text-white/90 mb-8 max-w-3xl mx-auto" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                        {{ __('messages.discover_more_description') }}
+                        @php
+                            $discoverDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'discover_more_services_description_ar' : 'discover_more_services_description_en', __('messages.discover_more_description'));
+                            echo $discoverDesc ?: __('messages.discover_more_description');
+                        @endphp
                     </p>
                     <a href="{{ route('services') }}" 
                        class="btn-primary-enhanced">
-                        <span>{{ __('messages.view_all_services') }}</span>
+                        <span>
+                            @php
+                                $viewAllText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'view_all_services_button_text_ar' : 'view_all_services_button_text_en', __('messages.view_all_services'));
+                                echo $viewAllText ?: __('messages.view_all_services');
+                            @endphp
+                        </span>
                     </a>
                 </div>
             </div>
@@ -380,10 +415,16 @@
                 </svg>
             </div>
             <h3 class="text-lg md:text-xl font-bold text-primary-dark mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                {{ __('messages.services_coming_soon') }}
+                @php
+                    $comingSoonTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'services_coming_soon_title_ar' : 'services_coming_soon_title_en', __('messages.services_coming_soon'));
+                    echo $comingSoonTitle ?: __('messages.services_coming_soon');
+                @endphp
             </h3>
             <p class="text-base md:text-lg text-gray-600 max-w-3xl mx-auto" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                {{ __('messages.services_coming_soon_description') }}
+                @php
+                    $comingSoonDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'services_coming_soon_description_ar' : 'services_coming_soon_description_en', __('messages.services_coming_soon_description'));
+                    echo $comingSoonDesc ?: __('messages.services_coming_soon_description');
+                @endphp
             </p>
         </div>
         @endif

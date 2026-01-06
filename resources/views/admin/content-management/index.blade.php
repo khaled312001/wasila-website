@@ -481,6 +481,392 @@
                                 </div>
                             </div>
 
+                            <!-- Services Section -->
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h4>قسم الخدمات</h4>
+                                    <p class="text-muted small">يمكنك تعديل جميع النصوص في قسم الخدمات</p>
+                                </div>
+                                <div class="section-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_title_ar">عنوان القسم (عربي)</label>
+                                                <input type="text" class="form-control" id="services_title_ar" name="services_title_ar" 
+                                                       value="{{ $settings['services_title_ar'] ?? '' }}" placeholder="خدماتنا المتميزة">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_title_en">عنوان القسم (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="services_title_en" name="services_title_en" 
+                                                       value="{{ $settings['services_title_en'] ?? '' }}" placeholder="Our Services">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_subtitle_ar">العنوان الفرعي (عربي)</label>
+                                                <input type="text" class="form-control" id="services_subtitle_ar" name="services_subtitle_ar" 
+                                                       value="{{ $settings['services_subtitle_ar'] ?? '' }}" placeholder="خدماتنا">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_subtitle_en">العنوان الفرعي (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="services_subtitle_en" name="services_subtitle_en" 
+                                                       value="{{ $settings['services_subtitle_en'] ?? '' }}" placeholder="Services">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_description_ar">وصف القسم (عربي)</label>
+                                                <textarea class="form-control" id="services_description_ar" name="services_description_ar" rows="4" placeholder="نقدم مجموعة متنوعة من الخدمات الخيرية والاجتماعية المتميزة لخدمة المجتمع وتقديم المساعدة للمحتاجين">{{ $settings['services_description_ar'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_description_en">وصف القسم (إنجليزي)</label>
+                                                <textarea class="form-control" id="services_description_en" name="services_description_en" rows="4" placeholder="We offer a variety of distinguished charitable and social services to serve the community and provide assistance to those in need">{{ $settings['services_description_en'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    
+                                    <h5 class="mb-3 text-primary">نصوص الأزرار والعناصر</h5>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="premium_badge_text_ar">نص شارة المميز (عربي)</label>
+                                                <input type="text" class="form-control" id="premium_badge_text_ar" name="premium_badge_text_ar" 
+                                                       value="{{ $settings['premium_badge_text_ar'] ?? '' }}" placeholder="خدمة متميزة">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="premium_badge_text_en">نص شارة المميز (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="premium_badge_text_en" name="premium_badge_text_en" 
+                                                       value="{{ $settings['premium_badge_text_en'] ?? '' }}" placeholder="Premium">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="order_now_button_text_ar">نص زر الطلب الآن (عربي)</label>
+                                                <input type="text" class="form-control" id="order_now_button_text_ar" name="order_now_button_text_ar" 
+                                                       value="{{ $settings['order_now_button_text_ar'] ?? '' }}" placeholder="اطلب الآن">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="order_now_button_text_en">نص زر الطلب الآن (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="order_now_button_text_en" name="order_now_button_text_en" 
+                                                       value="{{ $settings['order_now_button_text_en'] ?? '' }}" placeholder="Order Now">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="saudi_riyal_text_ar">نص العملة (عربي)</label>
+                                                <input type="text" class="form-control" id="saudi_riyal_text_ar" name="saudi_riyal_text_ar" 
+                                                       value="{{ $settings['saudi_riyal_text_ar'] ?? '' }}" placeholder="ريال سعودي">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="saudi_riyal_text_en">نص العملة (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="saudi_riyal_text_en" name="saudi_riyal_text_en" 
+                                                       value="{{ $settings['saudi_riyal_text_en'] ?? '' }}" placeholder="Saudi Riyal">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    
+                                    <h5 class="mb-3 text-primary">قسم اكتشف المزيد</h5>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="discover_more_services_title_ar">عنوان اكتشف المزيد (عربي)</label>
+                                                <input type="text" class="form-control" id="discover_more_services_title_ar" name="discover_more_services_title_ar" 
+                                                       value="{{ $settings['discover_more_services_title_ar'] ?? '' }}" placeholder="اكتشف المزيد من خدماتنا">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="discover_more_services_title_en">عنوان اكتشف المزيد (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="discover_more_services_title_en" name="discover_more_services_title_en" 
+                                                       value="{{ $settings['discover_more_services_title_en'] ?? '' }}" placeholder="Discover More Services">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="discover_more_services_description_ar">وصف اكتشف المزيد (عربي)</label>
+                                                <textarea class="form-control" id="discover_more_services_description_ar" name="discover_more_services_description_ar" rows="3" placeholder="تصفح مجموعتنا الكاملة من الخدمات الخيرية والاجتماعية المصممة لخدمة المجتمع">{{ $settings['discover_more_services_description_ar'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="discover_more_services_description_en">وصف اكتشف المزيد (إنجليزي)</label>
+                                                <textarea class="form-control" id="discover_more_services_description_en" name="discover_more_services_description_en" rows="3" placeholder="Browse our complete collection of charitable and social services designed to serve the community">{{ $settings['discover_more_services_description_en'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="view_all_services_button_text_ar">نص زر عرض جميع الخدمات (عربي)</label>
+                                                <input type="text" class="form-control" id="view_all_services_button_text_ar" name="view_all_services_button_text_ar" 
+                                                       value="{{ $settings['view_all_services_button_text_ar'] ?? '' }}" placeholder="عرض جميع الخدمات">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="view_all_services_button_text_en">نص زر عرض جميع الخدمات (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="view_all_services_button_text_en" name="view_all_services_button_text_en" 
+                                                       value="{{ $settings['view_all_services_button_text_en'] ?? '' }}" placeholder="View All Services">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr class="my-4">
+                                    
+                                    <h5 class="mb-3 text-primary">حالة عدم وجود خدمات</h5>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_coming_soon_title_ar">عنوان قادمة قريباً (عربي)</label>
+                                                <input type="text" class="form-control" id="services_coming_soon_title_ar" name="services_coming_soon_title_ar" 
+                                                       value="{{ $settings['services_coming_soon_title_ar'] ?? '' }}" placeholder="خدماتنا قادمة قريباً">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_coming_soon_title_en">عنوان قادمة قريباً (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="services_coming_soon_title_en" name="services_coming_soon_title_en" 
+                                                       value="{{ $settings['services_coming_soon_title_en'] ?? '' }}" placeholder="Our Services Coming Soon">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_coming_soon_description_ar">وصف قادمة قريباً (عربي)</label>
+                                                <textarea class="form-control" id="services_coming_soon_description_ar" name="services_coming_soon_description_ar" rows="3" placeholder="نعمل حالياً على إعداد مجموعة شاملة من الخدمات الخيرية والاجتماعية لخدمتكم">{{ $settings['services_coming_soon_description_ar'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="services_coming_soon_description_en">وصف قادمة قريباً (إنجليزي)</label>
+                                                <textarea class="form-control" id="services_coming_soon_description_en" name="services_coming_soon_description_en" rows="3" placeholder="We are currently preparing a comprehensive set of charitable and social services for you">{{ $settings['services_coming_soon_description_en'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Section -->
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h4>قسم التواصل</h4>
+                                </div>
+                                <div class="section-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="contact_us_title_ar">عنوان قسم التواصل (عربي)</label>
+                                                <input type="text" class="form-control" id="contact_us_title_ar" name="contact_us_title_ar" 
+                                                       value="{{ $settings['contact_us_title_ar'] ?? '' }}" placeholder="تواصل معنا">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="contact_us_title_en">عنوان قسم التواصل (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="contact_us_title_en" name="contact_us_title_en" 
+                                                       value="{{ $settings['contact_us_title_en'] ?? '' }}" placeholder="Contact Us">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="contact_us_description_ar">وصف قسم التواصل (عربي)</label>
+                                                <textarea class="form-control" id="contact_us_description_ar" name="contact_us_description_ar" rows="3" placeholder="نحن هنا لمساعدتك في أي استفسار أو طلب خدمة">{{ $settings['contact_us_description_ar'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="contact_us_description_en">وصف قسم التواصل (إنجليزي)</label>
+                                                <textarea class="form-control" id="contact_us_description_en" name="contact_us_description_en" rows="3" placeholder="We are here to help you with any inquiry or service request">{{ $settings['contact_us_description_en'] ?? '' }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="contact_information_title_ar">عنوان معلومات الاتصال (عربي)</label>
+                                                <input type="text" class="form-control" id="contact_information_title_ar" name="contact_information_title_ar" 
+                                                       value="{{ $settings['contact_information_title_ar'] ?? '' }}" placeholder="معلومات الاتصال">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="contact_information_title_en">عنوان معلومات الاتصال (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="contact_information_title_en" name="contact_information_title_en" 
+                                                       value="{{ $settings['contact_information_title_en'] ?? '' }}" placeholder="Contact Information">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="send_us_message_title_ar">عنوان أرسل لنا رسالة (عربي)</label>
+                                                <input type="text" class="form-control" id="send_us_message_title_ar" name="send_us_message_title_ar" 
+                                                       value="{{ $settings['send_us_message_title_ar'] ?? '' }}" placeholder="أرسل لنا رسالة">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="send_us_message_title_en">عنوان أرسل لنا رسالة (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="send_us_message_title_en" name="send_us_message_title_en" 
+                                                       value="{{ $settings['send_us_message_title_en'] ?? '' }}" placeholder="Send Us a Message">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="working_hours_ar">ساعات العمل (عربي)</label>
+                                                <input type="text" class="form-control" id="working_hours_ar" name="working_hours_ar" 
+                                                       value="{{ $settings['working_hours_ar'] ?? '' }}" placeholder="ساعات العمل: 8:00 ص - 6:00 م">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="working_hours_en">ساعات العمل (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="working_hours_en" name="working_hours_en" 
+                                                       value="{{ $settings['working_hours_en'] ?? '' }}" placeholder="Working Hours: 8:00 AM - 6:00 PM">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="our_location_title_ar">عنوان موقعنا (عربي)</label>
+                                                <input type="text" class="form-control" id="our_location_title_ar" name="our_location_title_ar" 
+                                                       value="{{ $settings['our_location_title_ar'] ?? '' }}" placeholder="موقعنا">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="our_location_title_en">عنوان موقعنا (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="our_location_title_en" name="our_location_title_en" 
+                                                       value="{{ $settings['our_location_title_en'] ?? '' }}" placeholder="Our Location">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="our_location_description_ar">وصف الموقع (عربي)</label>
+                                                <input type="text" class="form-control" id="our_location_description_ar" name="our_location_description_ar" 
+                                                       value="{{ $settings['our_location_description_ar'] ?? '' }}" placeholder="الرياض، المملكة العربية السعودية">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="our_location_description_en">وصف الموقع (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="our_location_description_en" name="our_location_description_en" 
+                                                       value="{{ $settings['our_location_description_en'] ?? '' }}" placeholder="Riyadh, Saudi Arabia">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hero Buttons Section -->
+                            <div class="section-card">
+                                <div class="section-header">
+                                    <h4>أزرار قسم الهيرو</h4>
+                                </div>
+                                <div class="section-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="browse_services_button_text_ar">نص زر تصفح الخدمات (عربي)</label>
+                                                <input type="text" class="form-control" id="browse_services_button_text_ar" name="browse_services_button_text_ar" 
+                                                       value="{{ $settings['browse_services_button_text_ar'] ?? '' }}" placeholder="تصفح الخدمات">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="browse_services_button_text_en">نص زر تصفح الخدمات (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="browse_services_button_text_en" name="browse_services_button_text_en" 
+                                                       value="{{ $settings['browse_services_button_text_en'] ?? '' }}" placeholder="Browse Services">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="learn_more_button_text_ar">نص زر تعرف علينا (عربي)</label>
+                                                <input type="text" class="form-control" id="learn_more_button_text_ar" name="learn_more_button_text_ar" 
+                                                       value="{{ $settings['learn_more_button_text_ar'] ?? '' }}" placeholder="تعرف علينا">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="learn_more_button_text_en">نص زر تعرف علينا (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="learn_more_button_text_en" name="learn_more_button_text_en" 
+                                                       value="{{ $settings['learn_more_button_text_en'] ?? '' }}" placeholder="Learn More">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="our_work_button_text_ar">نص زر أعمالنا (عربي)</label>
+                                                <input type="text" class="form-control" id="our_work_button_text_ar" name="our_work_button_text_ar" 
+                                                       value="{{ $settings['our_work_button_text_ar'] ?? '' }}" placeholder="أعمالنا">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="our_work_button_text_en">نص زر أعمالنا (إنجليزي)</label>
+                                                <input type="text" class="form-control" id="our_work_button_text_en" name="our_work_button_text_en" 
+                                                       value="{{ $settings['our_work_button_text_en'] ?? '' }}" placeholder="Our Work">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Statistics Section -->
                             <div class="section-card">
                                 <div class="section-header">

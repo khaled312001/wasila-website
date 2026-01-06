@@ -75,6 +75,54 @@ class ContentManagementController extends Controller
             'stat2_number' => 'nullable|string|max:50',
             'stat2_label_ar' => 'nullable|string|max:255',
             'stat2_label_en' => 'nullable|string|max:255',
+            
+            // Services Section
+            'services_title_ar' => 'nullable|string|max:255',
+            'services_title_en' => 'nullable|string|max:255',
+            'services_description_ar' => 'nullable|string',
+            'services_description_en' => 'nullable|string',
+            'services_subtitle_ar' => 'nullable|string|max:255',
+            'services_subtitle_en' => 'nullable|string|max:255',
+            'premium_badge_text_ar' => 'nullable|string|max:100',
+            'premium_badge_text_en' => 'nullable|string|max:100',
+            'order_now_button_text_ar' => 'nullable|string|max:100',
+            'order_now_button_text_en' => 'nullable|string|max:100',
+            'discover_more_services_title_ar' => 'nullable|string|max:255',
+            'discover_more_services_title_en' => 'nullable|string|max:255',
+            'discover_more_services_description_ar' => 'nullable|string',
+            'discover_more_services_description_en' => 'nullable|string',
+            'view_all_services_button_text_ar' => 'nullable|string|max:100',
+            'view_all_services_button_text_en' => 'nullable|string|max:100',
+            'services_coming_soon_title_ar' => 'nullable|string|max:255',
+            'services_coming_soon_title_en' => 'nullable|string|max:255',
+            'services_coming_soon_description_ar' => 'nullable|string',
+            'services_coming_soon_description_en' => 'nullable|string',
+            'saudi_riyal_text_ar' => 'nullable|string|max:50',
+            'saudi_riyal_text_en' => 'nullable|string|max:50',
+            
+            // Contact Section
+            'contact_us_title_ar' => 'nullable|string|max:255',
+            'contact_us_title_en' => 'nullable|string|max:255',
+            'contact_us_description_ar' => 'nullable|string',
+            'contact_us_description_en' => 'nullable|string',
+            'contact_information_title_ar' => 'nullable|string|max:255',
+            'contact_information_title_en' => 'nullable|string|max:255',
+            'send_us_message_title_ar' => 'nullable|string|max:255',
+            'send_us_message_title_en' => 'nullable|string|max:255',
+            'working_hours_ar' => 'nullable|string|max:255',
+            'working_hours_en' => 'nullable|string|max:255',
+            'our_location_title_ar' => 'nullable|string|max:255',
+            'our_location_title_en' => 'nullable|string|max:255',
+            'our_location_description_ar' => 'nullable|string|max:255',
+            'our_location_description_en' => 'nullable|string|max:255',
+            
+            // Hero Section Buttons
+            'browse_services_button_text_ar' => 'nullable|string|max:100',
+            'browse_services_button_text_en' => 'nullable|string|max:100',
+            'learn_more_button_text_ar' => 'nullable|string|max:100',
+            'learn_more_button_text_en' => 'nullable|string|max:100',
+            'our_work_button_text_ar' => 'nullable|string|max:100',
+            'our_work_button_text_en' => 'nullable|string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -105,7 +153,33 @@ class ContentManagementController extends Controller
             
             // Statistics
             'stat1_number', 'stat1_label_ar', 'stat1_label_en',
-            'stat2_number', 'stat2_label_ar', 'stat2_label_en'
+            'stat2_number', 'stat2_label_ar', 'stat2_label_en',
+            
+            // Services Section
+            'services_title_ar', 'services_title_en', 'services_description_ar', 'services_description_en',
+            'services_subtitle_ar', 'services_subtitle_en',
+            'premium_badge_text_ar', 'premium_badge_text_en',
+            'order_now_button_text_ar', 'order_now_button_text_en',
+            'discover_more_services_title_ar', 'discover_more_services_title_en',
+            'discover_more_services_description_ar', 'discover_more_services_description_en',
+            'view_all_services_button_text_ar', 'view_all_services_button_text_en',
+            'services_coming_soon_title_ar', 'services_coming_soon_title_en',
+            'services_coming_soon_description_ar', 'services_coming_soon_description_en',
+            'saudi_riyal_text_ar', 'saudi_riyal_text_en',
+            
+            // Contact Section
+            'contact_us_title_ar', 'contact_us_title_en',
+            'contact_us_description_ar', 'contact_us_description_en',
+            'contact_information_title_ar', 'contact_information_title_en',
+            'send_us_message_title_ar', 'send_us_message_title_en',
+            'working_hours_ar', 'working_hours_en',
+            'our_location_title_ar', 'our_location_title_en',
+            'our_location_description_ar', 'our_location_description_en',
+            
+            // Hero Section Buttons
+            'browse_services_button_text_ar', 'browse_services_button_text_en',
+            'learn_more_button_text_ar', 'learn_more_button_text_en',
+            'our_work_button_text_ar', 'our_work_button_text_en'
         ];
 
         foreach ($textFields as $field) {
