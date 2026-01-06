@@ -72,7 +72,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="hero_description_ar">وصف الهيرو (عربي)</label>
-                                            <textarea class="form-control" id="hero_description_ar" name="hero_description_ar" rows="4" required>{{ $settings['hero_description_ar'] ?? 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية' }}</textarea>
+                                            <textarea class="form-control" id="hero_description_ar" name="hero_description_ar" rows="4" required>{{ $settings['hero_description_ar'] ?? 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات' }}</textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-6">

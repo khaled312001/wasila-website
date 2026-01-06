@@ -1,6 +1,6 @@
 @props([
     'title' => 'وسيلة  =',
-    'description' => 'منصة وسيلة والخدمات الإنسانية. نساعد في خدمة المجتمع.',
+    'description' => 'منصة وسيلة . .',
     'keywords' => 'وسيلة, خدمات إنسانية, السعودية',
     'image' => null,
     'url' => null,
@@ -92,7 +92,7 @@
     '@context' => 'https://schema.org',
     '@type' => 'NGO',
     'name' => $siteName,
-    'description' => 'منظمة غير ربحية تهدف إلى تقديم الخدمات الإنسانية',
+    'description' => 'منظمة غير ربحية تهدف إلى تقديم الخدمات ',
     'url' => url('/'),
     'logo' => $image,
     'foundingDate' => '2024',
