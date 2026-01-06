@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل استخدام لوحة التحكم - منصة وسيلة</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Arabic', Arial, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #08788B;
+        }
+        
+        .header h1 {
+            color: #025469;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            color: #08788B;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #08788B;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .section-title::before {
+            content: "▸";
+            color: #025469;
+            font-size: 1.2em;
+        }
+        
+        .subsection {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-right: 4px solid #08788B;
+            border-radius: 5px;
+        }
+        
+        .subsection-title {
+            color: #025469;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            padding-right: 30px;
+            position: relative;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            right: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .steps {
+            list-style: none;
+            counter-reset: step-counter;
+            padding: 0;
+        }
+        
+        .steps li {
+            counter-increment: step-counter;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            position: relative;
+            padding-right: 60px;
+        }
+        
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #08788B;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-right: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-right: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th {
+            background: #08788B;
+            color: white;
+            padding: 12px;
+            text-align: right;
+        }
+        
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: right;
+        }
+        
+        table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+                max-width: 100%;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            
+            .subsection {
+                page-break-inside: avoid;
+            }
+            
+            .header {
+                page-break-after: avoid;
+            }
+            
+            table {
+                page-break-inside: avoid;
+            }
+            
+            .steps li {
+                page-break-inside: avoid;
+            }
+            
+            /* تحسين الألوان للطباعة */
+            .info-box, .warning-box, .success-box {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            table th {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .badge {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>دليل استخدام لوحة التحكم</h1>
+            <p>منصة وسيلة - نظام إدارة شامل</p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #999;">تاريخ الإنشاء: 2026</p>
+        </div>
+
+        <!-- المقدمة -->
+        <div class="section">
+            <h2 class="section-title">مقدمة</h2>
+            <p style="font-size: 1.1em; line-height: 2; margin-bottom: 20px;">
+                مرحباً بك في دليل استخدام لوحة التحكم لمنصة وسيلة. هذا الدليل يشرح بالتفصيل جميع الميزات والأدوات المتاحة في لوحة التحكم وكيفية استخدامها بشكل فعال.
+            </p>
+            <div class="info-box">
+                <strong>ملاحظة مهمة:</strong> تأكد من أن لديك صلاحيات الوصول إلى لوحة التحكم قبل البدء. إذا واجهت أي مشاكل، يرجى التواصل مع فريق الدعم الفني.
+            </div>
+        </div>
+
+        <!-- تسجيل الدخول -->
+        <div class="section">
+            <h2 class="section-title">1. تسجيل الدخول</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الوصول إلى لوحة التحكم</h3>
+                <p>للوصول إلى لوحة التحكم، اتبع الخطوات التالية:</p>
+                <ol class="steps">
+                    <li>افتح المتصفح وانتقل إلى الرابط: <code>/admin/login</code></li>
+                    <li>أدخل البريد الإلكتروني الخاص بحساب المدير</li>
+                    <li>أدخل كلمة المرور</li>
+                    <li>انقر على زر "تسجيل الدخول"</li>
+                </ol>
+                
+                <div class="warning-box">
+                    <strong>تحذير:</strong> تأكد من استخدام بيانات تسجيل دخول صحيحة. بعد 5 محاولات فاشلة، سيتم حظر الحساب مؤقتاً.
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">بيانات تسجيل الدخول الافتراضية</h3>
+                <table>
+                    <tr>
+                        <th>المجال</th>
+                        <th>القيمة</th>
+                    </tr>
+                    <tr>
+                        <td>البريد الإلكتروني</td>
+                        <td>admin@wasila.org</td>
+                    </tr>
+                    <tr>
+                        <td>كلمة المرور</td>
+                        <td>password</td>
+                    </tr>
+                </table>
+                <div class="warning-box" style="margin-top: 15px;">
+                    <strong>مهم:</strong> يُنصح بشدة بتغيير كلمة المرور الافتراضية بعد أول تسجيل دخول لأسباب أمنية.
+                </div>
+            </div>
+        </div>
+
+        <!-- لوحة التحكم الرئيسية -->
+        <div class="section">
+            <h2 class="section-title">2. لوحة التحكم الرئيسية</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">نظرة عامة</h3>
+                <p>لوحة التحكم الرئيسية هي الصفحة الأولى التي تراها بعد تسجيل الدخول. تعرض هذه الصفحة نظرة شاملة على جميع الأنشطة والإحصائيات المهمة في النظام.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">البطاقات الإحصائية</h3>
+                <p>تعرض لوحة التحكم 6 بطاقات إحصائية رئيسية:</p>
+                <ul class="feature-list">
+                    <li><strong>إجمالي الطلبات:</strong> يعرض العدد الكلي لجميع الطلبات في النظام</li>
+                    <li><strong>الطلبات المعلقة:</strong> عدد الطلبات التي تتطلب مراجعة ومعالجة</li>
+                    <li><strong>إجمالي الإيرادات:</strong> مجموع المبالغ المدفوعة بالريال السعودي</li>
+                    <li><strong>إجمالي الرسائل:</strong> عدد جميع الرسائل المتبادلة مع العملاء</li>
+                    <li><strong>الرسائل غير المقروءة:</strong> عدد الرسائل الجديدة التي تحتاج إلى رد</li>
+                    <li><strong>الخدمات النشطة:</strong> عدد الخدمات المتاحة حالياً للعملاء</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الرسوم البيانية</h3>
+                <p>تحتوي لوحة التحكم على 3 رسوم بيانية تفاعلية:</p>
+                <ul class="feature-list">
+                    <li><strong>إحصائيات الطلبات:</strong> رسم بياني خطي يعرض تطور عدد الطلبات شهرياً</li>
+                    <li><strong>الإيرادات الشهرية:</strong> رسم بياني عمودي يعرض الإيرادات لكل شهر</li>
+                    <li><strong>حالة المدفوعات:</strong> رسم بياني دائري يعرض توزيع حالات الدفع (مدفوع، في الانتظار، فشل)</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">أكثر الخدمات طلباً</h3>
+                <p>يعرض هذا القسم قائمة بأفضل 5 خدمات من حيث عدد الطلبات والإيرادات، مع ترتيبها حسب الأداء.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الطلبات الأخيرة</h3>
+                <p>جدول يعرض آخر 10 طلبات تم إنشاؤها في النظام، يتضمن:</p>
+                <ul class="feature-list">
+                    <li>رقم الطلب</li>
+                    <li>اسم العميل</li>
+                    <li>المبلغ الإجمالي</li>
+                    <li>حالة الطلب</li>
+                    <li>تاريخ الإنشاء</li>
+                    <li>رابط لعرض التفاصيل</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- إدارة الطلبات -->
+        <div class="section">
+            <h2 class="section-title">3. إدارة الطلبات</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">عرض جميع الطلبات</h3>
+                <p>من صفحة إدارة الطلبات يمكنك:</p>
+                <ul class="feature-list">
+                    <li>عرض جميع الطلبات في جدول منظم</li>
+                    <li>البحث عن طلبات محددة باستخدام عوامل التصفية</li>
+                    <li>تصدير الطلبات إلى ملف Excel أو PDF</li>
+                    <li>تحديث حالة الطلبات</li>
+                    <li>عرض تفاصيل كل طلب</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">عوامل التصفية والبحث</h3>
+                <p>يمكنك استخدام العوامل التالية للبحث والتصفية:</p>
+                <table>
+                    <tr>
+                        <th>عامل التصفية</th>
+                        <th>الوصف</th>
+                    </tr>
+                    <tr>
+                        <td>رقم الطلب</td>
+                        <td>البحث عن طلب محدد برقمه</td>
+                    </tr>
+                    <tr>
+                        <td>اسم العميل</td>
+                        <td>البحث عن طلبات عميل معين</td>
+                    </tr>
+                    <tr>
+                        <td>البريد الإلكتروني</td>
+                        <td>البحث عن طلبات بريد إلكتروني محدد</td>
+                    </tr>
+                    <tr>
+                        <td>حالة الطلب</td>
+                        <td>تصفية حسب الحالة (معلق، مؤكد، قيد المعالجة، مكتمل، ملغي)</td>
+                    </tr>
+                    <tr>
+                        <td>حالة الدفع</td>
+                        <td>تصفية حسب حالة الدفع (مدفوع، غير مدفوع، فشل)</td>
+                    </tr>
+                    <tr>
+                        <td>طريقة الدفع</td>
+                        <td>تصفية حسب طريقة الدفع المستخدمة</td>
+                    </tr>
+                    <tr>
+                        <td>نطاق تاريخ</td>
+                        <td>تصفية الطلبات حسب فترة زمنية محددة</td>
+                    </tr>
+                    <tr>
+                        <td>نطاق المبلغ</td>
+                        <td>تصفية الطلبات حسب مبلغ محدد</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">حالات الطلب</h3>
+                <p>يمكن تحديث حالة الطلب إلى إحدى الحالات التالية:</p>
+                <ul class="feature-list">
+                    <li><span class="badge badge-warning">معلق:</span> الطلب جديد ويتطلب مراجعة</li>
+                    <li><span class="badge badge-info">مؤكد:</span> تم تأكيد الطلب وبدء المعالجة</li>
+                    <li><span class="badge badge-info">قيد المعالجة:</span> الطلب قيد التنفيذ</li>
+                    <li><span class="badge badge-success">مكتمل:</span> تم إكمال الطلب بنجاح</li>
+                    <li><span class="badge">ملغي:</span> تم إلغاء الطلب</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">تفاصيل الطلب</h3>
+                <p>عند النقر على أي طلب، يمكنك:</p>
+                <ul class="feature-list">
+                    <li>عرض جميع تفاصيل الطلب (العميل، الخدمات، المبلغ)</li>
+                    <li>تحديث حالة الطلب</li>
+                    <li>رفع فيديو توثيق للطلب</li>
+                    <li>حذف فيديو توثيق موجود</li>
+                    <li>إرسال رسائل للعميل</li>
+                    <li>عرض سجل الرسائل المتعلقة بالطلب</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">رفع فيديو التوثيق</h3>
+                <p>يمكنك رفع فيديو توثيق لكل طلب:</p>
+                <ol class="steps">
+                    <li>انتقل إلى صفحة تفاصيل الطلب</li>
+                    <li>انتقل إلى قسم "فيديوهات التوثيق"</li>
+                    <li>أدخل عنوان الفيديو</li>
+                    <li>أدخل وصف اختياري للفيديو</li>
+                    <li>اختر ملف الفيديو (MP4, MOV, AVI, WMV - حد أقصى 100MB)</li>
+                    <li>انقر على "رفع الفيديو"</li>
+                </ol>
+                <div class="info-box">
+                    <strong>ملاحظة:</strong> بعد رفع الفيديو، سيتم إرسال إشعار تلقائي للعميل بإضافة فيديو توثيق جديد لطلبه.
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">تصدير الطلبات</h3>
+                <p>يمكنك تصدير الطلبات إلى:</p>
+                <ul class="feature-list">
+                    <li><strong>ملف Excel:</strong> تصدير جميع بيانات الطلبات إلى ملف Excel للتحليل</li>
+                    <li><strong>ملف PDF:</strong> إنشاء تقرير PDF احترافي بجميع تفاصيل الطلبات</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- إدارة العملاء -->
+        <div class="section">
+            <h2 class="section-title">4. إدارة العملاء</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">عرض العملاء</h3>
+                <p>من صفحة إدارة العملاء يمكنك:</p>
+                <ul class="feature-list">
+                    <li>عرض قائمة بجميع العملاء المسجلين</li>
+                    <li>البحث عن عميل محدد</li>
+                    <li>عرض تفاصيل كل عميل</li>
+                    <li>عرض جميع طلبات العميل</li>
+                    <li>عرض جميع رسائل العميل</li>
+                    <li>إرسال رسالة مباشرة للعميل</li>
+                    <li>تصدير بيانات العملاء</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">تفاصيل العميل</h3>
+                <p>عند عرض تفاصيل عميل، سترى:</p>
+                <ul class="feature-list">
+                    <li>الاسم الكامل</li>
+                    <li>البريد الإلكتروني</li>
+                    <li>رقم الهاتف</li>
+                    <li>تاريخ التسجيل</li>
+                    <li>إجمالي الطلبات</li>
+                    <li>إجمالي الإنفاق</li>
+                    <li>حالة الحساب</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إرسال رسالة للعميل</h3>
+                <ol class="steps">
+                    <li>انتقل إلى صفحة تفاصيل العميل</li>
+                    <li>انقر على "إرسال رسالة"</li>
+                    <li>اكتب الرسالة</li>
+                    <li>انقر على "إرسال"</li>
+                </ol>
+                <div class="success-box">
+                    <strong>معلومة:</strong> سيتم إشعار العميل برسالتك ويمكنه الرد عليها من لوحة تحكمه.
+                </div>
+            </div>
+        </div>
+
+        <!-- إدارة الخدمات -->
+        <div class="section">
+            <h2 class="section-title">5. إدارة الخدمات</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">عرض الخدمات</h3>
+                <p>من صفحة إدارة الخدمات يمكنك:</p>
+                <ul class="feature-list">
+                    <li>عرض جميع الخدمات المتاحة</li>
+                    <li>إضافة خدمة جديدة</li>
+                    <li>تعديل خدمة موجودة</li>
+                    <li>حذف خدمة</li>
+                    <li>تفعيل/تعطيل خدمة</li>
+                    <li>مزامنة صور الخدمات</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إضافة خدمة جديدة</h3>
+                <ol class="steps">
+                    <li>انقر على زر "إضافة خدمة جديدة"</li>
+                    <li>أدخل اسم الخدمة بالعربية والإنجليزية</li>
+                    <li>أدخل وصف الخدمة بالعربية والإنجليزية</li>
+                    <li>أدخل السعر الأساسي للخدمة</li>
+                    <li>اختر صورة للخدمة</li>
+                    <li>حدد ما إذا كانت الخدمة نشطة أم لا</li>
+                    <li>انقر على "حفظ"</li>
+                </ol>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">تعديل خدمة</h3>
+                <p>يمكنك تعديل أي خدمة موجودة من خلال:</p>
+                <ul class="feature-list">
+                    <li>النقر على زر "تعديل" بجانب الخدمة</li>
+                    <li>تعديل المعلومات المطلوبة</li>
+                    <li>حفظ التغييرات</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">تفعيل/تعطيل الخدمة</h3>
+                <p>يمكنك تفعيل أو تعطيل أي خدمة. الخدمات المعطلة لن تظهر للعملاء في الموقع الرئيسي.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">مزامنة الصور</h3>
+                <p>يمكنك مزامنة جميع صور الخدمات من مجلد محدد في الخادم. هذه الميزة مفيدة عند إضافة صور جديدة بكميات كبيرة.</p>
+            </div>
+        </div>
+
+        <!-- إدارة المحتوى -->
+        <div class="section">
+            <h2 class="section-title">6. إدارة المحتوى</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">نظرة عامة</h3>
+                <p>صفحة إدارة المحتوى تتيح لك تعديل جميع النصوص والمحتوى الذي يظهر في الموقع الرئيسي دون الحاجة لتعديل الكود.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الأقسام القابلة للتعديل</h3>
+                <ul class="feature-list">
+                    <li><strong>قسم الهيرو:</strong> العنوان الرئيسي، العنوان الفرعي، الوصف، الصور، أزرار الهيرو</li>
+                    <li><strong>قسم الخدمات:</strong> عنوان القسم، الوصف، نصوص الأزرار</li>
+                    <li><strong>قسم من نحن:</strong> العنوان، الوصف، المهمة، الصور</li>
+                    <li><strong>قسم المميزات:</strong> العنوان، العنوان الفرعي، 3 مميزات (عنوان ووصف لكل واحدة)</li>
+                    <li><strong>قسم التواصل:</strong> العنوان، الوصف، معلومات الاتصال، ساعات العمل</li>
+                    <li><strong>الإحصائيات:</strong> إحصائية 1 و 2 (الرقم والتسمية)</li>
+                    <li><strong>معلومات الموقع:</strong> عنوان الموقع (SEO)، وصف الموقع (SEO)، معلومات التواصل</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">كيفية التعديل</h3>
+                <ol class="steps">
+                    <li>انتقل إلى "إدارة المحتوى" من القائمة الجانبية</li>
+                    <li>اختر القسم الذي تريد تعديله</li>
+                    <li>عدّل النصوص أو الصور المطلوبة</li>
+                    <li>انقر على "حفظ التغييرات"</li>
+                    <li>تحقق من التغييرات في الموقع الرئيسي</li>
+                </ol>
+            </div>
+            
+            <div class="info-box">
+                <strong>نصيحة:</strong> يمكنك معاينة التغييرات مباشرة في الموقع الرئيسي بعد الحفظ. تأكد من حفظ جميع التغييرات قبل الانتقال إلى قسم آخر.
+            </div>
+        </div>
+
+        <!-- معرض الأعمال -->
+        <div class="section">
+            <h2 class="section-title">7. معرض الأعمال (Portfolio)</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">نظرة عامة</h3>
+                <p>معرض الأعمال يسمح لك بعرض أعمالك السابقة وإنجازاتك للعملاء. يمكنك إضافة صور ومشاريع لإظهار جودة خدماتك.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إضافة عنصر جديد</h3>
+                <ol class="steps">
+                    <li>انقر على "إضافة عنصر جديد"</li>
+                    <li>أدخل عنوان العنصر</li>
+                    <li>أدخل وصف العنصر</li>
+                    <li>اختر صورة أو أكثر للعنصر</li>
+                    <li>حدد ما إذا كان العنصر نشطاً (سيظهر في الموقع)</li>
+                    <li>انقر على "حفظ"</li>
+                </ol>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إضافة جميع الصور من مجلد</h3>
+                <p>يمكنك إضافة جميع الصور من مجلد محدد في الخادم دفعة واحدة. هذه الميزة توفر الوقت عند إضافة عدد كبير من الصور.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">تعديل وحذف العناصر</h3>
+                <ul class="feature-list">
+                    <li>يمكنك تعديل أي عنصر موجود</li>
+                    <li>يمكنك حذف العناصر التي لم تعد تحتاجها</li>
+                    <li>يمكنك تفعيل/تعطيل العناصر للتحكم في ظهورها</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- إدارة الرسائل -->
+        <div class="section">
+            <h2 class="section-title">8. إدارة الرسائل</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">أنواع الرسائل</h3>
+                <p>يوجد نوعان من الرسائل في النظام:</p>
+                <ul class="feature-list">
+                    <li><strong>رسائل التواصل:</strong> الرسائل المرسلة من نموذج التواصل في الموقع</li>
+                    <li><strong>رسائل العملاء:</strong> الرسائل المتبادلة بينك وبين العملاء</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">رسائل التواصل</h3>
+                <p>يمكنك من صفحة رسائل التواصل:</p>
+                <ul class="feature-list">
+                    <li>عرض جميع الرسائل الواردة من الموقع</li>
+                    <li>عرض تفاصيل كل رسالة</li>
+                    <li>الرد على الرسائل</li>
+                    <li>تحديد الرسائل كمقروءة/غير مقروءة</li>
+                    <li>حذف الرسائل</li>
+                </ul>
+                <div class="info-box">
+                    <strong>معلومة:</strong> يتم عرض عدد الرسائل غير المقروءة بجانب رابط "الرسائل" في القائمة الجانبية.
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الرد على الرسائل</h3>
+                <ol class="steps">
+                    <li>انتقل إلى صفحة الرسائل</li>
+                    <li>انقر على الرسالة التي تريد الرد عليها</li>
+                    <li>اكتب ردك في حقل الرد</li>
+                    <li>انقر على "إرسال الرد"</li>
+                </ol>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">رسائل العملاء</h3>
+                <p>يمكنك التواصل مع العملاء من خلال:</p>
+                <ul class="feature-list">
+                    <li>عرض جميع المحادثات مع العملاء</li>
+                    <li>إرسال رسالة جديدة لعميل</li>
+                    <li>الرد على رسائل العملاء</li>
+                    <li>عرض سجل المحادثة الكامل</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- إدارة المدفوعات -->
+        <div class="section">
+            <h2 class="section-title">9. إدارة المدفوعات (MyFatoorah)</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">نظرة عامة</h3>
+                <p>صفحة إدارة المدفوعات تتيح لك إدارة جميع عمليات الدفع المرتبطة ببوابة MyFatoorah.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الميزات المتاحة</h3>
+                <ul class="feature-list">
+                    <li>عرض جميع المعاملات المالية</li>
+                    <li>عرض تفاصيل كل معاملة</li>
+                    <li>اختبار الاتصال مع بوابة الدفع</li>
+                    <li>إجراء استرداد للمدفوعات (Refund)</li>
+                    <li>إعادة محاولة الدفع للطلبات الفاشلة</li>
+                    <li>تصدير بيانات المعاملات</li>
+                    <li>إعدادات بوابة الدفع</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">عرض المعاملات</h3>
+                <p>يمكنك عرض جميع المعاملات المالية مع تفاصيلها الكاملة:</p>
+                <ul class="feature-list">
+                    <li>رقم المعاملة</li>
+                    <li>رقم الطلب المرتبط</li>
+                    <li>المبلغ</li>
+                    <li>حالة الدفع</li>
+                    <li>طريقة الدفع</li>
+                    <li>تاريخ المعاملة</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">اختبار الاتصال</h3>
+                <p>يمكنك اختبار الاتصال مع بوابة MyFatoorah للتأكد من أن الإعدادات صحيحة وأن النظام يعمل بشكل سليم.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الاسترداد (Refund)</h3>
+                <p>يمكنك إجراء استرداد للمدفوعات في الحالات التالية:</p>
+                <ul class="feature-list">
+                    <li>عند إلغاء طلب</li>
+                    <li>عند وجود خطأ في الدفع</li>
+                    <li>عند طلب العميل للاسترداد</li>
+                </ul>
+                <div class="warning-box">
+                    <strong>تحذير:</strong> تأكد من صحة عملية الاسترداد قبل تنفيذها. لا يمكن التراجع عن عملية الاسترداد بعد تنفيذها.
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إعدادات بوابة الدفع</h3>
+                <p>يمكنك تعديل إعدادات بوابة MyFatoorah من خلال:</p>
+                <ul class="feature-list">
+                    <li>مفتاح API</li>
+                    <li>وضع الاختبار/الإنتاج</li>
+                    <li>إعدادات أخرى متعلقة بالدفع</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- التقارير والإحصائيات -->
+        <div class="section">
+            <h2 class="section-title">10. التقارير والإحصائيات</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">نظرة عامة</h3>
+                <p>صفحة التقارير والإحصائيات توفر تحليلاً شاملاً لأداء المنصة وإحصائيات مفصلة.</p>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الإحصائيات المتاحة</h3>
+                <ul class="feature-list">
+                    <li>إحصائيات الطلبات (إجمالي، معلق، مكتمل، ملغي)</li>
+                    <li>إحصائيات الإيرادات (إجمالي، شهري، يومي)</li>
+                    <li>إحصائيات العملاء (إجمالي، جدد، نشطون)</li>
+                    <li>إحصائيات الخدمات (الأكثر طلباً، الأكثر ربحاً)</li>
+                    <li>إحصائيات المدفوعات (ناجح، فاشل، معلق)</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">التقارير القابلة للتصدير</h3>
+                <p>يمكنك تصدير التقارير إلى:</p>
+                <ul class="feature-list">
+                    <li>ملف Excel للتحليل المتقدم</li>
+                    <li>ملف PDF للعرض والطباعة</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الرسوم البيانية</h3>
+                <p>تعرض صفحة التقارير رسوماً بيانية تفاعلية لسهولة فهم البيانات:</p>
+                <ul class="feature-list">
+                    <li>رسم بياني خطي لتطور الطلبات</li>
+                    <li>رسم بياني عمودي للإيرادات</li>
+                    <li>رسم بياني دائري لتوزيع الحالات</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- الإعدادات -->
+        <div class="section">
+            <h2 class="section-title">11. الإعدادات</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الإعدادات العامة</h3>
+                <p>من صفحة الإعدادات يمكنك:</p>
+                <ul class="feature-list">
+                    <li>تعديل معلومات الموقع الأساسية</li>
+                    <li>تعديل معلومات التواصل</li>
+                    <li>تعديل إعدادات البريد الإلكتروني</li>
+                    <li>تعديل إعدادات MyFatoorah</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">النسخ الاحتياطي</h3>
+                <p>يمكنك إنشاء نسخة احتياطية من قاعدة البيانات:</p>
+                <ol class="steps">
+                    <li>انتقل إلى صفحة الإعدادات</li>
+                    <li>انقر على "إنشاء نسخة احتياطية"</li>
+                    <li>انتظر حتى يكتمل الإنشاء</li>
+                    <li>قم بتحميل الملف وحفظه في مكان آمن</li>
+                </ol>
+                <div class="warning-box">
+                    <strong>مهم:</strong> يُنصح بإنشاء نسخة احتياطية بانتظام (أسبوعياً على الأقل) لحماية بياناتك.
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">مسح الذاكرة المؤقتة</h3>
+                <p>يمكنك مسح الذاكرة المؤقتة (Cache) لضمان عرض أحدث البيانات. يُنصح بمسح الذاكرة المؤقتة بعد:</p>
+                <ul class="feature-list">
+                    <li>تعديل المحتوى</li>
+                    <li>تحديث الخدمات</li>
+                    <li>تغيير الإعدادات</li>
+                    <li>مواجهة مشاكل في العرض</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">معلومات النظام</h3>
+                <p>يمكنك عرض معلومات النظام مثل:</p>
+                <ul class="feature-list">
+                    <li>إصدار Laravel</li>
+                    <li>إصدار PHP</li>
+                    <li>معلومات قاعدة البيانات</li>
+                    <li>معلومات الخادم</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- القائمة الجانبية -->
+        <div class="section">
+            <h2 class="section-title">12. القائمة الجانبية</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الأقسام الرئيسية</h3>
+                <p>القائمة الجانبية تحتوي على الروابط التالية:</p>
+                <table>
+                    <tr>
+                        <th>القسم</th>
+                        <th>الوصف</th>
+                    </tr>
+                    <tr>
+                        <td>لوحة التحكم</td>
+                        <td>الصفحة الرئيسية مع الإحصائيات</td>
+                    </tr>
+                    <tr>
+                        <td>الطلبات</td>
+                        <td>إدارة جميع الطلبات</td>
+                    </tr>
+                    <tr>
+                        <td>العملاء</td>
+                        <td>إدارة بيانات العملاء</td>
+                    </tr>
+                    <tr>
+                        <td>الخدمات</td>
+                        <td>إدارة الخدمات المتاحة</td>
+                    </tr>
+                    <tr>
+                        <td>إدارة المحتوى</td>
+                        <td>تعديل محتوى الموقع</td>
+                    </tr>
+                    <tr>
+                        <td>معرض الأعمال</td>
+                        <td>إدارة معرض الأعمال</td>
+                    </tr>
+                    <tr>
+                        <td>الرسائل</td>
+                        <td>إدارة رسائل التواصل والعملاء</td>
+                    </tr>
+                    <tr>
+                        <td>إدارة المدفوعات</td>
+                        <td>إدارة عمليات الدفع</td>
+                    </tr>
+                    <tr>
+                        <td>التقارير والإحصائيات</td>
+                        <td>عرض التقارير والتحليلات</td>
+                    </tr>
+                    <tr>
+                        <td>الإعدادات</td>
+                        <td>إعدادات النظام العامة</td>
+                    </tr>
+                    <tr>
+                        <td>الموقع الرئيسي</td>
+                        <td>فتح الموقع الرئيسي في تبويب جديد</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إخفاء/إظهار القائمة</h3>
+                <p>يمكنك إخفاء أو إظهار القائمة الجانبية باستخدام زر القائمة في أعلى الصفحة. هذا مفيد عند الحاجة لمساحة أكبر للعرض.</p>
+            </div>
+        </div>
+
+        <!-- نصائح وأفضل الممارسات -->
+        <div class="section">
+            <h2 class="section-title">13. نصائح وأفضل الممارسات</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الأمان</h3>
+                <ul class="feature-list">
+                    <li>استخدم كلمة مرور قوية وفريدة</li>
+                    <li>لا تشارك بيانات تسجيل الدخول مع أي شخص</li>
+                    <li>قم بتسجيل الخروج بعد الانتهاء من العمل</li>
+                    <li>راجع سجل الأنشطة بانتظام</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">إدارة الطلبات</h3>
+                <ul class="feature-list">
+                    <li>راجع الطلبات المعلقة يومياً</li>
+                    <li>حدّث حالة الطلبات فوراً عند تغييرها</li>
+                    <li>رد على رسائل العملاء في أسرع وقت ممكن</li>
+                    <li>احتفظ بسجل لجميع التفاعلات مع العملاء</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">الصيانة</h3>
+                <ul class="feature-list">
+                    <li>أنشئ نسخة احتياطية أسبوعياً</li>
+                    <li>راجع التقارير والإحصائيات بانتظام</li>
+                    <li>تأكد من تحديث الخدمات والمحتوى</li>
+                    <li>راقب أداء النظام والسرعة</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">التواصل مع العملاء</h3>
+                <ul class="feature-list">
+                    <li>رد على الرسائل خلال 24 ساعة</li>
+                    <li>استخدم لغة مهنية وواضحة</li>
+                    <li>قدم معلومات دقيقة ومفيدة</li>
+                    <li>تابع حالة الطلبات مع العملاء</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- حل المشاكل الشائعة -->
+        <div class="section">
+            <h2 class="section-title">14. حل المشاكل الشائعة</h2>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">مشكلة: لا أستطيع تسجيل الدخول</h3>
+                <ul class="feature-list">
+                    <li>تأكد من صحة البريد الإلكتروني وكلمة المرور</li>
+                    <li>تأكد من أن Caps Lock غير مفعّل</li>
+                    <li>امسح ذاكرة التخزين المؤقت للمتصفح</li>
+                    <li>جرب متصفحاً آخر</li>
+                    <li>تواصل مع الدعم الفني إذا استمرت المشكلة</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">مشكلة: الصور لا تظهر</h3>
+                <ul class="feature-list">
+                    <li>تأكد من رفع الصور بشكل صحيح</li>
+                    <li>تحقق من حجم الصور (يُنصح بأقل من 2MB)</li>
+                    <li>امسح الذاكرة المؤقتة</li>
+                    <li>تأكد من صحة مسار الصور</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">مشكلة: التغييرات لا تظهر</h3>
+                <ul class="feature-list">
+                    <li>امسح الذاكرة المؤقتة من الإعدادات</li>
+                    <li>أعد تحميل الصفحة (Ctrl+F5)</li>
+                    <li>تأكد من حفظ التغييرات</li>
+                    <li>تحقق من أنك في الصفحة الصحيحة</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">مشكلة: لا يمكن رفع الفيديو</h3>
+                <ul class="feature-list">
+                    <li>تأكد من أن حجم الفيديو أقل من 100MB</li>
+                    <li>تأكد من أن الصيغة مدعومة (MP4, MOV, AVI, WMV)</li>
+                    <li>تحقق من مساحة التخزين المتاحة</li>
+                    <li>جرب ضغط الفيديو قبل الرفع</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- الخاتمة -->
+        <div class="section">
+            <h2 class="section-title">15. الخاتمة</h2>
+            <p style="font-size: 1.1em; line-height: 2; margin-bottom: 20px;">
+                نأمل أن يكون هذا الدليل مفيداً لك في استخدام لوحة التحكم بفعالية. إذا كان لديك أي أسئلة أو تحتاج إلى مساعدة إضافية، لا تتردد في التواصل مع فريق الدعم الفني.
+            </p>
+            <div class="success-box">
+                <strong>نصيحة أخيرة:</strong> احرص على قراءة هذا الدليل بانتظام للتعرف على الميزات الجديدة والتحديثات. النظام يتطور باستمرار لإضافة ميزات جديدة وتحسين الأداء.
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>منصة وسيلة</strong></p>
+            <p>دليل استخدام لوحة التحكم - الإصدار 1.0</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">© 2026 جميع الحقوق محفوظة</p>
+        </div>
+    </div>
+</body>
+</html>
