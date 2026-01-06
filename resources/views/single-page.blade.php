@@ -496,8 +496,18 @@
     <section id="contact" class="section contact-section">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="section-title text-white">{{ __('messages.contact_us') }}</h2>
-                <p class="section-subtitle text-white">{{ __('messages.contact_us_description') }}</p>
+                <h2 class="section-title text-white">
+                    @php
+                        $contactTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'contact_us_title_ar' : 'contact_us_title_en', __('messages.contact_us'));
+                        echo $contactTitle ?: __('messages.contact_us');
+                    @endphp
+                </h2>
+                <p class="section-subtitle text-white">
+                    @php
+                        $contactDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'contact_us_description_ar' : 'contact_us_description_en', __('messages.contact_us_description'));
+                        echo $contactDesc ?: __('messages.contact_us_description');
+                    @endphp
+                </p>
                 </div>
             <div class="row">
                 <div class="col-lg-6 mb-4" data-aos="fade-right">
