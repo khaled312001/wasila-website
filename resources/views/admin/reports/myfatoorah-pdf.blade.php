@@ -164,7 +164,7 @@
     </table>
     
     <div class="footer">
-        <p class="arabic-text" dir="rtl">تم إنشاء هذا التقرير تلقائياً من نظام وسيلة الخيرية</p>
+        <p class="arabic-text" dir="rtl">تم إنشاء هذا التقرير تلقائياً من نظام وسيلة</p>
         <p class="arabic-text" dir="rtl">إجمالي المعاملات: {{ $transactions->count() }}</p>
         <p class="arabic-text" dir="rtl">إجمالي المبلغ: {{ number_format($transactions->sum('total_amount'), 2) }} ريال</p>
     </div>

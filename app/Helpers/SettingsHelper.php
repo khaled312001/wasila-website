@@ -27,7 +27,7 @@ class SettingsHelper
      */
     public static function siteDescription()
     {
-        return self::get('site_description', 'منصة وسيلة الخيرية والخدمات');
+        return self::get('site_description', 'منصة وسيلة والخدمات');
     }
 
     /**

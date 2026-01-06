@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wasila Charity - Manual Storage Fix</title>
+    <title>Wasila - Manual Storage Fix</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {

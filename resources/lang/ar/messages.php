@@ -11,14 +11,14 @@ return [
     'english' => 'English',
     
     // SEO
-    'site_title' => 'وسيلة - منصة الخير ',
-    'site_description' => 'منصة وسيلة الخيرية والخدمات الإنسانية. نساعد في ربط المحتاجين بالمتبرعين لبناء مجتمع أفضل في المملكة العربية السعودية.',
-    'site_keywords' => 'وسيلة, خير, , خدمات إنسانية, منصة خيرية, السعودية, الرياض, مساعدات, إغاثة, تطوع',
-    'site_author' => 'وسيلة الخيرية',
+    'site_title' => 'وسيلة - منصة الخدمات',
+    'site_description' => 'منصة وسيلة والخدمات الإنسانية. نساعد في خدمة المجتمع في المملكة العربية السعودية.',
+    'site_keywords' => 'وسيلة, خدمات إنسانية, السعودية, الرياض, مساعدات, إغاثة, تطوع',
+    'site_author' => 'وسيلة',
     
     // Hero Section
     'hero_title' => 'وسيلة',
-    'hero_subtitle' => 'مشروع خيري اجتماعي',
+    'hero_subtitle' => 'مشروع اجتماعي',
     'hero_description' => 'نحن نعمل على توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية',
     'browse_services' => 'تصفح الخدمات',
     'learn_more' => 'تعرف علينا',
@@ -26,7 +26,7 @@ return [
     // Services Section
     'services_title' => 'خدماتنا المتميزة',
     'services_subtitle' => 'خدماتنا',
-    'services_description' => 'نقدم مجموعة متنوعة من الخدمات الخيرية والاجتماعية المتميزة لخدمة المجتمع وتقديم المساعدة للمحتاجين',
+    'services_description' => 'نقدم مجموعة متنوعة من الخدمات الاجتماعية المتميزة لخدمة المجتمع وتقديم المساعدة للمحتاجين',
     'order_now' => 'اطلب الآن',
     'click_to_order' => 'اضغط للطلب',
     'currency' => 'ريال',
@@ -35,7 +35,7 @@ return [
     
     // About Section
     'about_title' => 'من نحن',
-    'about_description' => 'وسيلة هو مشروع خيري اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع. نحن نؤمن بأهمية العمل الخيري والتكافل الاجتماعي في بناء مجتمع أفضل.',
+    'about_description' => 'وسيلة هو مشروع اجتماعي يهدف إلى تقديم خدمات إنسانية متنوعة للمجتمع. نحن نؤمن بأهمية التكافل الاجتماعي في بناء مجتمع أفضل.',
     'about_mission' => 'نعمل على توزيع المياه النقية، منتجات العناية بالمساجد، وجبات الطعام للمحتاجين، وكراسي كبار السن، وغيرها من الخدمات التي تساهم في رفاهية المجتمع.',
     'services_provided' => 'خدمة مقدمة',
     'beneficiaries' => 'مستفيد',
@@ -45,7 +45,7 @@ return [
     // Features Section
     'features_title' => 'مميزاتنا',
     'features_subtitle' => 'لماذا تختار وسيلة؟',
-    'features_description' => 'نتميز بتقديم خدمات خيرية متميزة مع ضمان الجودة والشفافية في جميع أعمالنا',
+    'features_description' => 'نتميز بتقديم خدمات متميزة مع ضمان الجودة والشفافية في جميع أعمالنا',
     'diverse_services' => 'خدمات متنوعة',
     'excellent_services' => 'خدمات متميزة',
     'for_community' => 'للمجتمع',
@@ -67,20 +67,20 @@ return [
     
     // Additional translations for complete coverage
     'premium_services' => 'خدماتنا المتميزة',
-    'premium_services_description' => 'نقدم مجموعة شاملة ومتنوعة من الخدمات الخيرية والاجتماعية المصممة خصيصاً لخدمة المجتمع وتحقيق أقصى تأثير إيجابي',
+    'premium_services_description' => 'نقدم مجموعة شاملة ومتنوعة من الخدمات الاجتماعية المصممة خصيصاً لخدمة المجتمع وتحقيق أقصى تأثير إيجابي',
     'premium' => 'خدمة متميزة',
-    'charity_service_from_wasila' => 'خدمة خيرية من وسيلة',
+    'charity_service_from_wasila' => 'خدمة من وسيلة',
     'saudi_riyal' => 'ريال سعودي',
     'discover_more_services' => 'اكتشف المزيد من خدماتنا',
-    'discover_more_description' => 'تصفح مجموعتنا الكاملة من الخدمات الخيرية والاجتماعية المصممة لخدمة المجتمع',
+    'discover_more_description' => 'تصفح مجموعتنا الكاملة من الخدمات الاجتماعية المصممة لخدمة المجتمع',
     'view_all_services' => 'عرض جميع الخدمات',
     'services_coming_soon' => 'خدماتنا قادمة قريباً',
-    'services_coming_soon_description' => 'نعمل حالياً على إعداد مجموعة شاملة من الخدمات الخيرية والاجتماعية لخدمتكم',
+    'services_coming_soon_description' => 'نعمل حالياً على إعداد مجموعة شاملة من الخدمات الاجتماعية لخدمتكم',
     'working_for_community' => 'نعمل من أجل المجتمع',
     'why_choose_wasila' => 'لماذا تختار وسيلة؟',
     'expert_team' => 'فريق متخصص',
-    'expert_team_description' => 'فريق من المتخصصين في العمل الخيري والاجتماعي',
-    'diverse_services_description' => 'نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية',
+    'expert_team_description' => 'فريق من المتخصصين في العمل الاجتماعي',
+    'diverse_services_description' => 'نقدم مجموعة واسعة من الخدمات الاجتماعية',
     'positive_impact' => 'تأثير إيجابي',
     'positive_impact_description' => 'نساهم في إحداث تأثير إيجابي في المجتمع',
     'send_us_message' => 'أرسل لنا رسالة',
@@ -101,10 +101,10 @@ return [
     'refund_policy' => 'سياسة الاسترداد',
     'all_rights_reserved' => 'جميع الحقوق محفوظة.',
     'saudi_arabia' => 'المملكة العربية السعودية',
-    'wasila_charity_project_image' => 'صورة توضيحية لمشروع وسيلة الخيري',
+    'wasila_charity_project_image' => 'صورة توضيحية لمشروع وسيلة',
     'illustrative_image' => 'صورة توضيحية',
     'gallery' => 'معرض الصور',
-    'discover_our_activities' => 'اكتشف صوراً من أنشطتنا الخيرية وخدماتنا المتنوعة التي نقدمها للمجتمع',
+    'discover_our_activities' => 'اكتشف صوراً من أنشطتنا وخدماتنا المتنوعة التي نقدمها للمجتمع',
     'view_image' => 'عرض الصورة',
     'load_more_images' => 'عرض المزيد من الصور',
     'follow_us_on' => 'تابعنا على',
@@ -130,16 +130,16 @@ return [
     
     // Gallery translations
     'gallery_title' => 'معرض الصور',
-    'gallery_description' => 'اكتشف صوراً من أنشطتنا الخيرية وخدماتنا المتنوعة التي نقدمها للمجتمع',
+    'gallery_description' => 'اكتشف صوراً من أنشطتنا وخدماتنا المتنوعة التي نقدمها للمجتمع',
     'illustrative_image_number' => 'صورة توضيحية',
     
     // Features section
     'excellent_services_for_community' => 'خدمات متميزة',
     'specialized_team_high_experience' => 'فريق متخصص',
     'our_features' => 'مميزاتنا',
-    'why_choose_wasila_description' => 'نتميز بتقديم خدمات خيرية متميزة مع ضمان الجودة والشفافية في جميع أعمالنا',
-    'diverse_services_description_extended' => 'نقدم مجموعة واسعة من الخدمات الخيرية والاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ',
-    'specialized_team_description_extended' => 'فريق من المتخصصين في العمل الخيري والاجتماعي مع خبرة واسعة في مجال خدمة المجتمع',
+    'why_choose_wasila_description' => 'نتميز بتقديم خدمات متميزة مع ضمان الجودة والشفافية في جميع أعمالنا',
+    'diverse_services_description_extended' => 'نقدم مجموعة واسعة من الخدمات الاجتماعية مع ضمان الجودة العالية والكفاءة في التنفيذ',
+    'specialized_team_description_extended' => 'فريق من المتخصصين في العمل الاجتماعي مع خبرة واسعة في مجال خدمة المجتمع',
     'positive_impact_description_extended' => 'نساهم في إحداث تأثير إيجابي في المجتمع مع تقديم تقارير دورية عن المشاريع والأنشطة',
     
     // Contact section extended
@@ -149,8 +149,8 @@ return [
     'write_message_here' => 'اكتب رسالتك هنا...',
     
     // Footer extended
-    'wasila_logo' => 'شعار وسيلة الخيرية',
-    'social_charity_project_description' => 'مشروع خيري اجتماعي يهدف إلى توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية.',
+    'wasila_logo' => 'شعار وسيلة',
+    'social_charity_project_description' => 'مشروع اجتماعي يهدف إلى توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية.',
     'email_colon' => 'البريد الإلكتروني:',
     'phone_colon' => 'الهاتف:',
     'address_colon' => 'العنوان:',
@@ -161,8 +161,8 @@ return [
     'send_us_message_title' => 'أرسل لنا رسالة',
     'message_sent_success' => 'تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.',
     'message_send_error' => 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.',
-    'wasila_charity_logo_footer' => 'شعار وسيلة الخيرية',
-    'social_charity_project_aim' => 'مشروع خيري اجتماعي يهدف إلى توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية.',
+    'wasila_charity_logo_footer' => 'شعار وسيلة',
+    'social_charity_project_aim' => 'مشروع اجتماعي يهدف إلى توزيع المياه ومنتجات العناية بالمساجد وتوزيع وجبات الطعام وكراسي كبار السن وغيرها من الخدمات الإنسانية.',
     'quick_links_footer' => 'روابط سريعة',
     'home_link' => 'الرئيسية',
     'services_link' => 'الخدمات',
@@ -176,7 +176,7 @@ return [
     'copyright_2025_wasila' => 'وسيلة. جميع الحقوق محفوظة.',
     'request_service_footer' => 'اطلب خدمة',
     'whatsapp_footer' => 'واتساب',
-    'whatsapp_message' => 'مرحباً، أريد الاستفسار عن خدمات وسيلة الخيرية',
+    'whatsapp_message' => 'مرحباً، أريد الاستفسار عن خدمات وسيلة',
     'full_name_label' => 'الاسم الكامل',
     'email_input_label' => 'البريد الإلكتروني',
     'phone_number_label' => 'رقم الهاتف',
@@ -189,8 +189,8 @@ return [
     'our_work' => 'أعمالنا',
     'our_work_title' => 'أعمالنا',
     'our_work_subtitle' => 'أعمالنا',
-    'discover_images_from_activities' => 'اكتشف صوراً من أنشطتنا الخيرية وخدماتنا المتنوعة التي نقدمها للمجتمع',
-    'discover_some_of_our_work' => 'اكتشف بعض أعمالنا وإنجازاتنا في مجال العمل الخيري والعطاء',
+    'discover_images_from_activities' => 'اكتشف صوراً من أنشطتنا وخدماتنا المتنوعة التي نقدمها للمجتمع',
+    'discover_some_of_our_work' => 'اكتشف بعض أعمالنا وإنجازاتنا في مجال خدمة المجتمع',
     
     // Auth translations
     'login_to_account' => 'تسجيل الدخول إلى حسابك',

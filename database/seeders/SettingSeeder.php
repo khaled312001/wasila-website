@@ -22,7 +22,7 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'site_description',
-                'value' => 'منصة وسيلة الخيرية والخدمات',
+                'value' => 'منصة وسيلة والخدمات',
                 'type' => 'text',
                 'description' => 'وصف الموقع'
             ],

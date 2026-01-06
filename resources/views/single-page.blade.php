@@ -68,7 +68,7 @@
         <div class="wasila-header-container">
             <div class="wasila-header-logo">
                 <a href="{{ url('/') }}#home" class="wasila-logo-link">
-                    <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة الخيرية" class="wasila-logo-img">
+                    <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة" class="wasila-logo-img">
                 </a>
             </div>
             
@@ -580,7 +580,7 @@
             <div class="wasila-footer-grid">
                 <div class="wasila-footer-col wasila-footer-about">
                     <div class="wasila-footer-logo">
-                        <img src="{{ asset('images/logo-footer.png') }}" alt="وسيلة الخيرية" class="wasila-footer-logo-img">
+                        <img src="{{ asset('images/logo-footer.png') }}" alt="وسيلة" class="wasila-footer-logo-img">
                     </div>
                     <p class="wasila-footer-desc">{{ __('messages.social_charity_project_aim') }}</p>
                     <div class="wasila-footer-social">

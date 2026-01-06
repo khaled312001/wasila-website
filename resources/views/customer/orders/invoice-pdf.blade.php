@@ -174,7 +174,7 @@
 <body>
     <div class="header">
         <h1>{{ \App\Helpers\PdfHelper::fixArabic('فاتورة رقم: #') }}{{ $order->order_number }}</h1>
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('جمعية وسيلة الخيرية') }}</p>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('وسيلة') }}</p>
     </div>
     
     <div class="invoice-info">
@@ -223,7 +223,7 @@
     </div>
     
     <div class="footer">
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('شكراً لثقتك بجمعية وسيلة الخيرية') }}</p>
+        <p>{{ \App\Helpers\PdfHelper::fixArabic('شكراً لثقتك بوسيلة') }}</p>
         <p>© {{ date('Y') }} {{ \App\Helpers\PdfHelper::fixArabic('جميع الحقوق محفوظة') }}</p>
     </div>
 </body>

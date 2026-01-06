@@ -1,11 +1,11 @@
 @props([
     'title' => 'وسيلة - منصة الخير =',
-    'description' => 'منصة وسيلة الخيرية  والخدمات الإنسانية. نساعد في ربط المحتاجين بالمتبرعين لبناء مجتمع أفضل.',
-    'keywords' => 'وسيلة, خير, , خدمات إنسانية, منصة خيرية, السعودية',
+    'description' => 'منصة وسيلة والخدمات الإنسانية. نساعد في خدمة المجتمع.',
+    'keywords' => 'وسيلة, خدمات إنسانية, السعودية',
     'image' => null,
     'url' => null,
     'type' => 'website',
-    'author' => 'وسيلة الخيرية'
+    'author' => 'وسيلة'
 ])
 
 @php
@@ -61,7 +61,7 @@
     '@context' => 'https://schema.org',
     '@type' => 'Organization',
     'name' => $siteName,
-    'alternateName' => 'وسيلة الخيرية',
+    'alternateName' => 'وسيلة',
     'url' => url('/'),
     'logo' => $image,
     'description' => $description,
@@ -79,9 +79,9 @@
         'availableLanguage' => ['Arabic', 'English']
     ],
     'sameAs' => [
-        'https://twitter.com/wasila_charity',
-        'https://instagram.com/wasila_charity',
-        'https://facebook.com/wasila.charity'
+        'https://twitter.com/wasila',
+        'https://instagram.com/wasila',
+        'https://facebook.com/wasila'
     ]
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
 </script>
@@ -92,7 +92,7 @@
     '@context' => 'https://schema.org',
     '@type' => 'NGO',
     'name' => $siteName,
-    'description' => 'منظمة خيرية غير ربحية تهدف إلى ربط المحتاجين بالمتبرعين وتقديم الخدمات الإنسانية',
+    'description' => 'منظمة غير ربحية تهدف إلى تقديم الخدمات الإنسانية',
     'url' => url('/'),
     'logo' => $image,
     'foundingDate' => '2024',
@@ -101,7 +101,6 @@
         'name' => 'Saudi Arabia'
     ],
     'serviceType' => [
-        'خدمات خيرية',
         'خدمات اجتماعية'
     ]
 ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}

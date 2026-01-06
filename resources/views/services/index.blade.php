@@ -4,17 +4,17 @@
 
 @push('head')
 <x-seo 
-    title="{{ app()->getLocale() === 'ar' ? 'خدمات وسيلة الخيرية' : 'Wasila Charity Services' }}"
+    title="{{ app()->getLocale() === 'ar' ? 'خدمات وسيلة' : 'Wasila Services' }}"
     description="{{ app()->getLocale() === 'ar' 
-        ? 'اكتشف مجموعة متنوعة من الخدمات الخيرية والاجتماعية التي تقدمها وسيلة للمجتمع. خدمات إنسانية متكاملة لبناء مجتمع أفضل.'
-        : 'Discover our diverse range of charitable and social services for the community. Comprehensive humanitarian services for a better society.' }}"
+        ? 'اكتشف مجموعة متنوعة من الخدمات الاجتماعية التي تقدمها وسيلة للمجتمع. خدمات إنسانية متكاملة لبناء مجتمع أفضل.'
+        : 'Discover our diverse range of social services for the community. Comprehensive humanitarian services for a better society.' }}"
     keywords="{{ app()->getLocale() === 'ar' 
-        ? 'خدمات وسيلة, خدمات خيرية, خدمات اجتماعية, مساعدات إنسانية, تطوع, إغاثة, دعم المجتمع'
-        : 'wasila services, charity services, social services, humanitarian aid, volunteer, relief, community support' }}"
+        ? 'خدمات وسيلة, خدمات اجتماعية, مساعدات إنسانية, تطوع, إغاثة, دعم المجتمع'
+        : 'wasila services, social services, humanitarian aid, volunteer, relief, community support' }}"
     image="{{ asset('images/logo-arabic.png') }}"
     url="{{ url('/services') }}"
     type="website"
-    author="وسيلة الخيرية"
+    author="وسيلة"
 />
 @endpush
 

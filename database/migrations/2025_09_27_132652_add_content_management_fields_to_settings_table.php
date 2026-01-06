@@ -27,13 +27,13 @@ return new class extends Migration
             ['key' => 'logo_footer', 'value' => '', 'type' => 'image', 'description' => 'لوجو الفوتر'],
             
             // إعدادات المحتوى العام
-            ['key' => 'site_title_ar', 'value' => 'وسيلة الخير', 'type' => 'text', 'description' => 'عنوان الموقع بالعربية'],
-            ['key' => 'site_title_en', 'value' => 'Wasila Charity', 'type' => 'text', 'description' => 'عنوان الموقع بالإنجليزية'],
-            ['key' => 'site_description_ar', 'value' => 'منصة خيرية لربط المحتاجين بالخيرين', 'type' => 'text', 'description' => 'وصف الموقع بالعربية'],
-            ['key' => 'site_description_en', 'value' => 'Charity platform connecting those in need with donors', 'type' => 'text', 'description' => 'وصف الموقع بالإنجليزية'],
+            ['key' => 'site_title_ar', 'value' => 'وسيلة', 'type' => 'text', 'description' => 'عنوان الموقع بالعربية'],
+            ['key' => 'site_title_en', 'value' => 'Wasila', 'type' => 'text', 'description' => 'عنوان الموقع بالإنجليزية'],
+            ['key' => 'site_description_ar', 'value' => 'منصة لخدمة المجتمع', 'type' => 'text', 'description' => 'وصف الموقع بالعربية'],
+            ['key' => 'site_description_en', 'value' => 'Platform for serving the community', 'type' => 'text', 'description' => 'وصف الموقع بالإنجليزية'],
             
             // إعدادات التواصل
-            ['key' => 'contact_email', 'value' => 'info@wasila-charity.com', 'type' => 'email', 'description' => 'البريد الإلكتروني للتواصل'],
+            ['key' => 'contact_email', 'value' => 'info@wasila.com', 'type' => 'email', 'description' => 'البريد الإلكتروني للتواصل'],
             ['key' => 'contact_phone', 'value' => '+966501234567', 'type' => 'text', 'description' => 'رقم الهاتف للتواصل'],
             ['key' => 'contact_address_ar', 'value' => 'الرياض، المملكة العربية السعودية', 'type' => 'text', 'description' => 'العنوان بالعربية'],
             ['key' => 'contact_address_en', 'value' => 'Riyadh, Saudi Arabia', 'type' => 'text', 'description' => 'العنوان بالإنجليزية'],

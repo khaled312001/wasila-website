@@ -4,17 +4,17 @@
 
 @push('head')
 <x-seo 
-    title="{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب - وسيلة الخيرية' : 'Order Confirmation - Wasila Charity' }}"
+    title="{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب - وسيلة' : 'Order Confirmation - Wasila' }}"
     description="{{ app()->getLocale() === 'ar' 
-        ? 'تم تأكيد طلبك بنجاح. شكراً لك على دعمك لمشروع وسيلة الخيري.'
-        : 'Your order has been confirmed successfully. Thank you for supporting Wasila Charity.' }}"
+        ? 'تم تأكيد طلبك بنجاح. شكراً لك على دعمك لمشروع وسيلة.'
+        : 'Your order has been confirmed successfully. Thank you for supporting Wasila.' }}"
     keywords="{{ app()->getLocale() === 'ar' 
-        ? 'تأكيد الطلب, وسيلة, خدمات خيرية, شكر'
-        : 'order confirmation, wasila, charity services, thank you' }}"
+        ? 'تأكيد الطلب, وسيلة, شكر'
+        : 'order confirmation, wasila, thank you' }}"
     image="{{ asset('images/logo-arabic.png') }}"
     url="{{ url('/orders/confirmation') }}"
     type="website"
-    author="وسيلة الخيرية"
+    author="وسيلة"
 />
 @endpush
 
@@ -296,8 +296,8 @@
         </h2>
         <p class="text-lg text-gray-200 max-w-3xl mx-auto">
             {{ app()->getLocale() === 'ar' 
-                ? 'دعمك يساعدنا في تقديم المزيد من الخدمات الخيرية للمجتمع. سنتواصل معك قريباً لتأكيد تفاصيل الطلب.'
-                : 'Your support helps us provide more charity services to the community. We will contact you soon to confirm the order details.' }}
+                ? 'دعمك يساعدنا في تقديم المزيد من الخدمات للمجتمع. سنتواصل معك قريباً لتأكيد تفاصيل الطلب.'
+                : 'Your support helps us provide more services to the community. We will contact you soon to confirm the order details.' }}
         </p>
     </div>
 </section>
@@ -321,7 +321,7 @@ function printInvoice() {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>{{ app()->getLocale() === 'ar' ? 'فاتورة وسيلة الخيرية' : 'Wasila Charity Invoice' }}</title>
+            <title>{{ app()->getLocale() === 'ar' ? 'فاتورة وسيلة' : 'Wasila Invoice' }}</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -410,7 +410,7 @@ function printInvoice() {
         </head>
         <body>
             <div class="invoice-header">
-                <div class="invoice-title">{{ app()->getLocale() === 'ar' ? 'وسيلة الخيرية' : 'Wasila Charity' }}</div>
+                <div class="invoice-title">{{ app()->getLocale() === 'ar' ? 'وسيلة' : 'Wasila' }}</div>
                 <div class="invoice-subtitle">{{ app()->getLocale() === 'ar' ? 'فاتورة الدفع' : 'Payment Invoice' }}</div>
             </div>
             
@@ -480,7 +480,7 @@ function printInvoice() {
             </div>
             
             <div class="footer">
-                <p>{{ app()->getLocale() === 'ar' ? 'شكراً لك على دعمك لمشروع وسيلة الخيري' : 'Thank you for supporting Wasila Charity' }}</p>
+                <p>{{ app()->getLocale() === 'ar' ? 'شكراً لك على دعمك لمشروع وسيلة' : 'Thank you for supporting Wasila' }}</p>
                 <p>{{ app()->getLocale() === 'ar' ? 'هذه الفاتورة صالحة كإيصال دفع' : 'This invoice is valid as a payment receipt' }}</p>
             </div>
         </body>

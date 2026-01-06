@@ -526,7 +526,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="services_description_ar">وصف القسم (عربي)</label>
-                                                <textarea class="form-control" id="services_description_ar" name="services_description_ar" rows="4" placeholder="نقدم مجموعة متنوعة من الخدمات الخيرية والاجتماعية المتميزة لخدمة المجتمع وتقديم المساعدة للمحتاجين">{{ $settings['services_description_ar'] ?? '' }}</textarea>
+                                                <textarea class="form-control" id="services_description_ar" name="services_description_ar" rows="4" placeholder="نقدم مجموعة متنوعة من الخدمات الاجتماعية المتميزة لخدمة المجتمع وتقديم المساعدة للمحتاجين">{{ $settings['services_description_ar'] ?? '' }}</textarea>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -617,7 +617,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="discover_more_services_description_ar">وصف اكتشف المزيد (عربي)</label>
-                                                <textarea class="form-control" id="discover_more_services_description_ar" name="discover_more_services_description_ar" rows="3" placeholder="تصفح مجموعتنا الكاملة من الخدمات الخيرية والاجتماعية المصممة لخدمة المجتمع">{{ $settings['discover_more_services_description_ar'] ?? '' }}</textarea>
+                                                <textarea class="form-control" id="discover_more_services_description_ar" name="discover_more_services_description_ar" rows="3" placeholder="تصفح مجموعتنا الكاملة من الخدمات الاجتماعية المصممة لخدمة المجتمع">{{ $settings['discover_more_services_description_ar'] ?? '' }}</textarea>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -670,7 +670,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="services_coming_soon_description_ar">وصف قادمة قريباً (عربي)</label>
-                                                <textarea class="form-control" id="services_coming_soon_description_ar" name="services_coming_soon_description_ar" rows="3" placeholder="نعمل حالياً على إعداد مجموعة شاملة من الخدمات الخيرية والاجتماعية لخدمتكم">{{ $settings['services_coming_soon_description_ar'] ?? '' }}</textarea>
+                                                <textarea class="form-control" id="services_coming_soon_description_ar" name="services_coming_soon_description_ar" rows="3" placeholder="نعمل حالياً على إعداد مجموعة شاملة من الخدمات الاجتماعية لخدمتكم">{{ $settings['services_coming_soon_description_ar'] ?? '' }}</textarea>
                                             </div>
                                         </div>
                                         <div class="col-md-6">

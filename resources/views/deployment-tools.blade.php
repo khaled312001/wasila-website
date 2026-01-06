@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wasila Charity - Deployment Tools</title>
+    <title>Wasila - Deployment Tools</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body {
@@ -95,7 +95,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔧 Wasila Charity - Deployment Tools</h1>
+            <h1>🔧 Wasila - Deployment Tools</h1>
             <p>Fix production image loading issues</p>
         </div>
 

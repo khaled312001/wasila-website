@@ -330,8 +330,8 @@ class PortfolioController extends Controller
                     PortfolioItem::create([
                         'title_ar' => 'صورة من أعمالنا ' . $fileNumber,
                         'title_en' => 'Our Work Image ' . $fileNumber,
-                        'description_ar' => 'صورة توثيقية من أنشطة ومشاريع وسيلة الخيرية',
-                        'description_en' => 'Documentary image from Wasila Charity activities and projects',
+                        'description_ar' => 'صورة توثيقية من أنشطة ومشاريع وسيلة',
+                        'description_en' => 'Documentary image from Wasila activities and projects',
                         'type' => 'image',
                         'file_path' => $relativePath,
                         'sort_order' => $fileNumber,

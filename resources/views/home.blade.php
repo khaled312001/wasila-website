@@ -726,7 +726,7 @@
                             </svg>
                         </div>
                         <div class="marker-info">
-                            <h5>{{ app()->getLocale() === 'ar' ? 'وسيلة الخيرية' : 'Wasila Charity' }}</h5>
+                            <h5>{{ app()->getLocale() === 'ar' ? 'وسيلة' : 'Wasila' }}</h5>
                             <p>{{ app()->getLocale() === 'ar' ? 'الرياض، السعودية' : 'Riyadh, Saudi Arabia' }}</p>
                         </div>
                     </div>

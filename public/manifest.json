@@ -1,7 +1,7 @@
 {
     "name": "وسيلة - منصة الخير",
     "short_name": "وسيلة",
-    "description": "منصة وسيلة الخيرية والخدمات الإنسانية. نساعد في ربط المحتاجين بالمتبرعين لبناء مجتمع أفضل.",
+    "description": "منصة وسيلة والخدمات الإنسانية. نساعد في خدمة المجتمع.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
@@ -40,7 +40,7 @@
             "purpose": "maskable"
         }
     ],
-    "categories": ["charity", "social", "lifestyle", "utilities"],
+    "categories": ["social", "lifestyle", "utilities"],
     "lang": "ar",
     "dir": "rtl",
     "prefer_related_applications": false,
