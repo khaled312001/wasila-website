@@ -1,5 +1,5 @@
 @props([
-    'title' => 'وسيلة - منصة الخير =',
+    'title' => 'وسيلة  =',
     'description' => 'منصة وسيلة والخدمات الإنسانية. نساعد في خدمة المجتمع.',
     'keywords' => 'وسيلة, خدمات إنسانية, السعودية',
     'image' => null,
@@ -11,7 +11,7 @@
 @php
     $url = $url ?? request()->url();
     $image = $image ?? asset('images/logo-arabic.png');
-    $siteName = 'وسيلة - منصة الخير ';
+    $siteName = 'وسيلة  ';
     $currentLocale = app()->getLocale();
 @endphp
 
