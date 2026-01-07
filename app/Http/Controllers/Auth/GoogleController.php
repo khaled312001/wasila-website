@@ -44,13 +44,17 @@ class GoogleController extends Controller
                 ]);
             }
 
-            // Login the customer with remember me FIRST
+            // Login the customer with remember me
             Auth::guard('customer')->login($customer, true);
             
-            // Then regenerate session to prevent session fixation attacks
-            request()->session()->regenerate();
+            // Regenerate session AFTER login to prevent session fixation attacks
+            // This will maintain the authentication state
+            request()->session()->regenerate(true);
             
-            // Verify login was successful after regeneration
+            // Re-login after regeneration to ensure auth state is maintained
+            Auth::guard('customer')->login($customer, true);
+            
+            // Verify login was successful
             if (!Auth::guard('customer')->check()) {
                 \Log::error('Login failed after session regeneration', [
                     'customer_id' => $customer->id,
@@ -58,6 +62,13 @@ class GoogleController extends Controller
                 ]);
                 throw new \Exception('Failed to maintain login after session regeneration');
             }
+            
+            // Log successful login for debugging
+            \Log::info('Google login successful', [
+                'customer_id' => $customer->id,
+                'customer_email' => $customer->email,
+                'session_id' => request()->session()->getId()
+            ]);
 
             // Check if there's a checkout redirect
             if (session()->has('checkout_redirect')) {

@@ -22,7 +22,8 @@ class CustomerAuthController extends Controller
                 ->with('info', __('messages.already_logged_in'));
         }
         
-        return view('customer.auth.login');
+        // Redirect directly to Google login
+        return redirect()->route('auth.google');
     }
 
     /**
