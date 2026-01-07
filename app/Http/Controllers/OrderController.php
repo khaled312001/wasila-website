@@ -19,6 +19,17 @@ class OrderController extends Controller
 {
     public function checkout(Request $request)
     {
+        // Check if customer is logged in - REQUIRED for checkout
+        if (!auth('customer')->check()) {
+            // Store checkout URL in session for redirect after login
+            session(['checkout_redirect' => $request->fullUrl()]);
+            
+            return redirect()->route('customer.login')
+                ->with('error', app()->getLocale() === 'ar' 
+                    ? 'يجب تسجيل الدخول قبل إكمال الطلب' 
+                    : 'You must login before completing the order');
+        }
+        
         // Get service data from URL parameters
         $serviceId = $request->get('service_id');
         $serviceName = $request->get('service_name');
@@ -31,13 +42,8 @@ class OrderController extends Controller
                 ->with('error', app()->getLocale() === 'ar' ? 'يرجى اختيار خدمة أولاً' : 'Please select a service first');
         }
         
-        // Get customer if logged in (optional - page works without login)
-        $customer = auth('customer')->check() ? auth('customer')->user() : null;
-        
-        // Store checkout URL in session for redirect after login
-        if (!$customer) {
-            session(['checkout_redirect' => $request->fullUrl()]);
-        }
+        // Get customer (guaranteed to be logged in at this point)
+        $customer = auth('customer')->user();
         
         return view('orders.checkout', compact('serviceId', 'serviceName', 'servicePrice', 'serviceDescription', 'customer'));
     }
@@ -188,11 +194,11 @@ class OrderController extends Controller
     
     public function confirmation(Request $request)
     {
-        // Get order data from URL parameters or session
+        // Get order data from session (set by MyFatoorah callback)
         $orderData = $request->session()->get('order_confirmation');
         
+        // If no session data, try to get from URL parameters (for backward compatibility)
         if (!$orderData) {
-            // Try to get from URL parameters
             $customerCountry = $request->get('customer_country');
             $orderData = [
                 'order_number' => $request->get('order_number'),
@@ -206,8 +212,52 @@ class OrderController extends Controller
                 'country_code' => $this->extractCountryCode($customerCountry) ?? '+966',
                 'customer_address' => $request->get('customer_address', ''),
                 'total_amount' => $request->get('total_amount'),
-                'payment_status' => $request->get('payment_status', 'pending')
+                'payment_status' => $request->get('payment_status', 'pending'),
+                'payment_method' => $request->get('payment_method', 'MyFatoorah')
             ];
+        }
+        
+        // If still no data, try to get from paymentId in URL (MyFatoorah callback)
+        if (!$orderData && $request->has('paymentId')) {
+            try {
+                $paymentId = $request->get('paymentId');
+                $apiKey = SettingsHelper::get('myfatoorah_api_key');
+                $isTest = SettingsHelper::get('myfatoorah_is_test', '1') == '1';
+                
+                $mfConfig = [
+                    'apiKey'      => $apiKey,
+                    'isTest'      => $isTest,
+                    'countryCode' => SettingsHelper::get('myfatoorah_currency', 'SAU'),
+                ];
+                
+                $mfObj = new MyFatoorahPaymentStatus($mfConfig);
+                $paymentStatus = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+                
+                if ($paymentStatus && isset($paymentStatus['UserDefinedField'])) {
+                    $order = Order::with('orderItems.service')->find($paymentStatus['UserDefinedField']);
+                    
+                    if ($order) {
+                        $orderData = [
+                            'order_number' => $order->order_number,
+                            'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
+                            'service_price' => $order->orderItems->first()->unit_price ?? 0,
+                            'service_quantity' => $order->orderItems->first()->quantity ?? 1,
+                            'customer_name' => $order->customer_name,
+                            'customer_email' => $order->customer_email,
+                            'customer_phone' => $order->customer_phone,
+                            'customer_address' => $order->customer_address ?? '',
+                            'total_amount' => $order->total_amount,
+                            'payment_status' => $paymentStatus['InvoiceStatus'] === 'Paid' ? 'paid' : ($paymentStatus['InvoiceStatus'] === 'Failed' ? 'failed' : 'pending'),
+                            'payment_method' => $paymentStatus['PaymentMethod'] ?? 'MyFatoorah'
+                        ];
+                        
+                        // Store in session for future requests
+                        $request->session()->put('order_confirmation', $orderData);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Error getting order data from paymentId: ' . $e->getMessage());
+            }
         }
         
         return view('orders.confirmation', compact('orderData'));

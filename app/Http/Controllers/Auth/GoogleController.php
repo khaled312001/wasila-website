@@ -44,7 +44,14 @@ class GoogleController extends Controller
                 ]);
             }
 
+            // Login the customer
             Auth::guard('customer')->login($customer, true);
+            
+            // Regenerate session to prevent session fixation attacks and ensure session is saved
+            request()->session()->regenerate();
+            
+            // Force save session to ensure it's persisted
+            request()->session()->save();
 
             // Check if there's a checkout redirect
             if (session()->has('checkout_redirect')) {
@@ -54,12 +61,23 @@ class GoogleController extends Controller
                     ->with('success', __('messages.login_successful'));
             }
 
-            return redirect()->route('customer.dashboard')
+            // If user came from login page, redirect to dashboard
+            // Otherwise redirect to home (but ensure they're logged in)
+            $intendedUrl = session()->pull('url.intended');
+            
+            // Default redirect to home page (not dashboard) to show login status in navbar
+            $redirectTo = $intendedUrl ?: route('home');
+            
+            return redirect($redirectTo)
                 ->with('success', __('messages.login_successful'));
 
         } catch (\Exception $e) {
-            return redirect()->route('home')
-                ->with('error', __('messages.login_failed'));
+            \Log::error('Google login error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('customer.login')
+                ->with('error', __('messages.login_failed') . ': ' . $e->getMessage());
         }
     }
 
