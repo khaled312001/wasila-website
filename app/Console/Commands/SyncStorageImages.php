@@ -19,7 +19,8 @@ class SyncStorageImages extends Command
     protected $signature = 'storage:sync-images 
                             {--force : Force sync even if files already exist}
                             {--service-only : Sync only service images}
-                            {--portfolio-only : Sync only portfolio images}';
+                            {--portfolio-only : Sync only portfolio images}
+                            {--verbose : Show detailed error messages}';
 
     /**
      * The console command description.
@@ -62,13 +63,20 @@ class SyncStorageImages extends Command
         }
 
         // Summary
-        $this->info("✅ تمت المزامنة بنجاح!");
+        if ($totalSynced > 0 || $totalFailed == 0) {
+            $this->info("✅ تمت المزامنة بنجاح!");
+        } else {
+            $this->warn("⚠️  انتهت المزامنة مع وجود أخطاء!");
+        }
         $this->info("   - تم نسخ {$totalSynced} ملف بنجاح");
         if ($totalFailed > 0) {
             $this->warn("   - فشل نسخ {$totalFailed} ملف");
+            $this->line("   - استخدم --verbose لعرض تفاصيل الأخطاء");
+            $this->line("   - تحقق من وجود الملفات في storage/app/public");
+            $this->line("   - تحقق من صلاحيات الكتابة على public/storage");
         }
 
-        return Command::SUCCESS;
+        return $totalFailed > 0 ? Command::FAILURE : Command::SUCCESS;
     }
 
     /**
@@ -79,18 +87,26 @@ class SyncStorageImages extends Command
         $services = Service::whereNotNull('image')->get();
         $synced = 0;
         $failed = 0;
+        $failedDetails = [];
 
         $bar = $this->output->createProgressBar($services->count());
         $bar->start();
 
         foreach ($services as $service) {
             $cleanImage = str_replace('storage/', '', $service->image);
+            $cleanImage = ltrim($cleanImage, '/');
             
-            if ($this->copyToPublicStorage($cleanImage, $force)) {
+            $result = $this->copyToPublicStorage($cleanImage, $force);
+            if ($result === true) {
                 $synced++;
             } else {
                 $failed++;
-                Log::warning("Failed to sync service image: {$service->image} (Service ID: {$service->id})");
+                $failedDetails[] = [
+                    'id' => $service->id,
+                    'path' => $service->image,
+                    'reason' => $result
+                ];
+                Log::warning("Failed to sync service image: {$service->image} (Service ID: {$service->id}) - Reason: {$result}");
             }
             
             $bar->advance();
@@ -99,6 +115,12 @@ class SyncStorageImages extends Command
         $bar->finish();
         $this->newLine();
         $this->line("   تم مزامنة {$synced} صورة خدمة" . ($failed > 0 ? " (فشل {$failed})" : ""));
+        
+        if ($failed > 0 && $this->option('verbose')) {
+            foreach ($failedDetails as $detail) {
+                $this->warn("   - Service ID {$detail['id']}: {$detail['path']} - {$detail['reason']}");
+            }
+        }
 
         return ['synced' => $synced, 'failed' => $failed];
     }
@@ -111,6 +133,7 @@ class SyncStorageImages extends Command
         $portfolioItems = PortfolioItem::whereNotNull('file_path')->get();
         $synced = 0;
         $failed = 0;
+        $failedDetails = [];
 
         $bar = $this->output->createProgressBar($portfolioItems->count());
         $bar->start();
@@ -119,11 +142,17 @@ class SyncStorageImages extends Command
             $cleanPath = str_replace('storage/', '', $item->file_path);
             $cleanPath = ltrim($cleanPath, '/');
             
-            if ($this->copyToPublicStorage($cleanPath, $force)) {
+            $result = $this->copyToPublicStorage($cleanPath, $force);
+            if ($result === true) {
                 $synced++;
             } else {
                 $failed++;
-                Log::warning("Failed to sync portfolio image: {$item->file_path} (Portfolio ID: {$item->id})");
+                $failedDetails[] = [
+                    'id' => $item->id,
+                    'path' => $item->file_path,
+                    'reason' => $result
+                ];
+                Log::warning("Failed to sync portfolio image: {$item->file_path} (Portfolio ID: {$item->id}) - Reason: {$result}");
             }
 
             // Also sync thumbnail if exists
@@ -139,6 +168,12 @@ class SyncStorageImages extends Command
         $bar->finish();
         $this->newLine();
         $this->line("   تم مزامنة {$synced} صورة عمل" . ($failed > 0 ? " (فشل {$failed})" : ""));
+        
+        if ($failed > 0 && $this->option('verbose')) {
+            foreach ($failedDetails as $detail) {
+                $this->warn("   - Portfolio ID {$detail['id']}: {$detail['path']} - {$detail['reason']}");
+            }
+        }
 
         return ['synced' => $synced, 'failed' => $failed];
     }
@@ -154,7 +189,25 @@ class SyncStorageImages extends Command
             
             // Check if source file exists
             if (!file_exists($sourcePath)) {
-                return false;
+                // Try alternative paths
+                $altPaths = [
+                    storage_path('app/' . $filePath),
+                    base_path('storage/app/public/' . $filePath),
+                    public_path('storage/' . $filePath), // Already in public/storage
+                ];
+                
+                $found = false;
+                foreach ($altPaths as $altPath) {
+                    if (file_exists($altPath)) {
+                        $sourcePath = $altPath;
+                        $found = true;
+                        break;
+                    }
+                }
+                
+                if (!$found) {
+                    return "الملف غير موجود: " . $filePath;
+                }
             }
             
             // Check if target already exists and force is not set
@@ -166,22 +219,33 @@ class SyncStorageImages extends Command
             $targetDir = dirname($targetPath);
             if (!is_dir($targetDir)) {
                 if (!File::makeDirectory($targetDir, 0755, true)) {
-                    return false;
+                    return "فشل إنشاء المجلد: " . $targetDir;
                 }
+            }
+            
+            // Check if target directory is writable
+            if (!is_writable($targetDir)) {
+                return "المجلد غير قابل للكتابة: " . $targetDir;
             }
             
             // Copy file
             if (!File::copy($sourcePath, $targetPath)) {
-                return false;
+                return "فشل نسخ الملف من {$sourcePath} إلى {$targetPath}";
             }
             
             // Set permissions
-            chmod($targetPath, 0644);
+            @chmod($targetPath, 0644);
+            
+            // Verify the copy was successful
+            if (!file_exists($targetPath)) {
+                return "فشل التحقق من نسخ الملف";
+            }
             
             return true;
         } catch (\Exception $e) {
-            Log::error('Exception in copyToPublicStorage: ' . $e->getMessage() . ' | File: ' . $filePath);
-            return false;
+            $errorMsg = 'Exception: ' . $e->getMessage();
+            Log::error('Exception in copyToPublicStorage: ' . $errorMsg . ' | File: ' . $filePath);
+            return $errorMsg;
         }
     }
 }
