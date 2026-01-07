@@ -321,6 +321,7 @@ return [
     'already_have_account' => 'Already have an account?',
     'dont_have_account' => "Don't have an account?",
     'register_with_google' => 'Register with Google',
+    'login_with_google' => 'Login with Google',
     'password_min_8_chars' => 'Password must be at least 8 characters',
     'confirm_password' => 'Confirm Password',
     'enter_full_name' => 'Enter full name',

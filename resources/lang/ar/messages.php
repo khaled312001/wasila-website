@@ -200,6 +200,7 @@ return [
     'already_have_account' => 'لديك حساب بالفعل؟',
     'dont_have_account' => 'ليس لديك حساب؟',
     'register_with_google' => 'التسجيل بحساب Google',
+    'login_with_google' => 'تسجيل الدخول بحساب Google',
     'password_min_8_chars' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
     'confirm_password' => 'تأكيد كلمة المرور',
     'enter_full_name' => 'أدخل الاسم الكامل',
