@@ -66,6 +66,8 @@ Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('lang.
 // Google OAuth routes
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+// Alternative route for compatibility
+Route::get('/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 // Customer Auth routes
 Route::prefix('customer')->name('customer.')->group(function () {
