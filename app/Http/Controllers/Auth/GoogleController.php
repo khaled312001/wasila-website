@@ -11,6 +11,12 @@ class GoogleController extends Controller
 {
     public function redirectToGoogle()
     {
+        // If already logged in, redirect to home
+        if (Auth::guard('customer')->check()) {
+            return redirect()->route('home')
+                ->with('info', __('messages.already_logged_in'));
+        }
+        
         return Socialite::driver('google')
             ->redirectUrl(config('services.google.redirect'))
             ->redirect();
@@ -19,7 +25,19 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
+            // Check for OAuth errors first
+            if (request()->has('error')) {
+                $error = request()->get('error');
+                \Log::error('Google OAuth error: ' . $error);
+                return redirect()->route('home')
+                    ->with('error', __('messages.login_failed') . ': ' . $error);
+            }
+            
             $googleUser = Socialite::driver('google')->user();
+            
+            if (!$googleUser || !$googleUser->email) {
+                throw new \Exception('Failed to retrieve user information from Google');
+            }
             
             $customer = Customer::where('google_id', $googleUser->id)
                 ->orWhere('email', $googleUser->email)
@@ -48,8 +66,7 @@ class GoogleController extends Controller
             Auth::guard('customer')->login($customer, true);
             
             // Regenerate session AFTER login to prevent session fixation attacks
-            // This will maintain the authentication state
-            request()->session()->regenerate(true);
+            request()->session()->regenerate();
             
             // Re-login after regeneration to ensure auth state is maintained
             Auth::guard('customer')->login($customer, true);
@@ -84,10 +101,12 @@ class GoogleController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Google login error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'request_data' => request()->all()
             ]);
             
-            return redirect()->route('customer.login')
+            // Redirect to home instead of customer.login to avoid redirect loop
+            return redirect()->route('home')
                 ->with('error', __('messages.login_failed') . ': ' . $e->getMessage());
         }
     }
