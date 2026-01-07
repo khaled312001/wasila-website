@@ -227,4 +227,7 @@ return [
     'phone' => 'الهاتف',
     'welcome_back' => 'مرحباً بعودتك',
     'back_to_home' => 'العودة للرئيسية',
+    'dashboard' => 'لوحة التحكم',
+    'my_orders' => 'طلباتي',
+    'messages' => 'الرسائل',
 ];

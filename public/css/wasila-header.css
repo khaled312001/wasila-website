@@ -170,11 +170,196 @@
     background: rgba(8, 120, 139, 0.1);
     color: var(--primary-medium);
     border: 1px solid rgba(8, 120, 139, 0.2);
+    position: relative;
 }
 
 .wasila-btn-user:hover {
     background: rgba(8, 120, 139, 0.15);
     color: var(--primary-medium);
+}
+
+/* User Dropdown Styles */
+.wasila-user-dropdown {
+    position: relative;
+}
+
+.wasila-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(8, 120, 139, 0.2);
+}
+
+.wasila-dropdown-arrow {
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.wasila-user-dropdown.active .wasila-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.wasila-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(8, 120, 139, 0.1);
+    min-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.wasila-user-dropdown.active .wasila-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.wasila-dropdown-header {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(8, 120, 139, 0.05) 0%, rgba(60, 166, 180, 0.05) 100%);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(8, 120, 139, 0.1);
+}
+
+.wasila-dropdown-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-medium);
+    flex-shrink: 0;
+}
+
+.wasila-dropdown-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.wasila-dropdown-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.wasila-dropdown-user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wasila-dropdown-user-email {
+    font-size: 0.85rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wasila-dropdown-divider {
+    height: 1px;
+    background: #eee;
+    margin: 0.5rem 0;
+}
+
+.wasila-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.wasila-dropdown-item:hover {
+    background: rgba(8, 120, 139, 0.08);
+    color: var(--primary-medium);
+    padding-right: 1.5rem;
+}
+
+.wasila-dropdown-item i {
+    width: 20px;
+    text-align: center;
+    color: var(--primary-medium);
+    font-size: 1rem;
+}
+
+.wasila-dropdown-item-logout {
+    padding: 0;
+}
+
+.wasila-dropdown-logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: none;
+    border: none;
+    color: #dc3545;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.wasila-dropdown-logout-btn:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #c82333;
+    padding-right: 1.5rem;
+}
+
+.wasila-dropdown-logout-btn i {
+    color: #dc3545;
+}
+
+.wasila-dropdown-logout-btn:hover i {
+    color: #c82333;
+}
+
+/* RTL Support */
+[dir="rtl"] .wasila-dropdown-menu {
+    right: auto;
+    left: 0;
+}
+
+[dir="rtl"] .wasila-dropdown-arrow {
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+[dir="rtl"] .wasila-dropdown-item:hover {
+    padding-right: 1.25rem;
+    padding-left: 1.5rem;
+}
+
+[dir="rtl"] .wasila-dropdown-logout-btn:hover {
+    padding-right: 1.25rem;
+    padding-left: 1.5rem;
 }
 
 .wasila-lang-switcher {
@@ -408,3 +593,110 @@
     }
 }
 
+/* Mobile User Info Styles */
+.wasila-mobile-user-info {
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, rgba(8, 120, 139, 0.05) 0%, rgba(60, 166, 180, 0.05) 100%);
+    border-bottom: 1px solid rgba(8, 120, 139, 0.1);
+}
+
+.wasila-mobile-user-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.wasila-mobile-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-medium);
+    flex-shrink: 0;
+}
+
+.wasila-mobile-user-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.wasila-mobile-user-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.wasila-mobile-user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wasila-mobile-user-email {
+    font-size: 0.85rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wasila-mobile-logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    color: #dc3545;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+}
+
+.wasila-mobile-logout-btn:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #c82333;
+    padding-right: 2rem;
+}
+
+.wasila-mobile-logout-btn i {
+    width: 24px;
+    text-align: center;
+    color: #dc3545;
+    font-size: 1.1rem;
+}
+
+.wasila-mobile-logout-btn:hover i {
+    color: #c82333;
+    transform: scale(1.2);
+}
+
+/* Responsive Dropdown */
+@media (max-width: 768px) {
+    .wasila-dropdown-menu {
+        right: -1rem;
+        left: auto;
+        min-width: calc(100vw - 2rem);
+        max-width: 320px;
+    }
+    
+    [dir="rtl"] .wasila-dropdown-menu {
+        left: -1rem;
+        right: auto;
+    }
+}

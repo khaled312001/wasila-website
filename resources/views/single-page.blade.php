@@ -108,10 +108,53 @@
                     <span>{{ __('messages.login') }}</span>
                 </a>
                 @else
-                <a href="{{ route('customer.dashboard') }}" class="wasila-btn wasila-btn-user">
-                    <i class="fas fa-user-circle"></i>
-                    <span>{{ auth('customer')->user()->name }}</span>
-                </a>
+                <div class="wasila-user-dropdown" id="userDropdown">
+                    <button type="button" class="wasila-btn wasila-btn-user" id="userDropdownToggle">
+                        @if(auth('customer')->user()->avatar)
+                            <img src="{{ auth('customer')->user()->avatar }}" alt="{{ auth('customer')->user()->name }}" class="wasila-user-avatar">
+                        @else
+                            <i class="fas fa-user-circle"></i>
+                        @endif
+                        <span>{{ auth('customer')->user()->name }}</span>
+                        <i class="fas fa-chevron-down wasila-dropdown-arrow"></i>
+                    </button>
+                    <div class="wasila-dropdown-menu" id="userDropdownMenu">
+                        <div class="wasila-dropdown-header">
+                            @if(auth('customer')->user()->avatar)
+                                <img src="{{ auth('customer')->user()->avatar }}" alt="{{ auth('customer')->user()->name }}" class="wasila-dropdown-avatar">
+                            @else
+                                <div class="wasila-dropdown-avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                            <div class="wasila-dropdown-user-info">
+                                <div class="wasila-dropdown-user-name">{{ auth('customer')->user()->name }}</div>
+                                <div class="wasila-dropdown-user-email">{{ auth('customer')->user()->email }}</div>
+                            </div>
+                        </div>
+                        <div class="wasila-dropdown-divider"></div>
+                        <a href="{{ route('customer.dashboard') }}" class="wasila-dropdown-item">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>{{ __('messages.dashboard') }}</span>
+                        </a>
+                        <a href="{{ route('customer.orders.index') }}" class="wasila-dropdown-item">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>{{ __('messages.my_orders') }}</span>
+                        </a>
+                        <a href="{{ route('customer.messages.index') }}" class="wasila-dropdown-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ __('messages.messages') }}</span>
+                        </a>
+                        <div class="wasila-dropdown-divider"></div>
+                        <form method="POST" action="{{ route('customer.logout') }}" class="wasila-dropdown-item wasila-dropdown-item-logout">
+                            @csrf
+                            <button type="submit" class="wasila-dropdown-logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>{{ __('messages.logout') }}</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
                 @endguest
                 
                 <div class="wasila-lang-switcher">
@@ -143,7 +186,33 @@
                 <li><a href="{{ route('customer.login') }}"><i class="fas fa-sign-in-alt"></i> {{ __('messages.login') }}</a></li>
                 <li><a href="{{ route('customer.register') }}"><i class="fas fa-user-plus"></i> {{ __('messages.register') }}</a></li>
                 @else
-                <li><a href="{{ route('customer.dashboard') }}"><i class="fas fa-user-circle"></i> {{ auth('customer')->user()->name }}</a></li>
+                <li class="wasila-mobile-user-info">
+                    <div class="wasila-mobile-user-header">
+                        @if(auth('customer')->user()->avatar)
+                            <img src="{{ auth('customer')->user()->avatar }}" alt="{{ auth('customer')->user()->name }}" class="wasila-mobile-user-avatar">
+                        @else
+                            <div class="wasila-mobile-user-avatar-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        @endif
+                        <div class="wasila-mobile-user-details">
+                            <div class="wasila-mobile-user-name">{{ auth('customer')->user()->name }}</div>
+                            <div class="wasila-mobile-user-email">{{ auth('customer')->user()->email }}</div>
+                        </div>
+                    </div>
+                </li>
+                <li><a href="{{ route('customer.dashboard') }}"><i class="fas fa-tachometer-alt"></i> {{ __('messages.dashboard') }}</a></li>
+                <li><a href="{{ route('customer.orders.index') }}"><i class="fas fa-shopping-bag"></i> {{ __('messages.my_orders') }}</a></li>
+                <li><a href="{{ route('customer.messages.index') }}"><i class="fas fa-envelope"></i> {{ __('messages.messages') }}</a></li>
+                <li class="wasila-mobile-divider"></li>
+                <li>
+                    <form method="POST" action="{{ route('customer.logout') }}" style="margin: 0;">
+                        @csrf
+                        <button type="submit" class="wasila-mobile-logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> {{ __('messages.logout') }}
+                        </button>
+                    </form>
+                </li>
                 @endguest
             </ul>
         </div>
@@ -1106,6 +1175,42 @@
             }
         }
     </style>
+    
+    <!-- User Dropdown Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggle = document.getElementById('userDropdownToggle');
+            const dropdownMenu = document.getElementById('userDropdownMenu');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (dropdownToggle && dropdownMenu) {
+                // Toggle dropdown
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('active');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userDropdown.contains(e.target)) {
+                        userDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Close dropdown on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        userDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Prevent dropdown from closing when clicking inside it
+                dropdownMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 

@@ -348,4 +348,7 @@ return [
     'phone' => 'Phone',
     'welcome_back' => 'Welcome back',
     'back_to_home' => 'Back to home',
+    'dashboard' => 'Dashboard',
+    'my_orders' => 'My Orders',
+    'messages' => 'Messages',
 ];
