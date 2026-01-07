@@ -16,8 +16,10 @@ class CustomerAuthController extends Controller
      */
     public function showLoginForm()
     {
+        // If already logged in, redirect to home (not dashboard) to show login status
         if (Auth::guard('customer')->check()) {
-            return redirect()->route('customer.dashboard');
+            return redirect()->route('home')
+                ->with('info', __('messages.already_logged_in'));
         }
         
         return view('customer.auth.login');

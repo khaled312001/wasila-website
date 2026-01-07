@@ -44,14 +44,20 @@ class GoogleController extends Controller
                 ]);
             }
 
-            // Login the customer
+            // Login the customer with remember me FIRST
             Auth::guard('customer')->login($customer, true);
             
-            // Regenerate session to prevent session fixation attacks and ensure session is saved
+            // Then regenerate session to prevent session fixation attacks
             request()->session()->regenerate();
             
-            // Force save session to ensure it's persisted
-            request()->session()->save();
+            // Verify login was successful after regeneration
+            if (!Auth::guard('customer')->check()) {
+                \Log::error('Login failed after session regeneration', [
+                    'customer_id' => $customer->id,
+                    'customer_email' => $customer->email
+                ]);
+                throw new \Exception('Failed to maintain login after session regeneration');
+            }
 
             // Check if there's a checkout redirect
             if (session()->has('checkout_redirect')) {
@@ -61,14 +67,8 @@ class GoogleController extends Controller
                     ->with('success', __('messages.login_successful'));
             }
 
-            // If user came from login page, redirect to dashboard
-            // Otherwise redirect to home (but ensure they're logged in)
-            $intendedUrl = session()->pull('url.intended');
-            
-            // Default redirect to home page (not dashboard) to show login status in navbar
-            $redirectTo = $intendedUrl ?: route('home');
-            
-            return redirect($redirectTo)
+            // Always redirect to home page to show login status in navbar
+            return redirect()->route('home')
                 ->with('success', __('messages.login_successful'));
 
         } catch (\Exception $e) {
