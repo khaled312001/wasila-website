@@ -65,19 +65,33 @@ class GoogleController extends Controller
             // Login the customer with remember me
             Auth::guard('customer')->login($customer, true);
             
-            // Regenerate session AFTER login to prevent session fixation attacks
-            request()->session()->regenerate();
-            
-            // Re-login after regeneration to ensure auth state is maintained
-            Auth::guard('customer')->login($customer, true);
+            // Force session save to ensure authentication is persisted
+            request()->session()->save();
             
             // Verify login was successful
             if (!Auth::guard('customer')->check()) {
-                \Log::error('Login failed after session regeneration', [
+                \Log::error('Login failed after Auth::login()', [
+                    'customer_id' => $customer->id,
+                    'customer_email' => $customer->email,
+                    'session_id' => request()->session()->getId()
+                ]);
+                throw new \Exception('Failed to login customer');
+            }
+            
+            // Regenerate session to prevent session fixation attacks
+            // This must be done AFTER login and save
+            request()->session()->regenerate();
+            
+            // Re-login after regenerate to maintain auth state
+            Auth::guard('customer')->login($customer, true);
+            
+            // Final verification
+            if (!Auth::guard('customer')->check()) {
+                \Log::error('Login lost after regenerate', [
                     'customer_id' => $customer->id,
                     'customer_email' => $customer->email
                 ]);
-                throw new \Exception('Failed to maintain login after session regeneration');
+                throw new \Exception('Failed to maintain login after session regenerate');
             }
             
             // Log successful login for debugging

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -30,6 +31,17 @@ class HomeController extends Controller
             if (!($services instanceof \Illuminate\Support\Collection)) {
                 $services = collect([]);
             }
+            
+            // Debug: Log authentication status
+            $isLoggedIn = Auth::guard('customer')->check();
+            $customer = $isLoggedIn ? Auth::guard('customer')->user() : null;
+            
+            Log::info('Home page loaded', [
+                'is_logged_in' => $isLoggedIn,
+                'customer_id' => $customer ? $customer->id : null,
+                'customer_email' => $customer ? $customer->email : null,
+                'session_id' => request()->session()->getId()
+            ]);
                 
             return view('single-page', compact('services'));
         } catch (\Exception $e) {
