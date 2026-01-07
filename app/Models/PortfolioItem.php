@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class PortfolioItem extends Model
 {
@@ -53,5 +54,62 @@ class PortfolioItem extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get the file URL for the portfolio item
+     * This method handles both symlink and non-symlink scenarios
+     */
+    public function getFileUrlAttribute()
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        // Clean the file path (remove 'storage/' prefix if exists)
+        $cleanPath = str_replace('storage/', '', $this->file_path);
+        $cleanPath = ltrim($cleanPath, '/');
+        
+        // First, try to use Storage URL (works with symlinks)
+        if (Storage::disk('public')->exists($cleanPath)) {
+            return Storage::disk('public')->url($cleanPath);
+        }
+        
+        // Fallback: Check if file exists in public/storage (for non-symlink setups)
+        $publicPath = public_path('storage/' . $cleanPath);
+        if (file_exists($publicPath)) {
+            return asset('storage/' . $cleanPath);
+        }
+        
+        // Last resort: Try direct asset path
+        return asset('storage/' . $cleanPath);
+    }
+
+    /**
+     * Get the thumbnail URL for the portfolio item
+     */
+    public function getThumbnailUrlAttribute()
+    {
+        if (!$this->thumbnail_path) {
+            return null;
+        }
+
+        // Clean the thumbnail path (remove 'storage/' prefix if exists)
+        $cleanPath = str_replace('storage/', '', $this->thumbnail_path);
+        $cleanPath = ltrim($cleanPath, '/');
+        
+        // First, try to use Storage URL (works with symlinks)
+        if (Storage::disk('public')->exists($cleanPath)) {
+            return Storage::disk('public')->url($cleanPath);
+        }
+        
+        // Fallback: Check if file exists in public/storage (for non-symlink setups)
+        $publicPath = public_path('storage/' . $cleanPath);
+        if (file_exists($publicPath)) {
+            return asset('storage/' . $cleanPath);
+        }
+        
+        // Last resort: Try direct asset path
+        return asset('storage/' . $cleanPath);
     }
 }

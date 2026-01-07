@@ -388,4 +388,63 @@ class PortfolioController extends Controller
                 ->with('error', $errorMessage);
         }
     }
+
+    /**
+     * مزامنة جميع صور الأعمال إلى public/storage
+     */
+    public function syncAllImages(Request $request)
+    {
+        try {
+            $portfolioItems = PortfolioItem::whereNotNull('file_path')->get();
+            $successCount = 0;
+            $failCount = 0;
+            
+            foreach ($portfolioItems as $item) {
+                $cleanPath = str_replace('storage/', '', $item->file_path);
+                $cleanPath = ltrim($cleanPath, '/');
+                
+                if ($this->copyToPublicStorage($cleanPath)) {
+                    $successCount++;
+                } else {
+                    $failCount++;
+                    Log::warning('Failed to sync image for portfolio ID: ' . $item->id . ' - Image: ' . $item->file_path);
+                }
+
+                // Also sync thumbnail if exists
+                if ($item->thumbnail_path) {
+                    $cleanThumbnail = str_replace('storage/', '', $item->thumbnail_path);
+                    $cleanThumbnail = ltrim($cleanThumbnail, '/');
+                    $this->copyToPublicStorage($cleanThumbnail);
+                }
+            }
+            
+            $message = "تم نسخ {$successCount} صورة بنجاح" . ($failCount > 0 ? " وفشل نسخ {$failCount} صورة" : "");
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'success_count' => $successCount,
+                    'fail_count' => $failCount
+                ]);
+            }
+            
+            return redirect()->route('admin.portfolio.index')
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Failed to sync portfolio images: ' . $e->getMessage());
+            
+            $errorMessage = 'حدث خطأ أثناء مزامنة الصور: ' . $e->getMessage();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 500);
+            }
+            
+            return redirect()->route('admin.portfolio.index')
+                ->with('error', $errorMessage);
+        }
+    }
 }

@@ -226,6 +226,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/create', [App\Http\Controllers\PortfolioController::class, 'create'])->name('create');
             Route::post('/', [App\Http\Controllers\PortfolioController::class, 'store'])->name('store');
             Route::post('/add-all-images', [App\Http\Controllers\PortfolioController::class, 'addAllImagesFromFolder'])->name('add-all-images');
+            Route::post('/sync-images', [App\Http\Controllers\PortfolioController::class, 'syncAllImages'])->name('sync-images');
             Route::get('/{portfolioItem}/edit', [App\Http\Controllers\PortfolioController::class, 'edit'])->name('edit');
             Route::put('/{portfolioItem}', [App\Http\Controllers\PortfolioController::class, 'update'])->name('update');
             Route::delete('/{portfolioItem}', [App\Http\Controllers\PortfolioController::class, 'destroy'])->name('destroy');
