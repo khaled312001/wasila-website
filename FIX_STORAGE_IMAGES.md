@@ -7,7 +7,21 @@
 
 ## الحل
 
-### الخطوة الأولى: فحص الملفات الموجودة
+### الخطوة الأولى: إنشاء المجلدات المطلوبة
+
+تأكد من وجود جميع المجلدات المطلوبة:
+
+```bash
+php artisan storage:create-directories
+```
+
+هذا الأمر سينشئ:
+- `storage/app/public/services`
+- `storage/app/public/portfolio`
+- `public/storage/services`
+- `public/storage/portfolio`
+
+### الخطوة الثانية: فحص الملفات الموجودة
 
 قبل المزامنة، تحقق من الملفات الموجودة:
 
@@ -20,29 +34,31 @@ php artisan storage:check-files
 - الملفات الموجودة في `public/storage`
 - الملفات المفقودة من قاعدة البيانات
 
-### الخطوة الثانية: مزامنة الصور
+**⚠️ مهم:** إذا كانت جميع الملفات مفقودة، يجب رفع الملفات إلى `storage/app/public` أولاً.
+
+### الخطوة الثالثة: مزامنة الصور
 
 قم بتشغيل الأمر التالي على السيرفر:
 
 ```bash
-php artisan storage:sync-images --verbose
+php artisan storage:sync-images -v
 ```
 
 هذا الأمر سيقوم بـ:
 - نسخ جميع صور الخدمات من `storage/app/public/services` إلى `public/storage/services`
 - نسخ جميع صور الأعمال من `storage/app/public/portfolio` إلى `public/storage/portfolio`
-- عرض تفاصيل الأخطاء (مع --verbose)
+- عرض تفاصيل الأخطاء (مع -v أو -vv)
 
 **خيارات إضافية:**
 ```bash
 # مزامنة صور الخدمات فقط
-php artisan storage:sync-images --service-only --verbose
+php artisan storage:sync-images --service-only -v
 
 # مزامنة صور الأعمال فقط
-php artisan storage:sync-images --portfolio-only --verbose
+php artisan storage:sync-images --portfolio-only -v
 
 # إجبار المزامنة حتى لو كانت الملفات موجودة
-php artisan storage:sync-images --force --verbose
+php artisan storage:sync-images --force -v
 ```
 
 ### الطريقة الثانية: إصلاح الرابط الرمزي
@@ -80,15 +96,37 @@ php artisan storage:link
 
 تم إضافة الأوامر والوظائف التالية:
 
-1. **أمر Artisan**: `php artisan storage:sync-images` - لمزامنة الصور
+1. **أمر Artisan**: `php artisan storage:create-directories` - لإنشاء المجلدات المطلوبة
 2. **أمر Artisan**: `php artisan storage:check-files` - للتحقق من الملفات
-3. **Method في PortfolioItem**: `getFileUrlAttribute()` و `getThumbnailUrlAttribute()`
-4. **Route في لوحة التحكم**: `/admin/portfolio/sync-images`
-5. **Route في لوحة التحكم**: `/admin/services/sync-images` (موجود مسبقاً)
+3. **أمر Artisan**: `php artisan storage:sync-images` - لمزامنة الصور
+4. **Method في PortfolioItem**: `getFileUrlAttribute()` و `getThumbnailUrlAttribute()`
+5. **Route في لوحة التحكم**: `/admin/portfolio/sync-images`
+6. **Route في لوحة التحكم**: `/admin/services/sync-images` (موجود مسبقاً)
 
 ## حل المشاكل الشائعة
 
-### المشكلة: فشل نسخ جميع الملفات
+### المشكلة: جميع الملفات مفقودة (0 موجود، X مفقود)
+
+**السبب:** الملفات غير موجودة في `storage/app/public` على السيرفر.
+
+**الحل:**
+1. **رفع الملفات من السيرفر المحلي:**
+   - استخدم FTP/SFTP أو cPanel File Manager
+   - ارفع الملفات من `storage/app/public/services` و `storage/app/public/portfolio` إلى السيرفر
+
+2. **أو نسخ الملفات من مكان آخر:**
+   ```bash
+   # إذا كانت الملفات في مكان آخر، انسخها
+   cp -r /path/to/backup/storage/app/public/* storage/app/public/
+   ```
+
+3. **بعد رفع الملفات، قم بالمزامنة:**
+   ```bash
+   php artisan storage:check-files
+   php artisan storage:sync-images -v
+   ```
+
+### المشكلة: فشل نسخ بعض الملفات
 
 **الحل:**
 1. تحقق من وجود الملفات في `storage/app/public`:
@@ -106,6 +144,11 @@ php artisan storage:link
 3. تحقق من المسارات في قاعدة البيانات:
    ```bash
    php artisan storage:check-files
+   ```
+
+4. شغّل الأمر مع تفاصيل أكثر:
+   ```bash
+   php artisan storage:sync-images -vv
    ```
 
 ### المشكلة: الملفات موجودة لكن الصور لا تظهر

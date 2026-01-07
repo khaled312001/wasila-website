@@ -19,8 +19,7 @@ class SyncStorageImages extends Command
     protected $signature = 'storage:sync-images 
                             {--force : Force sync even if files already exist}
                             {--service-only : Sync only service images}
-                            {--portfolio-only : Sync only portfolio images}
-                            {--verbose : Show detailed error messages}';
+                            {--portfolio-only : Sync only portfolio images}';
 
     /**
      * The console command description.
@@ -71,7 +70,7 @@ class SyncStorageImages extends Command
         $this->info("   - تم نسخ {$totalSynced} ملف بنجاح");
         if ($totalFailed > 0) {
             $this->warn("   - فشل نسخ {$totalFailed} ملف");
-            $this->line("   - استخدم --verbose لعرض تفاصيل الأخطاء");
+            $this->line("   - استخدم -v أو -vv لعرض تفاصيل الأخطاء");
             $this->line("   - تحقق من وجود الملفات في storage/app/public");
             $this->line("   - تحقق من صلاحيات الكتابة على public/storage");
         }
@@ -116,7 +115,7 @@ class SyncStorageImages extends Command
         $this->newLine();
         $this->line("   تم مزامنة {$synced} صورة خدمة" . ($failed > 0 ? " (فشل {$failed})" : ""));
         
-        if ($failed > 0 && $this->option('verbose')) {
+        if ($failed > 0 && $this->getOutput()->isVerbose()) {
             foreach ($failedDetails as $detail) {
                 $this->warn("   - Service ID {$detail['id']}: {$detail['path']} - {$detail['reason']}");
             }
@@ -169,7 +168,7 @@ class SyncStorageImages extends Command
         $this->newLine();
         $this->line("   تم مزامنة {$synced} صورة عمل" . ($failed > 0 ? " (فشل {$failed})" : ""));
         
-        if ($failed > 0 && $this->option('verbose')) {
+        if ($failed > 0 && $this->getOutput()->isVerbose()) {
             foreach ($failedDetails as $detail) {
                 $this->warn("   - Portfolio ID {$detail['id']}: {$detail['path']} - {$detail['reason']}");
             }
