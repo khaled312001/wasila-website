@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactMessageMail;
+use App\Helpers\SettingsHelper;
 
 class ContactMessageController extends Controller
 {
@@ -63,6 +66,17 @@ class ContactMessageController extends Controller
                 'subject' => $request->subject,
                 'message' => $request->message
             ]);
+            
+            // Send email notification
+            try {
+                $contactEmail = SettingsHelper::contactEmail();
+                Mail::to($contactEmail)->send(new ContactMessageMail($contactMessage));
+                Log::info('Contact message email sent successfully to: ' . $contactEmail);
+            } catch (\Exception $emailException) {
+                // Log email error but don't fail the request
+                Log::error('Failed to send contact message email: ' . $emailException->getMessage());
+                // You can optionally notify admin about email failure
+            }
             
             return response()->json([
                 'success' => true,
