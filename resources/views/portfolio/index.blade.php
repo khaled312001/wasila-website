@@ -24,20 +24,50 @@
                             <div class="card-img-top position-relative" style="height: 250px; overflow: hidden;">
                                 @if($item->type === 'image')
                                     @php
-                                        $filePath = str_starts_with($item->file_path, 'storage/') ? substr($item->file_path, 8) : $item->file_path;
-                                        $imageUrl = \Storage::disk('public')->exists($filePath) 
-                                            ? \Storage::disk('public')->url($filePath)
-                                            : asset('storage/' . $filePath);
+                                        // Clean file path - remove 'storage/' prefix if exists
+                                        $cleanFilePath = str_replace('storage/', '', $item->file_path);
+                                        $cleanFilePath = ltrim($cleanFilePath, '/');
+                                        
+                                        // Check if file exists in multiple locations
+                                        $existsInStorage = \Storage::disk('public')->exists($cleanFilePath);
+                                        $existsInPublic = file_exists(public_path('storage/' . $cleanFilePath));
+                                        $existsInAppPublic = file_exists(storage_path('app/public/' . $cleanFilePath));
+                                        
+                                        // Get file URL - prefer public/storage for direct access
+                                        if ($existsInPublic) {
+                                            $imageUrl = asset('storage/' . $cleanFilePath);
+                                        } elseif ($existsInStorage) {
+                                            $imageUrl = \Storage::disk('public')->url($cleanFilePath);
+                                        } elseif ($existsInAppPublic) {
+                                            $imageUrl = asset('storage/' . $cleanFilePath);
+                                        } else {
+                                            $imageUrl = asset('storage/' . $cleanFilePath);
+                                        }
                                     @endphp
                                     <img src="{{ $imageUrl }}" alt="{{ $item->title }}" 
                                          class="w-100 h-100" style="object-fit: cover;"
                                          onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-100 h-100 bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center\'><i class=\'fas fa-image fa-3x text-white\'></i></div>';">
                                 @else
                                     @php
-                                        $filePath = str_starts_with($item->file_path, 'storage/') ? substr($item->file_path, 8) : $item->file_path;
-                                        $videoUrl = \Storage::disk('public')->exists($filePath) 
-                                            ? \Storage::disk('public')->url($filePath)
-                                            : asset('storage/' . $filePath);
+                                        // Clean file path - remove 'storage/' prefix if exists
+                                        $cleanFilePath = str_replace('storage/', '', $item->file_path);
+                                        $cleanFilePath = ltrim($cleanFilePath, '/');
+                                        
+                                        // Check if file exists in multiple locations
+                                        $existsInStorage = \Storage::disk('public')->exists($cleanFilePath);
+                                        $existsInPublic = file_exists(public_path('storage/' . $cleanFilePath));
+                                        $existsInAppPublic = file_exists(storage_path('app/public/' . $cleanFilePath));
+                                        
+                                        // Get file URL - prefer public/storage for direct access
+                                        if ($existsInPublic) {
+                                            $videoUrl = asset('storage/' . $cleanFilePath);
+                                        } elseif ($existsInStorage) {
+                                            $videoUrl = \Storage::disk('public')->url($cleanFilePath);
+                                        } elseif ($existsInAppPublic) {
+                                            $videoUrl = asset('storage/' . $cleanFilePath);
+                                        } else {
+                                            $videoUrl = asset('storage/' . $cleanFilePath);
+                                        }
                                     @endphp
                                     <video class="w-100 h-100" style="object-fit: cover;" controls>
                                         <source src="{{ $videoUrl }}" type="video/mp4">

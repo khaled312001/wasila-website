@@ -65,51 +65,57 @@ class GoogleController extends Controller
             // Login the customer with remember me
             Auth::guard('customer')->login($customer, true);
             
-            // Force session save to ensure authentication is persisted
-            request()->session()->save();
+            // Regenerate session to prevent session fixation attacks
+            // This should be done after login but before redirect
+            request()->session()->regenerate();
             
-            // Verify login was successful
+            // Verify login was successful after regeneration
             if (!Auth::guard('customer')->check()) {
-                \Log::error('Login failed after Auth::login()', [
+                \Log::error('Login failed after session regenerate', [
                     'customer_id' => $customer->id,
                     'customer_email' => $customer->email,
                     'session_id' => request()->session()->getId()
                 ]);
-                throw new \Exception('Failed to login customer');
+                // Re-login if auth was lost during regeneration
+                Auth::guard('customer')->login($customer, true);
             }
             
-            // Regenerate session to prevent session fixation attacks
-            // This must be done AFTER login and save
-            request()->session()->regenerate();
-            
-            // Re-login after regenerate to maintain auth state
-            Auth::guard('customer')->login($customer, true);
+            // Ensure session is saved and committed before redirect
+            // Use getSession() to get the session instance and save it
+            $session = request()->session();
+            $session->save();
             
             // Final verification
             if (!Auth::guard('customer')->check()) {
-                \Log::error('Login lost after regenerate', [
+                \Log::error('Login lost after save', [
                     'customer_id' => $customer->id,
-                    'customer_email' => $customer->email
+                    'customer_email' => $customer->email,
+                    'session_id' => $session->getId()
                 ]);
-                throw new \Exception('Failed to maintain login after session regenerate');
+                // Try one more time to login and save
+                Auth::guard('customer')->login($customer, true);
+                $session->save();
             }
             
             // Log successful login for debugging
             \Log::info('Google login successful', [
                 'customer_id' => $customer->id,
                 'customer_email' => $customer->email,
-                'session_id' => request()->session()->getId()
+                'session_id' => $session->getId(),
+                'is_authenticated' => Auth::guard('customer')->check()
             ]);
 
             // Check if there's a checkout redirect
-            if (session()->has('checkout_redirect')) {
-                $redirectUrl = session('checkout_redirect');
-                session()->forget('checkout_redirect');
+            if ($session->has('checkout_redirect')) {
+                $redirectUrl = $session->get('checkout_redirect');
+                $session->forget('checkout_redirect');
+                $session->save();
                 return redirect($redirectUrl)
                     ->with('success', __('messages.login_successful'));
             }
 
             // Always redirect to home page to show login status in navbar
+            // The session will be automatically included in the response by Laravel's middleware
             return redirect()->route('home')
                 ->with('success', __('messages.login_successful'));
 

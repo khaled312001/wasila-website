@@ -473,15 +473,21 @@
                             $cleanFilePath = str_replace('storage/', '', $item->file_path);
                             $cleanFilePath = ltrim($cleanFilePath, '/');
                             
-                            // Check if file exists
-                            $fileExists = \Storage::disk('public')->exists($cleanFilePath) || 
-                                         file_exists(storage_path('app/public/' . $cleanFilePath));
+                            // Check if file exists in multiple locations
+                            $existsInStorage = \Storage::disk('public')->exists($cleanFilePath);
+                            $existsInPublic = file_exists(public_path('storage/' . $cleanFilePath));
+                            $existsInAppPublic = file_exists(storage_path('app/public/' . $cleanFilePath));
+                            $fileExists = $existsInStorage || $existsInPublic || $existsInAppPublic;
                             
-                            // Get file URL
-                            if ($fileExists) {
+                            // Get file URL - prefer public/storage for direct access
+                            if ($existsInPublic) {
+                                $fileUrl = asset('storage/' . $cleanFilePath);
+                            } elseif ($existsInStorage) {
                                 $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                            } elseif ($existsInAppPublic) {
+                                // File exists but not copied to public/storage yet
+                                $fileUrl = asset('storage/' . $cleanFilePath);
                             } else {
-                                // Try alternative path
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             }
                         @endphp

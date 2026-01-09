@@ -25,6 +25,12 @@
                                     <i class="fas fa-images"></i> إضافة جميع الصور من المجلد
                                 </button>
                             </form>
+                            <form method="POST" action="{{ route('admin.portfolio.sync-images') }}" class="d-inline" onsubmit="return confirm('هل تريد مزامنة جميع الصور إلى مجلد public/storage؟')">
+                                @csrf
+                                <button type="submit" class="btn-add-new" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+                                    <i class="fas fa-sync-alt"></i> مزامنة جميع الصور
+                                </button>
+                            </form>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -82,10 +88,27 @@
                                     <tr>
                                         <td>
                                             @php
-                                                // Clean file path and get URL
+                                                // Clean file path - remove 'storage/' prefix if exists
                                                 $cleanFilePath = str_replace('storage/', '', $item->file_path);
-                                                $fileUrl = \Storage::disk('public')->url($cleanFilePath);
-                                                $fileExists = \Storage::disk('public')->exists($cleanFilePath) || file_exists(storage_path('app/public/' . $cleanFilePath));
+                                                $cleanFilePath = ltrim($cleanFilePath, '/');
+                                                
+                                                // Check if file exists in multiple locations
+                                                $existsInStorage = \Storage::disk('public')->exists($cleanFilePath);
+                                                $existsInPublic = file_exists(public_path('storage/' . $cleanFilePath));
+                                                $existsInAppPublic = file_exists(storage_path('app/public/' . $cleanFilePath));
+                                                $fileExists = $existsInStorage || $existsInPublic || $existsInAppPublic;
+                                                
+                                                // Get file URL - prefer public/storage for direct access
+                                                if ($existsInPublic) {
+                                                    $fileUrl = asset('storage/' . $cleanFilePath);
+                                                } elseif ($existsInStorage) {
+                                                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                                                } elseif ($existsInAppPublic) {
+                                                    // File exists but not copied to public/storage yet - try to copy it
+                                                    $fileUrl = asset('storage/' . $cleanFilePath);
+                                                } else {
+                                                    $fileUrl = asset('storage/' . $cleanFilePath);
+                                                }
                                             @endphp
                                             @if($item->type === 'image')
                                                 @if($fileExists)
@@ -95,6 +118,7 @@
                                                 @else
                                                     <div class="media-preview-placeholder">
                                                         <i class="fas fa-image fa-2x text-muted"></i>
+                                                        <small class="d-block text-muted mt-1">الملف غير موجود</small>
                                                     </div>
                                                 @endif
                                             @else
@@ -106,6 +130,7 @@
                                                 @else
                                                     <div class="media-preview-placeholder">
                                                         <i class="fas fa-video fa-2x text-muted"></i>
+                                                        <small class="d-block text-muted mt-1">الملف غير موجود</small>
                                                     </div>
                                                 @endif
                                             @endif

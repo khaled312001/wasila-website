@@ -83,7 +83,10 @@ class PortfolioController extends Controller
         $relativePath = str_replace('public/', '', $path);
         
         // Copy file to public/storage for hosting providers that don't support symlinks
-        $this->copyToPublicStorage($relativePath);
+        $copied = $this->copyToPublicStorage($relativePath);
+        if (!$copied) {
+            Log::warning('Failed to copy portfolio file to public storage: ' . $relativePath);
+        }
 
         // إنشاء thumbnail للفيديو
         $thumbnailPath = null;
@@ -177,7 +180,10 @@ class PortfolioController extends Controller
                 $data['file_path'] = str_replace('public/', '', $path);
                 
                 // Copy file to public/storage for hosting providers that don't support symlinks
-                $this->copyToPublicStorage($data['file_path']);
+                $copied = $this->copyToPublicStorage($data['file_path']);
+                if (!$copied) {
+                    Log::warning('Failed to copy portfolio file to public storage: ' . $data['file_path']);
+                }
 
                 // إنشاء thumbnail للفيديو
                 if ($type === 'video') {
@@ -223,6 +229,7 @@ class PortfolioController extends Controller
     
     /**
      * Copy file to public/storage directory for hosting providers that don't support symlinks
+     * @return bool True if file was copied successfully, false otherwise
      */
     private function copyToPublicStorage($filePath)
     {
@@ -245,14 +252,20 @@ class PortfolioController extends Controller
                     mkdir($targetDir, 0755, true);
                 }
                 
-                copy($sourcePath, $targetPath);
+                $copied = copy($sourcePath, $targetPath);
                 
-                // Set file permissions (readable by web server)
-                chmod($targetPath, 0644);
-                
-                Log::info('File copied to public storage: ' . $filePath);
+                if ($copied) {
+                    // Set file permissions (readable by web server)
+                    chmod($targetPath, 0644);
+                    Log::info('File copied to public storage: ' . $filePath);
+                    return true;
+                } else {
+                    Log::warning('Failed to copy file to public storage: ' . $filePath);
+                    return false;
+                }
             } else {
                 Log::warning('Source file not found: ' . $sourcePath);
+                return false;
             }
         } catch (\Exception $e) {
             // Log error but don't break the flow
@@ -261,6 +274,7 @@ class PortfolioController extends Controller
                 'source' => $sourcePath ?? 'N/A',
                 'target' => $targetPath ?? 'N/A'
             ]);
+            return false;
         }
     }
     
@@ -398,10 +412,18 @@ class PortfolioController extends Controller
             $portfolioItems = PortfolioItem::whereNotNull('file_path')->get();
             $successCount = 0;
             $failCount = 0;
+            $skippedCount = 0;
             
             foreach ($portfolioItems as $item) {
                 $cleanPath = str_replace('storage/', '', $item->file_path);
                 $cleanPath = ltrim($cleanPath, '/');
+                
+                // Check if file already exists in public/storage
+                $publicPath = public_path('storage/' . $cleanPath);
+                if (file_exists($publicPath)) {
+                    $skippedCount++;
+                    continue;
+                }
                 
                 if ($this->copyToPublicStorage($cleanPath)) {
                     $successCount++;
@@ -418,13 +440,20 @@ class PortfolioController extends Controller
                 }
             }
             
-            $message = "تم نسخ {$successCount} صورة بنجاح" . ($failCount > 0 ? " وفشل نسخ {$failCount} صورة" : "");
+            $message = "تم نسخ {$successCount} صورة بنجاح";
+            if ($skippedCount > 0) {
+                $message .= " (تم تخطي {$skippedCount} صورة موجودة مسبقاً)";
+            }
+            if ($failCount > 0) {
+                $message .= " وفشل نسخ {$failCount} صورة";
+            }
             
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message,
                     'success_count' => $successCount,
+                    'skipped_count' => $skippedCount,
                     'fail_count' => $failCount
                 ]);
             }
