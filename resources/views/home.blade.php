@@ -446,12 +446,20 @@
             </p>
             <div class="grid grid-cols-2 gap-6 mb-6">
                 <div class="text-center">
-                    <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">{{ __('messages.services_provided_number') }}</div>
-                    <div class="text-sm md:text-base text-gray-600">{{ __('messages.services_provided') }}</div>
+                    <div class="text-2xl md:text-3xl font-bold mb-2" style="color: #08788B;">
+                        {{ __('messages.services_provided_number') ?: '500+' }}
+                    </div>
+                    <div class="text-sm md:text-base text-gray-600">
+                        {{ __('messages.services_provided') ?: 'خدمة مقدمة' }}
+                    </div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl md:text-3xl font-bold text-primary-medium mb-2">{{ __('messages.beneficiaries_number') }}</div>
-                    <div class="text-sm md:text-base text-gray-600">{{ __('messages.beneficiaries') }}</div>
+                    <div class="text-2xl md:text-3xl font-bold mb-2" style="color: #08788B;">
+                        {{ __('messages.beneficiaries_number') ?: '1000+' }}
+                    </div>
+                    <div class="text-sm md:text-base text-gray-600">
+                        {{ __('messages.beneficiaries') ?: 'مستفيد' }}
+                    </div>
                 </div>
             </div>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -470,8 +478,8 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-12">
-            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-primary-dark mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif;">
-                {{ __('messages.features_subtitle') }}
+            <h2 class="text-lg md:text-xl lg:text-2xl font-bold mb-4" style="font-family: 'Tajawal', 'Inter', sans-serif; color: #08788B;">
+                {{ __('messages.features_subtitle') ?: 'لماذا تختار وسيلة؟' }}
             </h2>
         </div>
         
