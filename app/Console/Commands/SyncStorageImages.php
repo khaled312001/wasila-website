@@ -138,8 +138,7 @@ class SyncStorageImages extends Command
         $bar->start();
 
         foreach ($portfolioItems as $item) {
-            $cleanPath = str_replace('storage/', '', $item->file_path);
-            $cleanPath = ltrim($cleanPath, '/');
+            $cleanPath = $this->normalizeFilePath($item->file_path);
             
             $result = $this->copyToPublicStorage($cleanPath, $force);
             if ($result === true) {
@@ -156,8 +155,7 @@ class SyncStorageImages extends Command
 
             // Also sync thumbnail if exists
             if ($item->thumbnail_path) {
-                $cleanThumbnail = str_replace('storage/', '', $item->thumbnail_path);
-                $cleanThumbnail = ltrim($cleanThumbnail, '/');
+                $cleanThumbnail = $this->normalizeFilePath($item->thumbnail_path);
                 $this->copyToPublicStorage($cleanThumbnail, $force);
             }
             
@@ -182,6 +180,11 @@ class SyncStorageImages extends Command
      */
     private function copyToPublicStorage($filePath, $force = false)
     {
+        $filePath = $this->normalizeFilePath($filePath);
+        if (empty($filePath)) {
+            return 'مسار الملف غير صحيح';
+        }
+
         try {
             $sourcePath = storage_path('app/public/' . $filePath);
             $targetPath = public_path('storage/' . $filePath);
@@ -246,5 +249,18 @@ class SyncStorageImages extends Command
             Log::error('Exception in copyToPublicStorage: ' . $errorMsg . ' | File: ' . $filePath);
             return $errorMsg;
         }
+    }
+
+    /**
+     * Normalize storage paths by stripping common prefixes
+     */
+    private function normalizeFilePath(?string $path): string
+    {
+        if (empty($path)) {
+            return '';
+        }
+
+        $cleanPath = str_replace(['storage/', '/storage/', 'public/', '/public/'], '', $path);
+        return ltrim($cleanPath, '/');
     }
 }

@@ -62,13 +62,10 @@ class PortfolioItem extends Model
      */
     public function getFileUrlAttribute()
     {
-        if (!$this->file_path) {
+        $cleanPath = $this->normalized_file_path;
+        if (!$cleanPath) {
             return null;
         }
-
-        // Clean the file path (remove 'storage/' prefix if exists)
-        $cleanPath = str_replace('storage/', '', $this->file_path);
-        $cleanPath = ltrim($cleanPath, '/');
         
         // First, try to use Storage URL (works with symlinks)
         if (Storage::disk('public')->exists($cleanPath)) {
@@ -90,13 +87,10 @@ class PortfolioItem extends Model
      */
     public function getThumbnailUrlAttribute()
     {
-        if (!$this->thumbnail_path) {
+        $cleanPath = $this->normalized_thumbnail_path;
+        if (!$cleanPath) {
             return null;
         }
-
-        // Clean the thumbnail path (remove 'storage/' prefix if exists)
-        $cleanPath = str_replace('storage/', '', $this->thumbnail_path);
-        $cleanPath = ltrim($cleanPath, '/');
         
         // First, try to use Storage URL (works with symlinks)
         if (Storage::disk('public')->exists($cleanPath)) {
@@ -111,5 +105,38 @@ class PortfolioItem extends Model
         
         // Last resort: Try direct asset path
         return asset('storage/' . $cleanPath);
+    }
+
+    /**
+     * Normalized file path without storage/public prefixes
+     */
+    public function getNormalizedFilePathAttribute(): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        return $this->normalizePath($this->file_path);
+    }
+
+    /**
+     * Normalized thumbnail path without storage/public prefixes
+     */
+    public function getNormalizedThumbnailPathAttribute(): ?string
+    {
+        if (!$this->thumbnail_path) {
+            return null;
+        }
+
+        return $this->normalizePath($this->thumbnail_path);
+    }
+
+    /**
+     * Remove known prefixes and leading slashes from a storage path
+     */
+    protected function normalizePath(string $path): string
+    {
+        $cleanPath = str_replace(['storage/', '/storage/', 'public/', '/public/'], '', $path);
+        return ltrim($cleanPath, '/');
     }
 }

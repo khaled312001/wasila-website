@@ -88,15 +88,14 @@
                                     <tr>
                                         <td>
                                             @php
-                                                // Clean file path - remove 'storage/' prefix if exists
-                                                $cleanFilePath = str_replace('storage/', '', $item->file_path);
-                                                $cleanFilePath = ltrim($cleanFilePath, '/');
+                                                // Use normalized path to handle storage/public prefixes
+                                                $cleanFilePath = $item->normalized_file_path;
                                                 
                                                 // Check if file exists in multiple locations
-                                                $existsInStorage = \Storage::disk('public')->exists($cleanFilePath);
-                                                $existsInPublic = file_exists(public_path('storage/' . $cleanFilePath));
-                                                $existsInAppPublic = file_exists(storage_path('app/public/' . $cleanFilePath));
-                                                $fileExists = $existsInStorage || $existsInPublic || $existsInAppPublic;
+                                                $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
+                                                $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
+                                                $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
+                                                $fileExists = $cleanFilePath && ($existsInStorage || $existsInPublic || $existsInAppPublic);
                                                 
                                                 // Get file URL - prefer public/storage for direct access
                                                 if ($existsInPublic) {
@@ -107,7 +106,7 @@
                                                     // File exists but not copied to public/storage yet - try to copy it
                                                     $fileUrl = asset('storage/' . $cleanFilePath);
                                                 } else {
-                                                    $fileUrl = asset('storage/' . $cleanFilePath);
+                                                    $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                                                 }
                                             @endphp
                                             @if($item->type === 'image')

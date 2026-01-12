@@ -95,9 +95,13 @@
                             <label>الملف الحالي</label>
                             <div class="mt-2">
                                 @php
-                                    $cleanFilePath = str_replace('storage/', '', $portfolioItem->file_path);
-                                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
-                                    $fileExists = \Storage::disk('public')->exists($cleanFilePath) || file_exists(storage_path('app/public/' . $cleanFilePath));
+                                    $cleanFilePath = $portfolioItem->normalized_file_path;
+                                    $fileExists = $cleanFilePath && (\Storage::disk('public')->exists($cleanFilePath) || file_exists(storage_path('app/public/' . $cleanFilePath)) || file_exists(public_path('storage/' . $cleanFilePath)));
+                                    $fileUrl = $fileExists
+                                        ? (file_exists(public_path('storage/' . $cleanFilePath)) 
+                                            ? asset('storage/' . $cleanFilePath) 
+                                            : \Storage::disk('public')->url($cleanFilePath))
+                                        : ($portfolioItem->file_url ?? asset('images/placeholder-portfolio.png'));
                                 @endphp
                                 @if($portfolioItem->type === 'image')
                                     @if($fileExists)

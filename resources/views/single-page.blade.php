@@ -441,10 +441,10 @@
                     if (empty($item->file_path)) {
                         return false;
                     }
-                    $cleanFilePath = str_replace('storage/', '', $item->file_path);
-                    $cleanFilePath = ltrim($cleanFilePath, '/');
-                    return \Storage::disk('public')->exists($cleanFilePath) || 
-                           file_exists(storage_path('app/public/' . $cleanFilePath));
+                    $cleanFilePath = $item->normalized_file_path;
+                    return $cleanFilePath && (\Storage::disk('public')->exists($cleanFilePath) || 
+                           file_exists(storage_path('app/public/' . $cleanFilePath)) ||
+                           file_exists(public_path('storage/' . $cleanFilePath)));
                 });
                 
                 // Use valid items, or fallback to all items if none are valid
@@ -469,15 +469,13 @@
                 <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}">
                     @foreach($allItems as $item)
                         @php
-                            // Clean file path - remove 'storage/' prefix if exists
-                            $cleanFilePath = str_replace('storage/', '', $item->file_path);
-                            $cleanFilePath = ltrim($cleanFilePath, '/');
+                            $cleanFilePath = $item->normalized_file_path;
                             
                             // Check if file exists in multiple locations
-                            $existsInStorage = \Storage::disk('public')->exists($cleanFilePath);
-                            $existsInPublic = file_exists(public_path('storage/' . $cleanFilePath));
-                            $existsInAppPublic = file_exists(storage_path('app/public/' . $cleanFilePath));
-                            $fileExists = $existsInStorage || $existsInPublic || $existsInAppPublic;
+                            $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
+                            $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
+                            $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
+                            $fileExists = $cleanFilePath && ($existsInStorage || $existsInPublic || $existsInAppPublic);
                             
                             // Get file URL - prefer public/storage for direct access
                             if ($existsInPublic) {
@@ -488,7 +486,7 @@
                                 // File exists but not copied to public/storage yet
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } else {
-                                $fileUrl = asset('storage/' . $cleanFilePath);
+                                $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
                         @endphp
                         <div class="our-work-card">

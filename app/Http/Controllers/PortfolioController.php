@@ -79,8 +79,8 @@ class PortfolioController extends Controller
 
         // رفع الملف إلى مجلد portfolio
         $path = $file->store('public/portfolio');
-        // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
-        $relativePath = str_replace('public/', '', $path);
+        // Normalize path to handle public/storage prefixes consistently
+        $relativePath = $this->normalizeFilePath($path);
         
         // Copy file to public/storage for hosting providers that don't support symlinks
         $copied = $this->copyToPublicStorage($relativePath);
@@ -168,16 +168,16 @@ class PortfolioController extends Controller
             if (!$validator->fails()) {
                 // حذف الملف القديم
                 if ($portfolioItem->file_path) {
-                    Storage::delete(str_replace('/storage/', 'public/', $portfolioItem->file_path));
+                    Storage::disk('public')->delete($this->normalizeFilePath($portfolioItem->file_path));
                 }
                 if ($portfolioItem->thumbnail_path) {
-                    Storage::delete(str_replace('/storage/', 'public/', $portfolioItem->thumbnail_path));
+                    Storage::disk('public')->delete($this->normalizeFilePath($portfolioItem->thumbnail_path));
                 }
 
                 // رفع الملف الجديد إلى مجلد portfolio
                 $path = $file->store('public/portfolio');
                 // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
-                $data['file_path'] = str_replace('public/', '', $path);
+                $data['file_path'] = $this->normalizeFilePath($path);
                 
                 // Copy file to public/storage for hosting providers that don't support symlinks
                 $copied = $this->copyToPublicStorage($data['file_path']);
@@ -205,10 +205,10 @@ class PortfolioController extends Controller
     {
         // حذف الملفات
         if ($portfolioItem->file_path) {
-            Storage::delete(str_replace('/storage/', 'public/', $portfolioItem->file_path));
+            Storage::disk('public')->delete($this->normalizeFilePath($portfolioItem->file_path));
         }
         if ($portfolioItem->thumbnail_path) {
-            Storage::delete(str_replace('/storage/', 'public/', $portfolioItem->thumbnail_path));
+            Storage::disk('public')->delete($this->normalizeFilePath($portfolioItem->thumbnail_path));
         }
 
         $portfolioItem->delete();
@@ -233,6 +233,11 @@ class PortfolioController extends Controller
      */
     private function copyToPublicStorage($filePath)
     {
+        $filePath = $this->normalizeFilePath($filePath);
+        if (empty($filePath)) {
+            return false;
+        }
+
         try {
             $sourcePath = storage_path('app/public/' . $filePath);
             $targetPath = public_path('storage/' . $filePath);
@@ -415,8 +420,11 @@ class PortfolioController extends Controller
             $skippedCount = 0;
             
             foreach ($portfolioItems as $item) {
-                $cleanPath = str_replace('storage/', '', $item->file_path);
-                $cleanPath = ltrim($cleanPath, '/');
+                $cleanPath = $this->normalizeFilePath($item->file_path);
+                if (empty($cleanPath)) {
+                    $failCount++;
+                    continue;
+                }
                 
                 // Check if file already exists in public/storage
                 $publicPath = public_path('storage/' . $cleanPath);
@@ -434,8 +442,7 @@ class PortfolioController extends Controller
 
                 // Also sync thumbnail if exists
                 if ($item->thumbnail_path) {
-                    $cleanThumbnail = str_replace('storage/', '', $item->thumbnail_path);
-                    $cleanThumbnail = ltrim($cleanThumbnail, '/');
+                    $cleanThumbnail = $this->normalizeFilePath($item->thumbnail_path);
                     $this->copyToPublicStorage($cleanThumbnail);
                 }
             }
@@ -475,5 +482,18 @@ class PortfolioController extends Controller
             return redirect()->route('admin.portfolio.index')
                 ->with('error', $errorMessage);
         }
+    }
+
+    /**
+     * Normalize storage paths by removing public/storage prefixes and leading slashes
+     */
+    private function normalizeFilePath(?string $path): string
+    {
+        if (empty($path)) {
+            return '';
+        }
+
+        $cleanPath = str_replace(['storage/', '/storage/', 'public/', '/public/'], '', $path);
+        return ltrim($cleanPath, '/');
     }
 }
