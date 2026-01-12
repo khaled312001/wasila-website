@@ -284,4 +284,11 @@ return [
     'refunded' => 'مسترد',
     'cancelled' => 'ملغي',
     'payment_reference' => 'رقم المرجع',
+    
+    // Order documentation and customer information
+    'order_documentation' => 'توثيق الطلب',
+    'customer_information' => 'معلومات العميل',
+    'view_invoice' => 'عرض الفاتورة',
+    'download_invoice' => 'تحميل الفاتورة',
+    'contact_about_order' => 'التواصل حول الطلب',
 ];

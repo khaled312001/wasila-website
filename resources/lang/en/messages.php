@@ -389,4 +389,11 @@ return [
     'completed_orders' => 'Completed Orders',
     'total_spent' => 'Total Spent',
     'unread_messages' => 'Unread Messages',
+    
+    // Order documentation and customer information
+    'order_documentation' => 'Order Documentation',
+    'customer_information' => 'Customer Information',
+    'view_invoice' => 'View Invoice',
+    'download_invoice' => 'Download Invoice',
+    'contact_about_order' => 'Contact About Order',
 ];

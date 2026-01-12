@@ -5,14 +5,14 @@
 
 <div class="flex {{ $isCustomer ? 'justify-end' : 'justify-start' }}">
     <div class="message-bubble message-{{ $message->sender_type }} p-4">
-        <div class="flex items-center gap-2 mb-1">
-            <span class="text-xs font-semibold opacity-80">{{ $senderName }}</span>
+        <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-bold opacity-90">{{ $senderName }}</span>
             @if($message->order)
-            <span class="text-xs opacity-60">• {{ __('messages.order') }} #{{ $message->order->order_number }}</span>
+            <span class="text-xs opacity-70">• {{ __('messages.order') }} #{{ $message->order->order_number }}</span>
             @endif
         </div>
         @if($message->message)
-        <p class="text-sm mb-2">{{ $message->message }}</p>
+        <p class="text-sm mb-2 leading-relaxed whitespace-pre-wrap">{{ $message->message }}</p>
         @endif
         
         @if($message->file_path)
@@ -27,7 +27,7 @@
                     <div class="font-semibold">{{ $message->file_name }}</div>
                     <div class="text-xs opacity-70">{{ $message->formatted_file_size }}</div>
                 </div>
-                <a href="{{ $message->file_url }}" download class="text-primary-medium hover:text-primary-dark">
+                <a href="{{ $message->file_url }}" download class="text-primary-medium hover:text-primary-dark transition-colors">
                     <i class="fas fa-download"></i>
                 </a>
             </div>
