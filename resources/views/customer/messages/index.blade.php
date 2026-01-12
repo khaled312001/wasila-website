@@ -6,15 +6,180 @@
 
 @push('styles')
 <style>
+    /* CSS Variables for Consistency */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
+        --primary-gradient-hover: linear-gradient(135deg, #025469 0%, #08788B 50%, #6366f1 100%);
+        --whatsapp-gradient: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+        --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.2);
+        --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.1);
+        --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --border-radius: 1.25rem;
+        --border-radius-sm: 0.75rem;
+    }
+    
     /* Main Container */
+    .messages-page-container {
+        max-width: 90rem;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+    
     .chat-container {
         height: calc(100vh - 280px);
         min-height: 650px;
         max-height: 850px;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-xl);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background: white;
+    }
+    
+    /* Chat Header */
+    .chat-header {
+        background: var(--primary-gradient);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chat-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .chat-header-content {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .chat-header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .chat-header-icon {
+        width: 56px;
+        height: 56px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-base);
+        flex-shrink: 0;
+    }
+    
+    .chat-header-icon:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(5deg) scale(1.05);
+    }
+    
+    .chat-header-icon i {
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .chat-header-info h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fef08a;
+        margin-bottom: 0.25rem;
+    }
+    
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); }
+        50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    }
+    
+    .status-text {
+        font-size: 0.875rem;
+        color: #fef08a;
+        opacity: 0.95;
+        font-weight: 500;
+    }
+    
+    .chat-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .order-badge {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.875rem;
+        color: white;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-header {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.625rem 1.25rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.875rem;
+        color: white;
+        font-weight: 600;
+        transition: var(--transition-base);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-sm);
+        text-decoration: none;
+    }
+    
+    .btn-header:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+        box-shadow: var(--shadow-md);
     }
     
     /* Messages Container */
@@ -26,12 +191,30 @@
         position: relative;
     }
     
+    .messages-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
     /* Message Bubbles */
+    .message-wrapper {
+        display: flex;
+        animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .message-wrapper.customer {
+        justify-content: flex-end;
+    }
+    
+    .message-wrapper.admin {
+        justify-content: flex-start;
+    }
+    
     .message-bubble {
         max-width: 75%;
         word-wrap: break-word;
         position: relative;
-        animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         transition: transform 0.2s ease;
     }
     
@@ -50,49 +233,46 @@
         }
     }
     
-    /* Customer Messages */
     .message-customer {
-        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        background: var(--whatsapp-gradient);
         color: white;
-        margin-left: auto;
-        border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
-        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
-        position: relative;
+        border-radius: var(--border-radius) var(--border-radius) 0.25rem var(--border-radius);
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3), var(--shadow-sm);
+        padding: 1rem;
     }
     
-    .message-customer::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        right: -8px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 0 12px 12px;
-        border-color: transparent transparent #128C7E transparent;
-    }
-    
-    /* Admin Messages */
     .message-admin {
         background: white;
         color: #1f2937;
-        margin-right: auto;
-        border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0.25rem;
+        box-shadow: var(--shadow-md);
         border: 1px solid rgba(0, 0, 0, 0.05);
-        position: relative;
+        padding: 1rem;
     }
     
-    .message-admin::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: -8px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 12px 12px 0;
-        border-color: transparent white transparent transparent;
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .message-sender {
+        font-size: 0.75rem;
+        font-weight: 700;
+        opacity: 0.9;
+    }
+    
+    .message-order-ref {
+        font-size: 0.75rem;
+        opacity: 0.7;
+    }
+    
+    .message-content {
+        font-size: 0.875rem;
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+        white-space: pre-wrap;
     }
     
     .message-time {
@@ -102,12 +282,12 @@
         font-weight: 500;
     }
     
-    /* File Preview */
+    /* File Attachments */
     .file-preview {
-        border-radius: 0.75rem;
+        border-radius: var(--border-radius-sm);
         overflow: hidden;
         margin-top: 0.75rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-sm);
         transition: transform 0.2s ease;
     }
     
@@ -123,11 +303,10 @@
         display: block;
     }
     
-    /* File Attachment */
     .file-attachment {
         background: rgba(255, 255, 255, 0.15);
         padding: 1rem;
-        border-radius: 0.75rem;
+        border-radius: var(--border-radius-sm);
         margin-top: 0.75rem;
         display: flex;
         align-items: center;
@@ -154,43 +333,99 @@
         opacity: 0.9;
     }
     
-    /* Chat Header */
-    .chat-header {
-        background: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
-        padding: 1.25rem 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
     }
     
-    .chat-header-icon {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        padding: 0.75rem;
+    .empty-state-icon {
+        background: var(--primary-gradient);
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
-        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: var(--shadow-lg);
+        animation: float 3s ease-in-out infinite;
     }
     
-    .chat-header-icon:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: rotate(5deg) scale(1.05);
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
     }
     
-    /* Chat Input Container */
-    .chat-input-container {
-        background: white;
-        border-top: 2px solid #e5e7eb;
-        padding: 1.25rem;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    .empty-state-icon i {
+        font-size: 3rem;
+        color: white;
     }
     
-    .chat-input-container textarea {
-        border: 2px solid #e5e7eb;
-        transition: all 0.3s ease;
+    .empty-state-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
     }
     
-    .chat-input-container textarea:focus {
-        border-color: #08788B;
-        box-shadow: 0 0 0 3px rgba(8, 120, 139, 0.1);
+    .empty-state-description {
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+    
+    /* Scroll to Bottom Button */
+    .scroll-to-bottom {
+        position: absolute;
+        bottom: 100px;
+        right: 30px;
+        background: var(--whatsapp-gradient);
+        color: white;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+        z-index: 10;
+        transition: var(--transition-base);
+    }
+    
+    .scroll-to-bottom:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(37, 211, 102, 0.5);
+    }
+    
+    .scroll-to-bottom.visible {
+        display: flex;
+        animation: bounceIn 0.5s ease;
+    }
+    
+    @keyframes bounceIn {
+        0% { opacity: 0; transform: scale(0.3); }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Custom Scrollbar */
+    .messages-container::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .messages-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
+        border-radius: 4px;
+    }
+    
+    .messages-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #94a3b8, #64748b);
     }
     
     /* Typing Indicator */
@@ -214,181 +449,52 @@
         to { opacity: 1; }
     }
     
+    .typing-dots {
+        display: inline-flex;
+        gap: 0.25rem;
+        margin-left: 0.5rem;
+    }
+    
     .typing-dots span {
         display: inline-block;
         width: 8px;
         height: 8px;
         border-radius: 50%;
         background: #08788B;
-        margin: 0 2px;
+        animation: typingDot 1.4s ease-in-out infinite;
     }
     
-    /* Scroll to Bottom Button */
-    .scroll-to-bottom {
-        position: absolute;
-        bottom: 100px;
-        right: 30px;
-        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-        color: white;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
-        z-index: 10;
-        transition: all 0.3s ease;
+    .typing-dots span:nth-child(1) { animation-delay: 0s; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingDot {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+        30% { transform: translateY(-10px); opacity: 1; }
     }
     
-    .scroll-to-bottom:hover {
-        transform: scale(1.1);
-        box-shadow: 0 6px 16px rgba(37, 211, 102, 0.5);
-    }
-    
-    .scroll-to-bottom.visible {
-        display: flex;
-        animation: bounceIn 0.5s ease;
-    }
-    
-    @keyframes bounceIn {
-        0% {
-            opacity: 0;
-            transform: scale(0.3);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-        70% {
-            transform: scale(0.9);
-        }
-        100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-    
-    /* Custom Scrollbar */
-    .messages-container::-webkit-scrollbar {
-        width: 8px;
-    }
-    
-    .messages-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    
-    .messages-container::-webkit-scrollbar-thumb {
-        background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
-        border-radius: 4px;
-    }
-    
-    .messages-container::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(to bottom, #94a3b8, #64748b);
-    }
-    
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-    }
-    
-    .empty-state-icon {
-        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        box-shadow: 0 8px 24px rgba(8, 120, 139, 0.2);
-        animation: float 3s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-    
-    .empty-state-icon i {
-        font-size: 3rem;
-        color: white;
-    }
-    
-    /* Contact Card */
-    .contact-card {
-        background: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
-        border-radius: 1.25rem;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(8, 120, 139, 0.2);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .contact-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        animation: rotate 20s linear infinite;
-    }
-    
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    /* Orders Filter Sidebar */
-    .orders-sidebar {
+    /* Chat Input Container */
+    .chat-input-container {
         background: white;
-        border-radius: 1.25rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
+        border-top: 2px solid #e5e7eb;
+        padding: 1.25rem;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
     }
     
-    .order-filter-item {
-        padding: 0.875rem 1rem;
-        border-radius: 0.75rem;
-        transition: all 0.3s ease;
-        margin-bottom: 0.5rem;
+    .input-group {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         gap: 0.75rem;
     }
     
-    .order-filter-item:hover {
-        transform: translateX(-4px);
-    }
-    
-    .order-filter-item.active {
-        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
-        color: white;
-        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
-    }
-    
-    .order-filter-item:not(.active) {
-        background: #f8fafc;
-        color: #64748b;
-    }
-    
-    .order-filter-item:not(.active):hover {
-        background: #f1f5f9;
-        color: #475569;
-    }
-    
-    /* File Input Button */
     .file-input-btn {
         background: #f8fafc;
         border: 2px solid #e5e7eb;
         padding: 0.875rem;
-        border-radius: 0.75rem;
+        border-radius: var(--border-radius-sm);
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: var(--transition-base);
+        flex-shrink: 0;
     }
     
     .file-input-btn:hover {
@@ -397,50 +503,22 @@
         transform: scale(1.05);
     }
     
-    /* Send Button */
-    .send-button {
-        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
-        padding: 0.875rem 1.25rem;
-        border-radius: 0.75rem;
-        color: white;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
+    .file-input-btn i {
+        font-size: 1.125rem;
+        color: #64748b;
     }
     
-    .send-button:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(8, 120, 139, 0.4);
-    }
-    
-    .send-button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    
-    /* File Info Display */
-    .file-info {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 0.875rem;
-        margin-top: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    /* Image Preview */
     .image-preview {
         position: relative;
         display: inline-block;
-        margin-top: 0.75rem;
+        flex-shrink: 0;
     }
     
     .image-preview img {
         width: 80px;
         height: 80px;
         object-fit: cover;
-        border-radius: 0.75rem;
+        border-radius: var(--border-radius-sm);
         border: 2px solid #e5e7eb;
     }
     
@@ -458,12 +536,263 @@
         justify-content: center;
         border: 2px solid white;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: var(--transition-base);
+        font-size: 1rem;
+        line-height: 1;
     }
     
     .image-preview button:hover {
         background: #dc2626;
         transform: scale(1.1);
+    }
+    
+    .message-input-wrapper {
+        flex: 1;
+        position: relative;
+    }
+    
+    .message-input {
+        width: 100%;
+        border: 2px solid #e5e7eb;
+        border-radius: var(--border-radius-sm);
+        padding: 0.875rem 3rem 0.875rem 1rem;
+        resize: none;
+        transition: var(--transition-base);
+        font-family: inherit;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+    
+    .message-input:focus {
+        outline: none;
+        border-color: #08788B;
+        box-shadow: 0 0 0 3px rgba(8, 120, 139, 0.1);
+    }
+    
+    .char-count {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 500;
+        pointer-events: none;
+    }
+    
+    .char-count.warning {
+        color: #ef4444;
+    }
+    
+    .send-button {
+        background: var(--primary-gradient);
+        padding: 0.875rem 1.25rem;
+        border-radius: var(--border-radius-sm);
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition-base);
+        box-shadow: var(--shadow-md);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .send-button:hover:not(:disabled) {
+        background: var(--primary-gradient-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .send-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .file-info {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: var(--border-radius-sm);
+        padding: 0.875rem;
+        margin-top: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .file-info i {
+        color: #08788B;
+        font-size: 1.125rem;
+    }
+    
+    .file-info-name {
+        flex: 1;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #475569;
+    }
+    
+    .file-info-remove {
+        color: #ef4444;
+        cursor: pointer;
+        transition: var(--transition-base);
+    }
+    
+    .file-info-remove:hover {
+        color: #dc2626;
+    }
+    
+    /* Contact Card */
+    .contact-card {
+        background: var(--primary-gradient);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+        margin-top: 1.5rem;
+    }
+    
+    .contact-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    .contact-card-content {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .contact-card-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .contact-card-icon {
+        width: 64px;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .contact-card-icon i {
+        font-size: 2rem;
+        color: white;
+    }
+    
+    .contact-card-info h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fef08a;
+        margin-bottom: 0.25rem;
+    }
+    
+    .contact-card-info p {
+        font-size: 0.875rem;
+        color: #fef08a;
+        opacity: 0.95;
+    }
+    
+    .btn-contact {
+        background: white;
+        color: #08788B;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        font-weight: 700;
+        transition: var(--transition-base);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        text-decoration: none;
+    }
+    
+    .btn-contact:hover {
+        background: #f9fafb;
+        transform: scale(1.05);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    /* Orders Filter Sidebar */
+    .orders-sidebar {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid #e5e7eb;
+        margin-top: 1.5rem;
+    }
+    
+    .orders-sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .orders-sidebar-header i {
+        color: #08788B;
+        font-size: 1.25rem;
+    }
+    
+    .orders-sidebar-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .order-filter-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .order-filter-item {
+        padding: 0.875rem 1rem;
+        border-radius: var(--border-radius-sm);
+        transition: var(--transition-base);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .order-filter-item:hover {
+        transform: translateX(-4px);
+    }
+    
+    .order-filter-item.active {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .order-filter-item:not(.active) {
+        background: #f8fafc;
+        color: #64748b;
+    }
+    
+    .order-filter-item:not(.active):hover {
+        background: #f1f5f9;
+        color: #475569;
     }
     
     /* Responsive Design */
@@ -484,185 +813,163 @@
         .contact-card {
             padding: 1.5rem;
         }
-    }
-    
-    /* Status Indicator */
-    .status-indicator {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-        animation: pulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% {
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-        }
-        50% {
-            box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+        
+        .input-group {
+            flex-wrap: wrap;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-6">
-    <!-- Main Chat Container -->
-    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden chat-container">
-        <!-- Chat Header -->
-        <div class="chat-header flex items-center justify-between flex-wrap gap-4">
-            <div class="flex items-center gap-4">
-                <div class="chat-header-icon">
-                    <i class="fas fa-headset text-2xl text-white"></i>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-yellow-200 mb-1">{{ __('messages.support_team') }}</h2>
-                    <div class="status-indicator">
-                        <span class="status-dot"></span>
-                        <span class="text-sm text-yellow-200 opacity-95 font-medium" id="statusText">متصل الآن</span>
+<div class="messages-page-container">
+    <div class="space-y-6">
+        <!-- Main Chat Container -->
+        <div class="chat-container">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-header-content">
+                    <div class="chat-header-left">
+                        <div class="chat-header-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div>
+                            <h2 class="chat-header-info">{{ __('messages.support_team') }}</h2>
+                            <div class="status-indicator">
+                                <span class="status-dot"></span>
+                                <span class="status-text" id="statusText">متصل الآن</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        @if(request('order_id'))
+                        <div class="order-badge">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>طلب #{{ \App\Models\Order::find(request('order_id'))->order_number ?? request('order_id') }}</span>
+                        </div>
+                        @endif
+                        <a href="{{ route('home') }}#contact" class="btn-header" title="{{ __('messages.contact_us') }}">
+                            <i class="fas fa-envelope"></i>
+                            <span>{{ __('messages.contact_us') }}</span>
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-3 flex-wrap">
-                @if(request('order_id'))
-                <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl text-sm text-white font-semibold flex items-center gap-2 shadow-lg">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>طلب #{{ \App\Models\Order::find(request('order_id'))->order_number ?? request('order_id') }}</span>
+
+            <!-- Messages Container -->
+            <div class="messages-container relative" id="messagesContainer">
+                <div class="messages-list" id="messagesList">
+                    @forelse($messages as $message)
+                    @include('customer.messages.message-item', ['message' => $message])
+                    @empty
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <p class="empty-state-title">{{ __('messages.no_messages_yet') }}</p>
+                        <p class="empty-state-description">ابدأ المحادثة مع فريق الدعم</p>
+                    </div>
+                    @endforelse
                 </div>
-                @endif
-                <a href="{{ route('home') }}#contact" class="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-5 py-2.5 rounded-xl text-sm text-white font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105" title="{{ __('messages.contact_us') }}">
+                <div class="scroll-to-bottom" id="scrollToBottom" onclick="scrollToBottom()">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator">
+                <span class="flex items-center gap-2">
+                    <span>فريق الدعم يكتب</span>
+                    <span class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                </span>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <form id="messageForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="order_id" value="{{ request('order_id') }}">
+                    <div class="input-group">
+                        <label for="fileInput" class="file-input-btn" title="إرسال ملف">
+                            <i class="fas fa-paperclip"></i>
+                            <input type="file" id="fileInput" name="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx" class="hidden">
+                        </label>
+                        
+                        <div id="imagePreview" class="image-preview hidden">
+                            <img id="previewImage" src="" alt="Preview">
+                            <button type="button" onclick="removeImagePreview()">×</button>
+                        </div>
+                        
+                        <div class="message-input-wrapper">
+                            <textarea 
+                                name="message" 
+                                id="messageInput"
+                                rows="1"
+                                class="message-input"
+                                placeholder="{{ __('messages.type_your_message') }}"
+                                onkeydown="handleKeyDown(event)"></textarea>
+                            <div class="char-count" id="charCount">0/5000</div>
+                        </div>
+                        
+                        <button type="submit" id="sendButton" class="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="fileInfo" class="file-info hidden">
+                        <i class="fas fa-file"></i>
+                        <span id="fileName" class="file-info-name"></span>
+                        <button type="button" onclick="removeFile()" class="file-info-remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact Admin Card -->
+        <div class="contact-card text-white">
+            <div class="contact-card-content">
+                <div class="contact-card-left">
+                    <div class="contact-card-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="contact-card-info">
+                        <h3>{{ __('messages.communicate_with_admin') }}</h3>
+                        <p>تواصل معنا مباشرة عبر نموذج الاتصال</p>
+                    </div>
+                </div>
+                <a href="{{ route('home') }}#contact" class="btn-contact">
                     <i class="fas fa-envelope"></i>
                     <span>{{ __('messages.contact_us') }}</span>
                 </a>
             </div>
         </div>
 
-        <!-- Messages Container -->
-        <div class="messages-container relative" id="messagesContainer">
-            <div class="space-y-4" id="messagesList">
-                @forelse($messages as $message)
-                @include('customer.messages.message-item', ['message' => $message])
-                @empty
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <p class="text-gray-700 text-xl font-bold mb-2">{{ __('messages.no_messages_yet') }}</p>
-                    <p class="text-gray-500 text-sm">ابدأ المحادثة مع فريق الدعم</p>
-                </div>
-                @endforelse
+        <!-- Orders Filter Sidebar -->
+        <div class="orders-sidebar">
+            <div class="orders-sidebar-header">
+                <i class="fas fa-filter"></i>
+                <h2>{{ __('messages.filter_by_order') }}</h2>
             </div>
-            <div class="scroll-to-bottom" id="scrollToBottom" onclick="scrollToBottom()">
-                <i class="fas fa-arrow-down"></i>
+            <div class="order-filter-list">
+                <a href="{{ route('customer.messages.index') }}" 
+                   class="order-filter-item {{ !request('order_id') ? 'active' : '' }}">
+                    <i class="fas fa-comments"></i>
+                    <span>{{ __('messages.all_messages') }}</span>
+                </a>
+                @foreach(auth('customer')->user()->orders as $order)
+                <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" 
+                   class="order-filter-item {{ request('order_id') == $order->id ? 'active' : '' }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>{{ __('messages.order') }} #{{ $order->order_number }}</span>
+                </a>
+                @endforeach
             </div>
-        </div>
-
-        <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typingIndicator">
-            <span class="flex items-center gap-2">
-                <span class="typing-dots">
-                    <span style="animation-delay: 0s;"></span>
-                    <span style="animation-delay: 0.2s;"></span>
-                    <span style="animation-delay: 0.4s;"></span>
-                </span>
-                <span>فريق الدعم يكتب...</span>
-            </span>
-        </div>
-
-        <!-- Chat Input -->
-        <div class="chat-input-container">
-            <form id="messageForm" enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="order_id" value="{{ request('order_id') }}">
-                <div class="flex items-end gap-3">
-                    <!-- File Input -->
-                    <label for="fileInput" class="file-input-btn" title="إرسال ملف">
-                        <i class="fas fa-paperclip text-gray-600 text-lg"></i>
-                        <input type="file" id="fileInput" name="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx" class="hidden">
-                    </label>
-                    
-                    <!-- Image Preview -->
-                    <div id="imagePreview" class="image-preview hidden">
-                        <img id="previewImage" src="" alt="Preview">
-                        <button type="button" onclick="removeImagePreview()">×</button>
-                    </div>
-                    
-                    <!-- Message Input -->
-                    <div class="flex-1 relative">
-                        <textarea 
-                            name="message" 
-                            id="messageInput"
-                            rows="1"
-                            class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 pr-12 focus:ring-2 focus:ring-primary-medium focus:border-primary-medium resize-none transition-all duration-300"
-                            placeholder="{{ __('messages.type_your_message') }}"
-                            onkeydown="handleKeyDown(event)"></textarea>
-                        <div class="absolute bottom-3 right-3 text-xs text-gray-400 font-medium" id="charCount">0/5000</div>
-                    </div>
-                    
-                    <!-- Send Button -->
-                    <button type="submit" id="sendButton" class="send-button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                
-                <!-- File Info -->
-                <div id="fileInfo" class="file-info hidden">
-                    <i class="fas fa-file text-primary-medium text-lg"></i>
-                    <span id="fileName" class="flex-1 text-sm font-medium text-gray-700"></span>
-                    <button type="button" onclick="removeFile()" class="text-red-500 hover:text-red-700 transition-colors">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Contact Admin Card -->
-    <div class="contact-card text-white relative z-10">
-        <div class="flex items-center justify-between flex-wrap gap-4 relative z-10">
-            <div class="flex items-center gap-4">
-                <div class="bg-white/20 backdrop-blur-sm p-4 rounded-full shadow-lg">
-                    <i class="fas fa-headset text-3xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-yellow-200 mb-1">{{ __('messages.communicate_with_admin') }}</h3>
-                    <p class="text-sm text-yellow-200 opacity-95">تواصل معنا مباشرة عبر نموذج الاتصال</p>
-                </div>
-            </div>
-            <a href="{{ route('home') }}#contact" class="bg-white hover:bg-gray-50 text-primary-medium px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 shadow-xl transform hover:scale-105">
-                <i class="fas fa-envelope"></i>
-                <span>{{ __('messages.contact_us') }}</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Orders Filter Sidebar -->
-    <div class="orders-sidebar">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-filter text-primary-medium"></i>
-            {{ __('messages.filter_by_order') }}
-        </h2>
-        <div class="space-y-2">
-            <a href="{{ route('customer.messages.index') }}" 
-               class="order-filter-item {{ !request('order_id') ? 'active' : '' }}">
-                <i class="fas fa-comments"></i>
-                <span>{{ __('messages.all_messages') }}</span>
-            </a>
-            @foreach(auth('customer')->user()->orders as $order)
-            <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" 
-               class="order-filter-item {{ request('order_id') == $order->id ? 'active' : '' }}">
-                <i class="fas fa-shopping-cart"></i>
-                <span>{{ __('messages.order') }} #{{ $order->order_number }}</span>
-            </a>
-            @endforeach
         </div>
     </div>
 </div>
@@ -670,262 +977,268 @@
 
 @push('scripts')
 <script>
-let lastMessageId = {{ $messages->last()->id ?? 0 }};
-let pollingInterval;
-let isScrolledToBottom = true;
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    scrollToBottom();
-    startPolling();
+// Chat Messages Manager
+const ChatMessages = {
+    lastMessageId: {{ $messages->last()->id ?? 0 }},
+    pollingInterval: null,
+    isScrolledToBottom: true,
     
-    // File input handler
-    document.getElementById('fileInput').addEventListener('change', function(e) {
-        handleFileSelect(e.target.files[0]);
-    });
+    init() {
+        this.scrollToBottom();
+        this.startPolling();
+        this.setupEventListeners();
+    },
     
-    // Character counter
-    document.getElementById('messageInput').addEventListener('input', function() {
-        const count = this.value.length;
-        document.getElementById('charCount').textContent = count + '/5000';
-        if (count > 4500) {
-            document.getElementById('charCount').classList.add('text-red-500');
-        } else {
-            document.getElementById('charCount').classList.remove('text-red-500');
-        }
-    });
-    
-    // Auto-resize textarea
-    document.getElementById('messageInput').addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-    });
-    
-    // Scroll detection
-    document.getElementById('messagesContainer').addEventListener('scroll', function() {
-        const container = this;
-        isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
-        document.getElementById('scrollToBottom').classList.toggle('visible', !isScrolledToBottom);
-    });
-});
-
-// Handle file select
-function handleFileSelect(file) {
-    if (!file) return;
-    
-    // Check file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        alert('حجم الملف كبير جداً. الحد الأقصى 10MB');
-        return;
-    }
-    
-    // Show file info
-    document.getElementById('fileInfo').classList.remove('hidden');
-    document.getElementById('fileName').textContent = file.name;
-    
-    // If image, show preview
-    if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('previewImage').src = e.target.result;
-            document.getElementById('imagePreview').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// Remove file
-function removeFile() {
-    document.getElementById('fileInput').value = '';
-    document.getElementById('fileInfo').classList.add('hidden');
-    document.getElementById('imagePreview').classList.add('hidden');
-}
-
-// Remove image preview
-function removeImagePreview() {
-    document.getElementById('imagePreview').classList.add('hidden');
-    removeFile();
-}
-
-// Handle key down
-function handleKeyDown(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        document.getElementById('messageForm').dispatchEvent(new Event('submit'));
-    }
-}
-
-// Scroll to bottom
-function scrollToBottom() {
-    const container = document.getElementById('messagesContainer');
-    container.scrollTop = container.scrollHeight;
-    isScrolledToBottom = true;
-    document.getElementById('scrollToBottom').classList.remove('visible');
-}
-
-// Start polling for new messages
-function startPolling() {
-    pollingInterval = setInterval(function() {
-        fetch('{{ route("customer.messages.get") }}?order_id={{ request("order_id") }}&last_message_id=' + lastMessageId)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.messages.length > 0) {
-                    data.messages.forEach(message => {
-                        addMessageToChat(message);
-                        lastMessageId = Math.max(lastMessageId, message.id);
-                    });
-                    
-                    if (isScrolledToBottom) {
-                        setTimeout(scrollToBottom, 100);
-                    }
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }, 3000); // Poll every 3 seconds
-}
-
-// Add message to chat
-function addMessageToChat(message) {
-    const messagesList = document.getElementById('messagesList');
-    
-    // Remove empty state if exists
-    const emptyState = messagesList.querySelector('.empty-state');
-    if (emptyState) {
-        emptyState.remove();
-    }
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'flex ' + (message.sender_type === 'customer' ? 'justify-end' : 'justify-start');
-    messageDiv.innerHTML = getMessageHTML(message);
-    messagesList.appendChild(messageDiv);
-}
-
-// Get message HTML
-function getMessageHTML(message) {
-    const isCustomer = message.sender_type === 'customer';
-    const senderName = isCustomer ? '{{ __("messages.you") }}' : (message.admin?.name || '{{ __("messages.admin") }}');
-    const time = new Date(message.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-    
-    let fileHTML = '';
-    if (message.file_path) {
-        if (message.file_type === 'image') {
-            fileHTML = `<div class="file-preview"><img src="${message.file_url}" alt="${message.file_name}" class="rounded-lg cursor-pointer" onclick="openImageModal('${message.file_url}')"></div>`;
-        } else {
-            const icon = message.file_type === 'video' ? 'fa-video' : 
-                        message.file_type === 'audio' ? 'fa-music' : 
-                        'fa-file';
-            fileHTML = `
-                <div class="file-attachment">
-                    <i class="fas ${icon}"></i>
-                    <div class="flex-1">
-                        <div class="font-semibold">${message.file_name}</div>
-                        <div class="text-xs opacity-70">${message.formatted_file_size || ''}</div>
-                    </div>
-                    <a href="${message.file_url}" download class="text-primary-medium hover:text-primary-dark transition-colors">
-                        <i class="fas fa-download"></i>
-                    </a>
-                </div>
-            `;
-        }
-    }
-    
-    return `
-        <div class="message-bubble message-${message.sender_type} p-4">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs font-bold opacity-90">${senderName}</span>
-                ${message.order ? `<span class="text-xs opacity-70">• {{ __('messages.order') }} #${message.order.order_number}</span>` : ''}
-            </div>
-            ${message.message ? `<p class="text-sm mb-2 leading-relaxed">${escapeHtml(message.message)}</p>` : ''}
-            ${fileHTML}
-            <p class="message-time">${time}</p>
-        </div>
-    `;
-}
-
-// Escape HTML
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Form submit
-document.getElementById('messageForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const messageInput = document.getElementById('messageInput');
-    const fileInput = document.getElementById('fileInput');
-    
-    if (!messageInput.value.trim() && !fileInput.files[0]) {
-        return;
-    }
-    
-    const sendButton = document.getElementById('sendButton');
-    sendButton.disabled = true;
-    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    
-    try {
-        const response = await fetch('{{ route("customer.messages.store") }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-            }
+    setupEventListeners() {
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            this.handleFileSelect(e.target.files[0]);
         });
         
-        const data = await response.json();
+        // Character counter
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', () => {
+            const count = messageInput.value.length;
+            const charCount = document.getElementById('charCount');
+            charCount.textContent = `${count}/5000`;
+            charCount.classList.toggle('warning', count > 4500);
+        });
         
-        if (data.success) {
-            // Add message to chat immediately
-            addMessageToChat(data.data);
-            lastMessageId = Math.max(lastMessageId, data.data.id);
-            
-            // Clear form
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            document.getElementById('charCount').textContent = '0/5000';
-            document.getElementById('charCount').classList.remove('text-red-500');
-            removeFile();
-            
-            scrollToBottom();
-        } else {
-            alert(data.message || '{{ __("messages.error_occurred") }}');
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Scroll detection
+        document.getElementById('messagesContainer').addEventListener('scroll', () => {
+            const container = document.getElementById('messagesContainer');
+            this.isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
+            document.getElementById('scrollToBottom').classList.toggle('visible', !this.isScrolledToBottom);
+        });
+        
+        // Form submit
+        document.getElementById('messageForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleSubmit();
+        });
+    },
+    
+    handleFileSelect(file) {
+        if (!file) return;
+        
+        if (file.size > 10 * 1024 * 1024) {
+            alert('حجم الملف كبير جداً. الحد الأقصى 10MB');
+            return;
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('{{ __("messages.error_sending_message") }}');
-    } finally {
-        sendButton.disabled = false;
-        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        
+        document.getElementById('fileInfo').classList.remove('hidden');
+        document.getElementById('fileName').textContent = file.name;
+        
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('imagePreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    },
+    
+    removeFile() {
+        document.getElementById('fileInput').value = '';
+        document.getElementById('fileInfo').classList.add('hidden');
+        document.getElementById('imagePreview').classList.add('hidden');
+    },
+    
+    removeImagePreview() {
+        document.getElementById('imagePreview').classList.add('hidden');
+        this.removeFile();
+    },
+    
+    handleKeyDown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById('messageForm').dispatchEvent(new Event('submit'));
+        }
+    },
+    
+    scrollToBottom() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTop = container.scrollHeight;
+        this.isScrolledToBottom = true;
+        document.getElementById('scrollToBottom').classList.remove('visible');
+    },
+    
+    startPolling() {
+        this.pollingInterval = setInterval(() => {
+            fetch(`{{ route("customer.messages.get") }}?order_id={{ request("order_id") }}&last_message_id=${this.lastMessageId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.messages.length > 0) {
+                        data.messages.forEach(message => {
+                            this.addMessageToChat(message);
+                            this.lastMessageId = Math.max(this.lastMessageId, message.id);
+                        });
+                        
+                        if (this.isScrolledToBottom) {
+                            setTimeout(() => this.scrollToBottom(), 100);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }, 3000);
+    },
+    
+    addMessageToChat(message) {
+        const messagesList = document.getElementById('messagesList');
+        const emptyState = messagesList.querySelector('.empty-state');
+        if (emptyState) emptyState.remove();
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-wrapper ${message.sender_type}`;
+        messageDiv.innerHTML = this.getMessageHTML(message);
+        messagesList.appendChild(messageDiv);
+    },
+    
+    getMessageHTML(message) {
+        const isCustomer = message.sender_type === 'customer';
+        const senderName = isCustomer ? '{{ __("messages.you") }}' : (message.admin?.name || '{{ __("messages.admin") }}');
+        const time = new Date(message.created_at).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+        
+        let fileHTML = '';
+        if (message.file_path) {
+            if (message.file_type === 'image') {
+                fileHTML = `<div class="file-preview"><img src="${message.file_url}" alt="${message.file_name}" class="rounded-lg cursor-pointer" onclick="ChatMessages.openImageModal('${message.file_url}')"></div>`;
+            } else {
+                const icon = message.file_type === 'video' ? 'fa-video' : 
+                            message.file_type === 'audio' ? 'fa-music' : 'fa-file';
+                fileHTML = `
+                    <div class="file-attachment">
+                        <i class="fas ${icon}"></i>
+                        <div class="flex-1">
+                            <div class="font-semibold">${this.escapeHtml(message.file_name)}</div>
+                            <div class="text-xs opacity-70">${message.formatted_file_size || ''}</div>
+                        </div>
+                        <a href="${message.file_url}" download class="text-primary-medium hover:text-primary-dark transition-colors">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        return `
+            <div class="message-bubble message-${message.sender_type}">
+                <div class="message-header">
+                    <span class="message-sender">${this.escapeHtml(senderName)}</span>
+                    ${message.order ? `<span class="message-order-ref">• {{ __('messages.order') }} #${message.order.order_number}</span>` : ''}
+                </div>
+                ${message.message ? `<p class="message-content">${this.escapeHtml(message.message)}</p>` : ''}
+                ${fileHTML}
+                <p class="message-time">${time}</p>
+            </div>
+        `;
+    },
+    
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+    
+    async handleSubmit() {
+        const formData = new FormData(document.getElementById('messageForm'));
+        const messageInput = document.getElementById('messageInput');
+        const fileInput = document.getElementById('fileInput');
+        
+        if (!messageInput.value.trim() && !fileInput.files[0]) {
+            return;
+        }
+        
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+            const response = await fetch('{{ route("customer.messages.store") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.addMessageToChat(data.data);
+                this.lastMessageId = Math.max(this.lastMessageId, data.data.id);
+                
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                document.getElementById('charCount').textContent = '0/5000';
+                document.getElementById('charCount').classList.remove('warning');
+                this.removeFile();
+                
+                this.scrollToBottom();
+            } else {
+                alert(data.message || '{{ __("messages.error_occurred") }}');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('{{ __("messages.error_sending_message") }}');
+        } finally {
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+        }
+    },
+    
+    openImageModal(imageUrl) {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="relative max-w-5xl max-h-full">
+                <img src="${imageUrl}" alt="Image" class="max-w-full max-h-screen rounded-xl shadow-2xl">
+                <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 bg-white text-gray-800 rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-200 transition-colors shadow-lg">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
     }
-});
+};
 
-// Open image modal
-function openImageModal(imageUrl) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4';
-    modal.innerHTML = `
-        <div class="relative max-w-5xl max-h-full">
-            <img src="${imageUrl}" alt="Image" class="max-w-full max-h-screen rounded-xl shadow-2xl">
-            <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 bg-white text-gray-800 rounded-full w-12 h-12 flex items-center justify-center hover:bg-gray-200 transition-colors shadow-lg">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
+// Global functions for onclick handlers
+function scrollToBottom() {
+    ChatMessages.scrollToBottom();
 }
 
+function removeFile() {
+    ChatMessages.removeFile();
+}
+
+function removeImagePreview() {
+    ChatMessages.removeImagePreview();
+}
+
+function handleKeyDown(e) {
+    ChatMessages.handleKeyDown(e);
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    ChatMessages.init();
+});
+
 // Cleanup on page unload
-window.addEventListener('beforeunload', function() {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
+window.addEventListener('beforeunload', () => {
+    if (ChatMessages.pollingInterval) {
+        clearInterval(ChatMessages.pollingInterval);
     }
 });
 </script>
