@@ -284,6 +284,8 @@ return [
     'refunded' => 'مسترد',
     'cancelled' => 'ملغي',
     'payment_reference' => 'رقم المرجع',
+    'order_information' => 'معلومات الطلب',
+    'order_date' => 'تاريخ الطلب',
     
     // Order documentation and customer information
     'order_documentation' => 'توثيق الطلب',
