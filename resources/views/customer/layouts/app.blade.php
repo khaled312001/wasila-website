@@ -236,7 +236,9 @@
         <div class="top-bar">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">@yield('page-title', __('messages.dashboard'))</h1>
-                <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle', __('messages.welcome_back'))</p>
+                @if(trim(@yield('page-subtitle', '')) !== '')
+                <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle')</p>
+                @endif
             </div>
             <div class="flex items-center gap-4">
                 <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark">

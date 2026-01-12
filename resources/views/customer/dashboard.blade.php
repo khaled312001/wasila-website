@@ -2,7 +2,7 @@
 
 @section('title', __('messages.customer_dashboard'))
 @section('page-title', __('messages.dashboard'))
-@section('page-subtitle', __('messages.welcome_back') . ' ' . $customer->name)
+@section('page-subtitle', '')
 
 @push('styles')
 <style>
@@ -229,8 +229,8 @@
         <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
         <div class="relative z-10">
-            <h1 class="text-3xl font-bold mb-2">{{ __('messages.welcome_back') }}, {{ $customer->name }}!</h1>
-            <p class="text-white/90 text-lg">{{ __('messages.dashboard_subtitle') ?? 'تابع طلباتك ورسائلك من مكان واحد' }}</p>
+            <h1 class="text-3xl font-bold mb-2 text-white">{{ __('messages.welcome_back') }}, {{ $customer->name }}!</h1>
+            <p class="text-white text-lg opacity-90">{{ __('messages.dashboard_subtitle') }}</p>
         </div>
     </div>
 </div>
