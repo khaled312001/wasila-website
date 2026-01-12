@@ -270,4 +270,18 @@ return [
     'completed_orders' => 'الطلبات المكتملة',
     'total_spent' => 'إجمالي الإنفاق',
     'unread_messages' => 'الرسائل غير المقروءة',
+    
+    // Invoice translations
+    'bill_to' => 'فاتورة إلى',
+    'invoice_details' => 'تفاصيل الفاتورة',
+    'download_pdf' => 'تحميل PDF',
+    'payment_method' => 'طريقة الدفع',
+    'payment_status' => 'حالة الدفع',
+    'total' => 'الإجمالي',
+    'description' => 'الوصف',
+    'paid' => 'مدفوع',
+    'unpaid' => 'غير مدفوع',
+    'refunded' => 'مسترد',
+    'cancelled' => 'ملغي',
+    'payment_reference' => 'رقم المرجع',
 ];

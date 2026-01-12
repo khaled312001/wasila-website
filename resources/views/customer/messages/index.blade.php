@@ -154,16 +154,25 @@
                     <i class="fas fa-headset text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold">{{ __('messages.support_team') }}</h2>
-                    <p class="text-xs opacity-90" id="statusText">متصل الآن</p>
+                    <h2 class="text-lg font-bold text-white">{{ __('messages.support_team') }}</h2>
+                    <p class="text-xs text-white opacity-90 flex items-center gap-1" id="statusText">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        متصل الآن
+                    </p>
                 </div>
             </div>
-            @if(request('order_id'))
-            <div class="bg-white/20 px-3 py-1 rounded-lg text-sm">
-                <i class="fas fa-shopping-cart ml-1"></i>
-                طلب #{{ \App\Models\Order::find(request('order_id'))->order_number ?? request('order_id') }}
+            <div class="flex items-center gap-3 flex-wrap">
+                @if(request('order_id'))
+                <div class="bg-white/20 px-3 py-1 rounded-lg text-sm text-white">
+                    <i class="fas fa-shopping-cart ml-1"></i>
+                    طلب #{{ \App\Models\Order::find(request('order_id'))->order_number ?? request('order_id') }}
+                </div>
+                @endif
+                <a href="{{ route('home') }}#contact" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm text-white font-semibold transition-all duration-200 flex items-center gap-2" title="{{ __('messages.contact_us') }}">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ __('messages.contact_us') }}</span>
+                </a>
             </div>
-            @endif
         </div>
 
         <!-- Messages Container -->
@@ -241,6 +250,25 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Contact Admin Button -->
+    <div class="mt-6 bg-gradient-to-r from-primary-medium to-primary-dark rounded-xl shadow-lg p-6 text-white">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/20 p-3 rounded-full">
+                    <i class="fas fa-headset text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">{{ __('messages.communicate_with_admin') }}</h3>
+                    <p class="text-sm text-white opacity-90">تواصل معنا مباشرة عبر نموذج الاتصال</p>
+                </div>
+            </div>
+            <a href="{{ route('home') }}#contact" class="bg-white hover:bg-gray-100 text-primary-medium px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg transform hover:scale-105">
+                <i class="fas fa-envelope"></i>
+                <span>{{ __('messages.contact_us') }}</span>
+            </a>
         </div>
     </div>
 

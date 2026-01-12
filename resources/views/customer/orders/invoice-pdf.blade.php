@@ -3,20 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاتورة #{{ $order->order_number }}</title>
+    <title>{{ __('messages.invoice') }} #{{ $order->order_number }}</title>
     <style>
-        @font-face {
-            font-family: 'DejaVu Sans';
-            src: url('{{ storage_path('fonts/DejaVuSans.ttf') }}');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'DejaVu Sans';
-            src: url('{{ storage_path('fonts/DejaVuSans-Bold.ttf') }}');
-            font-weight: bold;
-            font-style: normal;
-        }
         * {
             margin: 0;
             padding: 0;
@@ -34,11 +22,6 @@
             line-height: 1.8;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-        }
-        * {
-            unicode-bidi: bidi-override;
-            direction: rtl;
-            text-align: right;
         }
         h1, h2, h3, h4, h5, h6, p, div, span, td, th, li {
             unicode-bidi: bidi-override;
@@ -76,6 +59,10 @@
             border-radius: 10px;
             border: 2px solid #e5e7eb;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .info-section {
+            flex: 1;
+            margin: 0 15px;
         }
         .info-section h3 {
             font-size: 20px;
@@ -169,63 +156,97 @@
             font-size: 15px;
             font-weight: 500;
         }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-badge.pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-badge.completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-badge.paid {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-badge.unpaid {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>{{ \App\Helpers\PdfHelper::fixArabic('فاتورة رقم: #') }}{{ $order->order_number }}</h1>
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('وسيلة') }}</p>
+        <h1>{{ __('messages.invoice') }} #{{ $order->order_number }}</h1>
+        <p>{{ __('messages.wasila') }}</p>
     </div>
     
     <div class="invoice-info">
         <div class="info-section">
-            <h3>{{ \App\Helpers\PdfHelper::fixArabic('العميل:') }}</h3>
-            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('الاسم:') }}</strong> {{ \App\Helpers\PdfHelper::fixArabic($order->customer_name) }}</p>
-            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('البريد:') }}</strong> <span dir="ltr">{{ $order->customer_email }}</span></p>
+            <h3>{{ __('messages.bill_to') }}</h3>
+            <p><strong>{{ __('messages.name') }}:</strong> {{ $order->customer_name }}</p>
+            <p><strong>{{ __('messages.email') }}:</strong> <span dir="ltr">{{ $order->customer_email }}</span></p>
             @if($order->customer_phone)
-            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('الهاتف:') }}</strong> <span dir="ltr">{{ $order->customer_phone }}</span></p>
+            <p><strong>{{ __('messages.phone') }}:</strong> <span dir="ltr">{{ $order->customer_phone }}</span></p>
+            @endif
+            @if($order->customer_address)
+            <p><strong>{{ __('messages.address_label') }}:</strong> {{ $order->customer_address }}</p>
             @endif
         </div>
         <div class="info-section">
-            <h3>{{ \App\Helpers\PdfHelper::fixArabic('معلومات الفاتورة:') }}</h3>
-            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('التاريخ:') }}</strong> <span dir="ltr">{{ $order->created_at->format('Y-m-d') }}</span></p>
-            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('الحالة:') }}</strong> {{ \App\Helpers\PdfHelper::fixArabic($order->status === 'completed' ? 'مكتمل' : ($order->status === 'pending' ? 'معلق' : $order->status)) }}</p>
-            <p><strong>{{ \App\Helpers\PdfHelper::fixArabic('حالة الدفع:') }}</strong> {{ \App\Helpers\PdfHelper::fixArabic($order->payment_status === 'paid' ? 'مدفوع' : 'غير مدفوع') }}</p>
+            <h3>{{ __('messages.invoice_details') }}</h3>
+            <p><strong>{{ __('messages.date') }}:</strong> <span dir="ltr">{{ $order->created_at->format('Y-m-d') }}</span></p>
+            <p><strong>{{ __('messages.status') }}:</strong> 
+                <span class="status-badge {{ $order->status }}">{{ __('messages.' . $order->status) }}</span>
+            </p>
+            <p><strong>{{ __('messages.payment_status') }}:</strong> 
+                <span class="status-badge {{ $order->payment_status }}">{{ __('messages.' . $order->payment_status) }}</span>
+            </p>
         </div>
     </div>
     
     <table>
         <thead>
             <tr>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('الخدمة') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('الوصف') }}</th>
-                <th>{{ \App\Helpers\PdfHelper::fixArabic('المبلغ') }}</th>
+                <th>{{ __('messages.service') }}</th>
+                <th>{{ __('messages.description') }}</th>
+                <th>{{ __('messages.amount') }}</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->service_name ?? 'خدمة') }}</td>
-                <td>{{ \App\Helpers\PdfHelper::fixArabic($order->service_description ?? '-') }}</td>
-                <td>{{ number_format($order->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال') }}</td>
+                <td>{{ $order->service_name ?? __('messages.service') }}</td>
+                <td>{{ $order->service_description ?? '-' }}</td>
+                <td>{{ number_format($order->total_amount, 2) }} {{ __('messages.saudi_riyal') }}</td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td colspan="2" style="text-align: left;">{{ \App\Helpers\PdfHelper::fixArabic('الإجمالي:') }}</td>
-                <td>{{ number_format($order->total_amount, 2) }} {{ \App\Helpers\PdfHelper::fixArabic('ريال سعودي') }}</td>
+                <td colspan="2" style="text-align: left;">{{ __('messages.total') }}:</td>
+                <td>{{ number_format($order->total_amount, 2) }} {{ __('messages.saudi_riyal') }}</td>
             </tr>
         </tfoot>
     </table>
     
     <div class="payment-info">
-        <h3>{{ \App\Helpers\PdfHelper::fixArabic('طريقة الدفع:') }}</h3>
-        <p>{{ \App\Helpers\PdfHelper::fixArabic($order->payment_method) }}</p>
+        <h3>{{ __('messages.payment_method') }}</h3>
+        <p>{{ $order->payment_method ?? __('messages.unpaid') }}</p>
+        @if($order->payment_reference)
+        <p style="margin-top: 10px; font-size: 13px; color: #6b7280;">
+            <strong>{{ __('messages.payment_reference') }}:</strong> {{ $order->payment_reference }}
+        </p>
+        @endif
     </div>
     
     <div class="footer">
-        <p>{{ \App\Helpers\PdfHelper::fixArabic('شكراً لثقتك بوسيلة') }}</p>
-        <p>© {{ date('Y') }} {{ \App\Helpers\PdfHelper::fixArabic('جميع الحقوق محفوظة') }}</p>
+        <p>{{ __('messages.thank_you_contact') }}</p>
+        <p>© {{ date('Y') }} {{ __('messages.all_rights_reserved') }}</p>
     </div>
 </body>
 </html>
-

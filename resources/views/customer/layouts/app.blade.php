@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/wasila.css') }}">
     
@@ -55,17 +58,22 @@
             display: flex;
             align-items: center;
             padding: 1rem 1.5rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.8) !important;
             text-decoration: none;
             border-radius: 0.75rem;
             margin-bottom: 0.5rem;
             transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: {{ app()->getLocale() === 'ar' ? 'right' : 'left' }};
         }
         
         .sidebar-menu-item:hover,
         .sidebar-menu-item.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
             transform: translateX({{ app()->getLocale() === 'ar' ? '-5px' : '5px' }});
         }
         
@@ -73,6 +81,34 @@
             width: 24px;
             height: 24px;
             {{ app()->getLocale() === 'ar' ? 'margin-left' : 'margin-right' }}: 1rem;
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .sidebar-menu-item:hover svg,
+        .sidebar-menu-item.active svg {
+            color: white !important;
+        }
+        
+        /* Logout Button Specific Styles */
+        form .sidebar-menu-item {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        form .sidebar-menu-item span {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        form .sidebar-menu-item:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        form .sidebar-menu-item:hover span {
+            color: white !important;
+        }
+        
+        form .sidebar-menu-item:hover svg {
+            color: white !important;
         }
         
         /* Main Content */
@@ -213,11 +249,11 @@
             
             <form action="{{ route('customer.logout') }}" method="POST" class="mt-8">
                 @csrf
-                <button type="submit" class="sidebar-menu-item w-full text-left">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
+                <button type="submit" class="sidebar-menu-item w-full" style="color: rgba(255, 255, 255, 0.8) !important;">
+                    <svg fill="currentColor" viewBox="0 0 20 20" style="color: rgba(255, 255, 255, 0.8) !important;">
                         <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
                     </svg>
-                    {{ __('messages.logout') }}
+                    <span style="color: rgba(255, 255, 255, 0.8) !important;">{{ __('messages.logout') }}</span>
                 </button>
             </form>
         </nav>

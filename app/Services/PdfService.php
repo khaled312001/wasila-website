@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use Mpdf\Mpdf;
-use Mpdf\Config\ConfigVariables;
-use Mpdf\Config\FontVariables;
 use Illuminate\Support\Facades\View;
 
 class PdfService
@@ -14,6 +11,11 @@ class PdfService
      */
     public static function generate($view, $data = [], $options = [])
     {
+        // Check if mPDF is available
+        if (!class_exists('\Mpdf\Mpdf')) {
+            throw new \Exception('mPDF library is not installed. Please run: composer require mpdf/mpdf');
+        }
+        
         // Default options
         $defaultOptions = [
             'mode' => 'utf-8',
@@ -30,11 +32,16 @@ class PdfService
         
         $options = array_merge($defaultOptions, $options);
         
+        // Ensure temp directory exists
+        if (!is_dir($options['tempDir'])) {
+            mkdir($options['tempDir'], 0755, true);
+        }
+        
         // Get HTML content from Blade view
         $html = View::make($view, $data)->render();
         
         // Create mPDF instance
-        $mpdf = new Mpdf($options);
+        $mpdf = new \Mpdf\Mpdf($options);
         
         // Set RTL direction for Arabic
         $mpdf->SetDirectionality('rtl');
@@ -79,4 +86,3 @@ class PdfService
         return $mpdf->Output($filepath, 'F'); // F = File
     }
 }
-
