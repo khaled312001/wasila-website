@@ -364,7 +364,15 @@
                             }
                         @endphp
                     </p>
-                 
+                    <div class="stats-grid">
+                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
+                            <div class="stat-number">{{ \App\Models\Setting::get('stat1_number', '500+') }}</div>
+                            <div class="stat-label">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'stat1_label_ar' : 'stat1_label_en', __('messages.services_provided')) }}</div>
+        </div>
+                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
+                            <div class="stat-number">{{ \App\Models\Setting::get('stat2_number', '1000+') }}</div>
+                            <div class="stat-label">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'stat2_label_ar' : 'stat2_label_en', __('messages.beneficiaries')) }}</div>
+                    </div>
                     </div>
                         </div>
                 <div class="about-image" data-aos="fade-left">
