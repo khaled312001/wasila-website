@@ -286,6 +286,7 @@ return [
     'payment_reference' => 'رقم المرجع',
     'order_information' => 'معلومات الطلب',
     'order_date' => 'تاريخ الطلب',
+    'order_details' => 'تفاصيل الطلب',
     
     // Order documentation and customer information
     'order_documentation' => 'توثيق الطلب',
