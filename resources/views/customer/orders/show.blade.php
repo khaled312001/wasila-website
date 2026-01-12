@@ -16,6 +16,19 @@
     @media (min-width: 1024px) {
         .order-details-container {
             grid-template-columns: 2fr 1fr;
+            align-items: start;
+        }
+        
+        /* Main content on the left */
+        .order-details-container > .main-content {
+            grid-column: 1;
+        }
+        
+        /* Sidebar on the right */
+        .order-details-container > .sidebar {
+            grid-column: 2;
+            position: sticky;
+            top: 1.5rem;
         }
     }
     
@@ -523,8 +536,8 @@
 
 @section('content')
 <div class="order-details-container">
-    <!-- Main Content -->
-    <div class="space-y-6">
+    <!-- Main Content - Left Side -->
+    <div class="main-content space-y-6">
         <!-- Documentation Videos Section -->
         @if($order->documentation && $order->documentation->where('is_visible_to_customer', true)->count() > 0)
         <div class="documentation-section">
