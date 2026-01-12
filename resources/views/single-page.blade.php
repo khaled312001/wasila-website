@@ -364,15 +364,7 @@
                             }
                         @endphp
                     </p>
-                    <div class="stats-grid">
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="200">
-                            <div class="stat-number">{{ \App\Models\Setting::get('stat1_number', '500+') }}</div>
-                            <div class="stat-label">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'stat1_label_ar' : 'stat1_label_en', __('messages.services_provided')) }}</div>
-        </div>
-                        <div class="stat-card" data-aos="zoom-in" data-aos-delay="400">
-                            <div class="stat-number">{{ \App\Models\Setting::get('stat2_number', '1000+') }}</div>
-                            <div class="stat-label">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'stat2_label_ar' : 'stat2_label_en', __('messages.beneficiaries')) }}</div>
-                    </div>
+                 
                     </div>
                         </div>
                 <div class="about-image" data-aos="fade-left">
@@ -386,8 +378,6 @@
     <section class="section features-section">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="section-title">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'why_choose_title_ar' : 'why_choose_title_en', __('messages.features_subtitle')) }}</h2>
-                <p class="section-subtitle">{{ \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'why_choose_subtitle_ar' : 'why_choose_subtitle_en', __('messages.features_description')) }}</p>
         </div>
             <div class="row g-4">
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
