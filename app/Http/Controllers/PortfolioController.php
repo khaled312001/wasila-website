@@ -77,10 +77,9 @@ class PortfolioController extends Controller
                 ->withInput();
         }
 
-        // رفع الملف إلى مجلد portfolio
-        $path = $file->store('public/portfolio');
-        // Normalize path to handle public/storage prefixes consistently
-        $relativePath = $this->normalizeFilePath($path);
+        // رفع الملف إلى مجلد portfolio داخل disk public (مثل الخدمات بالضبط)
+        // ينتج مسار مثل: portfolio/xxxx.png داخل storage/app/public
+        $relativePath = $file->store('portfolio', 'public');
         
         // Copy file to public/storage for hosting providers that don't support symlinks
         $copied = $this->copyToPublicStorage($relativePath);
@@ -175,10 +174,8 @@ class PortfolioController extends Controller
                     Storage::disk('public')->delete($this->normalizeFilePath($portfolioItem->thumbnail_path));
                 }
 
-                // رفع الملف الجديد إلى مجلد portfolio
-                $path = $file->store('public/portfolio');
-                // إزالة 'public/' من المسار للحصول على 'portfolio/filename'
-                $data['file_path'] = $this->normalizeFilePath($path);
+                // رفع الملف الجديد إلى مجلد portfolio داخل disk public
+                $data['file_path'] = $file->store('portfolio', 'public');
                 
                 // Copy file to public/storage for hosting providers that don't support symlinks
                 $copied = $this->copyToPublicStorage($data['file_path']);
