@@ -2,7 +2,6 @@
 
 @section('title', __('messages.customer_dashboard'))
 @section('page-title', __('messages.dashboard'))
-@section('page-subtitle', '')
 
 @push('styles')
 <style>

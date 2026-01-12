@@ -236,7 +236,7 @@
         <div class="top-bar">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">@yield('page-title', __('messages.dashboard'))</h1>
-                @if(trim(@yield('page-subtitle', '')) !== '')
+                @hasSection('page-subtitle')
                 <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle')</p>
                 @endif
             </div>
