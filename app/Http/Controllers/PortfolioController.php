@@ -86,6 +86,7 @@ class PortfolioController extends Controller
         $copied = $this->copyToPublicStorage($relativePath);
         if (!$copied) {
             Log::warning('Failed to copy portfolio file to public storage: ' . $relativePath);
+            $this->copyDirectlyToPublic($relativePath);
         }
 
         // إنشاء thumbnail للفيديو
@@ -183,6 +184,7 @@ class PortfolioController extends Controller
                 $copied = $this->copyToPublicStorage($data['file_path']);
                 if (!$copied) {
                     Log::warning('Failed to copy portfolio file to public storage: ' . $data['file_path']);
+                    $this->copyDirectlyToPublic($data['file_path']);
                 }
 
                 // إنشاء thumbnail للفيديو
@@ -268,10 +270,28 @@ class PortfolioController extends Controller
                     Log::warning('Failed to copy file to public storage: ' . $filePath);
                     return false;
                 }
+            }
+
+            // If source missing, try reading from disk('public') (may be virtual)
+            if (Storage::disk('public')->exists($filePath)) {
+                $contents = Storage::disk('public')->get($filePath);
+                
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+                
+                if (file_put_contents($targetPath, $contents) !== false) {
+                    chmod($targetPath, 0644);
+                    Log::info('File streamed to public storage from disk: ' . $filePath);
+                    return true;
+                } else {
+                    Log::warning('Failed to stream file to public storage: ' . $filePath);
+                }
             } else {
                 Log::warning('Source file not found: ' . $sourcePath);
-                return false;
             }
+            
+            return false;
         } catch (\Exception $e) {
             // Log error but don't break the flow
             Log::error('Failed to copy file to public storage: ' . $e->getMessage(), [
@@ -503,5 +523,41 @@ class PortfolioController extends Controller
         }
 
         return $cleanPath;
+    }
+
+    /**
+     * Last-resort copy directly to public/storage from disk contents
+     */
+    private function copyDirectlyToPublic(string $filePath): void
+    {
+        $filePath = $this->normalizeFilePath($filePath);
+        if (empty($filePath)) {
+            return;
+        }
+
+        try {
+            if (!Storage::disk('public')->exists($filePath)) {
+                return;
+            }
+
+            $contents = Storage::disk('public')->get($filePath);
+            $targetPath = public_path('storage/' . $filePath);
+            $targetDir = dirname($targetPath);
+
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+
+            if (file_put_contents($targetPath, $contents) !== false) {
+                chmod($targetPath, 0644);
+                Log::info('Direct copy to public storage succeeded: ' . $filePath);
+            } else {
+                Log::warning('Direct copy to public storage failed: ' . $filePath);
+            }
+        } catch (\Exception $e) {
+            Log::error('Direct copy to public storage exception: ' . $e->getMessage(), [
+                'file_path' => $filePath
+            ]);
+        }
     }
 }
