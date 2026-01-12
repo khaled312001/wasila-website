@@ -137,6 +137,13 @@ class PortfolioItem extends Model
     protected function normalizePath(string $path): string
     {
         $cleanPath = str_replace(['storage/', '/storage/', 'public/', '/public/'], '', $path);
-        return ltrim($cleanPath, '/');
+        $cleanPath = ltrim($cleanPath, '/');
+
+        // If path has no folder, assume it belongs to portfolio directory
+        if ($cleanPath !== '' && strpos($cleanPath, '/') === false) {
+            $cleanPath = 'portfolio/' . $cleanPath;
+        }
+
+        return $cleanPath;
     }
 }

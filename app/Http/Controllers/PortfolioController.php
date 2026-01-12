@@ -485,7 +485,8 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Normalize storage paths by removing public/storage prefixes and leading slashes
+     * Normalize storage paths by removing public/storage prefixes and leading slashes.
+     * If the path has no directory, it will be assumed to belong to the portfolio folder.
      */
     private function normalizeFilePath(?string $path): string
     {
@@ -494,6 +495,13 @@ class PortfolioController extends Controller
         }
 
         $cleanPath = str_replace(['storage/', '/storage/', 'public/', '/public/'], '', $path);
-        return ltrim($cleanPath, '/');
+        $cleanPath = ltrim($cleanPath, '/');
+
+        // Default to portfolio folder when no directory is provided
+        if ($cleanPath !== '' && strpos($cleanPath, '/') === false) {
+            $cleanPath = 'portfolio/' . $cleanPath;
+        }
+
+        return $cleanPath;
     }
 }

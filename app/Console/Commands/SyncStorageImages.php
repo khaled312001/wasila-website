@@ -138,7 +138,7 @@ class SyncStorageImages extends Command
         $bar->start();
 
         foreach ($portfolioItems as $item) {
-            $cleanPath = $this->normalizeFilePath($item->file_path);
+            $cleanPath = $this->normalizeFilePath($item->file_path, 'portfolio');
             
             $result = $this->copyToPublicStorage($cleanPath, $force);
             if ($result === true) {
@@ -155,7 +155,7 @@ class SyncStorageImages extends Command
 
             // Also sync thumbnail if exists
             if ($item->thumbnail_path) {
-                $cleanThumbnail = $this->normalizeFilePath($item->thumbnail_path);
+                $cleanThumbnail = $this->normalizeFilePath($item->thumbnail_path, 'portfolio');
                 $this->copyToPublicStorage($cleanThumbnail, $force);
             }
             
@@ -180,7 +180,7 @@ class SyncStorageImages extends Command
      */
     private function copyToPublicStorage($filePath, $force = false)
     {
-        $filePath = $this->normalizeFilePath($filePath);
+        $filePath = $this->normalizeFilePath($filePath, null);
         if (empty($filePath)) {
             return 'مسار الملف غير صحيح';
         }
@@ -254,13 +254,20 @@ class SyncStorageImages extends Command
     /**
      * Normalize storage paths by stripping common prefixes
      */
-    private function normalizeFilePath(?string $path): string
+    private function normalizeFilePath(?string $path, ?string $defaultFolder = null): string
     {
         if (empty($path)) {
             return '';
         }
 
         $cleanPath = str_replace(['storage/', '/storage/', 'public/', '/public/'], '', $path);
-        return ltrim($cleanPath, '/');
+        $cleanPath = ltrim($cleanPath, '/');
+
+        // If caller specifies a default folder and no directory exists, prepend it
+        if ($defaultFolder && $cleanPath !== '' && strpos($cleanPath, '/') === false) {
+            $cleanPath = rtrim($defaultFolder, '/') . '/' . $cleanPath;
+        }
+
+        return $cleanPath;
     }
 }
