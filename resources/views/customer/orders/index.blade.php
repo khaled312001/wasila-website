@@ -20,6 +20,10 @@
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.service') }}</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.amount') }}</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.status') }}</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <i class="fas fa-video ml-1"></i>
+                        توثيق
+                    </th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.date') }}</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.actions') }}</th>
                 </tr>
@@ -46,6 +50,24 @@
                             @endif">
                             {{ __('messages.' . $order->status) }}
                         </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        @php
+                            $hasDocumentation = $order->documentation && $order->documentation->where('is_visible_to_customer', true)->count() > 0;
+                        @endphp
+                        @if($hasDocumentation)
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800" title="يوجد فيديو توثيق">
+                                <i class="fas fa-video ml-1"></i>
+                                متوفر
+                            </span>
+                        </div>
+                        @else
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500" title="لا يوجد فيديو توثيق">
+                            <i class="fas fa-video-slash ml-1"></i>
+                            غير متوفر
+                        </span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ $order->created_at->format('Y-m-d') }}
