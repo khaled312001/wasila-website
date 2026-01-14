@@ -164,9 +164,10 @@ class MyFatoorahController extends Controller
                     ->with('error', 'لم يتم العثور على معرف الطلب. يرجى التواصل معنا.');
             }
 
-            $order = Order::find($orderId);
+            $order = Order::with('orderItems.service')->find($orderId);
             
             if (!$order) {
+                Log::error('MyFatoorah callback: Order not found', ['order_id' => $orderId]);
                 return redirect()->route('home')
                     ->with('error', 'لم يتم العثور على الطلب. يرجى التواصل معنا.');
             }
@@ -184,14 +185,14 @@ class MyFatoorahController extends Controller
                 // إرسال إيميل للإدارة عند الدفع الناجح
                 try {
                     $adminEmail = SettingsHelper::contactEmail();
-                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()));
+                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
                     Log::info('Order paid email sent successfully to: ' . $adminEmail);
                 } catch (\Exception $emailException) {
                     Log::error('Failed to send order paid email: ' . $emailException->getMessage());
                 }
                 
                 // Store order data in session for confirmation page
-                request()->session()->put('order_confirmation', [
+                $orderData = [
                     'order_number' => $order->order_number,
                     'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
                     'service_price' => $order->orderItems->first()->unit_price ?? 0,
@@ -203,9 +204,28 @@ class MyFatoorahController extends Controller
                     'total_amount' => $order->total_amount,
                     'payment_status' => 'paid',
                     'payment_method' => $order->payment_method
+                ];
+                
+                // Save session data and ensure it's persisted
+                $session = request()->session();
+                $session->put('order_confirmation', $orderData);
+                $session->save();
+                
+                Log::info('MyFatoorah callback: Payment successful', [
+                    'order_id' => $orderId,
+                    'payment_id' => $paymentId,
+                    'order_number' => $order->order_number,
+                    'session_id' => request()->session()->getId()
                 ]);
                 
-                return redirect()->route('orders.confirmation')
+                // Ensure session is saved before redirect
+                $session = request()->session();
+                $session->save();
+                
+                // Use full URL to ensure proper redirect with session
+                $confirmationUrl = route('orders.confirmation');
+                
+                return redirect($confirmationUrl)
                     ->with('success', 'تم الدفع بنجاح! شكراً لك على دعمك لمشروع وسيلة الخيري.');
                     
             } elseif ($data['InvoiceStatus'] === 'Failed') {
@@ -216,20 +236,40 @@ class MyFatoorahController extends Controller
                     'notes' => 'فشل في الدفع: ' . ($data['InvoiceError'] ?? 'Unknown error')
                 ]);
                 
-                return redirect()->route('orders.confirmation')
-                    ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.')
-                    ->with('order_data', [
-                        'order_number' => $order->order_number,
-                        'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
-                        'service_price' => $order->orderItems->first()->unit_price ?? 0,
-                        'service_quantity' => $order->orderItems->first()->quantity ?? 1,
-                        'customer_name' => $order->customer_name,
-                        'customer_email' => $order->customer_email,
-                        'customer_phone' => $order->customer_phone,
-                        'customer_address' => $order->customer_address,
-                        'total_amount' => $order->total_amount,
-                        'payment_status' => 'failed'
-                    ]);
+                $orderData = [
+                    'order_number' => $order->order_number,
+                    'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
+                    'service_price' => $order->orderItems->first()->unit_price ?? 0,
+                    'service_quantity' => $order->orderItems->first()->quantity ?? 1,
+                    'customer_name' => $order->customer_name,
+                    'customer_email' => $order->customer_email,
+                    'customer_phone' => $order->customer_phone,
+                    'customer_address' => $order->customer_address,
+                    'total_amount' => $order->total_amount,
+                    'payment_status' => 'failed'
+                ];
+                
+                // Save session data
+                $session = request()->session();
+                $session->put('order_confirmation', $orderData);
+                $session->save();
+                
+                Log::info('MyFatoorah callback: Payment failed', [
+                    'order_id' => $orderId,
+                    'payment_id' => $paymentId,
+                    'error' => $data['InvoiceError'] ?? 'Unknown error',
+                    'session_id' => request()->session()->getId()
+                ]);
+                
+                // Ensure session is saved before redirect
+                $session = request()->session();
+                $session->save();
+                
+                // Use full URL to ensure proper redirect with session
+                $confirmationUrl = route('orders.confirmation');
+                
+                return redirect($confirmationUrl)
+                    ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.');
                     
             } else {
                 // حالة أخرى (مثل Pending)
@@ -241,20 +281,40 @@ class MyFatoorahController extends Controller
                     'notes' => 'في انتظار تأكيد الدفع'
                 ]);
                 
-                return redirect()->route('orders.confirmation')
-                    ->with('info', 'تم استلام طلبك بنجاح. في انتظار تأكيد الدفع.')
-                    ->with('order_data', [
-                        'order_number' => $order->order_number,
-                        'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
-                        'service_price' => $order->orderItems->first()->unit_price ?? 0,
-                        'service_quantity' => $order->orderItems->first()->quantity ?? 1,
-                        'customer_name' => $order->customer_name,
-                        'customer_email' => $order->customer_email,
-                        'customer_phone' => $order->customer_phone,
-                        'customer_address' => $order->customer_address,
-                        'total_amount' => $order->total_amount,
-                        'payment_status' => 'pending'
-                    ]);
+                $orderData = [
+                    'order_number' => $order->order_number,
+                    'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
+                    'service_price' => $order->orderItems->first()->unit_price ?? 0,
+                    'service_quantity' => $order->orderItems->first()->quantity ?? 1,
+                    'customer_name' => $order->customer_name,
+                    'customer_email' => $order->customer_email,
+                    'customer_phone' => $order->customer_phone,
+                    'customer_address' => $order->customer_address,
+                    'total_amount' => $order->total_amount,
+                    'payment_status' => 'pending'
+                ];
+                
+                // Save session data
+                $session = request()->session();
+                $session->put('order_confirmation', $orderData);
+                $session->save();
+                
+                Log::info('MyFatoorah callback: Payment pending', [
+                    'order_id' => $orderId,
+                    'payment_id' => $paymentId,
+                    'invoice_status' => $data['InvoiceStatus'],
+                    'session_id' => request()->session()->getId()
+                ]);
+                
+                // Ensure session is saved before redirect
+                $session = request()->session();
+                $session->save();
+                
+                // Use full URL to ensure proper redirect with session
+                $confirmationUrl = route('orders.confirmation');
+                
+                return redirect($confirmationUrl)
+                    ->with('info', 'تم استلام طلبك بنجاح. في انتظار تأكيد الدفع.');
             }
                 
         } catch (Exception $ex) {

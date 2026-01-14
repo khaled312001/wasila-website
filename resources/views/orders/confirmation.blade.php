@@ -23,7 +23,27 @@
 <section class="gradient-bg text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-            @if(session('success'))
+            @php
+                // Check for flash messages
+                $successMessage = session('success');
+                $errorMessage = session('error');
+                $infoMessage = session('info');
+                
+                // If no flash messages but we have order data, determine status from order
+                if (!$successMessage && !$errorMessage && !$infoMessage && isset($orderData)) {
+                    if (isset($orderData['payment_status'])) {
+                        if ($orderData['payment_status'] === 'paid') {
+                            $successMessage = 'تم الدفع بنجاح! شكراً لك على دعمك لمشروع وسيلة الخيري.';
+                        } elseif ($orderData['payment_status'] === 'failed') {
+                            $errorMessage = 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.';
+                        } elseif ($orderData['payment_status'] === 'pending') {
+                            $infoMessage = 'تم استلام طلبك بنجاح. في انتظار تأكيد الدفع.';
+                        }
+                    }
+                }
+            @endphp
+            
+            @if($successMessage)
                 <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -33,9 +53,9 @@
                     {{ app()->getLocale() === 'ar' ? 'تم تأكيد طلبك بنجاح!' : 'Order Confirmed Successfully!' }}
                 </h1>
                 <p class="text-base md:text-lg text-gray-200 max-w-3xl mx-auto">
-                    {{ session('success') }}
+                    {{ $successMessage }}
                 </p>
-            @elseif(session('error'))
+            @elseif($errorMessage)
                 <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -45,9 +65,9 @@
                     {{ app()->getLocale() === 'ar' ? 'حدث خطأ في الدفع' : 'Payment Error' }}
                 </h1>
                 <p class="text-base md:text-lg text-gray-200 max-w-3xl mx-auto">
-                    {{ session('error') }}
+                    {{ $errorMessage }}
                 </p>
-            @elseif(session('info'))
+            @elseif($infoMessage)
                 <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -57,7 +77,7 @@
                     {{ app()->getLocale() === 'ar' ? 'في انتظار التأكيد' : 'Pending Confirmation' }}
                 </h1>
                 <p class="text-base md:text-lg text-gray-200 max-w-3xl mx-auto">
-                    {{ session('info') }}
+                    {{ $infoMessage }}
                 </p>
             @else
                 <div class="w-20 h-20 bg-primary-light rounded-full flex items-center justify-center mx-auto mb-6">
@@ -288,7 +308,7 @@
 @endif
 
 <!-- Thank You Message -->
-@if(session('success'))
+@if($successMessage ?? session('success'))
 <section class="py-12 bg-primary-light">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-2xl font-bold text-white mb-4">

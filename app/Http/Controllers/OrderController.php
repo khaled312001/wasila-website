@@ -223,6 +223,17 @@ class OrderController extends Controller
     
     public function confirmation(Request $request)
     {
+        // Log session data for debugging
+        Log::info('Order confirmation page accessed', [
+            'has_success' => $request->session()->has('success'),
+            'has_error' => $request->session()->has('error'),
+            'has_info' => $request->session()->has('info'),
+            'success_message' => $request->session()->get('success'),
+            'error_message' => $request->session()->get('error'),
+            'info_message' => $request->session()->get('info'),
+            'has_order_confirmation' => $request->session()->has('order_confirmation'),
+        ]);
+        
         // Get order data from session (set by MyFatoorah callback)
         $orderData = $request->session()->get('order_confirmation');
         
