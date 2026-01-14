@@ -3,7 +3,7 @@
     $senderName = $isCustomer ? __('messages.you') : ($message->admin->name ?? __('messages.admin'));
 @endphp
 
-<div class="message-wrapper {{ $message->sender_type }}">
+<div class="message-wrapper {{ $message->sender_type }}" data-message-id="{{ $message->id }}">
     <div class="message-bubble message-{{ $message->sender_type }}">
         <div class="message-header">
             <span class="message-sender">{{ $senderName }}</span>

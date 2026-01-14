@@ -1070,8 +1070,15 @@ const ChatMessages = {
         const emptyState = messagesList.querySelector('.empty-state');
         if (emptyState) emptyState.remove();
         
+        // Check if message already exists to prevent duplicates
+        const existingMessage = messagesList.querySelector(`[data-message-id="${message.id}"]`);
+        if (existingMessage) {
+            return; // Message already exists, don't add it again
+        }
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = `message-wrapper ${message.sender_type}`;
+        messageDiv.setAttribute('data-message-id', message.id);
         messageDiv.innerHTML = this.getMessageHTML(message);
         messagesList.appendChild(messageDiv);
     },
@@ -1155,8 +1162,9 @@ const ChatMessages = {
             const data = await response.json();
             
             if (data.success) {
-                this.addMessageToChat(data.data);
+                // Update lastMessageId BEFORE adding message to prevent polling from fetching it again
                 this.lastMessageId = Math.max(this.lastMessageId, data.data.id);
+                this.addMessageToChat(data.data);
                 
                 messageInput.value = '';
                 messageInput.style.height = 'auto';

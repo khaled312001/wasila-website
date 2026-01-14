@@ -412,8 +412,8 @@
         </div>
     </section>
 
-    <!-- Portfolio Showcase Section - Infinite Loop Gallery -->
-    <section class="section portfolio-showcase-section">
+    <!-- Our Work Section with Infinite Scroll Animation -->
+    <section class="section our-work-section">
         <div class="container">
             <div class="text-center mb-8" data-aos="fade-up">
                 <h2 class="section-title">{{ __('messages.our_work') }}</h2>
@@ -441,39 +441,47 @@
                 // Use valid items, or fallback to all items if none are valid
                 $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
                 
-                // Duplicate items once for seamless infinite loop
-                $allItems = $itemsToUse->merge($itemsToUse);
+                // For seamless infinite loop, duplicate items exactly 2 times
+                // This ensures smooth continuous scrolling - when we move 50%, we see the same items again
+                $duplicates = 2;
+                $allItems = collect();
+                for ($i = 0; $i < $duplicates; $i++) {
+                    $allItems = $allItems->merge($itemsToUse);
+                }
             @endphp
             
             @if($itemsToUse->count() > 0)
-            <div class="portfolio-gallery-wrapper">
-                <div class="portfolio-items-slider" id="portfolioItemsSlider" data-unique-count="{{ $itemsToUse->count() }}">
-                    @foreach($allItems as $item)
+            <div class="our-work-container">
+                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}" data-total-items="{{ $allItems->count() }}">
+                    @foreach($allItems as $index => $item)
                         @php
                             $cleanFilePath = $item->normalized_file_path;
+                            
+                            // Check if file exists in multiple locations
                             $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
                             $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
                             $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
                             $fileExists = $cleanFilePath && ($existsInStorage || $existsInPublic || $existsInAppPublic);
                             
+                            // Get file URL - prefer public/storage for direct access
                             if ($existsInPublic) {
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } elseif ($existsInStorage) {
                                 $fileUrl = \Storage::disk('public')->url($cleanFilePath);
                             } elseif ($existsInAppPublic) {
+                                // File exists but not copied to public/storage yet
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } else {
                                 $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
-                            $placeholderImg = asset('images/placeholder-portfolio.png');
                         @endphp
-                        <div class="portfolio-item-card">
+                        <div class="our-work-card">
                             @if($item->type === 'image')
                                 @if($fileExists)
                                     <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
-                                         onerror="this.onerror=null; this.src='{{ $placeholderImg }}';">
+                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
                                 @else
-                                    <img src="{{ $placeholderImg }}" alt="{{ $item->title_ar }}">
+                                    <img src="{{ asset('images/placeholder-portfolio.png') }}" alt="{{ $item->title_ar }}">
                                 @endif
                             @else
                                 @if($fileExists)
@@ -481,14 +489,15 @@
                                         <source src="{{ $fileUrl }}" type="video/mp4">
                                         <source src="{{ $fileUrl }}" type="video/webm">
                                         <source src="{{ $fileUrl }}" type="video/ogg">
+                                        متصفحك لا يدعم تشغيل الفيديو.
                                     </video>
                                 @else
-                                    <div class="portfolio-video-placeholder">
+                                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
                                         <i class="fas fa-video fa-3x text-white"></i>
                                     </div>
                                 @endif
                             @endif
-                            <div class="portfolio-item-overlay">
+                            <div class="our-work-overlay">
                                 <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-2x text-white"></i>
                                 <p class="text-white mt-2 text-sm font-semibold">{{ $item->title_ar }}</p>
                             </div>
@@ -497,49 +506,42 @@
                 </div>
             </div>
             @else
-            @php
-                $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
-                $imageCount = count($imageFiles);
-                $fallbackCount = $imageCount > 0 ? $imageCount : 6;
-            @endphp
-            <div class="portfolio-gallery-wrapper">
-                <div class="portfolio-items-slider" id="portfolioItemsSlider" data-unique-count="{{ $fallbackCount }}">
+            <div class="our-work-container">
+                <div class="our-work-track" id="ourWorkTrack">
                     @php
+                        // Get all images from public/images folder
+                        $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
+                        $imageCount = count($imageFiles);
                         if ($imageCount > 0) {
-                            // Duplicate once for seamless loop
-                            $imageFilesDuplicated = array_merge($imageFiles, $imageFiles);
-                            foreach ($imageFilesDuplicated as $imageFile) {
-                                $imageName = basename($imageFile);
-                                $imageUrl = asset('images/' . $imageName);
-                                $placeholderUrl = asset('images/placeholder-portfolio.png');
-                                @endphp
-                                <div class="portfolio-item-card">
-                                    <img src="{{ $imageUrl }}" alt="{{ $imageName }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
-                                    <div class="portfolio-item-overlay">
-                                        <i class="fas fa-image fa-2x text-white"></i>
-                                        <p class="text-white mt-2 text-sm font-semibold">{{ $imageName }}</p>
-                                    </div>
-                                </div>
-                                @php
+                            // Duplicate items exactly 2 times for seamless infinite loop
+                            $duplicates = 2;
+                            for ($d = 0; $d < $duplicates; $d++) {
+                                foreach ($imageFiles as $imageFile) {
+                                    $imageName = basename($imageFile);
+                                    $imageUrl = asset('images/' . $imageName);
+                                    echo '<div class="our-work-card">';
+                                    echo '<img src="' . $imageUrl . '" alt="' . $imageName . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
+                                    echo '<div class="our-work-overlay">';
+                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
+                                    echo '<p class="text-white mt-2 text-sm font-semibold">' . $imageName . '</p>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
                             }
                         } else {
-                            // Duplicate once for seamless loop
-                            $placeholderImages = [];
-                            for ($i = 1; $i <= 6; $i++) {
-                                $placeholderImages[] = $i;
-                            }
-                            $placeholderImages = array_merge($placeholderImages, $placeholderImages);
-                            foreach ($placeholderImages as $i) {
-                                $placeholderUrl = asset('images/placeholder-portfolio.png');
-                                @endphp
-                                <div class="portfolio-item-card">
-                                    <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
-                                    <div class="portfolio-item-overlay">
-                                        <i class="fas fa-image fa-2x text-white"></i>
-                                        <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
-                                    </div>
-                                </div>
-                                @php
+                            // Fallback: show placeholder images
+                            $placeholderCount = 6;
+                            $duplicates = 2;
+                            for ($d = 0; $d < $duplicates; $d++) {
+                                for ($i = 1; $i <= $placeholderCount; $i++) {
+                                    echo '<div class="our-work-card">';
+                                    echo '<img src="' . asset('images/' . $i . '.png') . '" alt="صورة ' . $i . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
+                                    echo '<div class="our-work-overlay">';
+                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
+                                    echo '<p class="text-white mt-2 text-sm font-semibold">صورة ' . $i . '</p>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
                             }
                         }
                     @endphp
@@ -888,89 +890,27 @@
                 heroContent.style.animation = 'fadeInUp 1s ease-out';
             }
             
-            // Setup infinite loop for portfolio showcase section
-            const portfolioSlider = document.getElementById('portfolioItemsSlider');
-            if (portfolioSlider) {
-                const initializePortfolioSlider = () => {
-                    const cards = portfolioSlider.querySelectorAll('.portfolio-item-card');
-                    let uniqueCount = parseInt(portfolioSlider.dataset.uniqueCount) || 1;
+            // Setup infinite scroll for our work section
+            const ourWorkTrack = document.getElementById('ourWorkTrack');
+            if (ourWorkTrack) {
+                // Calculate animation duration based on number of items
+                // More items = slower animation, fewer items = faster for better UX
+                const setupAnimation = () => {
+                    const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || 1;
                     
-                    // If not set, try to detect unique items
-                    if (!uniqueCount || uniqueCount === 0) {
-                        if (cards.length > 0) {
-                            const firstCardSrc = cards[0].querySelector('img, video')?.src || '';
-                            let detectedCount = 1;
-                            for (let i = 1; i < cards.length; i++) {
-                                const currentSrc = cards[i].querySelector('img, video')?.src || '';
-                                if (currentSrc === firstCardSrc) {
-                                    detectedCount = i;
-                                    break;
-                                }
-                            }
-                            uniqueCount = detectedCount > 0 ? detectedCount : cards.length;
-                        }
-                    }
-                    
-                    if (uniqueCount > 0 && cards.length > 0) {
-                        const firstCard = cards[0];
-                        const cardWidth = firstCard.offsetWidth || 300;
-                        const gap = 24;
-                        const setWidth = uniqueCount * (cardWidth + gap);
-                        
-                        // Set CSS variable for animation
-                        portfolioSlider.style.setProperty('--portfolio-set-width', setWidth + 'px');
-                        
-                        // Calculate duration - more items = slower
-                        const baseDuration = 60;
-                        const duration = Math.max(40, baseDuration + (uniqueCount * 2));
-                        portfolioSlider.style.animationDuration = duration + 's';
-                        
-                        // Ensure infinite loop
-                        portfolioSlider.style.animationIterationCount = 'infinite';
-                        portfolioSlider.style.animationTimingFunction = 'linear';
-                        portfolioSlider.style.animationName = 'portfolio-slide-animation';
-                        
-                        // Force reflow
-                        portfolioSlider.offsetHeight;
-                        
-                        console.log('Portfolio Slider initialized:', {
-                            uniqueItems: uniqueCount,
-                            totalItems: cards.length,
-                            setWidth: setWidth + 'px',
-                            duration: duration + 's'
-                        });
+                    if (originalItemCount > 0) {
+                        // Adjust duration based on item count
+                        // Base duration: 40s, add 2s per item for smoother viewing
+                        const duration = Math.max(30, 40 + (originalItemCount * 2));
+                        ourWorkTrack.style.animationDuration = duration + 's';
                     }
                 };
                 
-                // Initialize immediately
-                initializePortfolioSlider();
+                // Setup immediately
+                setupAnimation();
                 
-                // Retry after delay
-                setTimeout(initializePortfolioSlider, 200);
-                
-                // Retry after window load
-                window.addEventListener('load', initializePortfolioSlider);
-                
-                // Retry after images load
-                const images = portfolioSlider.querySelectorAll('img');
-                let loadedCount = 0;
-                if (images.length > 0) {
-                    images.forEach(img => {
-                        if (img.complete) {
-                            loadedCount++;
-                        } else {
-                            img.addEventListener('load', () => {
-                                loadedCount++;
-                                if (loadedCount === images.length) {
-                                    initializePortfolioSlider();
-                                }
-                            });
-                        }
-                    });
-                    if (loadedCount === images.length) {
-                        initializePortfolioSlider();
-                    }
-                }
+                // And after window load
+                window.addEventListener('load', setupAnimation);
             }
         });
         
