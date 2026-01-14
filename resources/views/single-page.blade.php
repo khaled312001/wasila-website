@@ -470,8 +470,9 @@
             @endphp
             
             @if($itemsToUse->count() > 0)
+            <!-- DEBUG: Total unique items: {{ $itemsToUse->count() }}, Total duplicated items: {{ $allItems->count() }}, Duplicates: {{ $duplicates }} -->
             <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}">
+                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}" data-total-items="{{ $allItems->count() }}">
                     @foreach($allItems as $item)
                         @php
                             $cleanFilePath = $item->normalized_file_path;
@@ -981,6 +982,15 @@
                         const gap = 24; // 1.5rem = 24px gap
                         const oneSetWidth = originalItemCount * (cardWidth + gap);
                         
+                        // DEBUG: Log information
+                        console.log('Our Work Track Setup:', {
+                            uniqueItems: originalItemCount,
+                            totalItems: items.length,
+                            cardWidth: cardWidth,
+                            oneSetWidth: oneSetWidth,
+                            duplicates: Math.floor(items.length / originalItemCount)
+                        });
+                        
                         // Set animation to move exactly one set width for seamless infinite loop
                         // This ensures when animation completes, it loops back to the first item seamlessly
                         ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
@@ -1004,10 +1014,23 @@
                         const totalWidth = items.length * (cardWidth + gap);
                         const viewportWidth = window.innerWidth;
                         
-                        // With 50+ duplicates, we should have plenty of items
+                        console.log('Animation configured:', {
+                            duration: duration + 's',
+                            oneSetWidth: oneSetWidth + 'px',
+                            totalWidth: totalWidth + 'px',
+                            viewportWidth: viewportWidth + 'px',
+                            hasEnoughItems: totalWidth >= viewportWidth * 2.5
+                        });
+                        
+                        // With 100+ duplicates, we should have plenty of items
                         if (totalWidth < viewportWidth * 2.5) {
                             console.warn('Track has ' + items.length + ' items (' + originalItemCount + ' unique), consider adding more for smoother scrolling');
                         }
+                    } else {
+                        console.error('Our Work Track: No items found or invalid configuration', {
+                            originalItemCount: originalItemCount,
+                            itemsLength: items.length
+                        });
                     }
                 };
                 
