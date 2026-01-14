@@ -412,134 +412,77 @@
         </div>
     </section>
 
-    <!-- Our Work Section with Infinite Scroll Animation -->
+    <!-- Our Work Section -->
     <section class="section our-work-section">
         <div class="container">
-            <div class="text-center mb-8" data-aos="fade-up">
+            <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="section-title">{{ __('messages.our_work') }}</h2>
                 <p class="section-subtitle">{{ __('messages.discover_images_from_activities') }}</p>
             </div>
             
             @php
-                // Get ALL active portfolio items - NO LIMIT - Display ALL items regardless of file existence
+                // Get ALL active portfolio items
                 $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
                     ->orderBy('sort_order', 'asc')
                     ->orderBy('created_at', 'desc')
                     ->get();
-                
-                // Use ALL active items - don't filter by file existence
-                // Files will be checked in the loop and placeholder will be shown if missing
-                $itemsToUse = $portfolioItems;
-                
-                // For seamless infinite loop, duplicate items multiple times
-                // If we have few items (4 or less), duplicate more times to ensure smooth scrolling
-                $itemCount = $itemsToUse->count();
-                $duplicates = $itemCount <= 4 ? 5 : 3; // More duplicates for fewer items
-                $allItems = collect();
-                for ($i = 0; $i < $duplicates; $i++) {
-                    $allItems = $allItems->merge($itemsToUse);
-                }
             @endphp
             
-            @if($itemsToUse->count() > 0)
-            <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}" data-total-items="{{ $allItems->count() }}">
-                    @foreach($allItems as $index => $item)
-                        @php
-                            $cleanFilePath = $item->normalized_file_path;
-                            
-                            // Check if file exists in multiple locations
-                            $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
-                            $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
-                            $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
-                            $fileExists = $cleanFilePath && ($existsInStorage || $existsInPublic || $existsInAppPublic);
-                            
-                            // Get file URL - prefer public/storage for direct access
-                            // Always try to get URL even if file doesn't exist locally (might be external URL)
-                            if ($existsInPublic) {
-                                $fileUrl = asset('storage/' . $cleanFilePath);
-                            } elseif ($existsInStorage) {
+            @if($portfolioItems->count() > 0)
+            <div class="our-work-grid">
+                @foreach($portfolioItems as $item)
+                    @php
+                        $cleanFilePath = $item->normalized_file_path;
+                        
+                        // Check if file exists in multiple locations
+                        $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
+                        $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
+                        $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
+                        
+                        // Get file URL
+                        if ($existsInPublic) {
+                            $fileUrl = asset('storage/' . $cleanFilePath);
+                        } elseif ($existsInStorage) {
+                            try {
                                 $fileUrl = \Storage::disk('public')->url($cleanFilePath);
-                            } elseif ($existsInAppPublic) {
-                                // File exists but not copied to public/storage yet
+                            } catch (\Exception $e) {
                                 $fileUrl = asset('storage/' . $cleanFilePath);
-                            } elseif ($cleanFilePath) {
-                                // Try to use file path even if not found locally (might work via web server)
-                                $fileUrl = asset('storage/' . $cleanFilePath);
-                            } else {
-                                // Fallback to model's file_url or placeholder
-                                $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
-                        @endphp
-                        <div class="our-work-card">
+                        } elseif ($existsInAppPublic) {
+                            $fileUrl = asset('storage/' . $cleanFilePath);
+                        } elseif ($cleanFilePath) {
+                            $fileUrl = asset('storage/' . $cleanFilePath);
+                        } else {
+                            $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
+                        }
+                    @endphp
+                    <div class="our-work-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
+                        <div class="our-work-item-inner">
                             @if($item->type === 'image')
-                                {{-- Always try to show the image, even if file doesn't exist locally --}}
-                                {{-- The onerror handler will show placeholder if image fails to load --}}
                                 <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
                                      onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
                             @else
-                                {{-- Always try to show the video, even if file doesn't exist locally --}}
-                                {{-- The onerror handler will show placeholder if video fails to load --}}
-                                <video muted loop playsinline onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <video controls>
                                     <source src="{{ $fileUrl }}" type="video/mp4">
                                     <source src="{{ $fileUrl }}" type="video/webm">
-                                    <source src="{{ $fileUrl }}" type="video/ogg">
                                     متصفحك لا يدعم تشغيل الفيديو.
                                 </video>
-                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: none; align-items: center; justify-content: center; position: absolute; top: 0; left: 0;">
-                                    <i class="fas fa-video fa-3x text-white"></i>
-                                </div>
                             @endif
-                            <div class="our-work-overlay">
-                                <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-2x text-white"></i>
-                                <p class="text-white mt-2 text-sm font-semibold">{{ $item->title_ar }}</p>
+                            <div class="our-work-item-overlay">
+                                <div class="our-work-item-content">
+                                    <h4>{{ $item->title_ar }}</h4>
+                                    @if($item->description_ar)
+                                        <p>{{ $item->description_ar }}</p>
+                                    @endif
+                                </div>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
             </div>
             @else
-            <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack">
-                    @php
-                        // Get all images from public/images folder
-                        $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
-                        $imageCount = count($imageFiles);
-                        if ($imageCount > 0) {
-                            // Duplicate items multiple times for seamless infinite loop
-                            // If we have few items (4 or less), duplicate more times
-                            $duplicates = $imageCount <= 4 ? 5 : 3;
-                            for ($d = 0; $d < $duplicates; $d++) {
-                                foreach ($imageFiles as $imageFile) {
-                                    $imageName = basename($imageFile);
-                                    $imageUrl = asset('images/' . $imageName);
-                                    echo '<div class="our-work-card">';
-                                    echo '<img src="' . $imageUrl . '" alt="' . $imageName . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
-                                    echo '<div class="our-work-overlay">';
-                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
-                                    echo '<p class="text-white mt-2 text-sm font-semibold">' . $imageName . '</p>';
-                                    echo '</div>';
-                                    echo '</div>';
-                                }
-                            }
-                        } else {
-                            // Fallback: show placeholder images
-                            $placeholderCount = 6;
-                            $duplicates = 5; // Always duplicate fallback items multiple times
-                            for ($d = 0; $d < $duplicates; $d++) {
-                                for ($i = 1; $i <= $placeholderCount; $i++) {
-                                    echo '<div class="our-work-card">';
-                                    echo '<img src="' . asset('images/' . $i . '.png') . '" alt="صورة ' . $i . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
-                                    echo '<div class="our-work-overlay">';
-                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
-                                    echo '<p class="text-white mt-2 text-sm font-semibold">صورة ' . $i . '</p>';
-                                    echo '</div>';
-                                    echo '</div>';
-                                }
-                            }
-                        }
-                    @endphp
-                </div>
+            <div class="text-center py-5">
+                <p class="text-muted">{{ __('messages.no_portfolio_items') ?? 'لا توجد أعمال متاحة حالياً' }}</p>
             </div>
             @endif
         </div>
@@ -885,54 +828,6 @@
             }
             
             // Setup infinite scroll for our work section
-            const ourWorkTrack = document.getElementById('ourWorkTrack');
-            if (ourWorkTrack) {
-                // Calculate animation duration based on number of items
-                // More items = slower animation, fewer items = faster for better UX
-                const setupAnimation = () => {
-                    const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || 1;
-                    const totalItems = parseInt(ourWorkTrack.dataset.totalItems) || originalItemCount;
-                    
-                    if (originalItemCount > 0) {
-                        // Determine number of duplicates based on item count
-                        const duplicates = originalItemCount <= 4 ? 5 : 3;
-                        
-                        // For fewer items (4 or less), use faster animation to show repetition clearly
-                        // For more items, use slower animation
-                        let duration;
-                        let animationName = 'scroll-infinite';
-                        
-                        if (originalItemCount <= 4) {
-                            // Faster animation for few items to show infinite loop clearly
-                            duration = 20 + (originalItemCount * 2);
-                            // Use different animation for 5 duplicates
-                            animationName = 'scroll-infinite-5x';
-                        } else {
-                            // Slower animation for many items
-                            duration = Math.max(40, 50 + (originalItemCount * 3));
-                            animationName = 'scroll-infinite';
-                        }
-                        
-                        ourWorkTrack.style.animationDuration = duration + 's';
-                        ourWorkTrack.style.animationName = animationName;
-                        ourWorkTrack.style.animationIterationCount = 'infinite';
-                        ourWorkTrack.style.animationTimingFunction = 'linear';
-                        ourWorkTrack.style.animationPlayState = 'running';
-                    }
-                };
-                
-                // Setup immediately
-                setupAnimation();
-                
-                // And after window load
-                window.addEventListener('load', setupAnimation);
-                
-                // Ensure animation restarts if it stops
-                ourWorkTrack.addEventListener('animationiteration', function() {
-                    // Animation restarted - ensure it continues
-                    this.style.animationPlayState = 'running';
-                });
-            }
         });
         
         // Mobile menu toggle

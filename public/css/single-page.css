@@ -646,183 +646,110 @@ body.loaded {
 .our-work-section {
     background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
     padding: 4rem 0;
-    overflow: hidden;
     position: relative;
     width: 100%;
 }
 
-.our-work-container {
-    width: calc(100% + 30px);
-    max-width: 100vw;
-    overflow: hidden;
-    position: relative;
+.our-work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
     padding: 2rem 0;
-    margin-left: -15px;
-    margin-right: -15px;
-    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-    /* Ensure container doesn't clip content */
-    overflow-x: hidden;
-    overflow-y: visible;
 }
 
-.our-work-track {
-    display: flex;
-    flex-direction: row;
-    gap: 1.5rem;
-    animation: scroll-infinite 50s linear infinite;
-    will-change: transform;
-    width: max-content;
-    flex-shrink: 0;
-    align-items: center;
-    /* Ensure all items stay in one row */
-    flex-wrap: nowrap;
-    /* Force animation to always run */
-    animation-play-state: running !important;
-    /* Prevent any layout breaks */
-    white-space: nowrap;
-}
-
-/* Ensure cards don't shrink and stay in one row */
-.our-work-track > * {
-    flex-shrink: 0;
-    flex-grow: 0;
-}
-
-.our-work-track:hover {
-    /* Keep animation running even on hover for infinite loop */
-    /* animation-play-state: paused; */
-    /* Optional: slow down on hover instead of pausing */
-    animation-duration: 100s;
-}
-
-.our-work-card {
-    flex: 0 0 320px;
-    width: 320px;
-    min-width: 320px;
-    max-width: 320px;
-    height: 320px;
+.our-work-item {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
-    background: linear-gradient(135deg, #08788B 0%, #025469 100%);
-    pointer-events: auto;
-    /* Ensure card stays in one row */
-    display: block;
-    /* Prevent any wrapping or breaking */
-    flex-shrink: 0;
-    flex-grow: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    aspect-ratio: 1;
 }
 
-.our-work-card:hover {
-    transform: translateY(-12px) scale(1.08);
-    box-shadow: 0 20px 50px rgba(8, 120, 139, 0.5);
-    z-index: 10;
+.our-work-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(8, 120, 139, 0.3);
 }
 
-.our-work-card img,
-.our-work-card video {
+.our-work-item-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.our-work-item img,
+.our-work-item video {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     display: block;
-    /* Prevent image from breaking layout */
-    flex-shrink: 0;
+    background: #f8f9fa;
 }
 
-.our-work-card video {
+.our-work-item video {
     background: #000;
 }
 
-.our-work-card:hover img,
-.our-work-card:hover video {
-    transform: scale(1.15);
-}
-
-.our-work-overlay {
+.our-work-item-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(8, 120, 139, 0.9) 0%, rgba(2, 84, 105, 0.9) 100%);
+    background: linear-gradient(135deg, rgba(8, 120, 139, 0.95) 0%, rgba(2, 84, 105, 0.95) 100%);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+    padding: 1.5rem;
+    text-align: center;
 }
 
-.our-work-card:hover .our-work-overlay {
+.our-work-item:hover .our-work-item-overlay {
     opacity: 1;
 }
 
-.our-work-overlay i {
-    animation: zoomIn 0.5s ease;
+.our-work-item-content h4 {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
-@keyframes scroll-infinite {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        /* Move -33.33% for seamless infinite loop
-           This works when we duplicate items 3 times (showing 1/3 of total)
-           For 5 duplicates, we'd move -20%, but -33.33% still creates smooth loop */
-        transform: translateX(calc(-33.333%));
-    }
+.our-work-item-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.6;
 }
 
-/* Alternative animation for 5 duplicates */
-@keyframes scroll-infinite-5x {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(calc(-20%));
-    }
-}
-
-/* Responsive adjustments for our work section */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .our-work-card {
-        flex: 0 0 280px;
-        width: 280px;
-        min-width: 280px;
-        max-width: 280px;
-        height: 280px;
+    .our-work-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
     }
     
-    .our-work-container {
-        padding: 1rem 0;
-    }
-    
-    .our-work-track {
-        animation: scroll-infinite 40s linear infinite;
-        gap: 1rem;
+    .our-work-section {
+        padding: 3rem 0;
     }
 }
 
 @media (max-width: 576px) {
-    .our-work-card {
-        flex: 0 0 240px;
-        width: 240px;
-        min-width: 240px;
-        max-width: 240px;
-        height: 240px;
+    .our-work-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
     }
     
-    .our-work-track {
-        animation: scroll-infinite 35s linear infinite;
-        gap: 0.75rem;
+    .our-work-item-content h4 {
+        font-size: 1.1rem;
+    }
+    
+    .our-work-item-content p {
+        font-size: 0.85rem;
     }
 }
 
