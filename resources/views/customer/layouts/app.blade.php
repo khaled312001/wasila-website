@@ -434,6 +434,13 @@
             }
         }
         
+        /* Hide close button on desktop */
+        @media (min-width: 1025px) {
+            .sidebar-close-btn {
+                display: none !important;
+            }
+        }
+        
         @media (max-width: 640px) {
             .sidebar {
                 width: 100%;

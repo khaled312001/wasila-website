@@ -680,6 +680,13 @@
             }
         }
         
+        /* Hide close button on desktop */
+        @media (min-width: 1025px) {
+            .sidebar-close-btn {
+                display: none !important;
+            }
+        }
+        
         /* Tablet Responsive */
         @media (max-width: 1024px) and (min-width: 769px) {
             .sidebar {
