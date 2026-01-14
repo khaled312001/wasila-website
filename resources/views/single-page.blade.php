@@ -428,9 +428,9 @@
                     ->get();
                 
                 // Duplicate items for seamless infinite scroll
-                // If we have few items (less than 6), duplicate more times
+                // Reduce duplicates for better performance
                 $itemCount = $portfolioItems->count();
-                $duplicates = $itemCount < 6 ? 4 : 2;
+                $duplicates = $itemCount < 4 ? 3 : 2; // Reduced from 4 to 3
                 $allItems = collect();
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($portfolioItems);
@@ -442,25 +442,12 @@
                 <div class="our-work-scroll-track" id="ourWorkScrollTrack" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: max-content !important; gap: 1.5rem !important;">
                     @foreach($allItems as $index => $item)
                         @php
+                            // Optimized: Use model's file_url method instead of checking file existence
+                            // This is much faster as it doesn't check file system on every iteration
                             $cleanFilePath = $item->normalized_file_path;
                             
-                            // Check if file exists in multiple locations
-                            $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
-                            $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
-                            $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
-                            
-                            // Get file URL
-                            if ($existsInPublic) {
-                                $fileUrl = asset('storage/' . $cleanFilePath);
-                            } elseif ($existsInStorage) {
-                                try {
-                                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
-                                } catch (\Exception $e) {
-                                    $fileUrl = asset('storage/' . $cleanFilePath);
-                                }
-                            } elseif ($existsInAppPublic) {
-                                $fileUrl = asset('storage/' . $cleanFilePath);
-                            } elseif ($cleanFilePath) {
+                            // Get file URL - simplified for performance
+                            if ($cleanFilePath) {
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } else {
                                 $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
@@ -471,9 +458,11 @@
                                 @if($item->type === 'image')
                                     <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
                                          loading="lazy"
+                                         decoding="async"
+                                         fetchpriority="{{ $loop->index < 3 ? 'high' : 'low' }}"
                                          onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
                                 @else
-                                    <video muted loop playsinline>
+                                    <video muted loop playsinline preload="none">
                                         <source src="{{ $fileUrl }}" type="video/mp4">
                                         <source src="{{ $fileUrl }}" type="video/webm">
                                     </video>
@@ -857,15 +846,108 @@
             });
         }
 
-        // Our Work Infinite Scroll Animation
+        // Our Work Infinite Scroll with Drag Functionality - Optimized
         const ourWorkTrack = document.getElementById('ourWorkScrollTrack');
-        if (ourWorkTrack) {
-            // Ensure animation runs smoothly
-            ourWorkTrack.style.animationPlayState = 'running';
+        const ourWorkWrapper = document.querySelector('.our-work-scroll-wrapper');
+        
+        if (ourWorkTrack && ourWorkWrapper) {
+            let isDragging = false;
+            let startX = 0;
+            let scrollLeft = 0;
+            let currentTranslate = 0;
+            let rafId = null;
             
-            // Restart animation if it stops
-            ourWorkTrack.addEventListener('animationiteration', function() {
-                this.style.animationPlayState = 'running';
+            // Use CSS animation for better performance
+            const trackWidth = ourWorkTrack.scrollWidth;
+            const moveDistance = trackWidth / 2;
+            
+            // Mouse drag functionality - optimized
+            function handleDrag(e) {
+                if (!isDragging) return;
+                
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                }
+                
+                rafId = requestAnimationFrame(() => {
+                    const walk = (e.pageX - startX) * 1.5;
+                    currentTranslate = scrollLeft + walk;
+                    ourWorkTrack.style.transform = `translateX(${currentTranslate}px)`;
+                    ourWorkTrack.style.animationPlayState = 'paused';
+                });
+            }
+            
+            ourWorkWrapper.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.pageX;
+                scrollLeft = currentTranslate;
+                ourWorkWrapper.style.cursor = 'grabbing';
+                ourWorkWrapper.style.userSelect = 'none';
+                ourWorkTrack.style.animationPlayState = 'paused';
+            });
+            
+            const handleMouseUp = () => {
+                if (isDragging) {
+                    isDragging = false;
+                    ourWorkWrapper.style.cursor = 'grab';
+                    ourWorkWrapper.style.userSelect = '';
+                    ourWorkTrack.style.animationPlayState = 'running';
+                }
+            };
+            
+            document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('mouseleave', handleMouseUp);
+            
+            document.addEventListener('mousemove', handleDrag, { passive: true });
+            
+            // Touch support - optimized
+            let touchStartX = 0;
+            let touchScrollLeft = 0;
+            
+            ourWorkWrapper.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                touchStartX = e.touches[0].pageX;
+                touchScrollLeft = currentTranslate;
+                ourWorkTrack.style.animationPlayState = 'paused';
+            }, { passive: true });
+            
+            const handleTouchEnd = () => {
+                if (isDragging) {
+                    isDragging = false;
+                    ourWorkTrack.style.animationPlayState = 'running';
+                }
+            };
+            
+            document.addEventListener('touchend', handleTouchEnd, { passive: true });
+            
+            ourWorkWrapper.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                }
+                
+                rafId = requestAnimationFrame(() => {
+                    const walk = (e.touches[0].pageX - touchStartX) * 1.5;
+                    currentTranslate = touchScrollLeft + walk;
+                    ourWorkTrack.style.transform = `translateX(${currentTranslate}px)`;
+                });
+            }, { passive: true });
+            
+            // Set initial cursor
+            ourWorkWrapper.style.cursor = 'grab';
+            
+            // Pause animation on hover for better UX
+            ourWorkWrapper.addEventListener('mouseenter', () => {
+                if (!isDragging) {
+                    ourWorkTrack.style.animationPlayState = 'paused';
+                }
+            });
+            
+            ourWorkWrapper.addEventListener('mouseleave', () => {
+                if (!isDragging) {
+                    ourWorkTrack.style.animationPlayState = 'running';
+                }
             });
         }
         

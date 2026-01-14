@@ -659,6 +659,7 @@ body.loaded {
     mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
     display: block !important;
+    contain: layout style paint; /* Performance optimization */
 }
 
 .our-work-scroll-track {
@@ -666,13 +667,23 @@ body.loaded {
     flex-direction: row !important;
     gap: 1.5rem;
     width: max-content !important;
-    animation: scroll-infinite-horizontal 60s linear infinite;
+    animation: scroll-infinite-horizontal 80s linear infinite;
     will-change: transform;
     flex-wrap: nowrap !important;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    transform: translateZ(0); /* Hardware acceleration */
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
-.our-work-scroll-track:hover {
-    animation-play-state: paused;
+.our-work-scroll-wrapper {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .our-work-card-item {
@@ -690,6 +701,8 @@ body.loaded {
     cursor: pointer;
     display: block !important;
     float: none !important;
+    transform: translateZ(0); /* Hardware acceleration */
+    will-change: transform;
 }
 
 .our-work-card-item:hover {
@@ -714,6 +727,9 @@ body.loaded {
     display: block;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     background: #f8f9fa;
+    transform: translateZ(0); /* Hardware acceleration */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .our-work-card-inner video {
@@ -764,12 +780,13 @@ body.loaded {
 
 @keyframes scroll-infinite-horizontal {
     0% {
-        transform: translateX(0);
+        transform: translateX(0) translateZ(0);
     }
     100% {
-        transform: translateX(calc(-50%));
+        transform: translateX(calc(-50%)) translateZ(0);
     }
 }
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
