@@ -75,7 +75,7 @@
             background: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             border-bottom: 2px solid rgba(8, 120, 139, 0.2);
-            padding: 1rem 2rem;
+            padding: 0.875rem 1.5rem;
             position: sticky;
             top: 0;
             z-index: 30;
@@ -87,11 +87,13 @@
         .top-navbar-content {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            width: 100%;
             gap: 1rem;
         }
         
         .top-navbar-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #025469;
             margin: 0;
@@ -110,17 +112,26 @@
         .top-navbar-user-info {
             display: flex;
             flex-direction: column;
+            gap: 0.25rem;
         }
         
         .top-navbar-user-name {
             font-size: 0.875rem;
             font-weight: 600;
             color: #025469;
+            line-height: 1.2;
         }
         
         .top-navbar-user-email {
             font-size: 0.75rem;
             color: #64748b;
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 1024px) {
+            .top-navbar {
+                padding-top: 4.5rem;
+            }
         }
         
         .sidebar::before {
@@ -153,12 +164,19 @@
         }
         
         .sidebar-logo {
-            padding: 2rem 1.5rem;
+            padding: 1.5rem;
+            padding-top: 0.75rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             margin-bottom: 1.5rem;
             position: relative;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-logo {
+                padding-top: 0.5rem;
+            }
         }
         
         .sidebar-logo img {
@@ -415,41 +433,40 @@
             }
             
             .top-navbar {
-                padding: 1rem;
+                padding: 0.625rem 0.75rem;
                 padding-top: 4.5rem;
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
             }
             
             .top-navbar-content {
-                width: 100%;
-                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
             }
             
             .top-navbar-title {
-                font-size: 1.25rem;
+                font-size: 1rem;
+                flex: 1;
+                min-width: 0;
             }
             
-            .top-navbar-user {
-                width: 100%;
-                justify-content: flex-start;
+            .top-navbar-content > div:last-child {
+                flex-shrink: 0;
             }
             
             .sidebar-logo {
-                padding: 1.5rem;
+                padding: 1rem;
+                padding-top: 0.5rem;
             }
             
             .sidebar-logo img {
-                height: 70px !important;
+                height: 60px !important;
             }
             
             .sidebar-user-name {
-                font-size: 1rem !important;
+                font-size: 0.9375rem !important;
             }
             
             .sidebar-user-email {
-                font-size: 0.8125rem !important;
+                font-size: 0.75rem !important;
             }
             
             .sidebar-menu-item {
@@ -473,20 +490,26 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 40px;
-                height: 40px;
-                margin: 1rem auto;
+                width: 36px;
+                height: 36px;
+                margin: 0.75rem auto 0.5rem;
                 background: rgba(255, 255, 255, 0.2);
-                border-radius: 10px;
+                border-radius: 8px;
                 color: white;
                 border: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
+                flex-shrink: 0;
             }
             
             .sidebar-close-btn:hover {
                 background: rgba(255, 255, 255, 0.3);
-                transform: scale(1.1);
+                transform: scale(1.05);
+            }
+            
+            .sidebar-close-btn svg {
+                width: 18px;
+                height: 18px;
             }
         }
         
@@ -496,23 +519,24 @@
             }
             
             .main-content {
-                padding: 0.75rem;
+                padding: 0;
             }
             
             .sidebar-logo {
-                padding: 1.25rem;
+                padding: 0.875rem;
+                padding-top: 0.5rem;
             }
             
             .sidebar-logo img {
-                height: 60px !important;
+                height: 50px !important;
             }
             
             .sidebar-user-name {
-                font-size: 0.9375rem !important;
+                font-size: 0.875rem !important;
             }
             
             .sidebar-user-email {
-                font-size: 0.75rem !important;
+                font-size: 0.6875rem !important;
             }
             
             .sidebar-menu-item {
@@ -538,18 +562,27 @@
             .mobile-menu-btn i {
                 font-size: 1.125rem;
             }
+            
+            .top-navbar {
+                padding: 0.625rem 0.75rem;
+                padding-top: 4.5rem;
+            }
+            
+            .top-navbar-title {
+                font-size: 1rem;
+            }
         }
         
         .mobile-menu-btn {
             display: none;
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            width: 48px;
-            height: 48px;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(8, 120, 139, 0.4);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(8, 120, 139, 0.4);
             z-index: 999;
             border: none;
             color: white;
@@ -558,8 +591,8 @@
         }
         
         .mobile-menu-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(8, 120, 139, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(8, 120, 139, 0.5);
         }
         
         .mobile-menu-btn:active {
@@ -571,7 +604,7 @@
         }
         
         .mobile-menu-btn i {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             transition: transform 0.3s ease;
         }
         
@@ -617,7 +650,7 @@
         <!-- Top Navigation Bar -->
         <header class="top-navbar">
             <div class="top-navbar-content">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 md:gap-3">
                     <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -626,19 +659,19 @@
                     <h1 class="top-navbar-title">@yield('page-title', __('messages.dashboard'))</h1>
                 </div>
                 
-                <div class="flex items-center gap-3">
-                    <div class="top-navbar-user">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="top-navbar-user hidden md:flex">
                         <svg class="w-5 h-5 text-primary-medium" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6z"/>
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"/>
                         </svg>
                         <div class="top-navbar-user-info">
                             <span class="top-navbar-user-name">{{ auth('customer')->user()->name }}</span>
-                            <span class="top-navbar-user-email hidden sm:inline">{{ auth('customer')->user()->email }}</span>
+                            <span class="top-navbar-user-email hidden lg:inline">{{ auth('customer')->user()->email }}</span>
                         </div>
                     </div>
                     
-                    <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-primary-medium/10 transition-colors">
+                    <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark hidden lg:inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-primary-medium/10 transition-colors">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                         </svg>
@@ -647,7 +680,7 @@
                     
                     <form method="POST" action="{{ route('customer.logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="flex items-center gap-2 text-white bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 rounded-full px-3 py-2 shadow-md hover:shadow-lg transform hover:scale-105" title="{{ __('messages.logout') }}">
+                        <button type="submit" class="flex items-center gap-1 md:gap-2 text-white bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 rounded-full px-2 md:px-3 py-1.5 md:py-2 shadow-md hover:shadow-lg transform hover:scale-105" title="{{ __('messages.logout') }}">
                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"/>
                             </svg>
@@ -659,7 +692,7 @@
         </header>
         
         <!-- Page Content -->
-        <div class="p-3 md:p-6">
+        <div class="p-3 md:p-6" style="min-height: calc(100vh - 80px);">
             <!-- Alerts -->
             @if(session('success'))
             <div class="bg-green-50 border-r-4 border-green-400 p-4 mb-6 rounded-lg">
@@ -690,8 +723,8 @@
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <!-- Close Button for Mobile -->
-        <button onclick="toggleSidebar()" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="إغلاق القائمة">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onclick="toggleSidebar()" class="sidebar-close-btn lg:hidden" id="sidebarCloseBtn" aria-label="إغلاق القائمة">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
         </button>
