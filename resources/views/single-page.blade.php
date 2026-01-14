@@ -438,8 +438,8 @@
             @endphp
             
             @if($portfolioItems->count() > 0)
-            <div class="our-work-scroll-wrapper">
-                <div class="our-work-scroll-track" id="ourWorkScrollTrack">
+            <div class="our-work-scroll-wrapper" style="width: 100% !important; overflow: hidden !important;">
+                <div class="our-work-scroll-track" id="ourWorkScrollTrack" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: max-content !important; gap: 1.5rem !important;">
                     @foreach($allItems as $index => $item)
                         @php
                             $cleanFilePath = $item->normalized_file_path;
@@ -466,7 +466,7 @@
                                 $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
                         @endphp
-                        <div class="our-work-card-item">
+                        <div class="our-work-card-item" style="flex: 0 0 380px !important; width: 380px !important; min-width: 380px !important; max-width: 380px !important; height: 380px !important; display: block !important;">
                             <div class="our-work-card-inner">
                                 @if($item->type === 'image')
                                     <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
@@ -481,9 +481,6 @@
                                 <div class="our-work-card-overlay">
                                     <div class="our-work-card-info">
                                         <h4>{{ $item->title_ar }}</h4>
-                                        @if($item->description_ar)
-                                            <p>{{ mb_substr($item->description_ar, 0, 80) }}{{ mb_strlen($item->description_ar) > 80 ? '...' : '' }}</p>
-                                        @endif
                                     </div>
                                 </div>
                             </div>

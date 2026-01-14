@@ -652,21 +652,23 @@ body.loaded {
 }
 
 .our-work-scroll-wrapper {
-    width: 100%;
-    overflow: hidden;
+    width: 100% !important;
+    overflow: hidden !important;
     position: relative;
     padding: 2rem 0;
     mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    display: block !important;
 }
 
 .our-work-scroll-track {
-    display: flex;
-    flex-direction: row;
+    display: flex !important;
+    flex-direction: row !important;
     gap: 1.5rem;
-    width: max-content;
+    width: max-content !important;
     animation: scroll-infinite-horizontal 60s linear infinite;
     will-change: transform;
+    flex-wrap: nowrap !important;
 }
 
 .our-work-scroll-track:hover {
@@ -674,9 +676,11 @@ body.loaded {
 }
 
 .our-work-card-item {
-    flex: 0 0 380px;
-    width: 380px;
-    height: 380px;
+    flex: 0 0 380px !important;
+    width: 380px !important;
+    height: 380px !important;
+    min-width: 380px !important;
+    max-width: 380px !important;
     position: relative;
     border-radius: 24px;
     overflow: hidden;
@@ -684,6 +688,8 @@ body.loaded {
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
     background: #fff;
     cursor: pointer;
+    display: block !important;
+    float: none !important;
 }
 
 .our-work-card-item:hover {
@@ -753,10 +759,7 @@ body.loaded {
 }
 
 .our-work-card-info p {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 0.95rem;
-    margin: 0;
-    line-height: 1.5;
+    display: none !important;
 }
 
 @keyframes scroll-infinite-horizontal {
@@ -1430,12 +1433,25 @@ body.loaded {
         width: 100%;
     }
     
-    /* Ensure our-work-grid is not affected by row styles */
-    .our-work-grid,
-    .our-work-grid > * {
+    /* Ensure our-work-scroll-track is not affected by row styles */
+    .our-work-scroll-track,
+    .our-work-scroll-track > * {
         width: auto !important;
         flex: none !important;
         display: block !important;
+    }
+    
+    .our-work-scroll-track {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .our-work-card-item {
+        flex: 0 0 380px !important;
+        width: 380px !important;
+        min-width: 380px !important;
+        max-width: 380px !important;
     }
     
     /* Ensure all service cards are visible */
