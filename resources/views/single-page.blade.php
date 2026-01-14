@@ -414,7 +414,7 @@
 
     <!-- Our Work Section -->
     <section class="section our-work-section">
-        <div class="container" style="width: 100% !important; max-width: 100% !important;">
+        <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="section-title">{{ __('messages.our_work') }}</h2>
                 <p class="section-subtitle">{{ __('messages.discover_images_from_activities') }}</p>
@@ -426,59 +426,70 @@
                     ->orderBy('sort_order', 'asc')
                     ->orderBy('created_at', 'desc')
                     ->get();
+                
+                // Duplicate items for seamless infinite scroll
+                // If we have few items (less than 6), duplicate more times
+                $itemCount = $portfolioItems->count();
+                $duplicates = $itemCount < 6 ? 4 : 2;
+                $allItems = collect();
+                for ($i = 0; $i < $duplicates; $i++) {
+                    $allItems = $allItems->merge($portfolioItems);
+                }
             @endphp
             
             @if($portfolioItems->count() > 0)
-            <div class="our-work-grid" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 2rem !important; width: 100% !important; margin: 0 !important; padding: 2rem 0 !important;">
-                @foreach($portfolioItems as $item)
-                    @php
-                        $cleanFilePath = $item->normalized_file_path;
-                        
-                        // Check if file exists in multiple locations
-                        $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
-                        $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
-                        $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
-                        
-                        // Get file URL
-                        if ($existsInPublic) {
-                            $fileUrl = asset('storage/' . $cleanFilePath);
-                        } elseif ($existsInStorage) {
-                            try {
-                                $fileUrl = \Storage::disk('public')->url($cleanFilePath);
-                            } catch (\Exception $e) {
+            <div class="our-work-scroll-wrapper">
+                <div class="our-work-scroll-track" id="ourWorkScrollTrack">
+                    @foreach($allItems as $index => $item)
+                        @php
+                            $cleanFilePath = $item->normalized_file_path;
+                            
+                            // Check if file exists in multiple locations
+                            $existsInStorage = $cleanFilePath && \Storage::disk('public')->exists($cleanFilePath);
+                            $existsInPublic = $cleanFilePath && file_exists(public_path('storage/' . $cleanFilePath));
+                            $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
+                            
+                            // Get file URL
+                            if ($existsInPublic) {
                                 $fileUrl = asset('storage/' . $cleanFilePath);
+                            } elseif ($existsInStorage) {
+                                try {
+                                    $fileUrl = \Storage::disk('public')->url($cleanFilePath);
+                                } catch (\Exception $e) {
+                                    $fileUrl = asset('storage/' . $cleanFilePath);
+                                }
+                            } elseif ($existsInAppPublic) {
+                                $fileUrl = asset('storage/' . $cleanFilePath);
+                            } elseif ($cleanFilePath) {
+                                $fileUrl = asset('storage/' . $cleanFilePath);
+                            } else {
+                                $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
-                        } elseif ($existsInAppPublic) {
-                            $fileUrl = asset('storage/' . $cleanFilePath);
-                        } elseif ($cleanFilePath) {
-                            $fileUrl = asset('storage/' . $cleanFilePath);
-                        } else {
-                            $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
-                        }
-                    @endphp
-                    <div class="our-work-item" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
-                        <div class="our-work-item-inner">
-                            @if($item->type === 'image')
-                                <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
-                                     onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
-                            @else
-                                <video controls>
-                                    <source src="{{ $fileUrl }}" type="video/mp4">
-                                    <source src="{{ $fileUrl }}" type="video/webm">
-                                    متصفحك لا يدعم تشغيل الفيديو.
-                                </video>
-                            @endif
-                            <div class="our-work-item-overlay">
-                                <div class="our-work-item-content">
-                                    <h4>{{ $item->title_ar }}</h4>
-                                    @if($item->description_ar)
-                                        <p>{{ $item->description_ar }}</p>
-                                    @endif
+                        @endphp
+                        <div class="our-work-card-item">
+                            <div class="our-work-card-inner">
+                                @if($item->type === 'image')
+                                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
+                                         loading="lazy"
+                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
+                                @else
+                                    <video muted loop playsinline>
+                                        <source src="{{ $fileUrl }}" type="video/mp4">
+                                        <source src="{{ $fileUrl }}" type="video/webm">
+                                    </video>
+                                @endif
+                                <div class="our-work-card-overlay">
+                                    <div class="our-work-card-info">
+                                        <h4>{{ $item->title_ar }}</h4>
+                                        @if($item->description_ar)
+                                            <p>{{ mb_substr($item->description_ar, 0, 80) }}{{ mb_strlen($item->description_ar) > 80 ? '...' : '' }}</p>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
             @else
             <div class="text-center py-5">
@@ -849,6 +860,18 @@
             });
         }
 
+        // Our Work Infinite Scroll Animation
+        const ourWorkTrack = document.getElementById('ourWorkScrollTrack');
+        if (ourWorkTrack) {
+            // Ensure animation runs smoothly
+            ourWorkTrack.style.animationPlayState = 'running';
+            
+            // Restart animation if it stops
+            ourWorkTrack.addEventListener('animationiteration', function() {
+                this.style.animationPlayState = 'running';
+            });
+        }
+        
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
