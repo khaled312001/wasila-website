@@ -414,7 +414,7 @@
 
     <!-- Our Work Section -->
     <section class="section our-work-section">
-        <div class="container">
+        <div class="container" style="width: 100% !important; max-width: 100% !important;">
             <div class="text-center mb-5" data-aos="fade-up">
                 <h2 class="section-title">{{ __('messages.our_work') }}</h2>
                 <p class="section-subtitle">{{ __('messages.discover_images_from_activities') }}</p>
@@ -429,7 +429,7 @@
             @endphp
             
             @if($portfolioItems->count() > 0)
-            <div class="our-work-grid">
+            <div class="our-work-grid" style="display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 2rem !important; width: 100% !important; margin: 0 !important; padding: 2rem 0 !important;">
                 @foreach($portfolioItems as $item)
                     @php
                         $cleanFilePath = $item->normalized_file_path;

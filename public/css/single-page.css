@@ -648,20 +648,30 @@ body.loaded {
     padding: 4rem 0;
     position: relative;
     width: 100%;
+    display: block !important;
 }
 
 .our-work-section .container {
-    width: 100%;
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
 }
 
 .our-work-grid {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 2rem;
-    padding: 2rem 0;
-    width: 100%;
-    max-width: 100%;
+    gap: 2rem !important;
+    padding: 2rem 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+.our-work-grid > * {
+    display: block !important;
+    width: 100% !important;
+    float: none !important;
 }
 
 @media (max-width: 992px) {
@@ -1393,6 +1403,14 @@ body.loaded {
         padding-right: 0.5rem;
         flex: 0 0 auto;
         width: 100%;
+    }
+    
+    /* Ensure our-work-grid is not affected by row styles */
+    .our-work-grid,
+    .our-work-grid > * {
+        width: auto !important;
+        flex: none !important;
+        display: block !important;
     }
     
     /* Ensure all service cards are visible */
