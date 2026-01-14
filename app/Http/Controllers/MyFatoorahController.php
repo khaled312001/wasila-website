@@ -13,6 +13,8 @@ use MyFatoorah\Library\API\Payment\MyFatoorahPaymentEmbedded;
 use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderCreatedMail;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\PdfService;
@@ -169,6 +171,15 @@ class MyFatoorahController extends Controller
                     'status' => 'confirmed',
                     'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
                 ]);
+                
+                // إرسال إيميل للإدارة عند الدفع الناجح
+                try {
+                    $adminEmail = SettingsHelper::contactEmail();
+                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()));
+                    Log::info('Order paid email sent successfully to: ' . $adminEmail);
+                } catch (\Exception $emailException) {
+                    Log::error('Failed to send order paid email: ' . $emailException->getMessage());
+                }
                 
                 // Store order data in session for confirmation page
                 request()->session()->put('order_confirmation', [

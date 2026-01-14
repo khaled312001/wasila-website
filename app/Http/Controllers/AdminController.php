@@ -61,7 +61,15 @@ class AdminController extends Controller
             'unread_messages' => CustomerMessage::where('is_read', false)->where('sender_type', 'customer')->count(),
         ];
         
+        // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
         $recent_orders = Order::with('orderItems.service')
+            ->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            })
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
@@ -158,6 +166,19 @@ class AdminController extends Controller
     public function exportOrdersPDF(Request $request)
     {
         $query = Order::with(['orderItems.service', 'customer']);
+        
+        // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
+        // إلا إذا كان المستخدم يطبق فلتر محدد على payment_method أو payment_status
+        $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
+        if (!$hasPaymentFilter) {
+            $query->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            });
+        }
         
         // Apply same filters as index
         if ($request->filled('order_number')) {
@@ -534,9 +555,25 @@ class AdminController extends Controller
     
     public function customersShow(Customer $customer)
     {
-        $customer->load(['orders.orderItems.service', 'messages.admin']);
+        // إخفاء الطلبات غير المدفوعة من MyFatoorah عند تحميل الطلبات
+        $customer->load(['orders' => function($query) {
+            $query->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            })->with('orderItems.service');
+        }, 'messages.admin']);
+        
         $stats = [
-            'total_orders' => $customer->orders()->count(),
+            'total_orders' => $customer->orders()->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            })->count(),
             'total_spent' => $customer->orders()->where('payment_status', 'paid')->sum('total_amount'),
             'pending_orders' => $customer->orders()->where('status', 'pending')->count(),
             'completed_orders' => $customer->orders()->where('status', 'completed')->count(),
@@ -547,7 +584,18 @@ class AdminController extends Controller
     
     public function customersOrders(Customer $customer)
     {
-        $orders = $customer->orders()->with('orderItems.service')->orderBy('created_at', 'desc')->paginate(20);
+        // إخفاء الطلبات غير المدفوعة من MyFatoorah
+        $orders = $customer->orders()
+            ->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            })
+            ->with('orderItems.service')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
         return view('admin.customers.orders', compact('customer', 'orders'));
     }
     

@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerMessage;
+use App\Helpers\SettingsHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\CustomerMessageNotificationMail;
 
 class MessageController extends Controller
 {
@@ -73,6 +77,15 @@ class MessageController extends Controller
 
         $message = $customer->messages()->create($data);
         $message->load('admin', 'order');
+
+        // إرسال إيميل للإدارة عند إرسال رسالة من العميل
+        try {
+            $adminEmail = SettingsHelper::contactEmail();
+            Mail::to($adminEmail)->send(new CustomerMessageNotificationMail($message));
+            Log::info('Customer message email sent successfully to: ' . $adminEmail);
+        } catch (\Exception $emailException) {
+            Log::error('Failed to send customer message email: ' . $emailException->getMessage());
+        }
 
         // Always return JSON for API requests (check Accept header or ajax)
         if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {

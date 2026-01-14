@@ -441,9 +441,10 @@
                 // Use valid items, or fallback to all items if none are valid
                 $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
                 
-                // For seamless infinite loop, duplicate items 3 times for smoother continuous scrolling
-                // This ensures we never see empty space - when we reach the end, we seamlessly loop back
-                $duplicates = 3;
+                // For seamless infinite loop, duplicate items multiple times
+                // If we have few items (4 or less), duplicate more times to ensure smooth scrolling
+                $itemCount = $itemsToUse->count();
+                $duplicates = $itemCount <= 4 ? 5 : 3; // More duplicates for fewer items
                 $allItems = collect();
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($itemsToUse);
@@ -513,8 +514,9 @@
                         $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
                         $imageCount = count($imageFiles);
                         if ($imageCount > 0) {
-                            // Duplicate items 3 times for seamless infinite loop
-                            $duplicates = 3;
+                            // Duplicate items multiple times for seamless infinite loop
+                            // If we have few items (4 or less), duplicate more times
+                            $duplicates = $imageCount <= 4 ? 5 : 3;
                             for ($d = 0; $d < $duplicates; $d++) {
                                 foreach ($imageFiles as $imageFile) {
                                     $imageName = basename($imageFile);
@@ -531,7 +533,7 @@
                         } else {
                             // Fallback: show placeholder images
                             $placeholderCount = 6;
-                            $duplicates = 3;
+                            $duplicates = 5; // Always duplicate fallback items multiple times
                             for ($d = 0; $d < $duplicates; $d++) {
                                 for ($i = 1; $i <= $placeholderCount; $i++) {
                                     echo '<div class="our-work-card">';
@@ -897,13 +899,33 @@
                 // More items = slower animation, fewer items = faster for better UX
                 const setupAnimation = () => {
                     const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || 1;
+                    const totalItems = parseInt(ourWorkTrack.dataset.totalItems) || originalItemCount;
                     
                     if (originalItemCount > 0) {
-                        // Adjust duration based on item count
-                        // Base duration: 50s, add 3s per item for smoother viewing
-                        // Since we duplicate 3 times, we need longer duration for seamless loop
-                        const duration = Math.max(40, 50 + (originalItemCount * 3));
+                        // Determine number of duplicates based on item count
+                        const duplicates = originalItemCount <= 4 ? 5 : 3;
+                        
+                        // For fewer items (4 or less), use faster animation to show repetition clearly
+                        // For more items, use slower animation
+                        let duration;
+                        let animationName = 'scroll-infinite';
+                        
+                        if (originalItemCount <= 4) {
+                            // Faster animation for few items to show infinite loop clearly
+                            duration = 20 + (originalItemCount * 2);
+                            // Use different animation for 5 duplicates
+                            animationName = 'scroll-infinite-5x';
+                        } else {
+                            // Slower animation for many items
+                            duration = Math.max(40, 50 + (originalItemCount * 3));
+                            animationName = 'scroll-infinite';
+                        }
+                        
                         ourWorkTrack.style.animationDuration = duration + 's';
+                        ourWorkTrack.style.animationName = animationName;
+                        ourWorkTrack.style.animationIterationCount = 'infinite';
+                        ourWorkTrack.style.animationTimingFunction = 'linear';
+                        ourWorkTrack.style.animationPlayState = 'running';
                     }
                 };
                 
@@ -912,6 +934,12 @@
                 
                 // And after window load
                 window.addEventListener('load', setupAnimation);
+                
+                // Ensure animation restarts if it stops
+                ourWorkTrack.addEventListener('animationiteration', function() {
+                    // Animation restarted - ensure it continues
+                    this.style.animationPlayState = 'running';
+                });
             }
         });
         

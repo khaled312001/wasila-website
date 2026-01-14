@@ -171,10 +171,23 @@
         }
         
         /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 260px;
+            }
+            
+            .main-content {
+                {{ app()->getLocale() === 'ar' ? 'margin-right' : 'margin-left' }}: 260px;
+                padding: 1.5rem;
+            }
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
+                width: 280px;
                 transform: translateX({{ app()->getLocale() === 'ar' ? '100%' : '-100%' }});
                 transition: transform 0.3s ease;
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
             }
             
             .sidebar.mobile-open {
@@ -186,8 +199,69 @@
                 padding: 1rem;
             }
             
+            .sidebar-logo {
+                padding: 0 1.5rem 1.5rem;
+            }
+            
+            .sidebar-logo img {
+                height: 80px !important;
+            }
+            
+            .sidebar-logo h3 {
+                font-size: 1.125rem !important;
+                margin-top: 0.75rem !important;
+            }
+            
+            .sidebar-logo p {
+                font-size: 0.8125rem !important;
+            }
+            
+            .sidebar-menu-item {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.9375rem;
+            }
+            
             .mobile-menu-btn {
-                display: block !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .top-bar {
+                padding: 1rem 1.25rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .sidebar-logo {
+                padding: 0 1rem 1rem;
+            }
+            
+            .sidebar-logo img {
+                height: 70px !important;
+            }
+            
+            .sidebar-menu-item {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .mobile-menu-btn {
+                width: 56px;
+                height: 56px;
+                bottom: 1.5rem;
+                {{ app()->getLocale() === 'ar' ? 'left' : 'right' }}: 1.5rem;
             }
         }
         
@@ -205,6 +279,41 @@
             border: none;
             color: white;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(8, 120, 139, 0.5);
+        }
+        
+        .mobile-menu-btn i {
+            font-size: 1.5rem;
+        }
+        
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-overlay.active {
+                display: block;
+            }
         }
     </style>
     
@@ -259,11 +368,12 @@
         </nav>
     </aside>
     
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
     <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" onclick="toggleSidebar()">
-        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-        </svg>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
     </button>
     
     <!-- Main Content -->
@@ -302,20 +412,56 @@
     
     <script>
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+            
+            // Change icon
+            if (sidebar.classList.contains('mobile-open')) {
+                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+            } else {
+                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            }
         }
         
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
+        // Close sidebar when clicking overlay
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            toggleSidebar();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
             
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(event.target) && 
-                !menuBtn.contains(event.target) &&
-                sidebar.classList.contains('mobile-open')) {
+            if (window.innerWidth > 768) {
                 sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
             }
+        });
+        
+        // Prevent body scroll when sidebar is open on mobile
+        const sidebar = document.getElementById('sidebar');
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    if (sidebar.classList.contains('mobile-open') && window.innerWidth <= 768) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+        });
+        
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
         });
     </script>
     

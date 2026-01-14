@@ -404,9 +404,58 @@
             padding: 1.5rem;
         }
         
+        .orders-header h2 {
+            font-size: 1.75rem !important;
+        }
+        
+        .orders-header p {
+            font-size: 1rem !important;
+        }
+        
         .orders-header-icon {
             width: 50px;
             height: 50px;
+        }
+        
+        .orders-table {
+            display: block;
+        }
+        
+        .orders-table thead {
+            display: none;
+        }
+        
+        .orders-table tbody {
+            display: block;
+        }
+        
+        .orders-table tbody tr {
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            background: white;
+        }
+        
+        .orders-table tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border: none;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .orders-table tbody td:last-child {
+            border-bottom: none;
+        }
+        
+        .orders-table tbody td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: #475569;
+            margin-left: 1rem;
         }
         
         .empty-state {
@@ -416,6 +465,57 @@
         .empty-state-icon {
             width: 100px;
             height: 100px;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .orders-header {
+            padding: 1.25rem;
+        }
+        
+        .orders-header h2 {
+            font-size: 1.5rem !important;
+        }
+        
+        .orders-header p {
+            font-size: 0.9375rem !important;
+        }
+        
+        .orders-header-icon {
+            width: 45px;
+            height: 45px;
+        }
+        
+        .orders-table tbody tr {
+            padding: 0.875rem;
+        }
+        
+        .orders-table tbody td {
+            padding: 0.625rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .orders-header {
+            padding: 1rem;
+        }
+        
+        .orders-header h2 {
+            font-size: 1.25rem !important;
+        }
+        
+        .orders-header p {
+            font-size: 0.875rem !important;
+        }
+        
+        .orders-table tbody tr {
+            padding: 0.75rem;
         }
     }
     

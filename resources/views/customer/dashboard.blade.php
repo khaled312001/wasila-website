@@ -367,9 +367,31 @@
     }
     
     /* Responsive */
+    @media (max-width: 1024px) {
+        .stat-card-modern {
+            padding: 1.75rem;
+        }
+        
+        .stat-value {
+            font-size: 2.25rem;
+        }
+    }
+    
     @media (max-width: 768px) {
         .welcome-icon {
             display: none;
+        }
+        
+        .welcome-banner {
+            padding: 1.5rem !important;
+        }
+        
+        .welcome-banner h1 {
+            font-size: 1.75rem !important;
+        }
+        
+        .welcome-banner p {
+            font-size: 1rem !important;
         }
         
         .stat-card-modern {
@@ -389,9 +411,118 @@
             font-size: 2rem;
         }
         
+        .stat-label {
+            font-size: 0.9375rem;
+        }
+        
         .card-header-modern {
             flex-direction: column;
             align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .card-title-modern {
+            font-size: 1.25rem;
+        }
+        
+        .dashboard-card-modern {
+            padding: 1.5rem;
+        }
+        
+        .order-item-modern,
+        .message-item-modern {
+            padding: 1.25rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .welcome-banner {
+            padding: 1.25rem !important;
+        }
+        
+        .welcome-banner h1 {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .welcome-banner p {
+            font-size: 0.9375rem !important;
+        }
+        
+        .stat-card-modern {
+            padding: 1.25rem;
+        }
+        
+        .stat-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon-wrapper i {
+            font-size: 1.375rem;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+        }
+        
+        .stat-footer {
+            font-size: 0.8125rem;
+            margin-top: 0.75rem;
+        }
+        
+        .dashboard-card-modern {
+            padding: 1.25rem;
+            border-radius: 1rem;
+        }
+        
+        .card-title-modern {
+            font-size: 1.125rem;
+        }
+        
+        .card-title-modern i {
+            font-size: 1.25rem;
+        }
+        
+        .order-item-modern,
+        .message-item-modern {
+            padding: 1rem;
+            border-radius: 0.875rem;
+        }
+        
+        .btn-primary-gradient {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.8125rem;
+        }
+        
+        .status-badge-modern {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stat-card-modern {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .dashboard-card-modern {
+            padding: 1rem;
+        }
+        
+        .order-item-modern,
+        .message-item-modern {
+            padding: 0.875rem;
         }
     }
 </style>

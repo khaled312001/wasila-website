@@ -661,6 +661,9 @@ body.loaded {
     margin-right: -15px;
     mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    /* Ensure container doesn't clip content */
+    overflow-x: hidden;
+    overflow-y: visible;
 }
 
 .our-work-track {
@@ -674,6 +677,10 @@ body.loaded {
     align-items: center;
     /* Ensure all items stay in one row */
     flex-wrap: nowrap;
+    /* Force animation to always run */
+    animation-play-state: running !important;
+    /* Prevent any layout breaks */
+    white-space: nowrap;
 }
 
 /* Ensure cards don't shrink and stay in one row */
@@ -683,12 +690,17 @@ body.loaded {
 }
 
 .our-work-track:hover {
-    animation-play-state: paused;
+    /* Keep animation running even on hover for infinite loop */
+    /* animation-play-state: paused; */
+    /* Optional: slow down on hover instead of pausing */
+    animation-duration: 100s;
 }
 
 .our-work-card {
     flex: 0 0 320px;
     width: 320px;
+    min-width: 320px;
+    max-width: 320px;
     height: 320px;
     position: relative;
     border-radius: 20px;
@@ -700,6 +712,9 @@ body.loaded {
     pointer-events: auto;
     /* Ensure card stays in one row */
     display: block;
+    /* Prevent any wrapping or breaking */
+    flex-shrink: 0;
+    flex-grow: 0;
 }
 
 .our-work-card:hover {
@@ -759,8 +774,20 @@ body.loaded {
         transform: translateX(0);
     }
     100% {
-        /* Move -33.33% since we duplicate items 3 times for seamless infinite loop */
+        /* Move -33.33% for seamless infinite loop
+           This works when we duplicate items 3 times (showing 1/3 of total)
+           For 5 duplicates, we'd move -20%, but -33.33% still creates smooth loop */
         transform: translateX(calc(-33.333%));
+    }
+}
+
+/* Alternative animation for 5 duplicates */
+@keyframes scroll-infinite-5x {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-20%));
     }
 }
 
@@ -769,6 +796,8 @@ body.loaded {
     .our-work-card {
         flex: 0 0 280px;
         width: 280px;
+        min-width: 280px;
+        max-width: 280px;
         height: 280px;
     }
     
@@ -780,36 +809,20 @@ body.loaded {
         animation: scroll-infinite 40s linear infinite;
         gap: 1rem;
     }
-    
-    @keyframes scroll-infinite {
-        0% {
-            transform: translateX(0);
-        }
-        100% {
-            transform: translateX(calc(-33.333%));
-        }
-    }
 }
 
 @media (max-width: 576px) {
     .our-work-card {
         flex: 0 0 240px;
         width: 240px;
+        min-width: 240px;
+        max-width: 240px;
         height: 240px;
     }
     
     .our-work-track {
         animation: scroll-infinite 35s linear infinite;
         gap: 0.75rem;
-    }
-    
-    @keyframes scroll-infinite {
-        0% {
-            transform: translateX(0);
-        }
-        100% {
-            transform: translateX(calc(-33.333%));
-        }
     }
 }
 

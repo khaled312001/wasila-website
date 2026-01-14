@@ -9,6 +9,8 @@ use App\Models\Service;
 use App\Helpers\SettingsHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderCreatedMail;
 use MyFatoorah\Library\MyFatoorah;
 use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
 use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
@@ -178,6 +180,18 @@ class OrderController extends Controller
             
             DB::commit();
             
+            // إرسال إيميل للإدارة عند إنشاء الطلب (لطرق الدفع غير MyFatoorah)
+            // لـ MyFatoorah سيتم إرسال الإيميل بعد الدفع الناجح
+            if ($request->payment_method !== 'myfatoorah') {
+                try {
+                    $adminEmail = SettingsHelper::contactEmail();
+                    Mail::to($adminEmail)->send(new OrderCreatedMail($order));
+                    Log::info('Order created email sent successfully to: ' . $adminEmail);
+                } catch (\Exception $emailException) {
+                    Log::error('Failed to send order created email: ' . $emailException->getMessage());
+                }
+            }
+            
             // إذا كانت طريقة الدفع عبر MyFatoorah، توجيه إلى صفحة الدفع
             if ($request->payment_method === 'myfatoorah') {
                 return response()->json([
@@ -329,6 +343,15 @@ class OrderController extends Controller
                     'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
                 ]);
                 
+                // إرسال إيميل للإدارة عند الدفع الناجح
+                try {
+                    $adminEmail = SettingsHelper::contactEmail();
+                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()));
+                    Log::info('Order paid email sent successfully to: ' . $adminEmail);
+                } catch (\Exception $emailException) {
+                    Log::error('Failed to send order paid email: ' . $emailException->getMessage());
+                }
+                
                 // Store order data in session for confirmation page
                 $request->session()->put('order_confirmation', [
                     'order_number' => $order->order_number,
@@ -431,6 +454,19 @@ class OrderController extends Controller
             
             // بناء الاستعلام - بدون أي فلترة افتراضية
             $query = Order::query();
+            
+            // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
+            // إلا إذا كان المستخدم يطبق فلتر محدد على payment_method أو payment_status
+            $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
+            if (!$hasPaymentFilter) {
+                $query->where(function($q) {
+                    $q->where('payment_method', '!=', 'MyFatoorah')
+                      ->orWhere(function($subQ) {
+                          $subQ->where('payment_method', 'MyFatoorah')
+                               ->where('payment_status', 'paid');
+                      });
+                });
+            }
             
             // تحميل العلاقات بشكل آمن
             $query->with(['orderItems' => function($q) {
@@ -601,6 +637,19 @@ class OrderController extends Controller
     public function exportExcel(Request $request)
     {
         $query = Order::with('orderItems.service');
+        
+        // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
+        // إلا إذا كان المستخدم يطبق فلتر محدد على payment_method أو payment_status
+        $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
+        if (!$hasPaymentFilter) {
+            $query->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            });
+        }
         
         // Apply same filters as index
         if ($request->filled('order_number')) {

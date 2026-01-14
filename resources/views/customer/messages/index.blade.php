@@ -770,6 +770,158 @@
     }
     
     /* Responsive Design */
+    @media (max-width: 1024px) {
+        .chat-container {
+            height: calc(100vh - 240px);
+            min-height: 600px;
+        }
+        
+        .chat-header {
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .chat-container {
+            height: calc(100vh - 200px);
+            min-height: 500px;
+        }
+        
+        .chat-header {
+            padding: 1rem 1.25rem;
+        }
+        
+        .chat-header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .chat-header-left {
+            width: 100%;
+        }
+        
+        .chat-header-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .messages-container {
+            padding: 0.75rem;
+        }
+        
+        .message-bubble {
+            max-width: 85%;
+            padding: 0.875rem;
+        }
+        
+        .chat-input-container {
+            padding: 1rem;
+        }
+        
+        .input-group {
+            gap: 0.5rem;
+        }
+        
+        .message-textarea {
+            font-size: 16px; /* Prevent zoom on iOS */
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.25rem;
+        }
+        
+        .file-input-btn {
+            padding: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .chat-container {
+            height: calc(100vh - 180px);
+            min-height: 450px;
+        }
+        
+        .chat-header {
+            padding: 0.875rem 1rem;
+        }
+        
+        .chat-header-icon {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .chat-header-info h2 {
+            font-size: 1rem;
+        }
+        
+        .chat-header-info p {
+            font-size: 0.75rem;
+        }
+        
+        .messages-container {
+            padding: 0.5rem;
+        }
+        
+        .message-bubble {
+            max-width: 90%;
+            padding: 0.75rem;
+        }
+        
+        .message-content {
+            font-size: 0.8125rem;
+        }
+        
+        .chat-input-container {
+            padding: 0.75rem;
+        }
+        
+        .message-textarea {
+            padding: 0.75rem;
+            padding-bottom: 1.75rem;
+        }
+        
+        .char-count {
+            bottom: 0.375rem;
+            right: 0.625rem;
+            font-size: 0.6875rem;
+        }
+        
+        .send-button {
+            padding: 0.625rem 1rem;
+        }
+        
+        .file-input-btn {
+            padding: 0.625rem;
+        }
+        
+        .file-input-btn i {
+            font-size: 1.125rem;
+        }
+        
+        .scroll-to-bottom {
+            width: 44px;
+            height: 44px;
+            bottom: 0.75rem;
+            right: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .chat-container {
+            height: calc(100vh - 160px);
+            min-height: 400px;
+        }
+        
+        .message-bubble {
+            max-width: 95%;
+        }
+    }
+    
     @media (max-width: 768px) {
         .chat-container {
             height: calc(100vh - 200px);

@@ -5,24 +5,71 @@
 
 @push('styles')
 <style>
+    /* Responsive Chat Container */
     .chat-container {
-        height: calc(100vh - 250px);
-        min-height: 600px;
-        max-height: 800px;
+        height: calc(100vh - 200px);
+        min-height: 500px;
+        max-height: 900px;
+        display: flex;
+        flex-direction: column;
     }
     
+    @media (max-width: 768px) {
+        .chat-container {
+            height: calc(100vh - 150px);
+            min-height: 400px;
+            max-height: none;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .chat-container {
+            height: calc(100vh - 120px);
+            min-height: 350px;
+        }
+    }
+    
+    /* Messages Container */
     .messages-container {
-        height: calc(100% - 120px);
+        flex: 1;
         overflow-y: auto;
+        overflow-x: hidden;
         padding: 1rem;
-        background: linear-gradient(to bottom, #e5e7eb 0%, #f3f4f6 100%);
+        background: linear-gradient(to bottom, #f8fafc 0%, #e5e7eb 100%);
+        position: relative;
     }
     
+    @media (max-width: 768px) {
+        .messages-container {
+            padding: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .messages-container {
+            padding: 0.5rem;
+        }
+    }
+    
+    /* Message Bubble */
     .message-bubble {
-        max-width: 70%;
+        max-width: 75%;
         word-wrap: break-word;
+        word-break: break-word;
         position: relative;
         animation: slideIn 0.3s ease-out;
+    }
+    
+    @media (max-width: 768px) {
+        .message-bubble {
+            max-width: 85%;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .message-bubble {
+            max-width: 90%;
+        }
     }
     
     @keyframes slideIn {
@@ -36,32 +83,50 @@
         }
     }
     
+    /* Admin Message */
     .message-admin {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
         color: white;
         margin-left: auto;
-        border-radius: 1rem 1rem 0.25rem 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.25);
+        transition: all 0.3s ease;
     }
     
+    .message-admin:hover {
+        box-shadow: 0 6px 16px rgba(8, 120, 139, 0.35);
+    }
+    
+    /* Customer Message */
     .message-customer {
         background: white;
         color: #1f2937;
         margin-right: auto;
-        border-radius: 1rem 1rem 1rem 0.25rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .message-customer:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
     
     .message-time {
         font-size: 0.7rem;
-        opacity: 0.7;
-        margin-top: 0.25rem;
+        opacity: 0.8;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
     
+    /* File Preview */
     .file-preview {
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
         overflow: hidden;
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
+        max-width: 100%;
     }
     
     .file-preview img {
@@ -69,52 +134,285 @@
         max-height: 300px;
         object-fit: cover;
         cursor: pointer;
+        transition: transform 0.3s ease;
     }
     
+    .file-preview img:hover {
+        transform: scale(1.02);
+    }
+    
+    @media (max-width: 640px) {
+        .file-preview img {
+            max-height: 200px;
+        }
+    }
+    
+    /* File Attachment */
     .file-attachment {
-        background: rgba(0,0,0,0.05);
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        margin-top: 0.5rem;
+        background: rgba(8, 120, 139, 0.1);
+        padding: 0.875rem;
+        border-radius: 0.75rem;
+        margin-top: 0.75rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.875rem;
+        transition: all 0.3s ease;
+    }
+    
+    .file-attachment:hover {
+        background: rgba(8, 120, 139, 0.15);
     }
     
     .file-attachment i {
         font-size: 2rem;
-        color: #3b82f6;
+        color: #08788B;
+        flex-shrink: 0;
     }
     
+    /* Chat Input Container */
     .chat-input-container {
         background: white;
-        border-top: 1px solid #e5e7eb;
-        padding: 1rem;
+        border-top: 2px solid #e5e7eb;
+        padding: 1.25rem;
+        flex-shrink: 0;
     }
     
+    @media (max-width: 768px) {
+        .chat-input-container {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .chat-input-container {
+            padding: 0.75rem;
+        }
+    }
+    
+    /* Input Group */
+    .input-group {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 640px) {
+        .input-group {
+            gap: 0.5rem;
+        }
+    }
+    
+    /* Textarea */
+    .message-textarea {
+        flex: 1;
+        min-width: 200px;
+        border: 2px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 0.875rem 1rem;
+        padding-bottom: 2rem;
+        font-size: 0.9375rem;
+        resize: none;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+    
+    .message-textarea:focus {
+        outline: none;
+        border-color: #08788B;
+        box-shadow: 0 0 0 3px rgba(8, 120, 139, 0.1);
+    }
+    
+    @media (max-width: 640px) {
+        .message-textarea {
+            font-size: 16px; /* Prevent zoom on iOS */
+            padding: 0.75rem;
+            padding-bottom: 1.75rem;
+        }
+    }
+    
+    /* Character Count */
+    .char-count {
+        position: absolute;
+        bottom: 0.5rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        pointer-events: none;
+    }
+    
+    .char-count.warning {
+        color: #f59e0b;
+    }
+    
+    .char-count.danger {
+        color: #ef4444;
+    }
+    
+    /* File Input Button */
+    .file-input-btn {
+        background: #f1f5f9;
+        border: 2px solid #e2e8f0;
+        padding: 0.875rem;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .file-input-btn:hover {
+        background: #e2e8f0;
+        border-color: #cbd5e1;
+        transform: scale(1.05);
+    }
+    
+    .file-input-btn i {
+        font-size: 1.25rem;
+        color: #64748b;
+    }
+    
+    @media (max-width: 640px) {
+        .file-input-btn {
+            padding: 0.75rem;
+        }
+    }
+    
+    /* Send Button */
+    .send-button {
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
+        color: white;
+        border: none;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
+    }
+    
+    .send-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(8, 120, 139, 0.4);
+    }
+    
+    .send-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .send-button i {
+        font-size: 1.125rem;
+    }
+    
+    @media (max-width: 640px) {
+        .send-button {
+            padding: 0.75rem 1.25rem;
+        }
+    }
+    
+    /* Image Preview */
+    .image-preview-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .image-preview-container img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+    }
+    
+    .image-preview-remove {
+        position: absolute;
+        top: -0.5rem;
+        right: -0.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+    
+    /* File Info */
+    .file-info {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: #f1f5f9;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: #475569;
+    }
+    
+    .file-info-remove {
+        color: #ef4444;
+        cursor: pointer;
+        padding: 0.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    .file-info-remove:hover {
+        transform: scale(1.2);
+    }
+    
+    /* Scroll to Bottom Button */
     .scroll-to-bottom {
         position: absolute;
-        bottom: 80px;
-        right: 20px;
-        background: #3b82f6;
+        bottom: 1rem;
+        right: 1rem;
+        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
         color: white;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
         display: none;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.4);
         z-index: 10;
+        transition: all 0.3s ease;
     }
     
     .scroll-to-bottom.visible {
         display: flex;
     }
     
+    .scroll-to-bottom:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(8, 120, 139, 0.5);
+    }
+    
+    @media (max-width: 640px) {
+        .scroll-to-bottom {
+            width: 44px;
+            height: 44px;
+            bottom: 0.75rem;
+            right: 0.75rem;
+        }
+    }
+    
+    /* Scrollbar */
     .messages-container::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
     }
     
     .messages-container::-webkit-scrollbar-track {
@@ -123,40 +421,197 @@
     
     .messages-container::-webkit-scrollbar-thumb {
         background: #cbd5e1;
-        border-radius: 3px;
+        border-radius: 4px;
     }
     
     .messages-container::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
+    
+    /* Chat Header */
+    .chat-header {
+        background: linear-gradient(135deg, #08788B 0%, #025469 100%);
+        padding: 1.25rem 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .chat-header {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .chat-header {
+            padding: 0.875rem;
+        }
+    }
+    
+    .chat-header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    @media (max-width: 640px) {
+        .chat-header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    
+    .chat-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+    
+    .chat-header-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    @media (max-width: 640px) {
+        .chat-header-icon {
+            width: 40px;
+            height: 40px;
+        }
+    }
+    
+    .chat-header-info h2 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .chat-header-info p {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+    
+    @media (max-width: 640px) {
+        .chat-header-info h2 {
+            font-size: 1rem;
+        }
+        
+        .chat-header-info p {
+            font-size: 0.75rem;
+        }
+    }
+    
+    .chat-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 640px) {
+        .chat-header-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+    
+    .chat-header-btn {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .chat-header-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    @media (max-width: 640px) {
+        .chat-header-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    
+    .empty-state-icon {
+        width: 96px;
+        height: 96px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state-icon i {
+        font-size: 2.5rem;
+        color: #94a3b8;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #94a3b8;
+        font-size: 0.9375rem;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto px-4 py-6">
     <div class="bg-white rounded-2xl shadow-2xl overflow-hidden chat-container">
         <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="bg-white/20 p-2 rounded-full">
-                    <i class="fas fa-user text-xl"></i>
+        <div class="chat-header">
+            <div class="chat-header-content">
+                <div class="chat-header-left">
+                    <div class="chat-header-icon">
+                        <i class="fas fa-user text-xl text-white"></i>
+                    </div>
+                    <div class="chat-header-info">
+                        <h2 class="text-white font-bold">{{ $customer->name }}</h2>
+                        <p class="text-white opacity-90">{{ $customer->email }}</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-lg font-bold">{{ $customer->name }}</h2>
-                    <p class="text-xs opacity-90">{{ $customer->email }}</p>
+                <div class="chat-header-actions">
+                    @if($customer->phone)
+                    <a href="tel:{{ $customer->phone }}" class="chat-header-btn">
+                        <i class="fas fa-phone"></i>
+                        <span class="hidden sm:inline">{{ $customer->phone }}</span>
+                        <span class="sm:hidden">اتصال</span>
+                    </a>
+                    @endif
+                    <a href="{{ route('admin.customers.show', $customer) }}" class="chat-header-btn">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="hidden sm:inline">تفاصيل العميل</span>
+                        <span class="sm:hidden">التفاصيل</span>
+                    </a>
                 </div>
-            </div>
-            <div class="flex items-center gap-3">
-                @if($customer->phone)
-                <a href="tel:{{ $customer->phone }}" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm transition-colors">
-                    <i class="fas fa-phone ml-1"></i>
-                    {{ $customer->phone }}
-                </a>
-                @endif
-                <a href="{{ route('admin.customers.show', $customer) }}" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm transition-colors">
-                    <i class="fas fa-arrow-right ml-1"></i>
-                    تفاصيل العميل
-                </a>
             </div>
         </div>
 
@@ -166,12 +621,12 @@
                 @forelse($messages as $message)
                 @include('admin.customers.message-item', ['message' => $message, 'customer' => $customer])
                 @empty
-                <div class="text-center py-12">
-                    <div class="bg-white rounded-full p-6 w-24 h-24 mx-auto mb-4 shadow-lg flex items-center justify-center">
-                        <i class="fas fa-comments text-4xl text-gray-400"></i>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-comments"></i>
                     </div>
-                    <p class="text-gray-600 text-lg font-semibold mb-2">لا توجد رسائل بعد</p>
-                    <p class="text-gray-400 text-sm">ابدأ المحادثة مع العميل</p>
+                    <h3>لا توجد رسائل بعد</h3>
+                    <p>ابدأ المحادثة مع العميل</p>
                 </div>
                 @endforelse
             </div>
@@ -185,18 +640,22 @@
             <form id="messageForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="order_id" value="">
-                <div class="flex items-end gap-2">
+                
+                <!-- Image Preview -->
+                <div id="imagePreview" class="hidden mb-2">
+                    <div class="image-preview-container">
+                        <img id="previewImage" src="" alt="Preview">
+                        <button type="button" onclick="removeImagePreview()" class="image-preview-remove">×</button>
+                    </div>
+                </div>
+                
+                <!-- Input Group -->
+                <div class="input-group">
                     <!-- File Input -->
-                    <label for="fileInput" class="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg cursor-pointer transition-colors" title="إرسال ملف">
-                        <i class="fas fa-paperclip text-gray-600"></i>
+                    <label for="fileInput" class="file-input-btn" title="إرسال ملف">
+                        <i class="fas fa-paperclip"></i>
                         <input type="file" id="fileInput" name="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx" class="hidden">
                     </label>
-                    
-                    <!-- Image Preview -->
-                    <div id="imagePreview" class="hidden relative">
-                        <img id="previewImage" src="" alt="Preview" class="w-16 h-16 object-cover rounded-lg">
-                        <button type="button" onclick="removeImagePreview()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">×</button>
-                    </div>
                     
                     <!-- Message Input -->
                     <div class="flex-1 relative">
@@ -204,23 +663,26 @@
                             name="message" 
                             id="messageInput"
                             rows="1"
-                            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-primary-medium focus:border-primary-medium resize-none"
+                            class="message-textarea"
                             placeholder="اكتب رسالتك..."
-                            onkeydown="handleKeyDown(event)"></textarea>
-                        <div class="absolute bottom-2 right-2 text-xs text-gray-400" id="charCount">0/5000</div>
+                            onkeydown="handleKeyDown(event)"
+                            maxlength="5000"></textarea>
+                        <div class="char-count" id="charCount">0/5000</div>
                     </div>
                     
                     <!-- Send Button -->
-                    <button type="submit" id="sendButton" class="bg-gradient-to-r from-primary-medium to-primary-dark text-white p-3 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button type="submit" id="sendButton" class="send-button">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
                 
                 <!-- File Info -->
-                <div id="fileInfo" class="hidden mt-2 p-2 bg-gray-100 rounded-lg text-sm text-gray-600">
-                    <i class="fas fa-file ml-1"></i>
-                    <span id="fileName"></span>
-                    <button type="button" onclick="removeFile()" class="text-red-500 hover:text-red-700 mr-2">
+                <div id="fileInfo" class="hidden file-info">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-file"></i>
+                        <span id="fileName"></span>
+                    </div>
+                    <button type="button" onclick="removeFile()" class="file-info-remove">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -249,7 +711,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Character counter
     document.getElementById('messageInput').addEventListener('input', function() {
         const count = this.value.length;
-        document.getElementById('charCount').textContent = count + '/5000';
+        const charCountEl = document.getElementById('charCount');
+        charCountEl.textContent = count + '/5000';
+        
+        // Update color based on count
+        charCountEl.classList.remove('warning', 'danger');
+        if (count > 4500) {
+            charCountEl.classList.add('danger');
+        } else if (count > 4000) {
+            charCountEl.classList.add('warning');
+        }
     });
     
     // Auto-resize textarea
