@@ -412,8 +412,8 @@
         </div>
     </section>
 
-    <!-- Our Work Section with Infinite Scroll Animation -->
-    <section class="section our-work-section">
+    <!-- Portfolio Gallery Section - Infinite Loop -->
+    <section class="section portfolio-gallery-section">
         <div class="container">
             <div class="text-center mb-8" data-aos="fade-up">
                 <h2 class="section-title">{{ __('messages.our_work') }}</h2>
@@ -442,37 +442,27 @@
                 $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
                 
                 // Create infinite loop by duplicating items MANY times
-                // This ensures the list never appears empty and loops seamlessly
                 $itemCount = max($itemsToUse->count(), 1);
-                
-                // If we have very few items (like 4), we need MORE duplicates for smooth infinite scroll
-                // Calculate duplicates based on viewport width to ensure seamless looping
-                $cardWidth = 300; // Card width in pixels
-                $gap = 24; // Gap between cards
+                $cardWidth = 300;
+                $gap = 24;
                 $oneSetWidth = $itemCount * ($cardWidth + $gap);
-                
-                // For infinite scroll, we need at least 3-4 full sets visible at once
-                // Calculate based on maximum viewport width (assume 1920px) and ensure we have plenty
-                $viewportWidth = 1920; // Max viewport width
-                $minSetsNeeded = 4; // Need at least 4 full sets for seamless infinite scroll
+                $viewportWidth = 1920;
+                $minSetsNeeded = 4;
                 $minTotalWidth = $viewportWidth * $minSetsNeeded;
                 
-                // Calculate how many duplicates we need
                 // Always ensure at least 100 copies for very smooth infinite scrolling
                 $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
                 
                 $allItems = collect();
                 // Duplicate the entire set multiple times for seamless infinite loop
-                // This creates a truly infinite list that never ends
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($itemsToUse);
                 }
             @endphp
             
             @if($itemsToUse->count() > 0)
-            <!-- DEBUG: Total unique items: {{ $itemsToUse->count() }}, Total duplicated items: {{ $allItems->count() }}, Duplicates: {{ $duplicates }} -->
-            <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $itemsToUse->count() }}" data-total-items="{{ $allItems->count() }}">
+            <div class="portfolio-gallery-wrapper">
+                <div class="portfolio-gallery-slider" id="portfolioGallerySlider" data-item-count="{{ $itemsToUse->count() }}" data-total-items="{{ $allItems->count() }}">
                     @foreach($allItems as $item)
                         @php
                             $cleanFilePath = $item->normalized_file_path;
@@ -483,28 +473,26 @@
                             $existsInAppPublic = $cleanFilePath && file_exists(storage_path('app/public/' . $cleanFilePath));
                             $fileExists = $cleanFilePath && ($existsInStorage || $existsInPublic || $existsInAppPublic);
                             
-                            // Get file URL - prefer public/storage for direct access
+                            // Get file URL
                             if ($existsInPublic) {
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } elseif ($existsInStorage) {
                                 $fileUrl = \Storage::disk('public')->url($cleanFilePath);
                             } elseif ($existsInAppPublic) {
-                                // File exists but not copied to public/storage yet
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } else {
                                 $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
+                            
+                            $placeholderImg = asset('images/placeholder-portfolio.png');
                         @endphp
-                        <div class="our-work-card">
+                        <div class="portfolio-gallery-item">
                             @if($item->type === 'image')
                                 @if($fileExists)
-                                    @php
-                                        $placeholderImg = asset('images/placeholder-portfolio.png');
-                                    @endphp
                                     <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
                                          onerror="this.onerror=null; this.src='{{ $placeholderImg }}'; this.style.display='block';">
                                 @else
-                                    <img src="{{ asset('images/placeholder-portfolio.png') }}" alt="{{ $item->title_ar }}">
+                                    <img src="{{ $placeholderImg }}" alt="{{ $item->title_ar }}">
                                 @endif
                             @else
                                 @if($fileExists)
@@ -520,7 +508,7 @@
                                     </div>
                                 @endif
                             @endif
-                            <div class="our-work-overlay">
+                            <div class="portfolio-gallery-overlay">
                                 <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-2x text-white"></i>
                                 <p class="text-white mt-2 text-sm font-semibold">{{ $item->title_ar }}</p>
                             </div>
@@ -530,41 +518,36 @@
             </div>
             @else
             @php
-                // Get all images from public/images folder - NO LIMIT
+                // Fallback: Get all images from public/images folder
                 $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
                 $imageCount = count($imageFiles);
-                $fallbackItemCount = 0;
+                $fallbackItemCount = $imageCount > 0 ? $imageCount : 6;
                 
                 if ($imageCount > 0) {
-                    $fallbackItemCount = $imageCount;
+                    $cardWidth = 300;
+                    $gap = 24;
+                    $oneSetWidth = $imageCount * ($cardWidth + $gap);
+                    $viewportWidth = 1920;
+                    $minSetsNeeded = 4;
+                    $minTotalWidth = $viewportWidth * $minSetsNeeded;
+                    $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
                 } else {
-                    // Fallback: show placeholder images
-                    $fallbackItemCount = 6;
+                    $duplicates = 100;
                 }
             @endphp
-            <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $fallbackItemCount }}">
+            <div class="portfolio-gallery-wrapper">
+                <div class="portfolio-gallery-slider" id="portfolioGallerySlider" data-item-count="{{ $fallbackItemCount }}">
                     @php
                         if ($imageCount > 0) {
-                            // Create MANY duplicates for seamless infinite loop
-                            // Always ensure at least 100 copies for very smooth infinite scrolling
-                            $cardWidth = 300;
-                            $gap = 24;
-                            $oneSetWidth = $imageCount * ($cardWidth + $gap);
-                            $viewportWidth = 1920;
-                            $minSetsNeeded = 4;
-                            $minTotalWidth = $viewportWidth * $minSetsNeeded;
-                            $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
-                            
                             for ($d = 0; $d < $duplicates; $d++) {
                                 foreach ($imageFiles as $imageFile) {
                                     $imageName = basename($imageFile);
                                     $imageUrl = asset('images/' . $imageName);
                                     $placeholderUrl = asset('images/placeholder-portfolio.png');
                                     @endphp
-                                    <div class="our-work-card">
+                                    <div class="portfolio-gallery-item">
                                         <img src="{{ $imageUrl }}" alt="{{ $imageName }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
-                                        <div class="our-work-overlay">
+                                        <div class="portfolio-gallery-overlay">
                                             <i class="fas fa-image fa-2x text-white"></i>
                                             <p class="text-white mt-2 text-sm font-semibold">{{ $imageName }}</p>
                                         </div>
@@ -573,23 +556,14 @@
                                 }
                             }
                         } else {
-                            // Fallback: show placeholder images with infinite loop
                             $placeholderCount = 6;
-                            $cardWidth = 300;
-                            $gap = 24;
-                            $oneSetWidth = $placeholderCount * ($cardWidth + $gap);
-                            $viewportWidth = 1920;
-                            $minSetsNeeded = 4;
-                            $minTotalWidth = $viewportWidth * $minSetsNeeded;
-                            $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
-                            
                             for ($d = 0; $d < $duplicates; $d++) {
                                 for ($i = 1; $i <= $placeholderCount; $i++) {
                                     $placeholderUrl = asset('images/placeholder-portfolio.png');
                                     @endphp
-                                    <div class="our-work-card">
+                                    <div class="portfolio-gallery-item">
                                         <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
-                                        <div class="our-work-overlay">
+                                        <div class="portfolio-gallery-overlay">
                                             <i class="fas fa-image fa-2x text-white"></i>
                                             <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
                                         </div>
@@ -944,22 +918,18 @@
                 heroContent.style.animation = 'fadeInUp 1s ease-out';
             }
             
-            // Setup infinite scroll for our work section - TRUE INFINITE LOOP
-            const ourWorkTrack = document.getElementById('ourWorkTrack');
-            if (ourWorkTrack) {
-                // Wait for images to load to get accurate dimensions
+            // Setup infinite scroll for portfolio gallery - TRUE INFINITE LOOP
+            const portfolioGallerySlider = document.getElementById('portfolioGallerySlider');
+            if (portfolioGallerySlider) {
                 const setupAnimation = () => {
-                    const items = ourWorkTrack.querySelectorAll('.our-work-card');
+                    const items = portfolioGallerySlider.querySelectorAll('.portfolio-gallery-item');
                     
-                    // Get original item count from data attribute, or calculate from unique items
-                    let originalItemCount = parseInt(ourWorkTrack.dataset.itemCount);
+                    // Get original item count from data attribute
+                    let originalItemCount = parseInt(portfolioGallerySlider.dataset.itemCount);
                     
-                    // If data-item-count is 0 or not set, try to calculate from items
+                    // If not set, try to calculate from items
                     if (!originalItemCount || originalItemCount === 0) {
-                        // Count unique items by checking first few items
-                        // Since items are duplicated, we need to find the pattern
                         if (items.length > 0) {
-                            // Try to detect the pattern by comparing items
                             const firstItemSrc = items[0].querySelector('img, video')?.src || '';
                             let uniqueCount = 1;
                             for (let i = 1; i < items.length; i++) {
@@ -976,75 +946,40 @@
                     }
                     
                     if (originalItemCount > 0 && items.length > 0) {
-                        // Get actual card width from first card
                         const firstCard = items[0];
                         const cardWidth = firstCard.offsetWidth || 300;
-                        const gap = 24; // 1.5rem = 24px gap
+                        const gap = 24;
                         const oneSetWidth = originalItemCount * (cardWidth + gap);
                         
-                        // DEBUG: Log information
-                        console.log('Our Work Track Setup:', {
-                            uniqueItems: originalItemCount,
-                            totalItems: items.length,
-                            cardWidth: cardWidth,
-                            oneSetWidth: oneSetWidth,
-                            duplicates: Math.floor(items.length / originalItemCount)
-                        });
-                        
                         // Set animation to move exactly one set width for seamless infinite loop
-                        // This ensures when animation completes, it loops back to the first item seamlessly
-                        ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
+                        portfolioGallerySlider.style.setProperty('--portfolio-set-width', oneSetWidth + 'px');
                         
-                        // Calculate animation duration based on number of items
-                        // More items = slower animation, fewer items = faster
-                        // Ensure smooth infinite scrolling that never stops
-                        const baseDuration = 60; // seconds - slower for smoother effect
+                        // Calculate animation duration
+                        const baseDuration = 60;
                         const duration = Math.max(40, baseDuration + (originalItemCount * 2));
-                        ourWorkTrack.style.animationDuration = duration + 's';
+                        portfolioGallerySlider.style.animationDuration = duration + 's';
                         
-                        // CRITICAL: Ensure animation is set to infinite and never stops
-                        ourWorkTrack.style.animationIterationCount = 'infinite';
-                        ourWorkTrack.style.animationTimingFunction = 'linear';
-                        ourWorkTrack.style.animationName = 'scroll-infinite';
+                        // CRITICAL: Ensure animation is infinite
+                        portfolioGallerySlider.style.animationIterationCount = 'infinite';
+                        portfolioGallerySlider.style.animationTimingFunction = 'linear';
+                        portfolioGallerySlider.style.animationName = 'portfolio-slide-infinite';
                         
-                        // Force reflow to ensure animation restarts properly
-                        ourWorkTrack.offsetHeight;
-                        
-                        // Verify we have enough items for seamless scrolling
-                        const totalWidth = items.length * (cardWidth + gap);
-                        const viewportWidth = window.innerWidth;
-                        
-                        console.log('Animation configured:', {
-                            duration: duration + 's',
-                            oneSetWidth: oneSetWidth + 'px',
-                            totalWidth: totalWidth + 'px',
-                            viewportWidth: viewportWidth + 'px',
-                            hasEnoughItems: totalWidth >= viewportWidth * 2.5
-                        });
-                        
-                        // With 100+ duplicates, we should have plenty of items
-                        if (totalWidth < viewportWidth * 2.5) {
-                            console.warn('Track has ' + items.length + ' items (' + originalItemCount + ' unique), consider adding more for smoother scrolling');
-                        }
-                    } else {
-                        console.error('Our Work Track: No items found or invalid configuration', {
-                            originalItemCount: originalItemCount,
-                            itemsLength: items.length
-                        });
+                        // Force reflow
+                        portfolioGallerySlider.offsetHeight;
                     }
                 };
                 
                 // Try immediately
                 setupAnimation();
                 
-                // Also try after a delay to account for image loading
+                // Try after delay
                 setTimeout(setupAnimation, 200);
                 
-                // And after window load
+                // Try after window load
                 window.addEventListener('load', setupAnimation);
                 
-                // Also try after images load
-                const images = ourWorkTrack.querySelectorAll('img');
+                // Try after images load
+                const images = portfolioGallerySlider.querySelectorAll('img');
                 let loadedImages = 0;
                 if (images.length > 0) {
                     images.forEach(img => {
