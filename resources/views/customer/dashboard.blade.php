@@ -5,22 +5,27 @@
 
 @push('styles')
 <style>
-    /* Welcome Banner Enhanced */
-    .welcome-banner {
-        background: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
+    /* Welcome Banner - Ultra Modern */
+    .welcome-banner-modern {
+        background: linear-gradient(135deg, #08788B 0%, #025469 50%, #3CA6B4 100%);
+        border-radius: 1.5rem;
+        padding: 3rem;
+        color: white;
+        box-shadow: 0 20px 60px rgba(8, 120, 139, 0.3);
         position: relative;
         overflow: hidden;
+        margin-bottom: 2rem;
     }
     
-    .welcome-banner::after {
+    .welcome-banner-modern::before {
         content: '';
         position: absolute;
         top: -50%;
-        left: -50%;
+        right: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        animation: rotate 20s linear infinite;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+        animation: rotate 30s linear infinite;
     }
     
     @keyframes rotate {
@@ -28,310 +33,379 @@
         to { transform: rotate(360deg); }
     }
     
-    .welcome-text {
-        color: #ffffff;
+    .welcome-content {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+    
+    .welcome-text-section h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
     
-    .welcome-icon {
+    .welcome-text-section h1 i {
+        font-size: 2rem;
+        animation: wave 2s ease-in-out infinite;
+    }
+    
+    @keyframes wave {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(20deg); }
+        75% { transform: rotate(-20deg); }
+    }
+    
+    .welcome-text-section p {
+        font-size: 1.25rem;
+        opacity: 0.95;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .welcome-icon-large {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 3rem;
-        opacity: 0.2;
-        position: absolute;
-        left: 2rem;
-        top: 50%;
-        transform: translateY(-50%);
         animation: float 3s ease-in-out infinite;
+        flex-shrink: 0;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
     
     @keyframes float {
-        0%, 100% { transform: translateY(-50%) translateY(0px); }
-        50% { transform: translateY(-50%) translateY(-10px); }
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-15px); }
     }
     
-    /* Stat Cards Enhanced */
-    .stat-card-modern {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 2px solid transparent;
-        border-radius: 24px;
+    /* Stat Cards - Enhanced */
+    .stat-card-ultra {
+        background: white;
+        border-radius: 1.5rem;
         padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
         cursor: pointer;
     }
     
-    .stat-card-modern::before {
+    .stat-card-ultra::before {
         content: '';
         position: absolute;
         top: 0;
+        left: 0;
         right: 0;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(8, 120, 139, 0.15) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(30%, -30%);
-        transition: all 0.4s ease;
+        height: 4px;
+        background: linear-gradient(90deg, #08788B 0%, #4f46e5 100%);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
     }
     
-    .stat-card-modern:hover::before {
-        width: 200px;
-        height: 200px;
-        opacity: 0.3;
+    .stat-card-ultra:hover::before {
+        transform: scaleX(1);
     }
     
-    .stat-card-modern:hover {
-        transform: translateY(-8px) scale(1.02);
+    .stat-card-ultra:hover {
+        transform: translateY(-8px);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     }
     
-    .stat-card-modern.primary {
+    .stat-card-ultra.primary {
         background: linear-gradient(135deg, #025469 0%, #08788B 100%);
         color: white;
+        border-color: transparent;
     }
     
-    .stat-card-modern.warning {
+    .stat-card-ultra.warning {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: white;
+        border-color: transparent;
     }
     
-    .stat-card-modern.success {
+    .stat-card-ultra.success {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
+        border-color: transparent;
     }
     
-    .stat-card-modern.purple {
+    .stat-card-ultra.purple {
         background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         color: white;
+        border-color: transparent;
     }
     
-    .stat-icon-wrapper {
-        width: 72px;
-        height: 72px;
-        border-radius: 20px;
+    .stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-icon-box {
+        width: 64px;
+        height: 64px;
+        border-radius: 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
-        position: relative;
-        z-index: 1;
-        background: rgba(255, 255, 255, 0.25);
+        font-size: 1.75rem;
+        background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         transition: all 0.3s ease;
     }
     
-    .stat-card-modern:hover .stat-icon-wrapper {
+    .stat-card-ultra:hover .stat-icon-box {
         transform: scale(1.1) rotate(5deg);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
     }
     
-    .stat-card-modern.primary .stat-icon-wrapper,
-    .stat-card-modern.warning .stat-icon-wrapper,
-    .stat-card-modern.success .stat-icon-wrapper,
-    .stat-card-modern.purple .stat-icon-wrapper {
-        background: rgba(255, 255, 255, 0.3);
-    }
-    
-    .stat-icon-wrapper i {
-        font-size: 2rem;
-        color: white;
-    }
-    
-    .stat-value {
-        font-size: 2.75rem;
+    .stat-value-modern {
+        font-size: 3rem;
         font-weight: 900;
-        margin: 0.75rem 0;
         line-height: 1;
-        letter-spacing: -1px;
-    }
-    
-    .stat-label {
-        font-size: 1rem;
-        opacity: 0.95;
-        font-weight: 600;
         margin-bottom: 0.5rem;
-        letter-spacing: 0.3px;
+        letter-spacing: -2px;
     }
     
-    .stat-footer {
+    .stat-label-modern {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-footer-modern {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        margin-top: 1rem;
         font-size: 0.875rem;
-        opacity: 0.9;
+        opacity: 0.85;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    /* Dashboard Cards Enhanced */
-    .dashboard-card-modern {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid rgba(8, 120, 139, 0.12);
-        border-radius: 24px;
+    /* Dashboard Cards - Ultra Modern */
+    .dashboard-card-ultra {
+        background: white;
+        border-radius: 1.5rem;
         padding: 2rem;
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
     
-    .dashboard-card-modern:hover {
+    .dashboard-card-ultra::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #08788B 0%, #4f46e5 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .dashboard-card-ultra:hover {
+        transform: translateY(-4px);
         box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
-        transform: translateY(-2px);
     }
     
-    .card-header-modern {
+    .dashboard-card-ultra:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .card-header-ultra {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 1.5rem;
         padding-bottom: 1.25rem;
-        border-bottom: 2px solid rgba(8, 120, 139, 0.1);
+        border-bottom: 2px solid #f1f5f9;
         flex-wrap: wrap;
         gap: 1rem;
     }
     
-    .card-title-modern {
+    .card-title-ultra {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #025469;
+        color: #1e293b;
         display: flex;
         align-items: center;
         gap: 0.75rem;
     }
     
-    .card-title-modern i {
+    .card-title-ultra i {
         font-size: 1.5rem;
         color: #08788B;
     }
     
-    .card-title-modern::before {
-        content: '';
-        width: 5px;
-        height: 32px;
-        background: linear-gradient(135deg, #025469 0%, #08788B 100%);
-        border-radius: 3px;
-    }
-    
-    /* Order Items Enhanced */
-    .order-item-modern {
+    /* Order Item - Ultra Modern */
+    .order-item-ultra {
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid rgba(8, 120, 139, 0.1);
-        border-radius: 18px;
-        padding: 1.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
         margin-bottom: 1rem;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
     }
     
-    .order-item-modern::before {
+    .order-item-ultra::before {
         content: '';
         position: absolute;
         right: 0;
         top: 0;
-        width: 5px;
+        width: 4px;
         height: 100%;
         background: linear-gradient(135deg, #025469 0%, #08788B 100%);
         transform: scaleY(0);
         transition: transform 0.3s ease;
     }
     
-    .order-item-modern:hover {
+    .order-item-ultra:hover {
         transform: translateX(-8px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-color: rgba(8, 120, 139, 0.25);
+        border-color: #cbd5e1;
     }
     
-    .order-item-modern:hover::before {
+    .order-item-ultra:hover::before {
         transform: scaleY(1);
     }
     
-    /* Message Items Enhanced */
-    .message-item-modern {
+    /* Message Item - Ultra Modern */
+    .message-item-ultra {
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid rgba(8, 120, 139, 0.1);
-        border-radius: 18px;
-        padding: 1.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
         margin-bottom: 1rem;
         transition: all 0.3s ease;
         position: relative;
     }
     
-    .message-item-modern:hover {
+    .message-item-ultra:hover {
         transform: translateX(-8px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border-color: rgba(8, 120, 139, 0.25);
+        border-color: #cbd5e1;
     }
     
-    /* Status Badge Enhanced */
-    .status-badge-modern {
-        padding: 0.625rem 1.25rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 0.875rem;
+    /* Status Badge - Ultra Modern */
+    .status-badge-ultra {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
-    }
-    
-    .status-badge-modern:hover {
-        transform: scale(1.05);
-    }
-    
-    /* Buttons Enhanced */
-    .btn-primary-gradient {
-        background: linear-gradient(135deg, #3CA6B4 0%, #08788B 100%);
-        color: white !important;
-        padding: 0.625rem 1.5rem;
-        border-radius: 12px;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.8125rem;
         font-weight: 600;
-        font-size: 0.875rem;
-        border: none;
-        box-shadow: 0 4px 15px rgba(8, 120, 139, 0.3);
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     
-    .btn-primary-gradient:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 8px 25px rgba(8, 120, 139, 0.4);
-        color: white !important;
-    }
-    
-    .btn-primary-gradient i {
-        font-size: 0.875rem;
+    .status-badge-ultra.completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
     
-    .text-primary-medium {
-        color: #08788B !important;
+    .status-badge-ultra.pending {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
     }
     
-    .text-primary-dark {
-        color: #025469 !important;
+    .status-badge-ultra.processing {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
     }
     
-    .bg-primary-medium {
-        background-color: #08788B !important;
+    .status-badge-ultra.confirmed {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
     }
     
-    .bg-primary-dark {
-        background-color: #025469 !important;
+    /* Button - Ultra Modern */
+    .btn-ultra {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-ultra:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-ultra.primary {
+        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
+        color: white;
+    }
+    
+    .btn-ultra.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    /* Empty State - Ultra Modern */
+    .empty-state-ultra {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+    
+    .empty-state-icon-ultra {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, rgba(8, 120, 139, 0.1) 0%, rgba(8, 120, 139, 0.05) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .empty-state-icon-ultra:hover {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .empty-state-icon-ultra i {
+        font-size: 2.5rem;
+        color: #08788B;
     }
     
     /* Animations */
-    .fade-in {
-        animation: fadeIn 0.6s ease-out;
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
     }
     
-    @keyframes fadeIn {
+    @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
         }
         to {
             opacity: 1;
@@ -339,190 +413,102 @@
         }
     }
     
-    /* Empty State Enhanced */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 1rem;
-    }
-    
-    .empty-state-icon {
-        width: 100px;
-        height: 100px;
-        margin: 0 auto 1.5rem;
-        background: linear-gradient(135deg, rgba(8, 120, 139, 0.15) 0%, rgba(8, 120, 139, 0.05) 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-    
-    .empty-state-icon:hover {
-        transform: scale(1.1) rotate(5deg);
-    }
-    
-    .empty-state-icon i {
-        font-size: 3rem;
-        color: #08788B;
-    }
-    
     /* Responsive */
     @media (max-width: 1024px) {
-        .stat-card-modern {
-            padding: 1.75rem;
+        .welcome-banner-modern {
+            padding: 2rem;
         }
         
-        .stat-value {
-            font-size: 2.25rem;
+        .welcome-text-section h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-icon-large {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5rem;
+        }
+        
+        .stat-card-ultra {
+            padding: 1.5rem;
+        }
+        
+        .stat-value-modern {
+            font-size: 2.5rem;
         }
     }
     
     @media (max-width: 768px) {
-        .welcome-icon {
-            display: none;
-        }
-        
-        .welcome-banner {
-            padding: 1.5rem !important;
-        }
-        
-        .welcome-banner h1 {
-            font-size: 1.75rem !important;
-        }
-        
-        .welcome-banner p {
-            font-size: 1rem !important;
-        }
-        
-        .stat-card-modern {
+        .welcome-banner-modern {
             padding: 1.5rem;
         }
         
-        .stat-icon-wrapper {
-            width: 60px;
-            height: 60px;
+        .welcome-content {
+            flex-direction: column;
+            text-align: center;
         }
         
-        .stat-icon-wrapper i {
-            font-size: 1.5rem;
+        .welcome-text-section h1 {
+            font-size: 1.75rem;
+            flex-direction: column;
+            gap: 0.5rem;
         }
         
-        .stat-value {
+        .welcome-text-section p {
+            font-size: 1rem;
+            justify-content: center;
+        }
+        
+        .welcome-icon-large {
+            width: 80px;
+            height: 80px;
             font-size: 2rem;
         }
         
-        .stat-label {
-            font-size: 0.9375rem;
+        .stat-card-ultra {
+            padding: 1.25rem;
         }
         
-        .card-header-modern {
+        .stat-icon-box {
+            width: 56px;
+            height: 56px;
+            font-size: 1.5rem;
+        }
+        
+        .stat-value-modern {
+            font-size: 2rem;
+        }
+        
+        .card-header-ultra {
             flex-direction: column;
             align-items: flex-start;
-            gap: 1rem;
         }
         
-        .card-title-modern {
-            font-size: 1.25rem;
-        }
-        
-        .dashboard-card-modern {
+        .dashboard-card-ultra {
             padding: 1.5rem;
-        }
-        
-        .order-item-modern,
-        .message-item-modern {
-            padding: 1.25rem;
         }
     }
     
     @media (max-width: 640px) {
-        .welcome-banner {
-            padding: 1.25rem !important;
-        }
-        
-        .welcome-banner h1 {
-            font-size: 1.5rem !important;
-            margin-bottom: 0.75rem !important;
-        }
-        
-        .welcome-banner p {
-            font-size: 0.9375rem !important;
-        }
-        
-        .stat-card-modern {
+        .welcome-banner-modern {
             padding: 1.25rem;
         }
         
-        .stat-icon-wrapper {
-            width: 56px;
-            height: 56px;
-            margin-bottom: 1rem;
-        }
-        
-        .stat-icon-wrapper i {
-            font-size: 1.375rem;
-        }
-        
-        .stat-value {
-            font-size: 1.75rem;
-            margin: 0.5rem 0;
-        }
-        
-        .stat-label {
-            font-size: 0.875rem;
-        }
-        
-        .stat-footer {
-            font-size: 0.8125rem;
-            margin-top: 0.75rem;
-        }
-        
-        .dashboard-card-modern {
-            padding: 1.25rem;
-            border-radius: 1rem;
-        }
-        
-        .card-title-modern {
-            font-size: 1.125rem;
-        }
-        
-        .card-title-modern i {
-            font-size: 1.25rem;
-        }
-        
-        .order-item-modern,
-        .message-item-modern {
-            padding: 1rem;
-            border-radius: 0.875rem;
-        }
-        
-        .btn-primary-gradient {
-            padding: 0.5rem 1.25rem;
-            font-size: 0.8125rem;
-        }
-        
-        .status-badge-modern {
-            padding: 0.5rem 1rem;
-            font-size: 0.8125rem;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .stat-card-modern {
-            padding: 1rem;
-        }
-        
-        .stat-value {
+        .welcome-text-section h1 {
             font-size: 1.5rem;
         }
         
-        .dashboard-card-modern {
-            padding: 1rem;
+        .stat-value-modern {
+            font-size: 1.75rem;
         }
         
-        .order-item-modern,
-        .message-item-modern {
-            padding: 0.875rem;
+        .dashboard-card-ultra {
+            padding: 1.25rem;
+        }
+        
+        .order-item-ultra,
+        .message-item-ultra {
+            padding: 1.25rem;
         }
     }
 </style>
@@ -530,22 +516,20 @@
 
 @section('content')
 <!-- Welcome Banner -->
-<div class="mb-8 fade-in">
-    <div class="welcome-banner rounded-2xl shadow-2xl p-8 relative overflow-hidden">
-        <i class="fas fa-hand-sparkles welcome-icon"></i>
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
-        <div class="relative z-10 flex items-center justify-between">
-            <div class="flex-1">
-                <h1 class="text-4xl font-bold mb-3 welcome-text">
-                    <i class="fas fa-smile ml-2"></i>
-                    {{ __('messages.welcome_back') }}, {{ $customer->name }}!
-                </h1>
-                <p class="welcome-text text-xl opacity-95 flex items-center gap-2">
-                    <i class="fas fa-tachometer-alt"></i>
-                    {{ __('messages.dashboard_subtitle') }}
-                </p>
-            </div>
+<div class="welcome-banner-modern fade-in-up" style="animation-delay: 0.1s">
+    <div class="welcome-content">
+        <div class="welcome-text-section">
+            <h1>
+                <i class="fas fa-hand-sparkles"></i>
+                <span>{{ __('messages.welcome_back') }}, {{ $customer->name }}!</span>
+            </h1>
+            <p>
+                <i class="fas fa-tachometer-alt"></i>
+                <span>{{ __('messages.dashboard_subtitle') }}</span>
+            </p>
+        </div>
+        <div class="welcome-icon-large">
+            <i class="fas fa-chart-line"></i>
         </div>
     </div>
 </div>
@@ -553,52 +537,60 @@
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Orders -->
-    <div class="stat-card-modern primary fade-in" style="animation-delay: 0.1s">
-        <div class="stat-icon-wrapper">
-            <i class="fas fa-shopping-bag"></i>
+    <div class="stat-card-ultra primary fade-in-up" style="animation-delay: 0.2s">
+        <div class="stat-header">
+            <div class="stat-icon-box">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
         </div>
-        <h3 class="stat-label">{{ __('messages.total_orders') }}</h3>
-        <p class="stat-value">{{ $stats['total_orders'] }}</p>
-        <div class="stat-footer">
+        <div class="stat-value-modern">{{ $stats['total_orders'] }}</div>
+        <div class="stat-label-modern">{{ __('messages.total_orders') }}</div>
+        <div class="stat-footer-modern">
             <i class="fas fa-chart-line"></i>
             <span>جميع الطلبات</span>
         </div>
     </div>
 
     <!-- Pending Orders -->
-    <div class="stat-card-modern warning fade-in" style="animation-delay: 0.2s">
-        <div class="stat-icon-wrapper">
-            <i class="fas fa-clock"></i>
+    <div class="stat-card-ultra warning fade-in-up" style="animation-delay: 0.3s">
+        <div class="stat-header">
+            <div class="stat-icon-box">
+                <i class="fas fa-clock"></i>
+            </div>
         </div>
-        <h3 class="stat-label">{{ __('messages.pending_orders') }}</h3>
-        <p class="stat-value">{{ $stats['pending_orders'] }}</p>
-        <div class="stat-footer">
+        <div class="stat-value-modern">{{ $stats['pending_orders'] }}</div>
+        <div class="stat-label-modern">{{ __('messages.pending_orders') }}</div>
+        <div class="stat-footer-modern">
             <i class="fas fa-hourglass-half"></i>
             <span>قيد المراجعة</span>
         </div>
     </div>
 
     <!-- Completed Orders -->
-    <div class="stat-card-modern success fade-in" style="animation-delay: 0.3s">
-        <div class="stat-icon-wrapper">
-            <i class="fas fa-check-circle"></i>
+    <div class="stat-card-ultra success fade-in-up" style="animation-delay: 0.4s">
+        <div class="stat-header">
+            <div class="stat-icon-box">
+                <i class="fas fa-check-circle"></i>
+            </div>
         </div>
-        <h3 class="stat-label">{{ __('messages.completed_orders') }}</h3>
-        <p class="stat-value">{{ $stats['completed_orders'] }}</p>
-        <div class="stat-footer">
+        <div class="stat-value-modern">{{ $stats['completed_orders'] }}</div>
+        <div class="stat-label-modern">{{ __('messages.completed_orders') }}</div>
+        <div class="stat-footer-modern">
             <i class="fas fa-check-double"></i>
             <span>مكتملة</span>
         </div>
     </div>
 
     <!-- Total Spent -->
-    <div class="stat-card-modern purple fade-in" style="animation-delay: 0.4s">
-        <div class="stat-icon-wrapper">
-            <i class="fas fa-coins"></i>
+    <div class="stat-card-ultra purple fade-in-up" style="animation-delay: 0.5s">
+        <div class="stat-header">
+            <div class="stat-icon-box">
+                <i class="fas fa-coins"></i>
+            </div>
         </div>
-        <h3 class="stat-label">{{ __('messages.total_spent') }}</h3>
-        <p class="stat-value">{{ number_format($stats['total_spent'], 2) }}</p>
-        <div class="stat-footer">
+        <div class="stat-value-modern">{{ number_format($stats['total_spent'], 2) }}</div>
+        <div class="stat-label-modern">{{ __('messages.total_spent') }}</div>
+        <div class="stat-footer-modern">
             <i class="fas fa-coins"></i>
             <span>ريال سعودي</span>
         </div>
@@ -607,44 +599,42 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Recent Orders -->
-    <div class="dashboard-card-modern fade-in" style="animation-delay: 0.5s">
-        <div class="card-header-modern">
-            <h2 class="card-title-modern">
+    <div class="dashboard-card-ultra fade-in-up" style="animation-delay: 0.6s">
+        <div class="card-header-ultra">
+            <h2 class="card-title-ultra">
                 <i class="fas fa-shopping-bag"></i>
-                {{ __('messages.recent_orders') }}
+                <span>{{ __('messages.recent_orders') }}</span>
             </h2>
-            <a href="{{ route('customer.orders.index') }}" class="btn-primary-gradient">
+            <a href="{{ route('customer.orders.index') }}" class="btn-ultra primary">
                 <i class="fas fa-eye"></i>
-                {{ __('messages.view_all') }}
+                <span>{{ __('messages.view_all') }}</span>
             </a>
         </div>
         
         @if($recentOrders->count() > 0)
         <div class="space-y-3">
             @foreach($recentOrders as $order)
-            <div class="order-item-modern">
+            <div class="order-item-ultra">
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex-1">
                         <h3 class="font-bold text-gray-900 text-lg mb-2 flex items-center gap-2">
                             <i class="fas fa-box text-primary-medium"></i>
-                            {{ $order->service_name ?? __('messages.service') }}
+                            <span>{{ $order->service_name ?? __('messages.service') }}</span>
                         </h3>
                         <p class="text-sm text-gray-600 flex items-center gap-2">
                             <i class="fas fa-hashtag text-primary-medium"></i>
-                            <span>{{ $order->order_number }}</span>
+                            <span>#{{ $order->order_number }}</span>
                         </p>
                     </div>
-                    <span class="status-badge-modern
-                        @if($order->status === 'completed') bg-green-100 text-green-800
-                        @elseif($order->status === 'pending') bg-yellow-100 text-yellow-800
-                        @else bg-gray-100 text-gray-800
-                        @endif">
+                    <span class="status-badge-ultra {{ $order->status }}">
                         @if($order->status === 'completed')
                             <i class="fas fa-check-circle"></i>
                         @elseif($order->status === 'pending')
                             <i class="fas fa-clock"></i>
                         @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
                             <i class="fas fa-credit-card"></i>
+                        @elseif($order->status === 'processing')
+                            <i class="fas fa-spinner fa-spin"></i>
                         @else
                             <i class="fas fa-info-circle"></i>
                         @endif
@@ -660,45 +650,45 @@
                         <i class="fas fa-calendar-alt text-primary-medium"></i>
                         <span>{{ $order->created_at->format('Y-m-d') }}</span>
                     </p>
-                    <a href="{{ route('customer.orders.show', $order) }}" class="btn-primary-gradient">
+                    <a href="{{ route('customer.orders.show', $order) }}" class="btn-ultra primary">
                         <i class="fas fa-arrow-left"></i>
-                        {{ __('messages.view_details') }}
+                        <span>{{ __('messages.view_details') }}</span>
                     </a>
                 </div>
             </div>
             @endforeach
         </div>
         @else
-        <div class="empty-state">
-            <div class="empty-state-icon">
+        <div class="empty-state-ultra">
+            <div class="empty-state-icon-ultra">
                 <i class="fas fa-shopping-cart"></i>
             </div>
             <p class="text-gray-600 text-lg font-semibold mb-2">{{ __('messages.no_orders_yet') }}</p>
-            <a href="{{ route('services') }}" class="btn-primary-gradient mt-4">
+            <a href="{{ route('services') }}" class="btn-ultra primary mt-4">
                 <i class="fas fa-search"></i>
-                {{ __('messages.browse_services') }}
+                <span>{{ __('messages.browse_services') }}</span>
             </a>
         </div>
         @endif
     </div>
 
     <!-- Recent Messages -->
-    <div class="dashboard-card-modern fade-in" style="animation-delay: 0.6s">
-        <div class="card-header-modern">
-            <h2 class="card-title-modern">
+    <div class="dashboard-card-ultra fade-in-up" style="animation-delay: 0.7s">
+        <div class="card-header-ultra">
+            <h2 class="card-title-ultra">
                 <i class="fas fa-comments"></i>
-                {{ __('messages.recent_messages') }}
+                <span>{{ __('messages.recent_messages') }}</span>
             </h2>
             <div class="flex items-center gap-3">
                 @if($stats['unread_messages'] > 0)
                 <span class="bg-red-500 text-white text-xs rounded-full px-3 py-1.5 font-bold animate-pulse flex items-center gap-1">
                     <i class="fas fa-bell"></i>
-                    {{ $stats['unread_messages'] }}
+                    <span>{{ $stats['unread_messages'] }}</span>
                 </span>
                 @endif
-                <a href="{{ route('customer.messages.index') }}" class="btn-primary-gradient">
+                <a href="{{ route('customer.messages.index') }}" class="btn-ultra primary">
                     <i class="fas fa-comments"></i>
-                    {{ __('messages.open_chat') }}
+                    <span>{{ __('messages.open_chat') }}</span>
                 </a>
             </div>
         </div>
@@ -706,7 +696,7 @@
         @if($recentMessages->count() > 0)
         <div class="space-y-3">
             @foreach($recentMessages as $message)
-            <div class="message-item-modern">
+            <div class="message-item-ultra">
                 <div class="flex items-start justify-between mb-2">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
@@ -716,10 +706,10 @@
                                 @endif">
                                 @if($message->sender_type === 'admin')
                                     <i class="fas fa-user-shield"></i>
-                                    {{ $message->admin->name ?? __('messages.admin') }}
+                                    <span>{{ $message->admin->name ?? __('messages.admin') }}</span>
                                 @else
                                     <i class="fas fa-user"></i>
-                                    {{ __('messages.you') }}
+                                    <span>{{ __('messages.you') }}</span>
                                 @endif
                             </span>
                             @if(!$message->is_read && $message->sender_type === 'admin')
@@ -746,14 +736,14 @@
             @endforeach
         </div>
         @else
-        <div class="empty-state">
-            <div class="empty-state-icon">
+        <div class="empty-state-ultra">
+            <div class="empty-state-icon-ultra">
                 <i class="fas fa-comments"></i>
             </div>
             <p class="text-gray-600 text-lg font-semibold mb-2">{{ __('messages.no_messages_yet') }}</p>
             <p class="text-gray-500 text-sm flex items-center justify-center gap-2">
                 <i class="fas fa-info-circle"></i>
-                ابدأ محادثة مع فريق الدعم
+                <span>ابدأ محادثة مع فريق الدعم</span>
             </p>
         </div>
         @endif

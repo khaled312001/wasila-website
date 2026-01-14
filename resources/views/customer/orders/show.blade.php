@@ -6,52 +6,46 @@
 
 @push('styles')
 <style>
-    /* Order Details Container */
-    .order-details-container {
+    /* Main Container */
+    .order-details-page {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .order-details-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 2rem;
     }
     
     @media (min-width: 1024px) {
-        .order-details-container {
-            grid-template-columns: 3fr 1fr;
+        .order-details-grid {
+            grid-template-columns: 2fr 1fr;
             align-items: start;
-        }
-        
-        /* Main content on the left */
-        .order-details-container > .main-content {
-            grid-column: 1;
-        }
-        
-        /* Sidebar on the right */
-        .order-details-container > .sidebar {
-            grid-column: 2;
-            position: sticky;
-            top: 1.5rem;
         }
     }
     
-    /* Documentation Section */
-    .documentation-section {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    /* Order Header Card */
+    .order-header-card {
+        background: linear-gradient(135deg, #08788B 0%, #025469 100%);
         border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
+        padding: 2.5rem;
+        color: white;
+        box-shadow: 0 20px 60px rgba(8, 120, 139, 0.3);
+        margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
     }
     
-    .documentation-section::before {
+    .order-header-card::before {
         content: '';
         position: absolute;
         top: -50%;
         right: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(8, 120, 139, 0.05) 0%, transparent 70%);
-        animation: rotate 20s linear infinite;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotate 30s linear infinite;
     }
     
     @keyframes rotate {
@@ -59,62 +53,46 @@
         to { transform: rotate(360deg); }
     }
     
-    .documentation-header {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        margin-bottom: 2rem;
+    .order-header-content {
         position: relative;
         z-index: 10;
     }
     
-    .documentation-icon {
-        width: 70px;
-        height: 70px;
-        background: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
-        border-radius: 1.25rem;
+    .order-number-display {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 24px rgba(8, 120, 139, 0.3);
-        transition: all 0.3s ease;
-        animation: float 3s ease-in-out infinite;
+        gap: 1rem;
     }
     
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-    
-    .documentation-icon:hover {
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 12px 32px rgba(8, 120, 139, 0.4);
-    }
-    
-    .documentation-icon i {
+    .order-number-display i {
         font-size: 2rem;
-        color: white;
+        opacity: 0.9;
     }
     
-    /* Video Card */
-    .video-card {
+    .order-status-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        align-items: center;
+    }
+    
+    /* Modern Card Styles */
+    .modern-card {
         background: white;
         border-radius: 1.25rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         border: 1px solid #e5e7eb;
         transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
     }
     
-    .video-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
-    
-    .video-card::before {
+    .modern-card::before {
         content: '';
         position: absolute;
         top: 0;
@@ -126,41 +104,201 @@
         transition: transform 0.3s ease;
     }
     
-    .video-card:hover::before {
+    .modern-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .modern-card:hover::before {
         transform: scaleX(1);
     }
     
-    .video-info {
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .card-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.3);
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    /* Status Badges */
+    .status-badge-modern {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: capitalize;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .status-badge-modern.completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .status-badge-modern.pending {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+    
+    .status-badge-modern.processing {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+    
+    .status-badge-modern.confirmed {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+    }
+    
+    .status-badge-modern.paid {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .status-badge-modern.unpaid {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+    
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    @media (min-width: 640px) {
+        .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    .info-item {
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    
+    .info-item:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        transform: translateX(4px);
+    }
+    
+    .info-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .info-label i {
+        color: #08788B;
+        font-size: 0.875rem;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .info-value.amount {
+        font-size: 1.5rem;
+        color: #10b981;
+        font-weight: 700;
+    }
+    
+    /* Documentation Section */
+    .documentation-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .video-card-modern {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .video-card-modern:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .video-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1rem;
         gap: 1rem;
+    }
+    
+    .video-title-section {
+        flex: 1;
     }
     
     .video-title {
         font-size: 1.25rem;
         font-weight: 700;
         color: #1e293b;
+        margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        margin-bottom: 0.5rem;
     }
     
     .video-title i {
         color: #08788B;
-        font-size: 1.5rem;
     }
     
-    .video-meta {
+    .video-description {
+        color: #64748b;
+        font-size: 0.9375rem;
+        margin-bottom: 1rem;
+    }
+    
+    .video-meta-modern {
         display: flex;
         flex-wrap: wrap;
         gap: 0.75rem;
-        margin-top: 0.75rem;
     }
     
-    .meta-badge {
+    .meta-badge-modern {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
@@ -168,20 +306,20 @@
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 0.75rem;
-        font-size: 0.85rem;
+        font-size: 0.8125rem;
         color: #475569;
     }
     
-    .meta-badge i {
+    .meta-badge-modern i {
         color: #08788B;
     }
     
-    .video-actions {
+    .video-actions-modern {
         display: flex;
         gap: 0.75rem;
     }
     
-    .video-action-btn {
+    .video-action-btn-modern {
         width: 48px;
         height: 48px;
         border-radius: 0.75rem;
@@ -190,184 +328,62 @@
         justify-content: center;
         transition: all 0.3s ease;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
     }
     
-    .video-action-btn:hover {
+    .video-action-btn-modern:hover {
         transform: translateY(-2px) scale(1.05);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
-    .video-action-btn.open {
+    .video-action-btn-modern.open {
         background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
         color: white;
     }
     
-    .video-action-btn.download {
+    .video-action-btn-modern.download {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
     
-    /* Video Player */
-    .video-player-container {
+    .video-player-modern {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border-radius: 1rem;
         overflow: hidden;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         border: 2px solid #334155;
-        position: relative;
+        margin-top: 1rem;
     }
     
-    .video-player-container video {
+    .video-player-modern video {
         width: 100%;
         max-height: 600px;
         min-height: 400px;
         display: block;
     }
     
-    /* Order Info Card */
-    .order-info-card {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-    }
-    
-    .order-info-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f1f5f9;
-    }
-    
-    .order-info-header i {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-    }
-    
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 0;
-        border-bottom: 1px solid #f1f5f9;
-        transition: all 0.2s ease;
-    }
-    
-    .info-row:hover {
-        background: #f8fafc;
-        margin: 0 -1rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        border-radius: 0.5rem;
-    }
-    
-    .info-row:last-child {
-        border-bottom: none;
-    }
-    
-    .info-label {
-        color: #64748b;
-        font-size: 0.95rem;
-        font-weight: 500;
-    }
-    
-    .info-value {
-        font-weight: 600;
-        color: #1e293b;
-        text-align: left;
-    }
-    
-    /* Status Badge */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: capitalize;
-    }
-    
-    .status-badge.completed {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-    
-    .status-badge.pending {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        color: white;
-    }
-    
-    .status-badge.processing {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        color: white;
-    }
-    
-    .status-badge.paid {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-    
-    .status-badge.unpaid {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-    }
-    
     /* Sidebar */
-    .sidebar {
+    .sidebar-modern {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
     }
     
-    /* Actions Card */
-    .actions-card {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
+    @media (min-width: 1024px) {
+        .sidebar-modern {
+            position: sticky;
+            top: 2rem;
+        }
     }
     
-    .actions-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f1f5f9;
-    }
-    
-    .actions-header i {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-    }
-    
-    .action-buttons {
+    /* Action Buttons */
+    .action-buttons-modern {
         display: flex;
         flex-direction: column;
         gap: 1rem;
     }
     
-    .action-btn {
+    .action-btn-modern {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -383,7 +399,7 @@
         overflow: hidden;
     }
     
-    .action-btn::before {
+    .action-btn-modern::before {
         content: '';
         position: absolute;
         top: 50%;
@@ -396,337 +412,359 @@
         transition: width 0.6s, height 0.6s;
     }
     
-    .action-btn:hover::before {
+    .action-btn-modern:hover::before {
         width: 300px;
         height: 300px;
     }
     
-    .action-btn:hover {
+    .action-btn-modern:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
     
-    .action-btn i {
+    .action-btn-modern i,
+    .action-btn-modern span {
         position: relative;
         z-index: 1;
     }
     
-    .action-btn span {
-        position: relative;
-        z-index: 1;
-    }
-    
-    /* View Invoice Button - Primary Color */
-    .action-btn.view-invoice {
+    .action-btn-modern.primary {
         background: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
         color: white;
     }
     
-    .action-btn.view-invoice:hover {
-        background: linear-gradient(135deg, #025469 0%, #08788B 50%, #6366f1 100%);
-    }
-    
-    /* Download Invoice Button - Green */
-    .action-btn.download-invoice {
+    .action-btn-modern.success {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
     }
     
-    .action-btn.download-invoice:hover {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
-    
-    /* Contact About Order Button - Blue */
-    .action-btn.contact-order {
+    .action-btn-modern.info {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
     }
     
-    .action-btn.contact-order:hover {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    }
-    
-    /* Customer Info Card */
-    .customer-info-card {
-        background: white;
-        border-radius: 1.5rem;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-    }
-    
-    .customer-info-header {
+    /* Customer Info */
+    .customer-info-modern {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f1f5f9;
     }
     
-    .customer-info-header i {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #08788B 0%, #4f46e5 100%);
+    .customer-info-item-modern {
+        padding: 1rem;
+        background: #f8fafc;
         border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
+        border: 1px solid #e2e8f0;
     }
     
-    .customer-info-item {
-        margin-bottom: 1.25rem;
-    }
-    
-    .customer-info-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .customer-info-label {
-        font-size: 0.85rem;
+    .customer-info-label-modern {
+        font-size: 0.875rem;
         color: #64748b;
         margin-bottom: 0.5rem;
         font-weight: 500;
     }
     
-    .customer-info-value {
+    .customer-info-value-modern {
         font-size: 1rem;
         font-weight: 600;
         color: #1e293b;
     }
     
-    /* Responsive Design */
-    @media (max-width: 1024px) {
-        .order-details-container {
-            grid-template-columns: 1fr;
-        }
-        
-        .video-info {
-            flex-direction: column;
-        }
-        
-        .video-actions {
-            width: 100%;
-            justify-content: flex-start;
-        }
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #64748b;
     }
     
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+        color: #64748b;
+    }
+    
+    /* Responsive */
     @media (max-width: 768px) {
-        .documentation-section,
-        .order-info-card,
-        .actions-card,
-        .customer-info-card {
+        .order-header-card {
             padding: 1.5rem;
         }
         
-        .documentation-icon {
-            width: 60px;
-            height: 60px;
+        .order-number-display {
+            font-size: 1.75rem;
         }
         
-        .action-btn {
-            padding: 0.875rem 1.25rem;
-            font-size: 0.95rem;
+        .modern-card {
+            padding: 1.5rem;
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 1.25rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .video-header {
+            flex-direction: column;
+        }
+        
+        .video-actions-modern {
+            width: 100%;
+            justify-content: flex-start;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="order-details-container">
-    <!-- Main Content - Left Side -->
-    <div class="main-content space-y-6">
-        <!-- Documentation Videos Section -->
-        @if($order->documentation && $order->documentation->where('is_visible_to_customer', true)->count() > 0)
-        <div class="documentation-section">
-            <div class="documentation-header">
-                <div class="documentation-icon">
-                    <i class="fas fa-video"></i>
-                </div>
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-1">{{ __('messages.order_documentation') }}</h2>
-                    <p class="text-sm text-gray-600 flex items-center gap-2">
-                        <i class="fas fa-info-circle text-primary-medium"></i>
-                        فيديوهات توثيق تنفيذ الطلب
-                    </p>
-                </div>
+<div class="order-details-page">
+    <!-- Order Header -->
+    <div class="order-header-card">
+        <div class="order-header-content">
+            <div class="order-number-display">
+                <i class="fas fa-receipt"></i>
+                <span>طلب رقم #{{ $order->order_number }}</span>
             </div>
+            <p class="text-white opacity-90 text-lg">{{ __('messages.order_date') }}: {{ $order->created_at->format('Y-m-d H:i') }}</p>
             
-            <div class="space-y-6">
-                @foreach($order->documentation->where('is_visible_to_customer', true) as $doc)
-                <div class="video-card">
-                    <div class="video-info">
-                        <div class="flex-1">
-                            <h3 class="video-title">
-                                <i class="fas fa-file-video"></i>
-                                {{ $doc->title ?? 'فيديو توثيق' }}
-                            </h3>
-                            @if($doc->description)
-                            <p class="text-sm text-gray-600 mt-2 mb-3">{{ $doc->description }}</p>
-                            @endif
-                            <div class="video-meta">
-                                <span class="meta-badge">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    {{ $doc->created_at->format('Y-m-d H:i') }}
-                                </span>
-                                @if($doc->formatted_file_size)
-                                <span class="meta-badge">
-                                    <i class="fas fa-hdd"></i>
-                                    {{ $doc->formatted_file_size }}
-                                </span>
-                                @endif
-                                @if($doc->formatted_duration)
-                                <span class="meta-badge">
-                                    <i class="fas fa-clock"></i>
-                                    {{ $doc->formatted_duration }}
-                                </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="video-actions">
-                            <a href="{{ $doc->video_url }}" target="_blank" 
-                               class="video-action-btn open" title="فتح في نافذة جديدة">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
-                            <a href="{{ $doc->video_url }}" download
-                               class="video-action-btn download" title="تحميل الفيديو">
-                                <i class="fas fa-download"></i>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    @if($doc->video_path)
-                    <div class="video-player-container">
-                        <video controls class="w-full" style="max-height: 600px; min-height: 400px;" preload="metadata" playsinline webkit-playsinline data-doc-id="{{ $doc->id }}">
-                            <source src="{{ $doc->video_url }}" type="video/mp4">
-                            <source src="{{ $doc->video_url }}" type="video/webm">
-                            <source src="{{ $doc->video_url }}" type="video/ogg">
-                            <div class="text-white p-8 text-center bg-gray-900">
-                                <i class="fas fa-exclamation-triangle text-4xl mb-4 text-yellow-400"></i>
-                                <p class="text-lg mb-4">متصفحك لا يدعم تشغيل الفيديو</p>
-                                <a href="{{ $doc->video_url }}" class="inline-block bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl" download>
-                                    <i class="fas fa-download ml-2"></i>
-                                    اضغط هنا لتحميل الفيديو
-                                </a>
-                            </div>
-                        </video>
-                    </div>
+            <div class="order-status-row">
+                <span class="status-badge-modern {{ $order->status }}">
+                    @if($order->status === 'completed')
+                        <i class="fas fa-check-circle"></i>
+                    @elseif($order->status === 'pending')
+                        <i class="fas fa-clock"></i>
+                    @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
+                        <i class="fas fa-credit-card"></i>
+                    @elseif($order->status === 'processing')
+                        <i class="fas fa-spinner fa-spin"></i>
+                    @else
+                        <i class="fas fa-info-circle"></i>
                     @endif
-                </div>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        <!-- Order Information Card -->
-        <div class="order-info-card">
-            <div class="order-info-header">
-                <i class="fas fa-info-circle"></i>
-                <h2 class="text-2xl font-bold text-gray-900">{{ __('messages.order_information') }}</h2>
-            </div>
-            
-            <div class="space-y-2">
-                <div class="info-row">
-                    <span class="info-label">{{ __('messages.order_number') }}:</span>
-                    <span class="info-value">#{{ $order->order_number }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">{{ __('messages.service') }}:</span>
-                    <span class="info-value">{{ $order->service_name ?? __('messages.service') }}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">{{ __('messages.amount') }}:</span>
-                    <span class="info-value text-green-600 font-bold text-lg">{{ number_format($order->total_amount, 2) }} ر.س</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">{{ __('messages.status') }}:</span>
-                    <span class="status-badge {{ $order->status }}">
-                        @if($order->status === 'completed')
-                            <i class="fas fa-check-circle"></i>
-                        @elseif($order->status === 'pending')
-                            <i class="fas fa-clock"></i>
-                        @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
-                            <i class="fas fa-credit-card"></i>
-                        @elseif($order->status === 'processing')
-                            <i class="fas fa-spinner fa-spin"></i>
-                        @else
-                            <i class="fas fa-times-circle"></i>
-                        @endif
-                        @if($order->status === 'confirmed' && $order->payment_status === 'pending')
-                            في انتظار الدفع
-                        @else
-                            {{ __('messages.' . $order->status) }}
-                        @endif
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">{{ __('messages.payment_status') }}:</span>
-                    <span class="status-badge {{ $order->payment_status }}">
-                        @if($order->payment_status === 'paid')
-                            <i class="fas fa-check-circle"></i>
-                        @else
-                            <i class="fas fa-times-circle"></i>
-                        @endif
-                        {{ __('messages.' . $order->payment_status) }}
-                    </span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">{{ __('messages.order_date') }}:</span>
-                    <span class="info-value">{{ $order->created_at->format('Y-m-d H:i') }}</span>
-                </div>
+                    @if($order->status === 'confirmed' && $order->payment_status === 'pending')
+                        في انتظار الدفع
+                    @else
+                        {{ __('messages.' . $order->status) }}
+                    @endif
+                </span>
+                
+                <span class="status-badge-modern {{ $order->payment_status }}">
+                    @if($order->payment_status === 'paid')
+                        <i class="fas fa-check-circle"></i>
+                    @else
+                        <i class="fas fa-times-circle"></i>
+                    @endif
+                    {{ __('messages.' . $order->payment_status) }}
+                </span>
             </div>
         </div>
     </div>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <!-- Actions Card -->
-        <div class="actions-card">
-            <div class="actions-header">
-                <i class="fas fa-bolt"></i>
-                <h2 class="text-2xl font-bold text-gray-900">{{ __('messages.actions') }}</h2>
+    
+    <!-- Main Grid -->
+    <div class="order-details-grid">
+        <!-- Left Column - Main Content -->
+        <div class="space-y-6">
+            <!-- Order Information -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h2 class="card-title">{{ __('messages.order_information') }}</h2>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-hashtag"></i>
+                            {{ __('messages.order_number') }}
+                        </div>
+                        <div class="info-value">#{{ $order->order_number }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-box"></i>
+                            {{ __('messages.service') }}
+                        </div>
+                        <div class="info-value">{{ $order->service_name ?? __('messages.service') }}</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-money-bill-wave"></i>
+                            {{ __('messages.amount') }}
+                        </div>
+                        <div class="info-value amount">{{ number_format($order->total_amount, 2) }} ر.س</div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ __('messages.order_date') }}
+                        </div>
+                        <div class="info-value">{{ $order->created_at->format('Y-m-d H:i') }}</div>
+                    </div>
+                </div>
             </div>
             
-            <div class="action-buttons">
-                <a href="{{ route('customer.orders.invoice', $order) }}" class="action-btn view-invoice">
-                    <i class="fas fa-file-invoice"></i>
-                    <span>{{ __('messages.view_invoice') }}</span>
-                </a>
-                <a href="{{ route('customer.orders.invoice.download', $order) }}" class="action-btn download-invoice">
-                    <i class="fas fa-download"></i>
-                    <span>{{ __('messages.download_invoice') }}</span>
-                </a>
-                <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" class="action-btn contact-order">
-                    <i class="fas fa-comments"></i>
-                    <span>{{ __('messages.contact_about_order') }}</span>
-                </a>
+            <!-- Documentation Videos -->
+            @if($order->documentation && $order->documentation->where('is_visible_to_customer', true)->count() > 0)
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div>
+                        <h2 class="card-title">{{ __('messages.order_documentation') }}</h2>
+                        <p class="text-sm text-gray-600 mt-1">فيديوهات توثيق تنفيذ الطلب</p>
+                    </div>
+                </div>
+                
+                <div class="documentation-grid">
+                    @foreach($order->documentation->where('is_visible_to_customer', true) as $doc)
+                    <div class="video-card-modern">
+                        <div class="video-header">
+                            <div class="video-title-section">
+                                <h3 class="video-title">
+                                    <i class="fas fa-file-video"></i>
+                                    {{ $doc->title ?? 'فيديو توثيق' }}
+                                </h3>
+                                @if($doc->description)
+                                <p class="video-description">{{ $doc->description }}</p>
+                                @endif
+                                <div class="video-meta-modern">
+                                    <span class="meta-badge-modern">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        {{ $doc->created_at->format('Y-m-d H:i') }}
+                                    </span>
+                                    @if($doc->formatted_file_size)
+                                    <span class="meta-badge-modern">
+                                        <i class="fas fa-hdd"></i>
+                                        {{ $doc->formatted_file_size }}
+                                    </span>
+                                    @endif
+                                    @if($doc->formatted_duration)
+                                    <span class="meta-badge-modern">
+                                        <i class="fas fa-clock"></i>
+                                        {{ $doc->formatted_duration }}
+                                    </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="video-actions-modern">
+                                <a href="{{ $doc->video_url }}" target="_blank" 
+                                   class="video-action-btn-modern open" title="فتح في نافذة جديدة">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                <a href="{{ $doc->video_url }}" download
+                                   class="video-action-btn-modern download" title="تحميل الفيديو">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        @if($doc->video_path)
+                        <div class="video-player-modern">
+                            <video controls class="w-full" style="max-height: 600px; min-height: 400px;" preload="metadata" playsinline webkit-playsinline data-doc-id="{{ $doc->id }}">
+                                <source src="{{ $doc->video_url }}" type="video/mp4">
+                                <source src="{{ $doc->video_url }}" type="video/webm">
+                                <source src="{{ $doc->video_url }}" type="video/ogg">
+                                <div class="text-white p-8 text-center bg-gray-900">
+                                    <i class="fas fa-exclamation-triangle text-4xl mb-4 text-yellow-400"></i>
+                                    <p class="text-lg mb-4">متصفحك لا يدعم تشغيل الفيديو</p>
+                                    <a href="{{ $doc->video_url }}" class="inline-block bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl" download>
+                                        <i class="fas fa-download ml-2"></i>
+                                        اضغط هنا لتحميل الفيديو
+                                    </a>
+                                </div>
+                            </video>
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
             </div>
+            @else
+            <div class="modern-card">
+                <div class="empty-state">
+                    <i class="fas fa-video-slash"></i>
+                    <h3>لا توجد فيديوهات توثيق</h3>
+                    <p>سيتم إضافة فيديوهات توثيق تنفيذ الطلب قريباً</p>
+                </div>
+            </div>
+            @endif
         </div>
-
-        <!-- Customer Information Card -->
-        <div class="customer-info-card">
-            <div class="customer-info-header">
-                <i class="fas fa-user"></i>
-                <h2 class="text-2xl font-bold text-gray-900">{{ __('messages.customer_information') }}</h2>
+        
+        <!-- Right Column - Sidebar -->
+        <div class="sidebar-modern">
+            <!-- Actions Card -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h2 class="card-title">{{ __('messages.actions') }}</h2>
+                </div>
+                
+                <div class="action-buttons-modern">
+                    <a href="{{ route('customer.orders.invoice', $order) }}" class="action-btn-modern primary">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>{{ __('messages.view_invoice') }}</span>
+                    </a>
+                    <a href="{{ route('customer.orders.invoice.download', $order) }}" class="action-btn-modern success">
+                        <i class="fas fa-download"></i>
+                        <span>{{ __('messages.download_invoice') }}</span>
+                    </a>
+                    <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" class="action-btn-modern info">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ __('messages.contact_about_order') }}</span>
+                    </a>
+                </div>
             </div>
             
-            <div class="space-y-4">
-                <div class="customer-info-item">
-                    <div class="customer-info-label">{{ __('messages.name') }}:</div>
-                    <div class="customer-info-value">{{ $order->customer_name }}</div>
+            <!-- Customer Information -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 class="card-title">{{ __('messages.customer_information') }}</h2>
                 </div>
-                <div class="customer-info-item">
-                    <div class="customer-info-label">{{ __('messages.email') }}:</div>
-                    <div class="customer-info-value">{{ $order->customer_email }}</div>
+                
+                <div class="customer-info-modern">
+                    <div class="customer-info-item-modern">
+                        <div class="customer-info-label-modern">{{ __('messages.name') }}</div>
+                        <div class="customer-info-value-modern">{{ $order->customer_name }}</div>
+                    </div>
+                    <div class="customer-info-item-modern">
+                        <div class="customer-info-label-modern">{{ __('messages.email') }}</div>
+                        <div class="customer-info-value-modern">{{ $order->customer_email }}</div>
+                    </div>
+                    @if($order->customer_phone)
+                    <div class="customer-info-item-modern">
+                        <div class="customer-info-label-modern">{{ __('messages.phone') }}</div>
+                        <div class="customer-info-value-modern">{{ $order->customer_phone }}</div>
+                    </div>
+                    @endif
                 </div>
-                @if($order->customer_phone)
-                <div class="customer-info-item">
-                    <div class="customer-info-label">{{ __('messages.phone') }}:</div>
-                    <div class="customer-info-value">{{ $order->customer_phone }}</div>
-                </div>
-                @endif
             </div>
         </div>
     </div>
@@ -734,7 +772,6 @@
 
 @push('scripts')
 <script>
-    // Enhance video player experience for customers
     document.addEventListener('DOMContentLoaded', function() {
         const videos = document.querySelectorAll('video');
         videos.forEach(video => {
