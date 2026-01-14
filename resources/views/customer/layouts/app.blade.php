@@ -28,24 +28,33 @@
         body {
             font-family: {{ app()->getLocale() === 'ar' ? "'Tajawal'" : "'Inter'" }}, sans-serif;
             background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        /* Layout Container */
+        .layout-container {
+            display: flex;
+            min-height: 100vh;
+            {{ app()->getLocale() === 'ar' ? 'flex-direction: row-reverse;' : 'flex-direction: row;' }}
         }
         
         /* Sidebar Styles - Modern Design */
         .sidebar {
-            position: fixed;
-            top: 0;
-            {{ app()->getLocale() === 'ar' ? 'right' : 'left' }}: 0;
             width: 300px;
+            min-width: 300px;
             height: 100vh;
             background: linear-gradient(180deg, #025469 0%, #08788B 50%, #3CA6B4 100%);
             padding: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            z-index: 1000;
-            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
-            position: relative;
+            box-shadow: {{ app()->getLocale() === 'ar' ? '-4px 0 30px' : '4px 0 30px' }} rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
             display: flex;
             flex-direction: column;
+            z-index: 1000;
         }
         
         .sidebar::before {
@@ -260,9 +269,11 @@
         
         /* Main Content */
         .main-content {
-            {{ app()->getLocale() === 'ar' ? 'margin-right' : 'margin-left' }}: 300px;
+            flex: 1;
             padding: 2rem;
             min-height: 100vh;
+            width: 100%;
+            max-width: calc(100vw - 300px);
         }
         
         /* Top Bar */
@@ -321,20 +332,28 @@
         @media (max-width: 1024px) {
             .sidebar {
                 width: 280px;
+                min-width: 280px;
             }
             
             .main-content {
-                {{ app()->getLocale() === 'ar' ? 'margin-right' : 'margin-left' }}: 280px;
+                max-width: calc(100vw - 280px);
                 padding: 1.5rem;
             }
         }
         
         @media (max-width: 768px) {
+            .layout-container {
+                position: relative;
+            }
+            
             .sidebar {
                 width: 280px;
+                position: fixed;
+                top: 0;
+                {{ app()->getLocale() === 'ar' ? 'right' : 'left' }}: 0;
                 transform: translateX({{ app()->getLocale() === 'ar' ? '100%' : '-100%' }});
                 transition: transform 0.3s ease;
-                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+                box-shadow: {{ app()->getLocale() === 'ar' ? '-4px 0 20px' : '4px 0 20px' }} rgba(0, 0, 0, 0.2);
             }
             
             .sidebar.mobile-open {
@@ -342,7 +361,8 @@
             }
             
             .main-content {
-                {{ app()->getLocale() === 'ar' ? 'margin-right' : 'margin-left' }}: 0;
+                width: 100%;
+                max-width: 100%;
                 padding: 1rem;
             }
             
@@ -486,6 +506,8 @@
     @stack('styles')
 </head>
 <body>
+    <!-- Layout Container -->
+    <div class="layout-container">
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
@@ -543,14 +565,6 @@
         </div>
     </aside>
     
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    
-    <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" onclick="toggleSidebar()" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
-    </button>
-    
     <!-- Main Content -->
     <main class="main-content">
         <!-- Top Bar -->
@@ -584,6 +598,15 @@
         <!-- Page Content -->
         @yield('content')
     </main>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
     
     <script>
         function toggleSidebar() {
