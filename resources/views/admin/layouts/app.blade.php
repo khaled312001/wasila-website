@@ -399,26 +399,96 @@
                 visibility: visible;
             }
             
-            /* Mobile Main Content */
-            .main-content {
-                margin-right: 0 !important;
-                width: 100%;
-            }
-            
-            /* Mobile Header */
-            .mobile-header {
-                padding: 1rem;
-            }
-            
-            .mobile-header h1 {
-                font-size: 1.25rem;
-            }
-            
-            /* Mobile Cards */
-            .mobile-card {
-                margin-bottom: 1rem;
-                padding: 1rem;
-            }
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 35;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Mobile Sidebar */
+        .sidebar {
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        
+        /* Mobile Menu Button */
+        .mobile-menu-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
+            border-radius: 12px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(8, 120, 139, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(8, 120, 139, 0.5);
+        }
+        
+        .mobile-menu-toggle:active {
+            transform: scale(0.95);
+        }
+        
+        .mobile-menu-toggle svg {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-toggle.active svg {
+            transform: rotate(90deg);
+        }
+        
+        /* Mobile Main Content */
+        .main-content {
+            margin-right: 0 !important;
+            width: 100%;
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            padding: 1rem;
+        }
+        
+        .mobile-header h1 {
+            font-size: 1.25rem;
+        }
+        
+        /* Mobile Cards */
+        .mobile-card {
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
             
             /* Mobile Tables - Enhanced Responsive */
             .mobile-table {
@@ -586,6 +656,27 @@
                 width: 1.5rem;
                 height: 1.5rem;
             }
+            
+            /* Close button in sidebar for mobile */
+            .sidebar-close-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                margin: 1rem auto;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-close-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.1);
+            }
         }
         
         /* Tablet Responsive */
@@ -630,16 +721,51 @@
                 width: 1.25rem;
                 height: 1.25rem;
             }
+            
+            .mobile-menu-toggle {
+                width: 44px;
+                height: 44px;
+                top: 0.75rem;
+                right: 0.75rem;
+            }
+            
+            .mobile-menu-toggle svg {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+        }
+        
+        /* Prevent body scroll when sidebar is open */
+        body.sidebar-open {
+            overflow: hidden;
         }
     </style>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen">
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-menu-toggle" class="mobile-menu-toggle lg:hidden" onclick="toggleMobileSidebar()" aria-label="فتح/إغلاق القائمة">
+            <svg id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+        
         <!-- Sidebar Overlay for Mobile -->
         <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeMobileSidebar()"></div>
         
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar w-64 fixed right-0 top-0 h-full z-40">
+        <div id="sidebar" class="sidebar w-64 fixed right-0 top-0 h-full z-40 lg:translate-x-0">
+            <!-- Close Button for Mobile -->
+            <button onclick="closeMobileSidebar()" class="sidebar-close-btn lg:hidden" aria-label="إغلاق القائمة">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            
             <!-- Logo -->
             <div class="sidebar-logo">
                 <div class="flex items-center justify-center">
@@ -775,11 +901,6 @@
             <header class="bg-white shadow-lg border-b-2 border-primary-medium/20 mobile-header sticky top-0 z-30">
                 <div class="flex justify-between items-center px-4 md:px-6 py-3 md:py-4">
                     <div class="flex items-center">
-                        <button onclick="toggleMobileSidebar()" class="text-primary-medium hover:text-primary-dark ml-2 md:ml-4 lg:hidden transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            </svg>
-                        </button>
                         <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark ml-2 md:ml-4 hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -843,17 +964,42 @@
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
+            const body = document.body;
             
-            sidebar.classList.toggle('mobile-open');
-            overlay.classList.toggle('active');
+            const isOpen = sidebar.classList.contains('mobile-open');
+            
+            if (isOpen) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                menuToggle.classList.remove('active');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+            } else {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+                menuToggle.classList.add('active');
+                body.classList.add('sidebar-open');
+                body.style.overflow = 'hidden';
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+            }
         }
         
         function closeMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
+            const body = document.body;
             
             sidebar.classList.remove('mobile-open');
             overlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+            body.classList.remove('sidebar-open');
+            body.style.overflow = '';
+            menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
         }
         
         // Close mobile sidebar when clicking on navigation items
@@ -861,7 +1007,7 @@
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             sidebarItems.forEach(item => {
                 item.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= 1024) {
                         closeMobileSidebar();
                     }
                 });
@@ -872,10 +1018,17 @@
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
+            const body = document.body;
             
-            if (window.innerWidth > 768) {
+            if (window.innerWidth > 1024) {
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('active');
+                menuToggle.classList.remove('active');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
             }
         });
         

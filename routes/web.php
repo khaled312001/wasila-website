@@ -155,6 +155,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('customers')->name('customers.')->group(function () {
             Route::get('/', [AdminController::class, 'customersIndex'])->name('index');
             Route::get('/{customer}', [AdminController::class, 'customersShow'])->name('show');
+            Route::delete('/{customer}', [AdminController::class, 'customersDestroy'])->name('destroy');
+            Route::post('/delete-multiple', [AdminController::class, 'customersDestroyMultiple'])->name('delete-multiple');
             Route::get('/{customer}/orders', [AdminController::class, 'customersOrders'])->name('orders');
             Route::get('/{customer}/messages', [AdminController::class, 'customersMessages'])->name('messages');
             Route::get('/{customer}/messages/get', [AdminController::class, 'getCustomerMessages'])->name('messages.get');

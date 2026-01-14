@@ -33,6 +33,10 @@
             overflow-x: hidden;
         }
         
+        body.sidebar-open {
+            overflow: hidden;
+        }
+        
         /* Layout Container */
         .layout-container {
             display: flex;
@@ -353,8 +357,9 @@
                 top: 0;
                 right: 0;
                 transform: translateX(100%);
-                transition: transform 0.3s ease;
-                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
             }
             
             .sidebar.mobile-open {
@@ -404,6 +409,27 @@
                 gap: 1rem;
                 align-items: flex-start;
             }
+            
+            /* Close button in sidebar for mobile */
+            .sidebar-close-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                margin: 1rem auto;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-close-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.1);
+            }
         }
         
         @media (max-width: 640px) {
@@ -445,22 +471,26 @@
             }
             
             .mobile-menu-btn {
-                width: 56px;
-                height: 56px;
-                bottom: 1.5rem;
-                left: 1.5rem;
+                width: 44px;
+                height: 44px;
+                top: 0.75rem;
+                right: 0.75rem;
+            }
+            
+            .mobile-menu-btn i {
+                font-size: 1.125rem;
             }
         }
         
         .mobile-menu-btn {
             display: none;
             position: fixed;
-            bottom: 2rem;
-            left: 2rem;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #3CA6B4 0%, #08788B 100%);
-            border-radius: 50%;
+            top: 1rem;
+            right: 1rem;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
+            border-radius: 12px;
             box-shadow: 0 4px 15px rgba(8, 120, 139, 0.4);
             z-index: 999;
             border: none;
@@ -474,8 +504,21 @@
             box-shadow: 0 6px 20px rgba(8, 120, 139, 0.5);
         }
         
+        .mobile-menu-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .mobile-menu-btn.active {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        
         .mobile-menu-btn i {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-btn.active i.fa-bars {
+            transform: rotate(90deg);
         }
         
         /* Overlay for mobile sidebar */
@@ -487,6 +530,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             z-index: 998;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -545,6 +589,13 @@
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
+        <!-- Close Button for Mobile -->
+        <button onclick="toggleSidebar()" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="إغلاق القائمة">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+        
         <div class="sidebar-logo">
             <img src="{{ asset('images/logo-footer.png') }}" alt="{{ __('messages.wasila') }}">
             <div class="sidebar-user-info">
@@ -614,15 +665,24 @@
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const menuBtn = document.getElementById('mobileMenuBtn');
+            const body = document.body;
             
-            sidebar.classList.toggle('mobile-open');
-            overlay.classList.toggle('active');
+            const isOpen = sidebar.classList.contains('mobile-open');
             
-            // Change icon
-            if (sidebar.classList.contains('mobile-open')) {
-                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
-            } else {
+            if (isOpen) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+                menuBtn.classList.remove('active');
+                body.classList.remove('sidebar-open');
+                body.style.overflow = '';
                 menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.classList.add('mobile-open');
+                overlay.classList.add('active');
+                menuBtn.classList.add('active');
+                body.classList.add('sidebar-open');
+                body.style.overflow = 'hidden';
+                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
             }
         }
         
@@ -631,15 +691,30 @@
             toggleSidebar();
         });
         
+        // Close sidebar when clicking navigation items on mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarItems = document.querySelectorAll('.sidebar-menu-item');
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => toggleSidebar(), 300);
+                    }
+                });
+            });
+        });
+        
         // Handle window resize
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             const menuBtn = document.getElementById('mobileMenuBtn');
+            const body = document.body;
             
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('active');
+                menuBtn.classList.remove('active');
+                body.style.overflow = '';
                 menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
             }
         });

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\Service;
 use App\Models\ContactMessage;
@@ -699,6 +700,87 @@ class AdminController extends Controller
                 'orientation' => 'L',
             ]
         );
+    }
+    
+    /**
+     * Delete a single customer
+     */
+    public function customersDestroy(Customer $customer)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Delete customer orders and order items
+            $customer->orders()->each(function($order) {
+                $order->orderItems()->delete();
+                $order->delete();
+            });
+            
+            // Delete customer messages
+            $customer->messages()->delete();
+            
+            // Delete the customer
+            $customer->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('admin.customers.index')
+                ->with('success', app()->getLocale() === 'ar' ? 'تم حذف العميل بنجاح' : 'Customer deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting customer: ' . $e->getMessage());
+            
+            return redirect()->route('admin.customers.index')
+                ->with('error', app()->getLocale() === 'ar' ? 'حدث خطأ أثناء حذف العميل: ' . $e->getMessage() : 'Error deleting customer: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Delete multiple customers
+     */
+    public function customersDestroyMultiple(Request $request)
+    {
+        $request->validate([
+            'customer_ids' => 'required|array',
+            'customer_ids.*' => 'exists:customers,id'
+        ]);
+        
+        try {
+            DB::beginTransaction();
+            
+            $customerIds = $request->customer_ids;
+            $customers = Customer::whereIn('id', $customerIds)->get();
+            
+            foreach ($customers as $customer) {
+                // Delete customer orders and order items
+                $customer->orders()->each(function($order) {
+                    $order->orderItems()->delete();
+                    $order->delete();
+                });
+                
+                // Delete customer messages
+                $customer->messages()->delete();
+            }
+            
+            // Delete all customers
+            Customer::whereIn('id', $customerIds)->delete();
+            
+            DB::commit();
+            
+            $count = count($customerIds);
+            return redirect()->route('admin.customers.index')
+                ->with('success', app()->getLocale() === 'ar' 
+                    ? "تم حذف {$count} عميل بنجاح" 
+                    : "Successfully deleted {$count} customers.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting multiple customers: ' . $e->getMessage());
+            
+            return redirect()->route('admin.customers.index')
+                ->with('error', app()->getLocale() === 'ar' 
+                    ? 'حدث خطأ أثناء حذف العملاء: ' . $e->getMessage() 
+                    : 'Error deleting customers: ' . $e->getMessage());
+        }
     }
     
     /**

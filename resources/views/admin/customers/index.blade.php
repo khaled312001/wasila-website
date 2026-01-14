@@ -54,17 +54,23 @@
 </div>
 
 <!-- Export Buttons -->
-<div class="bg-white rounded-lg shadow-lg card-shadow p-6 mb-6">
-    <div class="flex justify-end gap-2">
+<div class="bg-white rounded-lg shadow-lg card-shadow p-4 md:p-6 mb-6">
+    <div class="flex flex-col sm:flex-row justify-end gap-2">
+        <button type="button" onclick="deleteSelected()" id="delete-selected-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2 hidden">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            حذف المحدد (<span id="selected-count">0</span>)
+        </button>
         <a href="{{ route('admin.customers.export.excel', request()->query()) }}" 
-           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
             </svg>
             تصدير Excel
         </a>
         <a href="{{ route('admin.customers.export.pdf', request()->query()) }}" 
-           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"/>
             </svg>
@@ -79,6 +85,9 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)" class="w-4 h-4 text-primary-medium border-gray-300 rounded focus:ring-primary-medium">
+                    </th>
                     <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
                     <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">البريد الإلكتروني</th>
                     <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase hidden md:table-cell">الهاتف</th>
@@ -91,6 +100,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($customers as $customer)
                 <tr class="table-row">
+                    <td class="px-3 md:px-6 py-4" data-label="">
+                        <input type="checkbox" name="customer_ids[]" value="{{ $customer->id }}" class="customer-checkbox w-4 h-4 text-primary-medium border-gray-300 rounded focus:ring-primary-medium" onchange="updateDeleteButton()">
+                    </td>
                     <td class="px-3 md:px-6 py-4" data-label="الاسم">
                         <div class="flex items-center">
                             @if($customer->avatar)
@@ -115,14 +127,26 @@
                     <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="عدد الرسائل">{{ $customer->messages_count }}</td>
                     <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="تاريخ التسجيل">{{ $customer->created_at->format('Y-m-d') }}</td>
                     <td class="px-3 md:px-6 py-4 text-sm font-medium" data-label="الإجراءات">
-                        <a href="{{ route('admin.customers.show', $customer) }}" class="text-primary-medium hover:text-primary-dark px-2 py-1 rounded text-xs md:text-sm">
-                            عرض
-                        </a>
+                        <div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                            <a href="{{ route('admin.customers.show', $customer) }}" class="text-primary-medium hover:text-primary-dark px-2 py-1 rounded text-xs md:text-sm text-center">
+                                عرض
+                            </a>
+                            <form method="POST" action="{{ route('admin.customers.destroy', $customer) }}" class="inline" onsubmit="return confirm('⚠️ هل أنت متأكد من حذف هذا العميل؟ سيتم حذف جميع طلباته ورسائله أيضاً. لا يمكن التراجع عن هذا الإجراء.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs md:text-sm w-full sm:w-auto">
+                                    <svg class="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span class="sm:hidden">حذف</span>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-3 md:px-6 py-8 text-center text-gray-500">
+                    <td colspan="8" class="px-3 md:px-6 py-8 text-center text-gray-500">
                         <div class="flex flex-col items-center">
                             <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -154,6 +178,69 @@ function toggleFilters() {
     } else {
         icon.style.transform = 'rotate(180deg)';
     }
+}
+
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.customer-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+    updateDeleteButton();
+}
+
+function updateDeleteButton() {
+    const checkboxes = document.querySelectorAll('.customer-checkbox:checked');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    const countSpan = document.getElementById('selected-count');
+    
+    if (checkboxes.length > 0) {
+        deleteBtn.classList.remove('hidden');
+        countSpan.textContent = checkboxes.length;
+    } else {
+        deleteBtn.classList.add('hidden');
+        countSpan.textContent = '0';
+    }
+    
+    // Update select-all checkbox state
+    const allCheckboxes = document.querySelectorAll('.customer-checkbox');
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (allCheckboxes.length > 0) {
+        selectAllCheckbox.checked = checkboxes.length === allCheckboxes.length;
+    }
+}
+
+function deleteSelected() {
+    const checkboxes = document.querySelectorAll('.customer-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('يرجى تحديد عميل واحد على الأقل للحذف');
+        return;
+    }
+    
+    const count = checkboxes.length;
+    if (!confirm(`⚠️ هل أنت متأكد من حذف ${count} عميل؟ سيتم حذف جميع طلباتهم ورسائلهم أيضاً. لا يمكن التراجع عن هذا الإجراء.`)) {
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("admin.customers.delete-multiple") }}';
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    form.appendChild(csrfInput);
+    
+    checkboxes.forEach(checkbox => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'customer_ids[]';
+        input.value = checkbox.value;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 @endsection
