@@ -421,7 +421,7 @@
             </div>
             
             @php
-                // Get ALL active portfolio items - NO LIMIT - Display ALL items
+                // Get ALL active portfolio items
                 $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
                     ->orderBy('sort_order', 'asc')
                     ->orderBy('created_at', 'desc')
@@ -441,28 +441,13 @@
                 // Use valid items, or fallback to all items if none are valid
                 $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
                 
-                // Create infinite loop - duplicate items MANY times for seamless infinite scrolling
-                $itemCount = max($itemsToUse->count(), 1);
-                $cardWidth = 300;
-                $gap = 24;
-                $oneSetWidth = $itemCount * ($cardWidth + $gap);
-                $viewportWidth = 1920;
-                $minSetsNeeded = 4;
-                $minTotalWidth = $viewportWidth * $minSetsNeeded;
-                
-                // Always ensure at least 150 copies for truly infinite seamless scrolling
-                $duplicates = max(150, ceil($minTotalWidth / max($oneSetWidth, 1)));
-                
-                $allItems = collect();
-                // Duplicate ALL items many times to create infinite loop
-                for ($i = 0; $i < $duplicates; $i++) {
-                    $allItems = $allItems->merge($itemsToUse);
-                }
+                // Duplicate items once for seamless infinite loop
+                $allItems = $itemsToUse->merge($itemsToUse);
             @endphp
             
             @if($itemsToUse->count() > 0)
             <div class="portfolio-gallery-wrapper">
-                <div class="portfolio-items-slider" id="portfolioItemsSlider" data-unique-count="{{ $itemsToUse->count() }}" data-total-count="{{ $allItems->count() }}">
+                <div class="portfolio-items-slider" id="portfolioItemsSlider" data-unique-count="{{ $itemsToUse->count() }}">
                     @foreach($allItems as $item)
                         @php
                             $cleanFilePath = $item->normalized_file_path;
@@ -516,53 +501,45 @@
                 $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
                 $imageCount = count($imageFiles);
                 $fallbackCount = $imageCount > 0 ? $imageCount : 6;
-                
-                if ($imageCount > 0) {
-                    $cardWidth = 300;
-                    $gap = 24;
-                    $oneSetWidth = $imageCount * ($cardWidth + $gap);
-                    $viewportWidth = 1920;
-                    $minSetsNeeded = 4;
-                    $minTotalWidth = $viewportWidth * $minSetsNeeded;
-                    $duplicates = max(150, ceil($minTotalWidth / max($oneSetWidth, 1)));
-                } else {
-                    $duplicates = 150;
-                }
             @endphp
             <div class="portfolio-gallery-wrapper">
                 <div class="portfolio-items-slider" id="portfolioItemsSlider" data-unique-count="{{ $fallbackCount }}">
                     @php
                         if ($imageCount > 0) {
-                            for ($d = 0; $d < $duplicates; $d++) {
-                                foreach ($imageFiles as $imageFile) {
-                                    $imageName = basename($imageFile);
-                                    $imageUrl = asset('images/' . $imageName);
-                                    $placeholderUrl = asset('images/placeholder-portfolio.png');
-                                    @endphp
-                                    <div class="portfolio-item-card">
-                                        <img src="{{ $imageUrl }}" alt="{{ $imageName }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
-                                        <div class="portfolio-item-overlay">
-                                            <i class="fas fa-image fa-2x text-white"></i>
-                                            <p class="text-white mt-2 text-sm font-semibold">{{ $imageName }}</p>
-                                        </div>
+                            // Duplicate once for seamless loop
+                            $imageFilesDuplicated = array_merge($imageFiles, $imageFiles);
+                            foreach ($imageFilesDuplicated as $imageFile) {
+                                $imageName = basename($imageFile);
+                                $imageUrl = asset('images/' . $imageName);
+                                $placeholderUrl = asset('images/placeholder-portfolio.png');
+                                @endphp
+                                <div class="portfolio-item-card">
+                                    <img src="{{ $imageUrl }}" alt="{{ $imageName }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
+                                    <div class="portfolio-item-overlay">
+                                        <i class="fas fa-image fa-2x text-white"></i>
+                                        <p class="text-white mt-2 text-sm font-semibold">{{ $imageName }}</p>
                                     </div>
-                                    @php
-                                }
+                                </div>
+                                @php
                             }
                         } else {
-                            for ($d = 0; $d < $duplicates; $d++) {
-                                for ($i = 1; $i <= 6; $i++) {
-                                    $placeholderUrl = asset('images/placeholder-portfolio.png');
-                                    @endphp
-                                    <div class="portfolio-item-card">
-                                        <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
-                                        <div class="portfolio-item-overlay">
-                                            <i class="fas fa-image fa-2x text-white"></i>
-                                            <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
-                                        </div>
+                            // Duplicate once for seamless loop
+                            $placeholderImages = [];
+                            for ($i = 1; $i <= 6; $i++) {
+                                $placeholderImages[] = $i;
+                            }
+                            $placeholderImages = array_merge($placeholderImages, $placeholderImages);
+                            foreach ($placeholderImages as $i) {
+                                $placeholderUrl = asset('images/placeholder-portfolio.png');
+                                @endphp
+                                <div class="portfolio-item-card">
+                                    <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
+                                    <div class="portfolio-item-overlay">
+                                        <i class="fas fa-image fa-2x text-white"></i>
+                                        <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
                                     </div>
-                                    @php
-                                }
+                                </div>
+                                @php
                             }
                         }
                     @endphp

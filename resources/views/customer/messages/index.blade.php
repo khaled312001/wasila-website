@@ -514,6 +514,10 @@
         flex-shrink: 0;
     }
     
+    .image-preview.hidden {
+        display: none !important;
+    }
+    
     .image-preview img {
         width: 80px;
         height: 80px;
@@ -594,6 +598,10 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
+    }
+    
+    .file-info.hidden {
+        display: none !important;
     }
     
     .file-info i {
@@ -994,9 +1002,14 @@ const ChatMessages = {
             return;
         }
         
+        // Show file info for all files
         document.getElementById('fileInfo').classList.remove('hidden');
         document.getElementById('fileName').textContent = file.name;
         
+        // Hide image preview initially
+        document.getElementById('imagePreview').classList.add('hidden');
+        
+        // Show image preview only for image files
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1128,9 +1141,16 @@ const ChatMessages = {
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                 }
             });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server error:', errorText);
+                throw new Error(`Server error: ${response.status}`);
+            }
             
             const data = await response.json();
             

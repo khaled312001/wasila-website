@@ -72,12 +72,14 @@ class MessageController extends Controller
         }
 
         $message = $customer->messages()->create($data);
+        $message->load('admin', 'order');
 
-        if ($request->ajax()) {
+        // Always return JSON for API requests (check Accept header or ajax)
+        if ($request->ajax() || $request->wantsJson() || $request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => __('messages.message_sent_successfully'),
-                'data' => $message->load('admin', 'order'),
+                'data' => $message,
             ]);
         }
 

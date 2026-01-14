@@ -655,19 +655,18 @@ body.loaded {
     overflow: hidden;
     position: relative;
     padding: 2rem 0;
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
 
 .portfolio-items-slider {
     display: flex;
     gap: 1.5rem;
-    animation: portfolio-slide-animation 60s linear infinite;
+    animation: portfolio-slide-animation 40s linear infinite;
     animation-iteration-count: infinite;
     will-change: transform;
     width: max-content;
     flex-shrink: 0;
-    min-width: 100%;
 }
 
 .portfolio-items-slider > * {
@@ -679,21 +678,21 @@ body.loaded {
 }
 
 .portfolio-item-card {
-    flex: 0 0 300px;
-    height: 300px;
+    flex: 0 0 320px;
+    height: 320px;
     position: relative;
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
-    cursor: default;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
     background: linear-gradient(135deg, #08788B 0%, #025469 100%);
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .portfolio-item-card:hover {
-    transform: translateY(-10px) scale(1.05);
-    box-shadow: 0 15px 40px rgba(8, 120, 139, 0.4);
+    transform: translateY(-12px) scale(1.08);
+    box-shadow: 0 20px 50px rgba(8, 120, 139, 0.5);
     z-index: 10;
 }
 
@@ -712,7 +711,7 @@ body.loaded {
 
 .portfolio-item-card:hover img,
 .portfolio-item-card:hover video {
-    transform: scale(1.15);
+    transform: scale(1.2);
 }
 
 .portfolio-video-placeholder {
@@ -730,14 +729,15 @@ body.loaded {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(8, 120, 139, 0.85) 0%, rgba(2, 84, 105, 0.85) 100%);
+    background: linear-gradient(135deg, rgba(8, 120, 139, 0.9) 0%, rgba(2, 84, 105, 0.9) 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2;
+    backdrop-filter: blur(2px);
 }
 
 .portfolio-item-card:hover .portfolio-item-overlay {
@@ -754,26 +754,38 @@ body.loaded {
         transform: translateX(0);
     }
     100% {
-        transform: translateX(calc(-1 * var(--portfolio-set-width, 300px)));
+        transform: translateX(-50%);
     }
 }
 
 /* Responsive adjustments for portfolio showcase section */
 @media (max-width: 768px) {
     .portfolio-item-card {
-        flex: 0 0 250px;
-        height: 250px;
+        flex: 0 0 280px;
+        height: 280px;
+        border-radius: 14px;
     }
     
     .portfolio-gallery-wrapper {
-        padding: 1rem 0;
+        padding: 1.5rem 0;
+    }
+    
+    .portfolio-items-slider {
+        gap: 1rem;
+        animation-duration: 35s;
     }
 }
 
 @media (max-width: 576px) {
     .portfolio-item-card {
-        flex: 0 0 200px;
-        height: 200px;
+        flex: 0 0 240px;
+        height: 240px;
+        border-radius: 12px;
+    }
+    
+    .portfolio-items-slider {
+        gap: 0.75rem;
+        animation-duration: 30s;
     }
 }
 
