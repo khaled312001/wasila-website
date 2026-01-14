@@ -640,10 +640,10 @@ body.loaded {
 }
 
 /* ============================================
-   Portfolio Gallery Section - Infinite Loop
+   Portfolio Showcase Section - Infinite Loop Gallery
    ============================================ */
 
-.portfolio-gallery-section {
+.portfolio-showcase-section {
     background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
     padding: 4rem 0;
     overflow: hidden;
@@ -659,10 +659,10 @@ body.loaded {
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
-.portfolio-gallery-slider {
+.portfolio-items-slider {
     display: flex;
     gap: 1.5rem;
-    animation: portfolio-slide-infinite 60s linear infinite;
+    animation: portfolio-slide-animation 60s linear infinite;
     animation-iteration-count: infinite;
     will-change: transform;
     width: max-content;
@@ -670,15 +670,15 @@ body.loaded {
     min-width: 100%;
 }
 
-.portfolio-gallery-slider > * {
+.portfolio-items-slider > * {
     flex-shrink: 0;
 }
 
-.portfolio-gallery-slider:hover {
+.portfolio-items-slider:hover {
     animation-play-state: paused;
 }
 
-.portfolio-gallery-item {
+.portfolio-item-card {
     flex: 0 0 300px;
     height: 300px;
     position: relative;
@@ -691,14 +691,14 @@ body.loaded {
     pointer-events: none;
 }
 
-.portfolio-gallery-item:hover {
+.portfolio-item-card:hover {
     transform: translateY(-10px) scale(1.05);
     box-shadow: 0 15px 40px rgba(8, 120, 139, 0.4);
     z-index: 10;
 }
 
-.portfolio-gallery-item img,
-.portfolio-gallery-item video {
+.portfolio-item-card img,
+.portfolio-item-card video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -706,16 +706,25 @@ body.loaded {
     display: block;
 }
 
-.portfolio-gallery-item video {
+.portfolio-item-card video {
     background: #000;
 }
 
-.portfolio-gallery-item:hover img,
-.portfolio-gallery-item:hover video {
+.portfolio-item-card:hover img,
+.portfolio-item-card:hover video {
     transform: scale(1.15);
 }
 
-.portfolio-gallery-overlay {
+.portfolio-video-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #08788B 0%, #025469 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portfolio-item-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -731,16 +740,16 @@ body.loaded {
     z-index: 2;
 }
 
-.portfolio-gallery-item:hover .portfolio-gallery-overlay {
+.portfolio-item-card:hover .portfolio-item-overlay {
     opacity: 1;
 }
 
-.portfolio-gallery-overlay i {
+.portfolio-item-overlay i {
     animation: zoomIn 0.5s ease;
     margin-bottom: 0.5rem;
 }
 
-@keyframes portfolio-slide-infinite {
+@keyframes portfolio-slide-animation {
     0% {
         transform: translateX(0);
     }
@@ -749,9 +758,9 @@ body.loaded {
     }
 }
 
-/* Responsive adjustments for portfolio gallery */
+/* Responsive adjustments for portfolio showcase section */
 @media (max-width: 768px) {
-    .portfolio-gallery-item {
+    .portfolio-item-card {
         flex: 0 0 250px;
         height: 250px;
     }
@@ -762,7 +771,7 @@ body.loaded {
 }
 
 @media (max-width: 576px) {
-    .portfolio-gallery-item {
+    .portfolio-item-card {
         flex: 0 0 200px;
         height: 200px;
     }

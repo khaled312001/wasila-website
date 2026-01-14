@@ -522,30 +522,6 @@
         border: 2px solid #e5e7eb;
     }
     
-    .image-preview button {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #ef4444;
-        color: white;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid white;
-        cursor: pointer;
-        transition: var(--transition-base);
-        font-size: 1rem;
-        line-height: 1;
-    }
-    
-    .image-preview button:hover {
-        background: #dc2626;
-        transform: scale(1.1);
-    }
-    
     .message-input-wrapper {
         flex: 1;
         position: relative;
@@ -630,16 +606,6 @@
         font-size: 0.875rem;
         font-weight: 500;
         color: #475569;
-    }
-    
-    .file-info-remove {
-        color: #ef4444;
-        cursor: pointer;
-        transition: var(--transition-base);
-    }
-    
-    .file-info-remove:hover {
-        color: #dc2626;
     }
     
     /* Contact Card */
@@ -901,7 +867,6 @@
                         
                         <div id="imagePreview" class="image-preview hidden">
                             <img id="previewImage" src="" alt="Preview">
-                            <button type="button" onclick="removeImagePreview()">×</button>
                         </div>
                         
                         <div class="message-input-wrapper">
@@ -923,9 +888,6 @@
                     <div id="fileInfo" class="file-info hidden">
                         <i class="fas fa-file"></i>
                         <span id="fileName" class="file-info-name"></span>
-                        <button type="button" onclick="removeFile()" class="file-info-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
                     </div>
                 </form>
             </div>
