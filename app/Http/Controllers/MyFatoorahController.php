@@ -99,7 +99,7 @@ class MyFatoorahController extends Controller
             'CallBackUrl'          => $callbackURL,
             'ErrorUrl'             => $callbackURL,
             'MobileCountryCode'    => $order->country_code ?? '+966',
-            'CustomerMobile'       => $order->customer_phone,
+            'CustomerMobile'       => $order->customer_phone, // Phone without country code
             'Language'             => 'ar',
             'CustomerReference'    => $order->order_number,
             'UserDefinedField'     => $order->id,

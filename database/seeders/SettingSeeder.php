@@ -40,9 +40,15 @@ class SettingSeeder extends Seeder
             ],
             [
                 'key' => 'address',
-                'value' => 'المملكة العربية السعودية',
+                'value' => 'مكة المكرمة ، المملكة العربية السعودية',
                 'type' => 'text',
                 'description' => 'العنوان'
+            ],
+            [
+                'key' => 'address_ar',
+                'value' => 'مكة المكرمة ، المملكة العربية السعودية',
+                'type' => 'text',
+                'description' => 'العنوان بالعربية'
             ],
             [
                 'key' => 'logo',

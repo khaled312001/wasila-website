@@ -414,9 +414,15 @@ document.getElementById('messageForm').addEventListener('submit', async function
             }
         });
         
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.error('JSON parse error:', jsonError);
+            throw new Error('حدث خطأ في معالجة الاستجابة من الخادم');
+        }
         
-        if (data.success) {
+        if (response.ok && data.success) {
             addMessageToChat(data.data);
             lastMessageId = Math.max(lastMessageId, data.data.id);
             
@@ -427,11 +433,13 @@ document.getElementById('messageForm').addEventListener('submit', async function
             
             scrollToBottom();
         } else {
-            alert(data.message || 'حدث خطأ');
+            const errorMessage = data.message || data.error || '{{ __("messages.error_sending_message") }}';
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('حدث خطأ في إرسال الرسالة');
+        const errorMessage = error.message || '{{ __("messages.error_sending_message") }}';
+        alert(errorMessage);
     } finally {
         sendButton.disabled = false;
         sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';

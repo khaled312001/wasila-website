@@ -53,9 +53,22 @@ class SettingsHelper
     {
         $locale = app()->getLocale();
         $addressKey = $locale === 'ar' ? 'address_ar' : 'address_en';
-        $defaultAddress = $locale === 'ar' ? 'المملكة العربية السعودية' : 'Kingdom of Saudi Arabia';
+        $defaultAddress = $locale === 'ar' ? 'مكة المكرمة ، المملكة العربية السعودية' : 'Mecca, Kingdom of Saudi Arabia';
         
-        return self::get($addressKey, $defaultAddress);
+        // Get address from the correct key
+        $address = self::get($addressKey);
+        
+        // If address_ar doesn't exist, try to get from 'address' key (for backward compatibility)
+        if (!$address && $locale === 'ar') {
+            $address = self::get('address', $defaultAddress);
+        }
+        
+        // If address_en doesn't exist, try to get from 'address' key
+        if (!$address && $locale === 'en') {
+            $address = self::get('address', $defaultAddress);
+        }
+        
+        return $address ?: $defaultAddress;
     }
 
     /**

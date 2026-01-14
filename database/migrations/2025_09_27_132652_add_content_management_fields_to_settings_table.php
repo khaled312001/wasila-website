@@ -35,7 +35,7 @@ return new class extends Migration
             // إعدادات التواصل
             ['key' => 'contact_email', 'value' => 'info@wasila.com', 'type' => 'email', 'description' => 'البريد الإلكتروني للتواصل'],
             ['key' => 'contact_phone', 'value' => '+966501234567', 'type' => 'text', 'description' => 'رقم الهاتف للتواصل'],
-            ['key' => 'contact_address_ar', 'value' => 'الرياض، المملكة العربية السعودية', 'type' => 'text', 'description' => 'العنوان بالعربية'],
+            ['key' => 'contact_address_ar', 'value' => 'مكة المكرمة ، المملكة العربية السعودية', 'type' => 'text', 'description' => 'العنوان بالعربية'],
             ['key' => 'contact_address_en', 'value' => 'Riyadh, Saudi Arabia', 'type' => 'text', 'description' => 'العنوان بالإنجليزية'],
             
             // إعدادات وسائل التواصل الاجتماعي

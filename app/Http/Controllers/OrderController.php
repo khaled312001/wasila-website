@@ -137,14 +137,18 @@ class OrderController extends Controller
                 ];
             }
             
+            // Normalize phone number - remove country code if exists
+            $countryCode = $this->extractCountryCode($request->customer_country) ?? '+966';
+            $normalizedPhone = $this->normalizePhoneNumber($request->customer_phone, $countryCode);
+            
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'customer_name' => $customer->name,
                 'customer_email' => $customer->email,
-                'customer_phone' => $request->customer_phone,
+                'customer_phone' => $normalizedPhone,
                 'customer_country' => $this->extractCountryName($request->customer_country) ?? 'السعودية',
-                'country_code' => $this->extractCountryCode($request->customer_country) ?? '+966',
-                'full_phone_number' => ($this->extractCountryCode($request->customer_country) ?? '+966') . $request->customer_phone,
+                'country_code' => $countryCode,
+                'full_phone_number' => $countryCode . $normalizedPhone,
                 'customer_address' => $request->customer_address ?? $customer->address ?? '',
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
@@ -528,13 +532,19 @@ class OrderController extends Controller
                 'customer_address' => 'nullable|string'
             ]);
 
-            $order->update($request->only([
-                'customer_name',
-                'customer_email',
-                'customer_phone',
-                'customer_country',
-                'customer_address'
-            ]));
+            // Normalize phone number - remove country code if exists
+            $countryCode = $this->extractCountryCode($request->customer_country) ?? ($order->country_code ?? '+966');
+            $normalizedPhone = $this->normalizePhoneNumber($request->customer_phone, $countryCode);
+
+            $order->update([
+                'customer_name' => $request->customer_name,
+                'customer_email' => $request->customer_email,
+                'customer_phone' => $normalizedPhone,
+                'customer_country' => $this->extractCountryName($request->customer_country) ?? $order->customer_country,
+                'customer_address' => $request->customer_address ?? $order->customer_address,
+                'country_code' => $countryCode,
+                'full_phone_number' => $countryCode . $normalizedPhone,
+            ]);
 
             return redirect()->route('admin.orders.show', $order)
                            ->with('success', app()->getLocale() === 'ar' ? 'تم تحديث بيانات العميل بنجاح' : 'Customer information updated successfully.');
@@ -708,6 +718,33 @@ class OrderController extends Controller
         }
 
         return $countryValue;
+    }
+
+    /**
+     * Normalize phone number by removing country code if it exists
+     * Ensures country code comes before the number (not duplicated)
+     */
+    private function normalizePhoneNumber($phoneNumber, $countryCode)
+    {
+        if (!$phoneNumber) return '';
+
+        // Remove any spaces, dashes, or parentheses
+        $phoneNumber = preg_replace('/[\s\-\(\)]/', '', $phoneNumber);
+
+        // Remove country code if it exists at the beginning
+        $countryCodeWithoutPlus = ltrim($countryCode, '+');
+        if (strpos($phoneNumber, $countryCode) === 0) {
+            // Remove country code with +
+            $phoneNumber = substr($phoneNumber, strlen($countryCode));
+        } elseif (strpos($phoneNumber, $countryCodeWithoutPlus) === 0) {
+            // Remove country code without +
+            $phoneNumber = substr($phoneNumber, strlen($countryCodeWithoutPlus));
+        }
+
+        // Remove leading zeros if any
+        $phoneNumber = ltrim($phoneNumber, '0');
+
+        return $phoneNumber;
     }
 
     /**

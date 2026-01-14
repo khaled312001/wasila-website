@@ -248,45 +248,70 @@ class AdminController extends Controller
     // Reply to Customer
     public function replyToCustomer(Request $request, CustomerMessage $message)
     {
-        $request->validate([
-            'reply' => 'nullable|string|max:5000',
-            'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
-        ]);
-        
-        $data = [
-            'customer_id' => $message->customer_id,
-            'order_id' => $message->order_id,
-            'message' => $request->reply ?? '',
-            'sender_type' => 'admin',
-            'admin_id' => Auth::id(),
-        ];
-
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filePath = $file->store('customer-messages', 'public');
-            
-            // Determine file type
-            $mimeType = $file->getMimeType();
-            $fileType = 'document';
-            if (str_starts_with($mimeType, 'image/')) {
-                $fileType = 'image';
-            } elseif (str_starts_with($mimeType, 'video/')) {
-                $fileType = 'video';
-            } elseif (str_starts_with($mimeType, 'audio/')) {
-                $fileType = 'audio';
-            }
-
-            $data['file_path'] = $filePath;
-            $data['file_name'] = $file->getClientOriginalName();
-            $data['file_type'] = $fileType;
-            $data['file_size'] = $file->getSize();
-            $data['mime_type'] = $mimeType;
+        try {
+            $request->validate([
+                'reply' => 'nullable|string|max:5000',
+                'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         }
         
-        CustomerMessage::create($data);
-        
-        return back()->with('success', 'تم إرسال الرد بنجاح');
+        try {
+            $admin = Auth::guard('admin')->user();
+            
+            if (!$admin) {
+                return back()->with('error', 'غير مصرح لك بإرسال الرسالة');
+            }
+            
+            $data = [
+                'customer_id' => $message->customer_id,
+                'order_id' => $message->order_id,
+                'message' => $request->reply ?? '',
+                'sender_type' => 'admin',
+                'admin_id' => $admin->id,
+            ];
+
+            // Handle file upload
+            if ($request->hasFile('file')) {
+                try {
+                    $file = $request->file('file');
+                    $filePath = $file->store('customer-messages', 'public');
+                    
+                    // Determine file type
+                    $mimeType = $file->getMimeType();
+                    $fileType = 'document';
+                    if (str_starts_with($mimeType, 'image/')) {
+                        $fileType = 'image';
+                    } elseif (str_starts_with($mimeType, 'video/')) {
+                        $fileType = 'video';
+                    } elseif (str_starts_with($mimeType, 'audio/')) {
+                        $fileType = 'audio';
+                    }
+
+                    $data['file_path'] = $filePath;
+                    $data['file_name'] = $file->getClientOriginalName();
+                    $data['file_type'] = $fileType;
+                    $data['file_size'] = $file->getSize();
+                    $data['mime_type'] = $mimeType;
+                } catch (\Exception $e) {
+                    Log::error('Error uploading file in replyToCustomer: ' . $e->getMessage());
+                    return back()->with('error', 'حدث خطأ أثناء رفع الملف. يرجى المحاولة مرة أخرى.');
+                }
+            }
+            
+            CustomerMessage::create($data);
+            
+            return back()->with('success', __('messages.message_sent_successfully'));
+        } catch (\Exception $e) {
+            Log::error('Error in replyToCustomer: ' . $e->getMessage(), [
+                'message_id' => $message->id,
+                'admin_id' => Auth::guard('admin')->id(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return back()->with('error', __('messages.error_sending_message'));
+        }
     }
 
     public function getCustomerMessages(Request $request, Customer $customer)
@@ -313,50 +338,88 @@ class AdminController extends Controller
 
     public function sendMessageToCustomer(Request $request, Customer $customer)
     {
-        $request->validate([
-            'message' => 'nullable|string|max:5000',
-            'order_id' => 'nullable|exists:orders,id',
-            'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
-        ]);
-
-        $data = [
-            'customer_id' => $customer->id,
-            'order_id' => $request->order_id,
-            'message' => $request->message ?? '',
-            'sender_type' => 'admin',
-            'admin_id' => Auth::id(),
-        ];
-
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filePath = $file->store('customer-messages', 'public');
-            
-            // Determine file type
-            $mimeType = $file->getMimeType();
-            $fileType = 'document';
-            if (str_starts_with($mimeType, 'image/')) {
-                $fileType = 'image';
-            } elseif (str_starts_with($mimeType, 'video/')) {
-                $fileType = 'video';
-            } elseif (str_starts_with($mimeType, 'audio/')) {
-                $fileType = 'audio';
-            }
-
-            $data['file_path'] = $filePath;
-            $data['file_name'] = $file->getClientOriginalName();
-            $data['file_type'] = $fileType;
-            $data['file_size'] = $file->getSize();
-            $data['mime_type'] = $mimeType;
+        try {
+            $request->validate([
+                'message' => 'nullable|string|max:5000',
+                'order_id' => 'nullable|exists:orders,id',
+                'file' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,mp4,avi,mov,wmv,mp3,wav,ogg',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.error_occurred'),
+                'errors' => $e->errors(),
+            ], 422);
         }
 
-        $message = CustomerMessage::create($data);
+        try {
+            $admin = Auth::guard('admin')->user();
+            
+            if (!$admin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'غير مصرح لك بإرسال الرسالة',
+                ], 401);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'تم إرسال الرسالة بنجاح',
-            'data' => $message->load('admin', 'order'),
-        ]);
+            $data = [
+                'customer_id' => $customer->id,
+                'order_id' => $request->order_id,
+                'message' => $request->message ?? '',
+                'sender_type' => 'admin',
+                'admin_id' => $admin->id,
+            ];
+
+            // Handle file upload
+            if ($request->hasFile('file')) {
+                try {
+                    $file = $request->file('file');
+                    $filePath = $file->store('customer-messages', 'public');
+                    
+                    // Determine file type
+                    $mimeType = $file->getMimeType();
+                    $fileType = 'document';
+                    if (str_starts_with($mimeType, 'image/')) {
+                        $fileType = 'image';
+                    } elseif (str_starts_with($mimeType, 'video/')) {
+                        $fileType = 'video';
+                    } elseif (str_starts_with($mimeType, 'audio/')) {
+                        $fileType = 'audio';
+                    }
+
+                    $data['file_path'] = $filePath;
+                    $data['file_name'] = $file->getClientOriginalName();
+                    $data['file_type'] = $fileType;
+                    $data['file_size'] = $file->getSize();
+                    $data['mime_type'] = $mimeType;
+                } catch (\Exception $e) {
+                    Log::error('Error uploading file in sendMessageToCustomer: ' . $e->getMessage());
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'حدث خطأ أثناء رفع الملف. يرجى المحاولة مرة أخرى.',
+                    ], 500);
+                }
+            }
+
+            $message = CustomerMessage::create($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('messages.message_sent_successfully'),
+                'data' => $message->load('admin', 'order'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in sendMessageToCustomer: ' . $e->getMessage(), [
+                'customer_id' => $customer->id,
+                'admin_id' => Auth::guard('admin')->id(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.error_sending_message'),
+            ], 500);
+        }
     }
     
     // Customers Management

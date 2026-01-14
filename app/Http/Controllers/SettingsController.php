@@ -11,12 +11,22 @@ class SettingsController extends Controller
 {
     public function index()
     {
+        // Get address_ar first, fallback to address if not exists
+        $addressAr = Setting::get('address_ar');
+        $address = $addressAr ?: Setting::get('address', 'مكة المكرمة ، المملكة العربية السعودية');
+        
+        // If address_ar doesn't exist but address does, create address_ar
+        if (!$addressAr && Setting::get('address')) {
+            $address = Setting::get('address');
+        }
+        
         $settings = [
             'site_name' => Setting::get('site_name', config('app.name', 'وسيلة')),
             'site_description' => Setting::get('site_description', 'منصة وسيلة والخدمات'),
             'contact_email' => Setting::get('contact_email', 'info@wasila.org'),
             'contact_phone' => Setting::get('contact_phone', '+966 XX XXX XXXX'),
-            'address' => Setting::get('address', 'المملكة العربية السعودية'),
+            'address' => $address,
+            'address_ar' => $addressAr ?: $address,
             'logo' => Setting::get('logo', 'logo-footer.png'),
             'myfatoorah_api_key' => Setting::get('myfatoorah_api_key', config('myfatoorah.api_key')),
             'myfatoorah_is_test' => Setting::get('myfatoorah_is_test', config('myfatoorah.is_test')),
@@ -37,12 +47,26 @@ class SettingsController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Clean phone number - remove extra spaces but keep the format
+        $phoneNumber = trim($request->contact_phone);
+        
         // Update general settings in database
         Setting::set('site_name', $request->site_name, 'string', 'اسم الموقع');
         Setting::set('site_description', $request->site_description, 'text', 'وصف الموقع');
         Setting::set('contact_email', $request->contact_email, 'string', 'البريد الإلكتروني للتواصل');
-        Setting::set('contact_phone', $request->contact_phone, 'string', 'رقم الهاتف');
+        Setting::set('contact_phone', $phoneNumber, 'string', 'رقم الهاتف');
+        
+        // Update both address and address_ar to ensure consistency
         Setting::set('address', $request->address, 'text', 'العنوان');
+        Setting::set('address_ar', $request->address, 'text', 'العنوان بالعربية');
+        
+        // Also update address_en if it doesn't exist or is the same
+        $addressEn = Setting::get('address_en');
+        if (!$addressEn || $addressEn === Setting::get('address')) {
+            // Try to translate or use a default English address
+            $defaultEn = 'Mecca, Kingdom of Saudi Arabia';
+            Setting::set('address_en', $defaultEn, 'text', 'العنوان بالإنجليزية');
+        }
 
         // Handle logo upload
         if ($request->hasFile('logo')) {

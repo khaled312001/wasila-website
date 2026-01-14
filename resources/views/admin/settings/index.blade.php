@@ -5,6 +5,18 @@
 
 @section('content')
 <div class="w-full">
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+    
     <!-- General Settings -->
     <div class="bg-white rounded-lg shadow-lg card-shadow p-4 md:p-6 mobile-card">
         <h3 class="text-lg font-semibold text-primary-dark mb-4">الإعدادات العامة</h3>
@@ -38,7 +50,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">العنوان</label>
                     <textarea name="address" rows="2" required
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-medium">{{ $settings['address'] }}</textarea>
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-medium">{{ $settings['address_ar'] ?? $settings['address'] }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">سيتم تحديث العنوان في جميع أنحاء الموقع</p>
                 </div>
                 
                 <div>
