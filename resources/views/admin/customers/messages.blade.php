@@ -34,8 +34,10 @@
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 1rem;
-        background: linear-gradient(to bottom, #f8fafc 0%, #e5e7eb 100%);
+        padding: 0.5rem;
+        background: #E5DDD5;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 100 0 L 0 0 0 100' fill='none' stroke='%23E5DDD5' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grid)'/%3E%3C/svg%3E");
+        background-size: 100px 100px;
         position: relative;
     }
     
@@ -83,42 +85,70 @@
         }
     }
     
-    /* Admin Message */
+    /* Admin Message - WhatsApp Style */
     .message-admin {
-        background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
-        color: white;
+        background: #DCF8C6;
+        color: #111b21;
         margin-left: auto;
-        border-radius: 1.25rem 1.25rem 0.25rem 1.25rem;
-        box-shadow: 0 4px 12px rgba(8, 120, 139, 0.25);
-        transition: all 0.3s ease;
+        border-radius: 0.5rem 0.5rem 0.125rem 0.5rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 0.375rem 0.5rem 0.125rem 0.5rem;
+        position: relative;
+        max-width: 65%;
     }
     
-    .message-admin:hover {
-        box-shadow: 0 6px 16px rgba(8, 120, 139, 0.35);
+    .message-admin::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 8px 13px 0;
+        border-color: transparent #DCF8C6 transparent transparent;
     }
     
-    /* Customer Message */
+    /* Customer Message - WhatsApp Style */
     .message-customer {
-        background: white;
-        color: #1f2937;
+        background: #ffffff;
+        color: #111b21;
         margin-right: auto;
-        border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
+        border-radius: 0.5rem 0.5rem 0.5rem 0.125rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 0.375rem 0.5rem 0.125rem 0.5rem;
+        position: relative;
+        max-width: 65%;
     }
     
-    .message-customer:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    .message-customer::before {
+        content: '';
+        position: absolute;
+        right: -8px;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 0 13px 8px;
+        border-color: transparent transparent transparent #ffffff;
     }
     
     .message-time {
-        font-size: 0.7rem;
-        opacity: 0.8;
-        margin-top: 0.5rem;
+        font-size: 0.6875rem;
+        opacity: 0.6;
+        margin-top: 0.125rem;
+        font-weight: 500;
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 0.25rem;
+        direction: ltr;
+        text-align: left;
+        color: #667781;
+    }
+    
+    .message-time i {
+        font-size: 0.625rem;
     }
     
     /* File Preview */
@@ -841,6 +871,16 @@ function getMessageHTML(message) {
         }
     }
     
+    // إضافة أيقونات حالة القراءة للرسائل المرسلة من الإدارة
+    let readStatusIcon = '';
+    if (isAdmin) {
+        if (message.is_read) {
+            readStatusIcon = '<i class="fas fa-check-double" style="color: #53bdeb;"></i>';
+        } else {
+            readStatusIcon = '<i class="fas fa-check"></i>';
+        }
+    }
+    
     return `
         <div class="message-bubble message-${message.sender_type} p-4">
             <div class="flex items-center gap-2 mb-1">
@@ -848,7 +888,7 @@ function getMessageHTML(message) {
             </div>
             ${message.message ? `<p class="text-sm mb-2">${escapeHtml(message.message)}</p>` : ''}
             ${fileHTML}
-            <p class="message-time">${time}</p>
+            <p class="message-time">${time} ${readStatusIcon}</p>
         </div>
     `;
 }

@@ -34,7 +34,14 @@
             @endif
         @endif
         
-        <p class="message-time">{{ $message->created_at->format('H:i') }}</p>
+        <p class="message-time">
+            {{ $message->created_at->format('H:i') }}
+            @if($isAdmin && $message->is_read)
+                <i class="fas fa-check-double" style="color: #53bdeb;"></i>
+            @elseif($isAdmin)
+                <i class="fas fa-check"></i>
+            @endif
+        </p>
     </div>
 </div>
 

@@ -22,9 +22,10 @@ class MessageController extends Controller
     {
         $customer = auth('customer')->user();
         
+        // ترتيب الرسائل من الأقدم للأحدث (الأحدث في الأسفل)
         $messages = $customer->messages()
             ->with(['admin', 'order'])
-            ->latest()
+            ->oldest()
             ->paginate(20);
 
         // Mark admin messages as read
@@ -113,7 +114,8 @@ class MessageController extends Controller
             $query->where('id', '>', $request->last_message_id);
         }
         
-        $messages = $query->latest()->limit(50)->get()->reverse();
+        // ترتيب الرسائل من الأقدم للأحدث (الأحدث في الأسفل)
+        $messages = $query->oldest()->limit(50)->get();
         
         return response()->json([
             'success' => true,

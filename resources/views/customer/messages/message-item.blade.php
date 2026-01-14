@@ -34,7 +34,16 @@
             @endif
         @endif
         
-        <p class="message-time">{{ $message->created_at->format('H:i') }}</p>
+        <p class="message-time">
+            {{ $message->created_at->format('H:i') }}
+            @if($isCustomer)
+                @if($message->is_read)
+                    <i class="fas fa-check-double read"></i>
+                @else
+                    <i class="fas fa-check"></i>
+                @endif
+            @endif
+        </p>
     </div>
 </div>
 

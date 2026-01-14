@@ -346,7 +346,8 @@ class AdminController extends Controller
             $query->where('id', '>', $request->last_message_id);
         }
         
-        $messages = $query->latest()->limit(50)->get()->reverse();
+        // ترتيب الرسائل من الأقدم للأحدث (الأحدث في الأسفل)
+        $messages = $query->oldest()->limit(50)->get();
         
         // Mark as read
         $customer->messages()
@@ -601,7 +602,8 @@ class AdminController extends Controller
     
     public function customersMessages(Customer $customer)
     {
-        $messages = $customer->messages()->with('admin', 'order')->orderBy('created_at', 'desc')->paginate(20);
+        // ترتيب الرسائل من الأقدم للأحدث (الأحدث في الأسفل)
+        $messages = $customer->messages()->with('admin', 'order')->orderBy('created_at', 'asc')->paginate(20);
         return view('admin.customers.messages', compact('customer', 'messages'));
     }
     

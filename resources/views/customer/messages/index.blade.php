@@ -6,19 +6,24 @@
 
 @push('styles')
 <style>
-    /* CSS Variables for Consistency */
+    /* CSS Variables for WhatsApp-like Design */
     :root {
         --primary-gradient: linear-gradient(135deg, #08788B 0%, #025469 50%, #4f46e5 100%);
         --primary-gradient-hover: linear-gradient(135deg, #025469 0%, #08788B 50%, #6366f1 100%);
+        --whatsapp-green: #25D366;
+        --whatsapp-green-dark: #128C7E;
+        --whatsapp-green-light: #DCF8C6;
         --whatsapp-gradient: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        --whatsapp-bg: #E5DDD5;
+        --whatsapp-bg-pattern: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 100 0 L 0 0 0 100' fill='none' stroke='%23E5DDD5' stroke-width='1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grid)'/%3E%3C/svg%3E");
         --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
         --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
         --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
         --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.2);
         --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.1);
         --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --border-radius: 1.25rem;
-        --border-radius-sm: 0.75rem;
+        --border-radius: 0.5rem;
+        --border-radius-sm: 0.375rem;
     }
     
     /* Main Container */
@@ -186,8 +191,10 @@
     .messages-container {
         flex: 1;
         overflow-y: auto;
-        padding: 1.5rem;
-        background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+        padding: 0.5rem;
+        background: var(--whatsapp-bg);
+        background-image: var(--whatsapp-bg-pattern);
+        background-size: 100px 100px;
         position: relative;
     }
     
@@ -234,20 +241,45 @@
     }
     
     .message-customer {
-        background: var(--whatsapp-gradient);
-        color: white;
-        border-radius: var(--border-radius) var(--border-radius) 0.25rem var(--border-radius);
-        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3), var(--shadow-sm);
-        padding: 1rem;
+        background: var(--whatsapp-green-light);
+        color: #111b21;
+        border-radius: 0.5rem 0.5rem 0.125rem 0.5rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 0.375rem 0.5rem 0.125rem 0.5rem;
+        position: relative;
+    }
+    
+    .message-customer::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 8px 13px 0;
+        border-color: transparent var(--whatsapp-green-light) transparent transparent;
     }
     
     .message-admin {
-        background: white;
-        color: #1f2937;
-        border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0.25rem;
-        box-shadow: var(--shadow-md);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        padding: 1rem;
+        background: #ffffff;
+        color: #111b21;
+        border-radius: 0.5rem 0.5rem 0.5rem 0.125rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 0.375rem 0.5rem 0.125rem 0.5rem;
+        position: relative;
+    }
+    
+    .message-admin::before {
+        content: '';
+        position: absolute;
+        right: -8px;
+        bottom: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 0 0 13px 8px;
+        border-color: transparent transparent transparent #ffffff;
     }
     
     .message-header {
@@ -276,10 +308,32 @@
     }
     
     .message-time {
-        font-size: 0.7rem;
-        opacity: 0.75;
-        margin-top: 0.5rem;
+        font-size: 0.6875rem;
+        opacity: 0.6;
+        margin-top: 0.125rem;
         font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.25rem;
+        direction: ltr;
+        text-align: left;
+    }
+    
+    .message-time i {
+        font-size: 0.625rem;
+    }
+    
+    .message-time.read i {
+        color: #53bdeb;
+    }
+    
+    .message-admin .message-time {
+        color: #667781;
+    }
+    
+    .message-customer .message-time {
+        color: #667781;
     }
     
     /* File Attachments */
@@ -1262,6 +1316,16 @@ const ChatMessages = {
             }
         }
         
+        // إضافة أيقونات حالة القراءة للرسائل المرسلة من العميل
+        let readStatusIcon = '';
+        if (isCustomer) {
+            if (message.is_read) {
+                readStatusIcon = '<i class="fas fa-check-double read"></i>';
+            } else {
+                readStatusIcon = '<i class="fas fa-check"></i>';
+            }
+        }
+        
         return `
             <div class="message-bubble message-${message.sender_type}">
                 <div class="message-header">
@@ -1270,7 +1334,7 @@ const ChatMessages = {
                 </div>
                 ${message.message ? `<p class="message-content">${this.escapeHtml(message.message)}</p>` : ''}
                 ${fileHTML}
-                <p class="message-time">${time}</p>
+                <p class="message-time">${time} ${readStatusIcon}</p>
             </div>
         `;
     },
