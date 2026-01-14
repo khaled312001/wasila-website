@@ -37,7 +37,7 @@
         .layout-container {
             display: flex;
             min-height: 100vh;
-            {{ app()->getLocale() === 'ar' ? 'flex-direction: row-reverse;' : 'flex-direction: row;' }}
+            flex-direction: row-reverse; /* Sidebar always on right */
         }
         
         /* Sidebar Styles - Modern Design */
@@ -49,7 +49,7 @@
             padding: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            box-shadow: {{ app()->getLocale() === 'ar' ? '-4px 0 30px' : '4px 0 30px' }} rgba(0, 0, 0, 0.15);
+            box-shadow: -4px 0 30px rgba(0, 0, 0, 0.15);
             position: sticky;
             top: 0;
             display: flex;
@@ -158,7 +158,7 @@
             border: none;
             cursor: pointer;
             width: 100%;
-            text-align: {{ app()->getLocale() === 'ar' ? 'right' : 'left' }};
+            text-align: right;
             position: relative;
             overflow: hidden;
         }
@@ -167,7 +167,7 @@
             content: '';
             position: absolute;
             top: 0;
-            {{ app()->getLocale() === 'ar' ? 'right' : 'left' }}: 0;
+            right: 0;
             width: 4px;
             height: 100%;
             background: white;
@@ -179,7 +179,7 @@
         .sidebar-menu-item.active {
             background: rgba(255, 255, 255, 0.15) !important;
             color: white !important;
-            transform: translateX({{ app()->getLocale() === 'ar' ? '-8px' : '8px' }});
+            transform: translateX(-8px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
@@ -197,7 +197,7 @@
         .sidebar-menu-item i {
             width: 22px;
             height: 22px;
-            {{ app()->getLocale() === 'ar' ? 'margin-left' : 'margin-right' }}: 1rem;
+            margin-left: 1rem;
             color: rgba(255, 255, 255, 0.85) !important;
             transition: all 0.3s ease;
         }
@@ -350,10 +350,10 @@
                 width: 280px;
                 position: fixed;
                 top: 0;
-                {{ app()->getLocale() === 'ar' ? 'right' : 'left' }}: 0;
-                transform: translateX({{ app()->getLocale() === 'ar' ? '100%' : '-100%' }});
+                right: 0;
+                transform: translateX(100%);
                 transition: transform 0.3s ease;
-                box-shadow: {{ app()->getLocale() === 'ar' ? '-4px 0 20px' : '4px 0 20px' }} rgba(0, 0, 0, 0.2);
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
             }
             
             .sidebar.mobile-open {
@@ -447,7 +447,7 @@
                 width: 56px;
                 height: 56px;
                 bottom: 1.5rem;
-                {{ app()->getLocale() === 'ar' ? 'left' : 'right' }}: 1.5rem;
+                left: 1.5rem;
             }
         }
         
@@ -455,7 +455,7 @@
             display: none;
             position: fixed;
             bottom: 2rem;
-            {{ app()->getLocale() === 'ar' ? 'left' : 'right' }}: 2rem;
+            left: 2rem;
             width: 60px;
             height: 60px;
             background: linear-gradient(135deg, #3CA6B4 0%, #08788B 100%);
