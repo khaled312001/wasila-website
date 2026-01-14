@@ -421,7 +421,7 @@
             </div>
             
             @php
-                // Get ALL active portfolio items
+                // Get ALL active portfolio items - NO LIMIT
                 $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
                     ->orderBy('sort_order', 'asc')
                     ->orderBy('created_at', 'desc')
@@ -441,15 +441,19 @@
                 // Use valid items, or fallback to all items if none are valid
                 $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
                 
-                // Duplicate items multiple times for seamless infinite loop
+                // Create infinite loop by duplicating items MANY times
+                // This ensures the list never appears empty and loops seamlessly
                 $itemCount = max($itemsToUse->count(), 1);
                 $cardWidth = 300; // Card width in pixels
                 $gap = 24; // Gap between cards
                 $oneSetWidth = $itemCount * ($cardWidth + $gap);
-                $viewportWidth = 1920; // Assume max viewport width
-                $minTotalWidth = $viewportWidth * 3; // Need at least 3x viewport width
-                $duplicates = max(10, ceil($minTotalWidth / max($oneSetWidth, 1))); // At least 10 copies
+                
+                // Create MANY duplicates to ensure infinite appearance
+                // Minimum 50 copies to ensure seamless infinite scrolling
+                $duplicates = max(50, ceil(5000 / max($oneSetWidth, 1)));
+                
                 $allItems = collect();
+                // Duplicate the entire set multiple times for seamless infinite loop
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($itemsToUse);
                 }
@@ -483,8 +487,11 @@
                         <div class="our-work-card">
                             @if($item->type === 'image')
                                 @if($fileExists)
+                                    @php
+                                        $placeholderImg = asset('images/placeholder-portfolio.png');
+                                    @endphp
                                     <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
-                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
+                                         onerror="this.onerror=null; this.src='{{ $placeholderImg }}'; this.style.display='block';">
                                 @else
                                     <img src="{{ asset('images/placeholder-portfolio.png') }}" alt="{{ $item->title_ar }}">
                                 @endif
@@ -511,41 +518,66 @@
                 </div>
             </div>
             @else
+            @php
+                // Get all images from public/images folder - NO LIMIT
+                $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
+                $imageCount = count($imageFiles);
+                $fallbackItemCount = 0;
+                
+                if ($imageCount > 0) {
+                    $fallbackItemCount = $imageCount;
+                } else {
+                    // Fallback: show placeholder images
+                    $fallbackItemCount = 6;
+                }
+            @endphp
             <div class="our-work-container">
-                <div class="our-work-track" id="ourWorkTrack">
+                <div class="our-work-track" id="ourWorkTrack" data-item-count="{{ $fallbackItemCount }}">
                     @php
-                        // Get all images from public/images folder
-                        $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
-                        $imageCount = count($imageFiles);
                         if ($imageCount > 0) {
-                            // Create enough duplicates for seamless infinite loop
-                            $duplicates = max(8, ceil(2000 / max($imageCount, 1)));
+                            // Create MANY duplicates for seamless infinite loop
+                            // Minimum 50 copies to ensure infinite scrolling
+                            $cardWidth = 300;
+                            $gap = 24;
+                            $oneSetWidth = $imageCount * ($cardWidth + $gap);
+                            $duplicates = max(50, ceil(5000 / max($oneSetWidth, 1)));
+                            
                             for ($d = 0; $d < $duplicates; $d++) {
                                 foreach ($imageFiles as $imageFile) {
                                     $imageName = basename($imageFile);
                                     $imageUrl = asset('images/' . $imageName);
-                                    echo '<div class="our-work-card">';
-                                    echo '<img src="' . $imageUrl . '" alt="' . $imageName . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
-                                    echo '<div class="our-work-overlay">';
-                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
-                                    echo '<p class="text-white mt-2 text-sm font-semibold">' . $imageName . '</p>';
-                                    echo '</div>';
-                                    echo '</div>';
+                                    $placeholderUrl = asset('images/placeholder-portfolio.png');
+                                    @endphp
+                                    <div class="our-work-card">
+                                        <img src="{{ $imageUrl }}" alt="{{ $imageName }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
+                                        <div class="our-work-overlay">
+                                            <i class="fas fa-image fa-2x text-white"></i>
+                                            <p class="text-white mt-2 text-sm font-semibold">{{ $imageName }}</p>
+                                        </div>
+                                    </div>
+                                    @php
                                 }
                             }
                         } else {
-                            // Fallback: show placeholder images
+                            // Fallback: show placeholder images with infinite loop
                             $placeholderCount = 6;
-                            $duplicates = max(8, ceil(2000 / max($placeholderCount, 1)));
+                            $cardWidth = 300;
+                            $gap = 24;
+                            $oneSetWidth = $placeholderCount * ($cardWidth + $gap);
+                            $duplicates = max(50, ceil(5000 / max($oneSetWidth, 1)));
+                            
                             for ($d = 0; $d < $duplicates; $d++) {
                                 for ($i = 1; $i <= $placeholderCount; $i++) {
-                                    echo '<div class="our-work-card">';
-                                    echo '<img src="' . asset('images/' . $i . '.png') . '" alt="صورة ' . $i . '" onerror="this.onerror=null; this.src=\'' . asset('images/placeholder-portfolio.png') . '\';">';
-                                    echo '<div class="our-work-overlay">';
-                                    echo '<i class="fas fa-image fa-2x text-white"></i>';
-                                    echo '<p class="text-white mt-2 text-sm font-semibold">صورة ' . $i . '</p>';
-                                    echo '</div>';
-                                    echo '</div>';
+                                    $placeholderUrl = asset('images/placeholder-portfolio.png');
+                                    @endphp
+                                    <div class="our-work-card">
+                                        <img src="{{ asset('images/' . $i . '.png') }}" alt="صورة {{ $i }}" onerror="this.onerror=null; this.src='{{ $placeholderUrl }}';">
+                                        <div class="our-work-overlay">
+                                            <i class="fas fa-image fa-2x text-white"></i>
+                                            <p class="text-white mt-2 text-sm font-semibold">صورة {{ $i }}</p>
+                                        </div>
+                                    </div>
+                                    @php
                                 }
                             }
                         }
@@ -895,13 +927,36 @@
                 heroContent.style.animation = 'fadeInUp 1s ease-out';
             }
             
-            // Setup infinite scroll for our work section
+            // Setup infinite scroll for our work section - TRUE INFINITE LOOP
             const ourWorkTrack = document.getElementById('ourWorkTrack');
             if (ourWorkTrack) {
                 // Wait for images to load to get accurate dimensions
                 const setupAnimation = () => {
                     const items = ourWorkTrack.querySelectorAll('.our-work-card');
-                    const originalItemCount = parseInt(ourWorkTrack.dataset.itemCount) || 1;
+                    
+                    // Get original item count from data attribute, or calculate from unique items
+                    let originalItemCount = parseInt(ourWorkTrack.dataset.itemCount);
+                    
+                    // If data-item-count is 0 or not set, try to calculate from items
+                    if (!originalItemCount || originalItemCount === 0) {
+                        // Count unique items by checking first few items
+                        // Since items are duplicated, we need to find the pattern
+                        if (items.length > 0) {
+                            // Try to detect the pattern by comparing items
+                            const firstItemSrc = items[0].querySelector('img, video')?.src || '';
+                            let uniqueCount = 1;
+                            for (let i = 1; i < items.length; i++) {
+                                const currentSrc = items[i].querySelector('img, video')?.src || '';
+                                if (currentSrc === firstItemSrc) {
+                                    uniqueCount = i;
+                                    break;
+                                }
+                            }
+                            originalItemCount = uniqueCount > 0 ? uniqueCount : items.length;
+                        } else {
+                            originalItemCount = 1;
+                        }
+                    }
                     
                     if (originalItemCount > 0 && items.length > 0) {
                         // Get actual card width from first card
@@ -910,22 +965,28 @@
                         const gap = 24; // 1.5rem = 24px gap
                         const oneSetWidth = originalItemCount * (cardWidth + gap);
                         
-                        // Set animation to move exactly one set width for seamless loop
+                        // Set animation to move exactly one set width for seamless infinite loop
+                        // This ensures when animation completes, it loops back to the first item
                         ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
                         
                         // Calculate animation duration based on number of items
                         // More items = slower animation, fewer items = faster
-                        const baseDuration = 50; // seconds
-                        const duration = Math.max(30, baseDuration + (originalItemCount * 1.5));
+                        // Ensure smooth infinite scrolling
+                        const baseDuration = 60; // seconds - slower for smoother effect
+                        const duration = Math.max(40, baseDuration + (originalItemCount * 2));
                         ourWorkTrack.style.animationDuration = duration + 's';
+                        
+                        // Ensure animation is set to infinite
+                        ourWorkTrack.style.animationIterationCount = 'infinite';
+                        ourWorkTrack.style.animationTimingFunction = 'linear';
                         
                         // Verify we have enough items for seamless scrolling
                         const totalWidth = items.length * (cardWidth + gap);
                         const viewportWidth = window.innerWidth;
                         
-                        // Ensure we have enough items - if not, the animation will still work but may show gaps
+                        // With 50+ duplicates, we should have plenty of items
                         if (totalWidth < viewportWidth * 2.5) {
-                            console.warn('Track has ' + items.length + ' items, consider adding more for smoother scrolling');
+                            console.warn('Track has ' + items.length + ' items (' + originalItemCount + ' unique), consider adding more for smoother scrolling');
                         }
                     }
                 };
@@ -938,6 +999,27 @@
                 
                 // And after window load
                 window.addEventListener('load', setupAnimation);
+                
+                // Also try after images load
+                const images = ourWorkTrack.querySelectorAll('img');
+                let loadedImages = 0;
+                if (images.length > 0) {
+                    images.forEach(img => {
+                        if (img.complete) {
+                            loadedImages++;
+                        } else {
+                            img.addEventListener('load', () => {
+                                loadedImages++;
+                                if (loadedImages === images.length) {
+                                    setupAnimation();
+                                }
+                            });
+                        }
+                    });
+                    if (loadedImages === images.length) {
+                        setupAnimation();
+                    }
+                }
             }
         });
         

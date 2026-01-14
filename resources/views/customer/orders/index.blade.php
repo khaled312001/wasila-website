@@ -491,12 +491,18 @@
                                 <i class="fas fa-check-circle"></i>
                             @elseif($order->status === 'pending')
                                 <i class="fas fa-clock"></i>
+                            @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
+                                <i class="fas fa-credit-card"></i>
                             @elseif($order->status === 'processing')
                                 <i class="fas fa-spinner fa-spin"></i>
                             @else
                                 <i class="fas fa-times-circle"></i>
                             @endif
-                            {{ __('messages.' . $order->status) }}
+                            @if($order->status === 'confirmed' && $order->payment_status === 'pending')
+                                في انتظار الدفع
+                            @else
+                                {{ __('messages.' . $order->status) }}
+                            @endif
                         </span>
                     </td>
                     <td data-label="توثيق">

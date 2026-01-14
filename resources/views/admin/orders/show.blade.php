@@ -178,6 +178,8 @@
                     @endif">
                     @if($order->status === 'pending')
                         في الانتظار
+                    @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
+                        في انتظار الدفع
                     @elseif($order->status === 'confirmed')
                         مؤكد
                     @elseif($order->status === 'processing')

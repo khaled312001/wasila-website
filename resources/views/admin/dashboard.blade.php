@@ -399,6 +399,9 @@
                             @if($order->status === 'pending')
                                 <i class="fas fa-clock"></i>
                                 في الانتظار
+                            @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
+                                <i class="fas fa-credit-card"></i>
+                                في انتظار الدفع
                             @elseif($order->status === 'confirmed')
                                 <i class="fas fa-check-circle"></i>
                                 مؤكد

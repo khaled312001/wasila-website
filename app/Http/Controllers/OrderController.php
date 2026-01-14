@@ -141,6 +141,18 @@ class OrderController extends Controller
             $countryCode = $this->extractCountryCode($request->customer_country) ?? '+966';
             $normalizedPhone = $this->normalizePhoneNumber($request->customer_phone, $countryCode);
             
+            // Determine initial status based on payment method
+            // If payment is not completed, don't use 'pending' status
+            $initialStatus = 'pending';
+            if ($paymentMethod === 'myfatoorah') {
+                // For MyFatoorah, use 'confirmed' status with payment_status 'pending'
+                // This indicates the order is confirmed but payment is pending
+                $initialStatus = 'confirmed';
+            } elseif ($paymentMethod === 'cod') {
+                // For COD, use 'pending' as payment will be collected on delivery
+                $initialStatus = 'pending';
+            }
+            
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'customer_name' => $customer->name,
@@ -151,7 +163,7 @@ class OrderController extends Controller
                 'full_phone_number' => $countryCode . $normalizedPhone,
                 'customer_address' => $request->customer_address ?? $customer->address ?? '',
                 'total_amount' => $totalAmount,
-                'status' => 'pending',
+                'status' => $initialStatus,
                 'payment_status' => 'pending',
                 'payment_method' => $paymentMethod,
                 'payment_details' => json_encode($paymentDetails),

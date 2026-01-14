@@ -512,10 +512,16 @@
                             <i class="fas fa-check-circle"></i>
                         @elseif($order->status === 'pending')
                             <i class="fas fa-clock"></i>
+                        @elseif($order->status === 'confirmed' && $order->payment_status === 'pending')
+                            <i class="fas fa-credit-card"></i>
                         @else
                             <i class="fas fa-info-circle"></i>
                         @endif
-                        {{ __('messages.' . $order->status) }}
+                        @if($order->status === 'confirmed' && $order->payment_status === 'pending')
+                            في انتظار الدفع
+                        @else
+                            {{ __('messages.' . $order->status) }}
+                        @endif
                     </span>
                 </div>
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
