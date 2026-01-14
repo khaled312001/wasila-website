@@ -55,6 +55,11 @@ class Order extends Model
         return $this->hasMany(OrderDocumentation::class);
     }
     
+    public function customerMessages(): HasMany
+    {
+        return $this->hasMany(CustomerMessage::class);
+    }
+    
     public function service()
     {
         return $this->hasOneThrough(

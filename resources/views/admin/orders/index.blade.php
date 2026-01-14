@@ -120,16 +120,12 @@
                 @endif
             </div>
             <div class="flex gap-2 flex-wrap">
-                <form method="POST" action="{{ route('admin.orders.seed-demo') }}" class="inline" onsubmit="return confirm('⚠️ سيتم حذف جميع الطلبات القديمة وإنشاء طلبات ديمو جديدة. هل أنت متأكد؟')">
-                    @csrf
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
-                        </svg>
-                        إنشاء طلبات ديمو
-                    </button>
-                </form>
+                <button type="button" onclick="deleteSelected()" id="delete-selected-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2 hidden">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    حذف المحدد (<span id="selected-count">0</span>)
+                </button>
                 <a href="{{ route('admin.orders.export.excel', request()->query()) }}" 
                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -152,6 +148,9 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)" class="w-4 h-4 text-primary-medium border-gray-300 rounded focus:ring-primary-medium">
+                    </th>
                     <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقم الطلب</th>
                     <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">العميل</th>
                     <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">الخدمات</th>
@@ -165,6 +164,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($orders as $order)
                 <tr class="table-row">
+                    <td class="px-3 md:px-6 py-4 whitespace-nowrap">
+                        <input type="checkbox" name="order_ids[]" value="{{ $order->id }}" class="order-checkbox w-4 h-4 text-primary-medium border-gray-300 rounded focus:ring-primary-medium" onchange="updateDeleteButton()">
+                    </td>
                     <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         <div class="flex flex-col">
                             <span class="font-semibold">{{ $order->order_number }}</span>
@@ -241,14 +243,25 @@
                         {{ $order->created_at->format('Y-m-d H:i') }}
                     </td>
                     <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ route('admin.orders.show', $order) }}" class="btn-enhanced text-primary-medium hover:text-primary-dark px-2 md:px-3 py-1 rounded text-xs md:text-sm">
-                            عرض
-                        </a>
+                        <div class="flex gap-2 items-center">
+                            <a href="{{ route('admin.orders.show', $order) }}" class="btn-enhanced text-primary-medium hover:text-primary-dark px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                                عرض
+                            </a>
+                            <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" class="inline" onsubmit="return confirm('⚠️ هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs md:text-sm">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-3 md:px-6 py-8 text-center text-gray-500">
+                    <td colspan="9" class="px-3 md:px-6 py-8 text-center text-gray-500">
                         <div class="flex flex-col items-center">
                             <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -292,6 +305,69 @@ function toggleFilters() {
     } else {
         icon.style.transform = 'rotate(180deg)';
     }
+}
+
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+    updateDeleteButton();
+}
+
+function updateDeleteButton() {
+    const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    const countSpan = document.getElementById('selected-count');
+    
+    if (checkboxes.length > 0) {
+        deleteBtn.classList.remove('hidden');
+        countSpan.textContent = checkboxes.length;
+    } else {
+        deleteBtn.classList.add('hidden');
+        countSpan.textContent = '0';
+    }
+    
+    // Update select-all checkbox state
+    const allCheckboxes = document.querySelectorAll('.order-checkbox');
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (allCheckboxes.length > 0) {
+        selectAllCheckbox.checked = checkboxes.length === allCheckboxes.length;
+    }
+}
+
+function deleteSelected() {
+    const checkboxes = document.querySelectorAll('.order-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('يرجى تحديد طلب واحد على الأقل للحذف');
+        return;
+    }
+    
+    const count = checkboxes.length;
+    if (!confirm(`⚠️ هل أنت متأكد من حذف ${count} طلب؟ لا يمكن التراجع عن هذا الإجراء.`)) {
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("admin.orders.delete-multiple") }}';
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    form.appendChild(csrfInput);
+    
+    checkboxes.forEach(checkbox => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'order_ids[]';
+        input.value = checkbox.value;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 @endsection

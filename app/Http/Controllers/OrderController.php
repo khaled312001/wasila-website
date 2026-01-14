@@ -909,4 +909,111 @@ class OrderController extends Controller
         return redirect()->route('admin.orders.show', $order)
             ->with('success', app()->getLocale() === 'ar' ? 'تم حذف الملف بنجاح' : 'File deleted successfully.');
     }
+    
+    /**
+     * Delete a single order
+     */
+    public function destroy(Order $order)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Delete order items first
+            $order->orderItems()->delete();
+            
+            // Delete order documentation if exists
+            try {
+                $order->documentation()->each(function($doc) {
+                    if (\Storage::disk('public')->exists($doc->file_path)) {
+                        \Storage::disk('public')->delete($doc->file_path);
+                    }
+                    $doc->delete();
+                });
+            } catch (\Exception $e) {
+                // Documentation table might not exist, ignore
+            }
+            
+            // Delete customer messages related to this order
+            try {
+                $order->customerMessages()->delete();
+            } catch (\Exception $e) {
+                // Customer messages might not have order_id, ignore
+            }
+            
+            // Delete the order
+            $order->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('admin.orders.index')
+                ->with('success', app()->getLocale() === 'ar' ? 'تم حذف الطلب بنجاح' : 'Order deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting order: ' . $e->getMessage());
+            
+            return redirect()->route('admin.orders.index')
+                ->with('error', app()->getLocale() === 'ar' ? 'حدث خطأ أثناء حذف الطلب: ' . $e->getMessage() : 'Error deleting order: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Delete multiple orders
+     */
+    public function destroyMultiple(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array',
+            'order_ids.*' => 'exists:orders,id'
+        ]);
+        
+        try {
+            DB::beginTransaction();
+            
+            $orderIds = $request->order_ids;
+            $orders = Order::whereIn('id', $orderIds)->get();
+            
+            foreach ($orders as $order) {
+                // Delete order items
+                $order->orderItems()->delete();
+                
+                // Delete order documentation if exists
+                try {
+                    $order->documentation()->each(function($doc) {
+                        if (\Storage::disk('public')->exists($doc->file_path)) {
+                            \Storage::disk('public')->delete($doc->file_path);
+                        }
+                        $doc->delete();
+                    });
+                } catch (\Exception $e) {
+                    // Documentation table might not exist, ignore
+                }
+                
+                // Delete customer messages related to this order
+                try {
+                    $order->customerMessages()->delete();
+                } catch (\Exception $e) {
+                    // Customer messages might not have order_id, ignore
+                }
+            }
+            
+            // Delete all orders
+            Order::whereIn('id', $orderIds)->delete();
+            
+            DB::commit();
+            
+            $count = count($orderIds);
+            return redirect()->route('admin.orders.index')
+                ->with('success', app()->getLocale() === 'ar' 
+                    ? "تم حذف {$count} طلب بنجاح" 
+                    : "Successfully deleted {$count} orders.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting multiple orders: ' . $e->getMessage());
+            
+            return redirect()->route('admin.orders.index')
+                ->with('error', app()->getLocale() === 'ar' 
+                    ? 'حدث خطأ أثناء حذف الطلبات: ' . $e->getMessage() 
+                    : 'Error deleting orders: ' . $e->getMessage());
+        }
+    }
 }
