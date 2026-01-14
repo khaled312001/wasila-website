@@ -24,4 +24,6 @@ return [
     'deleteAlert.confirm'  => 'موافق',
     'deleteAlert.cancel'   => 'غير موافق',
     'Kindly review your MyFatoorah admin configuration due to a wrong entry.'   => 'نرجو مراجعة إعدادت ماي فاتورة نتيجة لوجود خطأ بها.',
+    'Order not found'      => 'الطلب غير موجود',
+    'Order ID is required. Please provide the order ID in the URL parameter (oid).' => 'معرف الطلب مطلوب. يرجى توفير معرف الطلب في معاملات الرابط (oid).',
 ];

@@ -24,4 +24,6 @@ return [
     'deleteAlert.confirm'  => 'Yes',
     'deleteAlert.cancel'   => 'No',
     'Kindly review your MyFatoorah admin configuration due to a wrong entry.'   => 'Kindly review your MyFatoorah admin configuration due to a wrong entry.',
+    'Order not found'      => 'Order not found',
+    'Order ID is required. Please provide the order ID in the URL parameter (oid).' => 'Order ID is required. Please provide the order ID in the URL parameter (oid).',
 ];

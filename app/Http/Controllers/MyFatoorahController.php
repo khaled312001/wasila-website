@@ -64,7 +64,12 @@ class MyFatoorahController extends Controller
             $paymentId = request('pmid') ?: 0;
             $sessionId = request('sid') ?: null;
 
-            $orderId  = request('oid') ?: 147;
+            $orderId = request('oid');
+            
+            if (!$orderId) {
+                throw new Exception('Order ID is required. Please provide the order ID in the URL parameter (oid).');
+            }
+            
             $curlData = $this->getPayLoadData($orderId);
 
             $mfObj   = new MyFatoorahPayment($this->mfConfig);
@@ -73,6 +78,10 @@ class MyFatoorahController extends Controller
             return redirect($payment['invoiceURL']);
         } catch (Exception $ex) {
             $exMessage = __('myfatoorah.' . $ex->getMessage());
+            // If translation doesn't exist, use the original message
+            if ($exMessage === 'myfatoorah.' . $ex->getMessage()) {
+                $exMessage = $ex->getMessage();
+            }
             return response()->json(['IsSuccess' => 'false', 'Message' => $exMessage]);
         }
     }
