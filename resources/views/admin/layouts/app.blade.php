@@ -583,8 +583,18 @@
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
                         </svg>
-                        <span class="sidebar-text text-sm flex-1">الرسائل</span>
+                        <span class="sidebar-text text-sm flex-1">رسائل التواصل</span>
                         <span id="unread-count" class="sidebar-text bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 min-w-[20px] text-center hidden">0</span>
+                    </a>
+                    
+                    <!-- Customer Messages -->
+                    <a href="{{ route('admin.customer.messages') }}" 
+                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.customer.messages') || request()->routeIs('admin.customer.messages.*') ? 'active' : '' }}">
+                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+                        </svg>
+                        <span class="sidebar-text text-sm">رسائل العملاء</span>
                     </a>
                     
                     <!-- MyFatoorah Management -->
