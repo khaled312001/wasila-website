@@ -444,16 +444,26 @@
                 // Create infinite loop by duplicating items MANY times
                 // This ensures the list never appears empty and loops seamlessly
                 $itemCount = max($itemsToUse->count(), 1);
+                
+                // If we have very few items (like 4), we need MORE duplicates for smooth infinite scroll
+                // Calculate duplicates based on viewport width to ensure seamless looping
                 $cardWidth = 300; // Card width in pixels
                 $gap = 24; // Gap between cards
                 $oneSetWidth = $itemCount * ($cardWidth + $gap);
                 
-                // Create MANY duplicates to ensure infinite appearance
-                // Minimum 50 copies to ensure seamless infinite scrolling
-                $duplicates = max(50, ceil(5000 / max($oneSetWidth, 1)));
+                // For infinite scroll, we need at least 3-4 full sets visible at once
+                // Calculate based on maximum viewport width (assume 1920px) and ensure we have plenty
+                $viewportWidth = 1920; // Max viewport width
+                $minSetsNeeded = 4; // Need at least 4 full sets for seamless infinite scroll
+                $minTotalWidth = $viewportWidth * $minSetsNeeded;
+                
+                // Calculate how many duplicates we need
+                // Always ensure at least 100 copies for very smooth infinite scrolling
+                $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
                 
                 $allItems = collect();
                 // Duplicate the entire set multiple times for seamless infinite loop
+                // This creates a truly infinite list that never ends
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($itemsToUse);
                 }
@@ -536,11 +546,14 @@
                     @php
                         if ($imageCount > 0) {
                             // Create MANY duplicates for seamless infinite loop
-                            // Minimum 50 copies to ensure infinite scrolling
+                            // Always ensure at least 100 copies for very smooth infinite scrolling
                             $cardWidth = 300;
                             $gap = 24;
                             $oneSetWidth = $imageCount * ($cardWidth + $gap);
-                            $duplicates = max(50, ceil(5000 / max($oneSetWidth, 1)));
+                            $viewportWidth = 1920;
+                            $minSetsNeeded = 4;
+                            $minTotalWidth = $viewportWidth * $minSetsNeeded;
+                            $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
                             
                             for ($d = 0; $d < $duplicates; $d++) {
                                 foreach ($imageFiles as $imageFile) {
@@ -564,7 +577,10 @@
                             $cardWidth = 300;
                             $gap = 24;
                             $oneSetWidth = $placeholderCount * ($cardWidth + $gap);
-                            $duplicates = max(50, ceil(5000 / max($oneSetWidth, 1)));
+                            $viewportWidth = 1920;
+                            $minSetsNeeded = 4;
+                            $minTotalWidth = $viewportWidth * $minSetsNeeded;
+                            $duplicates = max(100, ceil($minTotalWidth / max($oneSetWidth, 1)));
                             
                             for ($d = 0; $d < $duplicates; $d++) {
                                 for ($i = 1; $i <= $placeholderCount; $i++) {
@@ -966,19 +982,23 @@
                         const oneSetWidth = originalItemCount * (cardWidth + gap);
                         
                         // Set animation to move exactly one set width for seamless infinite loop
-                        // This ensures when animation completes, it loops back to the first item
+                        // This ensures when animation completes, it loops back to the first item seamlessly
                         ourWorkTrack.style.setProperty('--one-set-width', oneSetWidth + 'px');
                         
                         // Calculate animation duration based on number of items
                         // More items = slower animation, fewer items = faster
-                        // Ensure smooth infinite scrolling
+                        // Ensure smooth infinite scrolling that never stops
                         const baseDuration = 60; // seconds - slower for smoother effect
                         const duration = Math.max(40, baseDuration + (originalItemCount * 2));
                         ourWorkTrack.style.animationDuration = duration + 's';
                         
-                        // Ensure animation is set to infinite
+                        // CRITICAL: Ensure animation is set to infinite and never stops
                         ourWorkTrack.style.animationIterationCount = 'infinite';
                         ourWorkTrack.style.animationTimingFunction = 'linear';
+                        ourWorkTrack.style.animationName = 'scroll-infinite';
+                        
+                        // Force reflow to ensure animation restarts properly
+                        ourWorkTrack.offsetHeight;
                         
                         // Verify we have enough items for seamless scrolling
                         const totalWidth = items.length * (cardWidth + gap);
