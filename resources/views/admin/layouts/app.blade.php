@@ -469,19 +469,30 @@
             transform: rotate(90deg);
         }
         
+        
         /* Mobile Main Content */
         .main-content {
             margin-right: 0 !important;
             width: 100%;
+            padding-top: 4.5rem !important;
         }
         
         /* Mobile Header */
         .mobile-header {
             padding: 1rem;
+            padding-top: 4.5rem !important;
         }
         
         .mobile-header h1 {
             font-size: 1.25rem;
+        }
+        
+        /* Ensure header doesn't overlap with menu button */
+        @media (max-width: 1024px) {
+            .mobile-header {
+                position: relative;
+                z-index: 10;
+            }
         }
         
         /* Mobile Cards */

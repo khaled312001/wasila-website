@@ -64,10 +64,63 @@
         /* Main Content */
         .main-content {
             flex: 1;
-            padding: 2rem;
+            padding: 0;
             min-height: 100vh;
             width: 100%;
             max-width: calc(100vw - 300px);
+        }
+        
+        /* Top Navigation Bar */
+        .top-navbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid rgba(8, 120, 139, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-navbar-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .top-navbar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #025469;
+            margin: 0;
+        }
+        
+        .top-navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, rgba(8, 120, 139, 0.1) 0%, rgba(60, 166, 180, 0.1) 100%);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(8, 120, 139, 0.2);
+        }
+        
+        .top-navbar-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .top-navbar-user-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #025469;
+        }
+        
+        .top-navbar-user-email {
+            font-size: 0.75rem;
+            color: #64748b;
         }
         
         .sidebar::before {
@@ -281,17 +334,6 @@
         }
         
         
-        /* Top Bar */
-        .top-bar {
-            background: white;
-            padding: 1.5rem 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
         
         /* Cards */
         .dashboard-card {
@@ -369,7 +411,29 @@
             .main-content {
                 width: 100%;
                 max-width: 100%;
+                padding: 0;
+            }
+            
+            .top-navbar {
                 padding: 1rem;
+                padding-top: 4.5rem;
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .top-navbar-content {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .top-navbar-title {
+                font-size: 1.25rem;
+            }
+            
+            .top-navbar-user {
+                width: 100%;
+                justify-content: flex-start;
             }
             
             .sidebar-logo {
@@ -403,12 +467,6 @@
                 justify-content: center;
             }
             
-            .top-bar {
-                padding: 1rem 1.25rem;
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
             
             /* Close button in sidebar for mobile */
             .sidebar-close-btn {
@@ -521,6 +579,7 @@
             transform: rotate(90deg);
         }
         
+        
         /* Overlay for mobile sidebar */
         .sidebar-overlay {
             display: none;
@@ -555,36 +614,77 @@
     <div class="layout-container">
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">@yield('page-title', __('messages.dashboard'))</h1>
-                @hasSection('page-subtitle')
-                <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle')</p>
-                @endif
+        <!-- Top Navigation Bar -->
+        <header class="top-navbar">
+            <div class="top-navbar-content">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    <h1 class="top-navbar-title">@yield('page-title', __('messages.dashboard'))</h1>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="top-navbar-user">
+                        <svg class="w-5 h-5 text-primary-medium" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6z"/>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="top-navbar-user-info">
+                            <span class="top-navbar-user-name">{{ auth('customer')->user()->name }}</span>
+                            <span class="top-navbar-user-email hidden sm:inline">{{ auth('customer')->user()->email }}</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-primary-medium/10 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        <span class="text-sm font-medium">{{ __('messages.back_to_home') }}</span>
+                    </a>
+                    
+                    <form method="POST" action="{{ route('customer.logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="flex items-center gap-2 text-white bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 rounded-full px-3 py-2 shadow-md hover:shadow-lg transform hover:scale-105" title="{{ __('messages.logout') }}">
+                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"/>
+                            </svg>
+                            <span class="hidden md:inline text-sm font-semibold">{{ __('messages.logout') }}</span>
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark">
-                    {{ __('messages.back_to_home') }}
-                </a>
-            </div>
-        </div>
-        
-        <!-- Alerts -->
-        @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
-            <p class="text-green-700">{{ session('success') }}</p>
-        </div>
-        @endif
-        
-        @if(session('error'))
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-            <p class="text-red-700">{{ session('error') }}</p>
-        </div>
-        @endif
+        </header>
         
         <!-- Page Content -->
-        @yield('content')
+        <div class="p-3 md:p-6">
+            <!-- Alerts -->
+            @if(session('success'))
+            <div class="bg-green-50 border-r-4 border-green-400 p-4 mb-6 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-green-700 font-medium">{{ session('success') }}</p>
+                </div>
+            </div>
+            @endif
+            
+            @if(session('error'))
+            <div class="bg-red-50 border-r-4 border-red-400 p-4 mb-6 rounded-lg">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-400 ml-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-red-700 font-medium">{{ session('error') }}</p>
+                </div>
+            </div>
+            @endif
+            
+            @yield('content')
+        </div>
     </main>
     
     <!-- Sidebar -->
