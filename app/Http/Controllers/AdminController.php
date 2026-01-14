@@ -242,7 +242,10 @@ class AdminController extends Controller
             ->latest()
             ->paginate(20);
         
-        return view('admin.customer-messages.index', compact('messages'));
+        // Get all customers with orders for the edit modal
+        $customersWithOrders = Customer::with('orders')->get();
+        
+        return view('admin.customer-messages.index', compact('messages', 'customersWithOrders'));
     }
     
     // Reply to Customer
@@ -334,6 +337,89 @@ class AdminController extends Controller
             'success' => true,
             'messages' => $messages,
         ]);
+    }
+
+    // Edit Customer Message
+    public function editCustomerMessage(CustomerMessage $message)
+    {
+        $message->load(['customer', 'order', 'admin']);
+        return view('admin.customer-messages.edit', compact('message'));
+    }
+
+    // Update Customer Message
+    public function updateCustomerMessage(Request $request, CustomerMessage $message)
+    {
+        try {
+            $request->validate([
+                'message' => 'nullable|string|max:5000',
+                'order_id' => 'nullable|exists:orders,id',
+            ]);
+
+            $data = [
+                'message' => $request->message ?? '',
+            ];
+
+            if ($request->has('order_id')) {
+                $data['order_id'] = $request->order_id;
+            }
+
+            $message->update($data);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم تحديث الرسالة بنجاح',
+                ]);
+            }
+
+            return redirect()->route('admin.customer.messages')
+                ->with('success', 'تم تحديث الرسالة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error updating customer message: ' . $e->getMessage());
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء تحديث الرسالة',
+                ], 500);
+            }
+
+            return back()->with('error', 'حدث خطأ أثناء تحديث الرسالة');
+        }
+    }
+
+    // Delete Customer Message
+    public function destroyCustomerMessage(CustomerMessage $message)
+    {
+        try {
+            // Delete file if exists
+            if ($message->file_path && Storage::disk('public')->exists($message->file_path)) {
+                Storage::disk('public')->delete($message->file_path);
+            }
+
+            $message->delete();
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'تم حذف الرسالة بنجاح',
+                ]);
+            }
+
+            return redirect()->route('admin.customer.messages')
+                ->with('success', 'تم حذف الرسالة بنجاح');
+        } catch (\Exception $e) {
+            Log::error('Error deleting customer message: ' . $e->getMessage());
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'حدث خطأ أثناء حذف الرسالة',
+                ], 500);
+            }
+
+            return back()->with('error', 'حدث خطأ أثناء حذف الرسالة');
+        }
     }
 
     public function sendMessageToCustomer(Request $request, Customer $customer)

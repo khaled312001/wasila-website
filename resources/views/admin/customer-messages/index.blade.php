@@ -127,6 +127,69 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    
+    .btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        margin: auto;
+        padding: 2rem;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 @endpush
 
@@ -242,6 +305,16 @@
                             عرض
                         </a>
                         @endif
+                        <button onclick="openEditModal({{ $message->id }}, '{{ addslashes($message->message ?? '') }}', {{ $message->order_id ?? 'null' }}, {{ $message->customer_id ?? 'null' }})" 
+                                class="action-btn btn-edit">
+                            <i class="fas fa-edit ml-1"></i>
+                            تعديل
+                        </button>
+                        <button onclick="openDeleteModal({{ $message->id }})" 
+                                class="action-btn btn-delete">
+                            <i class="fas fa-trash ml-1"></i>
+                            حذف
+                        </button>
                     </div>
                 </div>
             </div>
@@ -284,4 +357,203 @@
         @endif
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="text-center">
+            <div class="mx-auto flex items-center justify-center w-16 h-16 rounded-full mb-4" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);">
+                <i class="fas fa-exclamation-triangle text-3xl" style="color: #ef4444;"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2" style="color: #1e293b;">تأكيد الحذف</h3>
+            <p class="text-base mb-6" style="color: #475569;">هل أنت متأكد من حذف هذه الرسالة؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            <div class="flex items-center justify-center gap-3">
+                <button id="confirmDeleteBtn" class="px-6 py-3 text-white text-base font-semibold rounded-lg transition-all duration-200" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                    <i class="fas fa-trash ml-2"></i>
+                    حذف
+                </button>
+                <button onclick="closeDeleteModal()" class="px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200" style="background: rgba(107, 114, 128, 0.1); color: #475569; border: 1px solid rgba(107, 114, 128, 0.2);">
+                    <i class="fas fa-times ml-2"></i>
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="mb-4">
+            <h3 class="text-2xl font-bold mb-2" style="color: #025469;">
+                <i class="fas fa-edit ml-2"></i>
+                تعديل الرسالة
+            </h3>
+        </div>
+        <form id="editMessageForm" onsubmit="updateMessage(event)">
+            @csrf
+            @method('PUT')
+            <input type="hidden" id="editMessageId" name="message_id">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2" style="color: #1e293b;">الرسالة</label>
+                <textarea id="editMessageText" name="message" rows="6" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-medium" style="border-color: rgba(8, 120, 139, 0.2);" maxlength="5000"></textarea>
+                <div class="text-xs mt-1" style="color: #64748b;">
+                    <span id="editCharCount">0</span>/5000
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2" style="color: #1e293b;">الطلب (اختياري)</label>
+                <select id="editOrderId" name="order_id" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-medium" style="border-color: rgba(8, 120, 139, 0.2);">
+                    <option value="">لا يوجد طلب</option>
+                </select>
+            </div>
+            
+            <div class="flex items-center justify-end gap-3">
+                <button type="button" onclick="closeEditModal()" class="px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200" style="background: rgba(107, 114, 128, 0.1); color: #475569; border: 1px solid rgba(107, 114, 128, 0.2);">
+                    <i class="fas fa-times ml-2"></i>
+                    إلغاء
+                </button>
+                <button type="submit" class="px-6 py-3 text-white text-base font-semibold rounded-lg transition-all duration-200" style="background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);">
+                    <i class="fas fa-save ml-2"></i>
+                    حفظ التغييرات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+let messageToDelete = null;
+let currentEditMessageId = null;
+
+// Delete Modal Functions
+function openDeleteModal(messageId) {
+    messageToDelete = messageId;
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('show');
+    messageToDelete = null;
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    if (messageToDelete) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/customer-messages/${messageToDelete}`;
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        const methodField = document.createElement('input');
+        methodField.type = 'hidden';
+        methodField.name = '_method';
+        methodField.value = 'DELETE';
+        
+        form.appendChild(csrfToken);
+        form.appendChild(methodField);
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+
+// Orders data for edit modal
+const ordersData = @json($customersWithOrders->mapWithKeys(function($customer) {
+    return [$customer->id => $customer->orders->map(function($order) {
+        return ['id' => $order->id, 'number' => $order->order_number];
+    })];
+}));
+
+// Edit Modal Functions
+function openEditModal(messageId, messageText, orderId, customerId) {
+    currentEditMessageId = messageId;
+    document.getElementById('editMessageId').value = messageId;
+    document.getElementById('editMessageText').value = messageText || '';
+    
+    // Load orders for this customer
+    const orderSelect = document.getElementById('editOrderId');
+    orderSelect.innerHTML = '<option value="">لا يوجد طلب</option>';
+    
+    if (customerId && ordersData[customerId]) {
+        ordersData[customerId].forEach(function(order) {
+            const option = document.createElement('option');
+            option.value = order.id;
+            option.textContent = 'طلب #' + order.number;
+            if (orderId && order.id == orderId) {
+                option.selected = true;
+            }
+            orderSelect.appendChild(option);
+        });
+    }
+    
+    updateCharCount();
+    document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+    currentEditMessageId = null;
+    document.getElementById('editMessageForm').reset();
+}
+
+function updateCharCount() {
+    const textarea = document.getElementById('editMessageText');
+    const charCount = document.getElementById('editCharCount');
+    charCount.textContent = textarea.value.length;
+}
+
+document.getElementById('editMessageText').addEventListener('input', updateCharCount);
+
+function updateMessage(event) {
+    event.preventDefault();
+    
+    if (!currentEditMessageId) return;
+    
+    const formData = new FormData(event.target);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    formData.append('_method', 'PUT');
+    
+    fetch(`/admin/customer-messages/${currentEditMessageId}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('تم تحديث الرسالة بنجاح');
+            location.reload();
+        } else {
+            alert(data.message || 'حدث خطأ أثناء تحديث الرسالة');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء تحديث الرسالة');
+    });
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const deleteModal = document.getElementById('deleteModal');
+    const editModal = document.getElementById('editModal');
+    
+    if (event.target == deleteModal) {
+        closeDeleteModal();
+    }
+    if (event.target == editModal) {
+        closeEditModal();
+    }
+}
+</script>
+@endpush

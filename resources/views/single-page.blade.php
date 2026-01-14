@@ -421,7 +421,7 @@
             </div>
             
             @php
-                // Get ALL active portfolio items
+                // Get ALL active portfolio items - NO LIMIT
                 $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
                     ->orderBy('sort_order', 'asc')
                     ->orderBy('created_at', 'desc')
@@ -441,9 +441,9 @@
                 // Use valid items, or fallback to all items if none are valid
                 $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
                 
-                // For seamless infinite loop, duplicate items exactly 2 times
-                // This ensures smooth continuous scrolling - when we move 50%, we see the same items again
-                $duplicates = 2;
+                // For seamless infinite loop, duplicate items 3 times for smoother continuous scrolling
+                // This ensures we never see empty space - when we reach the end, we seamlessly loop back
+                $duplicates = 3;
                 $allItems = collect();
                 for ($i = 0; $i < $duplicates; $i++) {
                     $allItems = $allItems->merge($itemsToUse);
@@ -513,8 +513,8 @@
                         $imageFiles = glob(public_path('images/*.{png,jpg,jpeg,gif,webp}'), GLOB_BRACE);
                         $imageCount = count($imageFiles);
                         if ($imageCount > 0) {
-                            // Duplicate items exactly 2 times for seamless infinite loop
-                            $duplicates = 2;
+                            // Duplicate items 3 times for seamless infinite loop
+                            $duplicates = 3;
                             for ($d = 0; $d < $duplicates; $d++) {
                                 foreach ($imageFiles as $imageFile) {
                                     $imageName = basename($imageFile);
@@ -531,7 +531,7 @@
                         } else {
                             // Fallback: show placeholder images
                             $placeholderCount = 6;
-                            $duplicates = 2;
+                            $duplicates = 3;
                             for ($d = 0; $d < $duplicates; $d++) {
                                 for ($i = 1; $i <= $placeholderCount; $i++) {
                                     echo '<div class="our-work-card">';
@@ -900,8 +900,9 @@
                     
                     if (originalItemCount > 0) {
                         // Adjust duration based on item count
-                        // Base duration: 40s, add 2s per item for smoother viewing
-                        const duration = Math.max(30, 40 + (originalItemCount * 2));
+                        // Base duration: 50s, add 3s per item for smoother viewing
+                        // Since we duplicate 3 times, we need longer duration for seamless loop
+                        const duration = Math.max(40, 50 + (originalItemCount * 3));
                         ourWorkTrack.style.animationDuration = duration + 's';
                     }
                 };

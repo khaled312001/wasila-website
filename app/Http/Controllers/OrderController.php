@@ -143,15 +143,14 @@ class OrderController extends Controller
             
             // Determine initial status based on payment method
             // If payment is not completed, don't use 'pending' status
-            $initialStatus = 'pending';
-            if ($paymentMethod === 'myfatoorah') {
-                // For MyFatoorah, use 'confirmed' status with payment_status 'pending'
-                // This indicates the order is confirmed but payment is pending
-                $initialStatus = 'confirmed';
-            } elseif ($paymentMethod === 'cod') {
+            // Only COD orders can be 'pending' since payment is collected on delivery
+            $initialStatus = 'confirmed'; // Default to 'confirmed' for unpaid orders
+            if ($paymentMethod === 'cod') {
                 // For COD, use 'pending' as payment will be collected on delivery
                 $initialStatus = 'pending';
             }
+            // For other payment methods (card, bank, myfatoorah), use 'confirmed' 
+            // with payment_status 'pending' to indicate order is confirmed but payment is pending
             
             $order = Order::create([
                 'customer_id' => $customer->id,
@@ -352,7 +351,7 @@ class OrderController extends Controller
                 $order->update([
                     'payment_status' => 'failed',
                     'payment_reference' => $paymentId,
-                    'status' => 'payment_failed',
+                    'status' => 'cancelled',
                     'notes' => 'فشل في الدفع: ' . ($paymentStatus['InvoiceError'] ?? 'Unknown error')
                 ]);
                 
@@ -373,10 +372,11 @@ class OrderController extends Controller
                     
             } else {
                 // حالة أخرى (مثل Pending)
+                // Use 'confirmed' status with payment_status 'pending' instead of 'payment_pending'
                 $order->update([
                     'payment_status' => 'pending',
                     'payment_reference' => $paymentId,
-                    'status' => 'payment_pending',
+                    'status' => 'confirmed',
                     'notes' => 'في انتظار تأكيد الدفع'
                 ]);
                 

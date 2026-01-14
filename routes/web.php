@@ -166,6 +166,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/customer-messages', [AdminController::class, 'customerMessages'])->name('customer.messages');
         Route::post('/customer-messages/{message}/reply', [AdminController::class, 'replyToCustomer'])->name('customer.messages.reply');
         Route::post('/customers/{customer}/messages/send', [AdminController::class, 'sendMessageToCustomer'])->name('customers.messages.send');
+        Route::get('/customer-messages/{message}/edit', [AdminController::class, 'editCustomerMessage'])->name('customer.messages.edit');
+        Route::put('/customer-messages/{message}', [AdminController::class, 'updateCustomerMessage'])->name('customer.messages.update');
+        Route::delete('/customer-messages/{message}', [AdminController::class, 'destroyCustomerMessage'])->name('customer.messages.destroy');
         
         // Statistics PDF Export
         Route::get('/statistics/export/pdf', [AdminController::class, 'exportStatisticsPDF'])->name('statistics.export.pdf');

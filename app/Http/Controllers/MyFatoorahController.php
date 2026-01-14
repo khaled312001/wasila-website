@@ -192,7 +192,7 @@ class MyFatoorahController extends Controller
                 $order->update([
                     'payment_status' => 'failed',
                     'payment_reference' => $paymentId,
-                    'status' => 'payment_failed',
+                    'status' => 'cancelled',
                     'notes' => 'فشل في الدفع: ' . ($data['InvoiceError'] ?? 'Unknown error')
                 ]);
                 
@@ -213,10 +213,11 @@ class MyFatoorahController extends Controller
                     
             } else {
                 // حالة أخرى (مثل Pending)
+                // Use 'confirmed' status with payment_status 'pending' instead of 'payment_pending'
                 $order->update([
                     'payment_status' => 'pending',
                     'payment_reference' => $paymentId,
-                    'status' => 'payment_pending',
+                    'status' => 'confirmed',
                     'notes' => 'في انتظار تأكيد الدفع'
                 ]);
                 
