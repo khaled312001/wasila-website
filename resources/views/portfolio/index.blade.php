@@ -40,7 +40,7 @@
                                         }
                                     @endphp
                                     <img src="{{ $imageUrl }}" alt="{{ $item->title }}" 
-                                         class="w-100 h-100" style="object-fit: cover;"
+                                         class="w-100 h-100" style="object-fit: contain;"
                                          onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-100 h-100 bg-gradient-to-br from-primary-light to-primary-medium flex items-center justify-center\'><i class=\'fas fa-image fa-3x text-white\'></i></div>';">
                                 @else
                                     @php
@@ -59,7 +59,7 @@
                                             $videoUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                                         }
                                     @endphp
-                                    <video class="w-100 h-100" style="object-fit: cover;" controls>
+                                    <video class="w-100 h-100" style="object-fit: contain;" controls>
                                         <source src="{{ $videoUrl }}" type="video/mp4">
                                         {{ __('messages.browser_not_support_video') }}
                                     </video>
