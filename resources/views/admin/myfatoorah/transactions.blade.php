@@ -83,28 +83,28 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($transactions as $transaction)
                 <tr class="table-row">
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td class="px-3 md:px-6 py-4 text-sm font-medium text-gray-900" data-label="رقم الطلب">
                         <div class="flex flex-col">
                             <span class="font-semibold">{{ $transaction->order_number }}</span>
-                            <span class="text-xs text-gray-500 hidden sm:inline">{{ $transaction->customer_name }}</span>
+                            <span class="text-xs text-gray-500 sm:hidden">{{ $transaction->customer_name }}</span>
                         </div>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden sm:table-cell">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden sm:table-cell" data-label="العميل">
                         {{ $transaction->customer_name }}
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900" data-label="المبلغ">
                         <div class="flex flex-col">
                             <span class="font-semibold">{{ number_format($transaction->total_amount, 2) }} ريال</span>
-                            <span class="text-xs text-gray-500 hidden md:inline">{{ $transaction->payment_method ?? 'غير محدد' }}</span>
+                            <span class="text-xs text-gray-500 md:hidden">{{ $transaction->payment_method ?? 'غير محدد' }}</span>
                         </div>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden md:table-cell" data-label="طريقة الدفع">
                         {{ $transaction->payment_method ?? 'غير محدد' }}
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-500 hidden lg:table-cell" data-label="مرجع الدفع">
                         {{ $transaction->payment_reference ? substr($transaction->payment_reference, 0, 20) . '...' : 'غير متوفر' }}
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap">
+                    <td class="px-3 md:px-6 py-4" data-label="الحالة">
                         <span class="inline-flex items-center px-2 py-1 md:px-2.5 md:py-0.5 rounded-full text-xs font-medium
                             @if($transaction->payment_status === 'paid') bg-green-100 text-green-800
                             @elseif($transaction->payment_status === 'pending') bg-yellow-100 text-yellow-800
@@ -119,10 +119,10 @@
                             @endif
                         </span>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="التاريخ">
                         {{ $transaction->updated_at->format('Y-m-d H:i') }}
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td class="px-3 md:px-6 py-4 text-sm font-medium" data-label="الإجراءات">
                         <a href="{{ route('admin.myfatoorah.show', $transaction) }}" class="btn-enhanced text-primary-medium hover:text-primary-dark px-2 md:px-3 py-1 rounded text-xs md:text-sm">
                             عرض
                         </a>

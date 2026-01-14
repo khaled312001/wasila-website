@@ -74,24 +74,24 @@
 </div>
 
 <!-- Customers Table -->
-<div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden">
-    <div class="overflow-x-auto">
+<div class="bg-white rounded-lg shadow-lg card-shadow overflow-hidden mobile-card">
+    <div class="overflow-x-auto mobile-table">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">البريد الإلكتروني</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الهاتف</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عدد الطلبات</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عدد الرسائل</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تاريخ التسجيل</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الاسم</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">البريد الإلكتروني</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase hidden md:table-cell">الهاتف</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عدد الطلبات</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">عدد الرسائل</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">تاريخ التسجيل</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">الإجراءات</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($customers as $customer)
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                <tr class="table-row">
+                    <td class="px-3 md:px-6 py-4" data-label="الاسم">
                         <div class="flex items-center">
                             @if($customer->avatar)
                             <img src="{{ $customer->avatar }}" alt="{{ $customer->name }}" class="h-10 w-10 rounded-full ml-3">
@@ -102,24 +102,34 @@
                             @endif
                             <div>
                                 <div class="text-sm font-medium text-gray-900">{{ $customer->name }}</div>
+                                <div class="text-xs text-gray-500 sm:hidden">{{ $customer->email }}</div>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $customer->email }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $customer->phone ?? 'غير محدد' }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $customer->orders_count }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $customer->messages_count }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $customer->created_at->format('Y-m-d') }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ route('admin.customers.show', $customer) }}" class="text-primary-medium hover:text-primary-dark">
-                            عرض التفاصيل
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden sm:table-cell" data-label="البريد الإلكتروني">{{ $customer->email }}</td>
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden md:table-cell" data-label="الهاتف">{{ $customer->phone ?? 'غير محدد' }}</td>
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900" data-label="عدد الطلبات">
+                        <span class="font-semibold">{{ $customer->orders_count }}</span>
+                        <span class="text-xs text-gray-500 lg:hidden mr-2">طلب</span>
+                    </td>
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="عدد الرسائل">{{ $customer->messages_count }}</td>
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="تاريخ التسجيل">{{ $customer->created_at->format('Y-m-d') }}</td>
+                    <td class="px-3 md:px-6 py-4 text-sm font-medium" data-label="الإجراءات">
+                        <a href="{{ route('admin.customers.show', $customer) }}" class="text-primary-medium hover:text-primary-dark px-2 py-1 rounded text-xs md:text-sm">
+                            عرض
                         </a>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                        لا توجد عملاء
+                    <td colspan="7" class="px-3 md:px-6 py-8 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <p class="text-lg font-medium">لا توجد عملاء</p>
+                            <p class="text-sm text-gray-400">لم يتم العثور على أي عملاء في النظام</p>
+                        </div>
                     </td>
                 </tr>
                 @endforelse
@@ -128,7 +138,7 @@
     </div>
     
     @if($customers->hasPages())
-    <div class="px-6 py-4 border-t border-gray-200">
+    <div class="px-3 md:px-6 py-4 border-t border-gray-200">
         {{ $customers->links() }}
     </div>
     @endif

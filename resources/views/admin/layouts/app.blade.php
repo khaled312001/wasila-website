@@ -420,14 +420,144 @@
                 padding: 1rem;
             }
             
-            /* Mobile Tables */
+            /* Mobile Tables - Enhanced Responsive */
             .mobile-table {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                width: 100%;
+                position: relative;
+            }
+            
+            .mobile-table::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .mobile-table::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 4px;
+            }
+            
+            .mobile-table::-webkit-scrollbar-thumb {
+                background: #08788B;
+                border-radius: 4px;
+            }
+            
+            .mobile-table::-webkit-scrollbar-thumb:hover {
+                background: #065a6b;
             }
             
             .mobile-table table {
-                min-width: 600px;
+                width: 100%;
+                min-width: 100%;
+                border-collapse: collapse;
+            }
+            
+            /* Card-based table view for mobile - Only when data-label exists */
+            @media (max-width: 768px) {
+                .mobile-table table {
+                    display: block;
+                    width: 100%;
+                }
+                
+                .mobile-table thead {
+                    display: none;
+                }
+                
+                .mobile-table tbody {
+                    display: block;
+                    width: 100%;
+                }
+                
+                .mobile-table tr {
+                    display: block;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    margin-bottom: 1rem;
+                    padding: 1rem;
+                    background: white;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    width: 100%;
+                }
+                
+                .mobile-table td {
+                    display: block;
+                    border: none;
+                    position: relative;
+                    padding-right: 50% !important;
+                    padding-top: 0.5rem !important;
+                    padding-bottom: 0.5rem !important;
+                    padding-left: 0.5rem !important;
+                    text-align: right;
+                    width: 100%;
+                }
+                
+                .mobile-table td:before {
+                    content: attr(data-label);
+                    position: absolute;
+                    right: 0;
+                    font-weight: 600;
+                    color: #08788B;
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    white-space: nowrap;
+                }
+                
+                .mobile-table td:empty:before {
+                    content: '';
+                }
+                
+                /* Hide checkbox column label on mobile */
+                .mobile-table td:first-child:before {
+                    content: '';
+                }
+                
+            }
+            
+            /* Keep table view for larger screens */
+            @media (min-width: 769px) {
+                .mobile-table table {
+                    display: table;
+                }
+                
+                .mobile-table thead {
+                    display: table-header-group;
+                }
+                
+                .mobile-table tbody {
+                    display: table-row-group;
+                }
+                
+                .mobile-table tr {
+                    display: table-row;
+                    border: none;
+                    padding: 0;
+                    margin: 0;
+                    box-shadow: none;
+                }
+                
+                .mobile-table th,
+                .mobile-table td {
+                    display: table-cell;
+                    padding: 0.75rem 1rem;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .mobile-table td:before {
+                    content: none;
+                }
+            }
+            
+            /* Tablet view - keep table but optimize */
+            @media (min-width: 769px) and (max-width: 1024px) {
+                .mobile-table table {
+                    min-width: 100%;
+                }
+                
+                .mobile-table th,
+                .mobile-table td {
+                    padding: 0.5rem 0.75rem;
+                    font-size: 0.875rem;
+                }
             }
             
             /* Mobile Forms */

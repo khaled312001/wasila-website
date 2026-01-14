@@ -164,22 +164,22 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($orders as $order)
                 <tr class="table-row">
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap">
+                    <td class="px-3 md:px-6 py-4" data-label="">
                         <input type="checkbox" name="order_ids[]" value="{{ $order->id }}" class="order-checkbox w-4 h-4 text-primary-medium border-gray-300 rounded focus:ring-primary-medium" onchange="updateDeleteButton()">
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td class="px-3 md:px-6 py-4 text-sm font-medium text-gray-900" data-label="رقم الطلب">
                         <div class="flex flex-col">
                             <span class="font-semibold">{{ $order->order_number }}</span>
-                            <span class="text-xs text-gray-500 hidden sm:inline">{{ $order->created_at->format('Y-m-d') }}</span>
+                            <span class="text-xs text-gray-500 sm:hidden">{{ $order->created_at->format('Y-m-d') }}</span>
                         </div>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <td class="px-3 md:px-6 py-4 hidden sm:table-cell" data-label="العميل">
                         <div>
                             <div class="text-sm font-medium text-gray-900">{{ $order->customer_name }}</div>
                             <div class="text-xs text-gray-500">{{ $order->customer_email }}</div>
                         </div>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="الخدمات">
                         @foreach($order->orderItems as $item)
                         <div class="text-xs">{{ $item->service->name_ar ?? 'خدمة محذوفة' }} ({{ $item->quantity }})</div>
                         @endforeach
@@ -187,10 +187,10 @@
                         <span class="text-xs text-gray-400">لا توجد خدمات</span>
                         @endif
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900" data-label="المبلغ">
                         <div class="flex flex-col">
                             <span class="font-semibold">{{ number_format($order->total_amount, 2) }} ريال</span>
-                            <span class="text-xs text-gray-500 hidden md:inline">
+                            <span class="text-xs text-gray-500 md:hidden">
                                 @if($order->payment_status === 'pending')
                                     في الانتظار
                                 @elseif($order->payment_status === 'paid')
@@ -201,7 +201,7 @@
                             </span>
                         </div>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap">
+                    <td class="px-3 md:px-6 py-4" data-label="حالة الطلب">
                         <span class="inline-flex items-center px-2 py-1 md:px-2.5 md:py-0.5 rounded-full text-xs font-medium
                             @if($order->status === 'pending') bg-yellow-100 text-yellow-800
                             @elseif($order->status === 'confirmed') bg-blue-100 text-blue-800
@@ -224,7 +224,7 @@
                             @endif
                         </span>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                    <td class="px-3 md:px-6 py-4 hidden md:table-cell" data-label="حالة الدفع">
                         <span class="inline-flex items-center px-2 py-1 md:px-2.5 md:py-0.5 rounded-full text-xs font-medium
                             @if($order->payment_status === 'pending') bg-yellow-100 text-yellow-800
                             @elseif($order->payment_status === 'paid') bg-green-100 text-green-800
@@ -239,21 +239,22 @@
                             @endif
                         </span>
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="التاريخ">
                         {{ $order->created_at->format('Y-m-d H:i') }}
                     </td>
-                    <td class="px-3 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex gap-2 items-center">
-                            <a href="{{ route('admin.orders.show', $order) }}" class="btn-enhanced text-primary-medium hover:text-primary-dark px-2 md:px-3 py-1 rounded text-xs md:text-sm">
+                    <td class="px-3 md:px-6 py-4 text-sm font-medium" data-label="الإجراءات">
+                        <div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
+                            <a href="{{ route('admin.orders.show', $order) }}" class="btn-enhanced text-primary-medium hover:text-primary-dark px-2 md:px-3 py-1 rounded text-xs md:text-sm text-center">
                                 عرض
                             </a>
                             <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" class="inline" onsubmit="return confirm('⚠️ هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs md:text-sm">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <button type="submit" class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs md:text-sm w-full sm:w-auto">
+                                    <svg class="w-4 h-4 inline" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                     </svg>
+                                    <span class="sm:hidden">حذف</span>
                                 </button>
                             </form>
                         </div>
@@ -289,7 +290,7 @@
     </div>
     
     @if($orders->hasPages())
-    <div class="px-6 py-4 border-t border-gray-200">
+    <div class="px-3 md:px-6 py-4 border-t border-gray-200">
         {{ $orders->links() }}
     </div>
     @endif

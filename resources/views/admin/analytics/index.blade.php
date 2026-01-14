@@ -134,38 +134,45 @@
 </div>
 
 <!-- Top Services -->
-<div class="bg-white rounded-lg shadow-lg card-shadow p-6">
-    <h3 class="text-lg font-semibold text-primary-dark mb-4">أكثر الخدمات طلباً</h3>
-    <div class="overflow-x-auto">
+<div class="bg-white rounded-lg shadow-lg card-shadow p-4 md:p-6 mobile-card">
+    <h3 class="text-base md:text-lg font-semibold text-primary-dark mb-4">أكثر الخدمات طلباً</h3>
+    <div class="overflow-x-auto mobile-table">
         <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الخدمة</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عدد الطلبات</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">إجمالي الإيرادات</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">متوسط الطلب</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الخدمة</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عدد الطلبات</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">إجمالي الإيرادات</th>
+                    <th class="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">متوسط الطلب</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($topServices ?? [] as $service)
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr class="table-row">
+                    <td class="px-3 md:px-6 py-4 text-sm font-medium text-gray-900" data-label="الخدمة">
                         {{ $service->name_ar }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {{ $service->order_items_count }}
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900" data-label="عدد الطلبات">
+                        <span class="font-semibold">{{ $service->order_items_count }}</span>
+                        <span class="text-xs text-gray-500 md:hidden mr-2">طلب</span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden md:table-cell" data-label="إجمالي الإيرادات">
                         {{ number_format($service->order_items_sum_total_price ?? 0, 2) }} ريال
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td class="px-3 md:px-6 py-4 text-sm text-gray-900 hidden lg:table-cell" data-label="متوسط الطلب">
                         {{ $service->order_items_count > 0 ? number_format(($service->order_items_sum_total_price ?? 0) / $service->order_items_count, 2) : 0 }} ريال
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                        لا توجد بيانات
+                    <td colspan="4" class="px-3 md:px-6 py-8 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <p class="text-lg font-medium">لا توجد بيانات</p>
+                            <p class="text-sm text-gray-400">لم يتم العثور على أي بيانات</p>
+                        </div>
                     </td>
                 </tr>
                 @endforelse
