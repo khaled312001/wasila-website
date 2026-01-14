@@ -430,29 +430,26 @@
             transform: translateX(0);
         }
         
-        /* Mobile Menu Button */
+        /* Mobile Menu Button - Inside Header */
         .mobile-menu-toggle {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
-            border-radius: 12px;
+            border-radius: 10px;
             border: none;
             color: white;
             cursor: pointer;
-            z-index: 50;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(8, 120, 139, 0.4);
+            box-shadow: 0 2px 8px rgba(8, 120, 139, 0.3);
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
         
         .mobile-menu-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(8, 120, 139, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(8, 120, 139, 0.4);
         }
         
         .mobile-menu-toggle:active {
@@ -460,39 +457,32 @@
         }
         
         .mobile-menu-toggle svg {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-toggle.active {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
         }
         
         .mobile-menu-toggle.active svg {
             transform: rotate(90deg);
         }
         
-        
         /* Mobile Main Content */
         .main-content {
             margin-right: 0 !important;
             width: 100%;
-            padding-top: 4.5rem !important;
         }
         
         /* Mobile Header */
         .mobile-header {
             padding: 1rem;
-            padding-top: 4.5rem !important;
         }
         
         .mobile-header h1 {
             font-size: 1.25rem;
-        }
-        
-        /* Ensure header doesn't overlap with menu button */
-        @media (max-width: 1024px) {
-            .mobile-header {
-                position: relative;
-                z-index: 10;
-            }
         }
         
         /* Mobile Cards */
@@ -734,15 +724,13 @@
             }
             
             .mobile-menu-toggle {
-                width: 44px;
-                height: 44px;
-                top: 0.75rem;
-                right: 0.75rem;
+                width: 36px;
+                height: 36px;
             }
             
             .mobile-menu-toggle svg {
-                width: 20px;
-                height: 20px;
+                width: 18px;
+                height: 18px;
             }
             
             .sidebar {
@@ -758,13 +746,6 @@
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen">
-        <!-- Mobile Menu Toggle Button -->
-        <button id="mobile-menu-toggle" class="mobile-menu-toggle lg:hidden" onclick="toggleMobileSidebar()" aria-label="فتح/إغلاق القائمة">
-            <svg id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-        </button>
-        
         <!-- Sidebar Overlay for Mobile -->
         <div id="sidebar-overlay" class="sidebar-overlay" onclick="closeMobileSidebar()"></div>
         
@@ -911,13 +892,20 @@
             <!-- Top Navigation -->
             <header class="bg-white shadow-lg border-b-2 border-primary-medium/20 mobile-header sticky top-0 z-30">
                 <div class="flex justify-between items-center px-4 md:px-6 py-3 md:py-4">
-                    <div class="flex items-center">
-                        <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark ml-2 md:ml-4 hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
+                    <div class="flex items-center gap-2">
+                        <!-- Mobile Menu Toggle Button -->
+                        <button id="mobile-menu-toggle" class="mobile-menu-toggle lg:hidden" onclick="toggleMobileSidebar()" aria-label="فتح/إغلاق القائمة">
+                            <svg id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                        <!-- Desktop Sidebar Toggle -->
+                        <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
-                        <h1 class="text-lg md:text-2xl font-bold text-primary-dark ml-3">@yield('page-title', 'لوحة التحكم')</h1>
+                        <h1 class="text-lg md:text-2xl font-bold text-primary-dark">@yield('page-title', 'لوحة التحكم')</h1>
                     </div>
                     
                     <div class="flex items-center gap-2 md:gap-4 flex-row-reverse">

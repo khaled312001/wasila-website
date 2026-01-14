@@ -64,74 +64,10 @@
         /* Main Content */
         .main-content {
             flex: 1;
-            padding: 0;
+            padding: 2rem;
             min-height: 100vh;
             width: 100%;
             max-width: calc(100vw - 300px);
-        }
-        
-        /* Top Navigation Bar */
-        .top-navbar {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-bottom: 2px solid rgba(8, 120, 139, 0.2);
-            padding: 0.875rem 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .top-navbar-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            gap: 1rem;
-        }
-        
-        .top-navbar-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #025469;
-            margin: 0;
-        }
-        
-        .top-navbar-user {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: linear-gradient(135deg, rgba(8, 120, 139, 0.1) 0%, rgba(60, 166, 180, 0.1) 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            border: 1px solid rgba(8, 120, 139, 0.2);
-        }
-        
-        .top-navbar-user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-        
-        .top-navbar-user-name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #025469;
-            line-height: 1.2;
-        }
-        
-        .top-navbar-user-email {
-            font-size: 0.75rem;
-            color: #64748b;
-            line-height: 1.2;
-        }
-        
-        @media (max-width: 1024px) {
-            .top-navbar {
-                padding-top: 4.5rem;
-            }
         }
         
         .sidebar::before {
@@ -164,19 +100,12 @@
         }
         
         .sidebar-logo {
-            padding: 1.5rem;
-            padding-top: 0.75rem;
+            padding: 2rem 1.5rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             margin-bottom: 1.5rem;
             position: relative;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar-logo {
-                padding-top: 0.5rem;
-            }
         }
         
         .sidebar-logo img {
@@ -352,6 +281,17 @@
         }
         
         
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         
         /* Cards */
         .dashboard-card {
@@ -406,7 +346,7 @@
             }
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .layout-container {
                 position: relative;
             }
@@ -429,32 +369,82 @@
             .main-content {
                 width: 100%;
                 max-width: 100%;
-                padding: 0;
-            }
-            
-            .top-navbar {
-                padding: 0.625rem 0.75rem;
-                padding-top: 4.5rem;
-            }
-            
-            .top-navbar-content {
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            
-            .top-navbar-title {
-                font-size: 1rem;
-                flex: 1;
-                min-width: 0;
-            }
-            
-            .top-navbar-content > div:last-child {
-                flex-shrink: 0;
+                padding: 1rem;
             }
             
             .sidebar-logo {
-                padding: 1rem;
-                padding-top: 0.5rem;
+                padding: 1.5rem;
+            }
+            
+            .sidebar-logo img {
+                height: 70px !important;
+            }
+            
+            .sidebar-user-name {
+                font-size: 1rem !important;
+            }
+            
+            .sidebar-user-email {
+                font-size: 0.8125rem !important;
+            }
+            
+            .sidebar-menu-item {
+                padding: 0.875rem 1rem;
+                font-size: 0.9375rem;
+            }
+            
+            .sidebar-menu-item-text {
+                font-size: 0.875rem;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex !important;
+            }
+            
+            .top-bar {
+                padding: 1rem 1.25rem;
+                flex-direction: row;
+                gap: 1rem;
+                align-items: center;
+            }
+            
+            .top-bar > div:first-child {
+                flex: 1;
+            }
+            
+            /* Close button in sidebar for mobile */
+            .sidebar-close-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                margin: 1rem auto;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .sidebar-close-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.1);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .sidebar-logo {
+                padding: 1.25rem;
             }
             
             .sidebar-logo img {
@@ -470,76 +460,6 @@
             }
             
             .sidebar-menu-item {
-                padding: 0.875rem 1rem;
-                font-size: 0.9375rem;
-            }
-            
-            .sidebar-menu-item-text {
-                font-size: 0.875rem;
-            }
-            
-            .mobile-menu-btn {
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            
-            /* Close button in sidebar for mobile */
-            .sidebar-close-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 36px;
-                height: 36px;
-                margin: 0.75rem auto 0.5rem;
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 8px;
-                color: white;
-                border: none;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                flex-shrink: 0;
-            }
-            
-            .sidebar-close-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: scale(1.05);
-            }
-            
-            .sidebar-close-btn svg {
-                width: 18px;
-                height: 18px;
-            }
-        }
-        
-        @media (max-width: 640px) {
-            .sidebar {
-                width: 100%;
-            }
-            
-            .main-content {
-                padding: 0;
-            }
-            
-            .sidebar-logo {
-                padding: 0.875rem;
-                padding-top: 0.5rem;
-            }
-            
-            .sidebar-logo img {
-                height: 50px !important;
-            }
-            
-            .sidebar-user-name {
-                font-size: 0.875rem !important;
-            }
-            
-            .sidebar-user-email {
-                font-size: 0.6875rem !important;
-            }
-            
-            .sidebar-menu-item {
                 padding: 0.75rem 1rem;
                 font-size: 0.875rem;
             }
@@ -552,66 +472,60 @@
                 padding: 0.75rem;
             }
             
-            .mobile-menu-btn {
-                width: 44px;
-                height: 44px;
-                top: 0.75rem;
-                right: 0.75rem;
+            .mobile-menu-toggle {
+                width: 36px;
+                height: 36px;
             }
             
-            .mobile-menu-btn i {
-                font-size: 1.125rem;
+            .mobile-menu-toggle svg {
+                width: 18px;
+                height: 18px;
             }
             
-            .top-navbar {
-                padding: 0.625rem 0.75rem;
-                padding-top: 4.5rem;
-            }
-            
-            .top-navbar-title {
-                font-size: 1rem;
+            .sidebar {
+                width: 100%;
             }
         }
         
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 0.75rem;
-            right: 0.75rem;
-            width: 44px;
-            height: 44px;
+        /* Mobile Menu Button - Inside Header */
+        .mobile-menu-toggle {
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, #08788B 0%, #3CA6B4 100%);
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(8, 120, 139, 0.4);
-            z-index: 999;
             border: none;
             color: white;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(8, 120, 139, 0.3);
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
         
-        .mobile-menu-btn:hover {
+        .mobile-menu-toggle:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 18px rgba(8, 120, 139, 0.5);
+            box-shadow: 0 4px 12px rgba(8, 120, 139, 0.4);
         }
         
-        .mobile-menu-btn:active {
+        .mobile-menu-toggle:active {
             transform: scale(0.95);
         }
         
-        .mobile-menu-btn.active {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        }
-        
-        .mobile-menu-btn i {
-            font-size: 1.125rem;
+        .mobile-menu-toggle svg {
+            width: 20px;
+            height: 20px;
             transition: transform 0.3s ease;
         }
         
-        .mobile-menu-btn.active i.fa-bars {
-            transform: rotate(90deg);
+        .mobile-menu-toggle.active {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
         }
         
+        .mobile-menu-toggle.active svg {
+            transform: rotate(90deg);
+        }
         
         /* Overlay for mobile sidebar */
         .sidebar-overlay {
@@ -633,7 +547,7 @@
             opacity: 1;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .sidebar-overlay.active {
                 display: block;
             }
@@ -647,84 +561,51 @@
     <div class="layout-container">
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Top Navigation Bar -->
-        <header class="top-navbar">
-            <div class="top-navbar-content">
-                <div class="flex items-center gap-2 md:gap-3">
-                    <button onclick="toggleSidebar()" class="text-primary-medium hover:text-primary-dark hidden lg:block transition-colors duration-300 p-2 rounded-lg hover:bg-primary-medium/10">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
-                    <h1 class="top-navbar-title">@yield('page-title', __('messages.dashboard'))</h1>
-                </div>
-                
-                <div class="flex items-center gap-2 md:gap-3">
-                    <div class="top-navbar-user hidden md:flex">
-                        <svg class="w-5 h-5 text-primary-medium" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6z"/>
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd"/>
-                        </svg>
-                        <div class="top-navbar-user-info">
-                            <span class="top-navbar-user-name">{{ auth('customer')->user()->name }}</span>
-                            <span class="top-navbar-user-email hidden lg:inline">{{ auth('customer')->user()->email }}</span>
-                        </div>
-                    </div>
-                    
-                    <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark hidden lg:inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-primary-medium/10 transition-colors">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                        </svg>
-                        <span class="text-sm font-medium">{{ __('messages.back_to_home') }}</span>
-                    </a>
-                    
-                    <form method="POST" action="{{ route('customer.logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="flex items-center gap-1 md:gap-2 text-white bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 rounded-full px-2 md:px-3 py-1.5 md:py-2 shadow-md hover:shadow-lg transform hover:scale-105" title="{{ __('messages.logout') }}">
-                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1"/>
-                            </svg>
-                            <span class="hidden md:inline text-sm font-semibold">{{ __('messages.logout') }}</span>
-                        </button>
-                    </form>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="flex items-center gap-2">
+                <!-- Mobile Menu Toggle Button -->
+                <button id="mobile-menu-toggle" class="mobile-menu-toggle lg:hidden" onclick="toggleSidebar()" aria-label="فتح/إغلاق القائمة">
+                    <svg id="menu-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div>
+                    <h1 class="text-lg md:text-2xl font-bold text-gray-800">@yield('page-title', __('messages.dashboard'))</h1>
+                    @hasSection('page-subtitle')
+                    <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle')</p>
+                    @endif
                 </div>
             </div>
-        </header>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark text-sm md:text-base">
+                    {{ __('messages.back_to_home') }}
+                </a>
+            </div>
+        </div>
+        
+        <!-- Alerts -->
+        @if(session('success'))
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
+            <p class="text-green-700">{{ session('success') }}</p>
+        </div>
+        @endif
+        
+        @if(session('error'))
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
+            <p class="text-red-700">{{ session('error') }}</p>
+        </div>
+        @endif
         
         <!-- Page Content -->
-        <div class="p-3 md:p-6" style="min-height: calc(100vh - 80px);">
-            <!-- Alerts -->
-            @if(session('success'))
-            <div class="bg-green-50 border-r-4 border-green-400 p-4 mb-6 rounded-lg">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 text-green-400 ml-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    <p class="text-green-700 font-medium">{{ session('success') }}</p>
-                </div>
-            </div>
-            @endif
-            
-            @if(session('error'))
-            <div class="bg-red-50 border-r-4 border-red-400 p-4 mb-6 rounded-lg">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 text-red-400 ml-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <p class="text-red-700 font-medium">{{ session('error') }}</p>
-                </div>
-            </div>
-            @endif
-            
-            @yield('content')
-        </div>
+        @yield('content')
     </main>
     
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <!-- Close Button for Mobile -->
-        <button onclick="toggleSidebar()" class="sidebar-close-btn lg:hidden" id="sidebarCloseBtn" aria-label="إغلاق القائمة">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onclick="closeMobileSidebar()" class="sidebar-close-btn lg:hidden" id="sidebarCloseBtn" aria-label="إغلاق القائمة">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
         </button>
@@ -786,18 +667,14 @@
     </div>
     
     <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-    
-    <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" onclick="toggleSidebar()" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
     
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            const menuBtn = document.getElementById('mobileMenuBtn');
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
             const body = document.body;
             
             const isOpen = sidebar.classList.contains('mobile-open');
@@ -805,23 +682,44 @@
             if (isOpen) {
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('active');
-                menuBtn.classList.remove('active');
+                if (menuToggle) menuToggle.classList.remove('active');
                 body.classList.remove('sidebar-open');
                 body.style.overflow = '';
-                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                if (menuIcon) {
+                    menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+                }
             } else {
                 sidebar.classList.add('mobile-open');
                 overlay.classList.add('active');
-                menuBtn.classList.add('active');
+                if (menuToggle) menuToggle.classList.add('active');
                 body.classList.add('sidebar-open');
                 body.style.overflow = 'hidden';
-                menuBtn.innerHTML = '<i class="fas fa-times"></i>';
+                if (menuIcon) {
+                    menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+                }
+            }
+        }
+        
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
+            const body = document.body;
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+            if (menuToggle) menuToggle.classList.remove('active');
+            body.classList.remove('sidebar-open');
+            body.style.overflow = '';
+            if (menuIcon) {
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
             }
         }
         
         // Close sidebar when clicking overlay
         document.getElementById('sidebarOverlay').addEventListener('click', function() {
-            toggleSidebar();
+            closeMobileSidebar();
         });
         
         // Close sidebar when clicking navigation items on mobile
@@ -829,8 +727,8 @@
             const sidebarItems = document.querySelectorAll('.sidebar-menu-item');
             sidebarItems.forEach(item => {
                 item.addEventListener('click', function() {
-                    if (window.innerWidth <= 768) {
-                        setTimeout(() => toggleSidebar(), 300);
+                    if (window.innerWidth <= 1024) {
+                        setTimeout(() => closeMobileSidebar(), 300);
                     }
                 });
             });
@@ -840,35 +738,20 @@
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            const menuBtn = document.getElementById('mobileMenuBtn');
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const menuIcon = document.getElementById('menu-icon');
             const body = document.body;
             
-            if (window.innerWidth > 768) {
+            if (window.innerWidth > 1024) {
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('active');
-                menuBtn.classList.remove('active');
+                if (menuToggle) menuToggle.classList.remove('active');
+                body.classList.remove('sidebar-open');
                 body.style.overflow = '';
-                menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-            }
-        });
-        
-        // Prevent body scroll when sidebar is open on mobile
-        const sidebar = document.getElementById('sidebar');
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    if (sidebar.classList.contains('mobile-open') && window.innerWidth <= 768) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
+                if (menuIcon) {
+                    menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
                 }
-            });
-        });
-        
-        observer.observe(sidebar, {
-            attributes: true,
-            attributeFilter: ['class']
+            }
         });
     </script>
     
