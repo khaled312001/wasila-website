@@ -421,25 +421,15 @@
             </div>
             
             @php
-                // Get ALL active portfolio items - NO LIMIT
+                // Get ALL active portfolio items - NO LIMIT - Display ALL items regardless of file existence
                 $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
                     ->orderBy('sort_order', 'asc')
                     ->orderBy('created_at', 'desc')
                     ->get();
                 
-                // Filter items that have valid file paths
-                $validItems = $portfolioItems->filter(function($item) {
-                    if (empty($item->file_path)) {
-                        return false;
-                    }
-                    $cleanFilePath = $item->normalized_file_path;
-                    return $cleanFilePath && (\Storage::disk('public')->exists($cleanFilePath) || 
-                           file_exists(storage_path('app/public/' . $cleanFilePath)) ||
-                           file_exists(public_path('storage/' . $cleanFilePath)));
-                });
-                
-                // Use valid items, or fallback to all items if none are valid
-                $itemsToUse = $validItems->count() > 0 ? $validItems : $portfolioItems;
+                // Use ALL active items - don't filter by file existence
+                // Files will be checked in the loop and placeholder will be shown if missing
+                $itemsToUse = $portfolioItems;
                 
                 // For seamless infinite loop, duplicate items multiple times
                 // If we have few items (4 or less), duplicate more times to ensure smooth scrolling
@@ -465,6 +455,7 @@
                             $fileExists = $cleanFilePath && ($existsInStorage || $existsInPublic || $existsInAppPublic);
                             
                             // Get file URL - prefer public/storage for direct access
+                            // Always try to get URL even if file doesn't exist locally (might be external URL)
                             if ($existsInPublic) {
                                 $fileUrl = asset('storage/' . $cleanFilePath);
                             } elseif ($existsInStorage) {
@@ -472,31 +463,32 @@
                             } elseif ($existsInAppPublic) {
                                 // File exists but not copied to public/storage yet
                                 $fileUrl = asset('storage/' . $cleanFilePath);
+                            } elseif ($cleanFilePath) {
+                                // Try to use file path even if not found locally (might work via web server)
+                                $fileUrl = asset('storage/' . $cleanFilePath);
                             } else {
+                                // Fallback to model's file_url or placeholder
                                 $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
                             }
                         @endphp
                         <div class="our-work-card">
                             @if($item->type === 'image')
-                                @if($fileExists)
-                                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
-                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
-                                @else
-                                    <img src="{{ asset('images/placeholder-portfolio.png') }}" alt="{{ $item->title_ar }}">
-                                @endif
+                                {{-- Always try to show the image, even if file doesn't exist locally --}}
+                                {{-- The onerror handler will show placeholder if image fails to load --}}
+                                <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
+                                     onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}'; this.style.display='block';">
                             @else
-                                @if($fileExists)
-                                    <video muted loop playsinline>
-                                        <source src="{{ $fileUrl }}" type="video/mp4">
-                                        <source src="{{ $fileUrl }}" type="video/webm">
-                                        <source src="{{ $fileUrl }}" type="video/ogg">
-                                        متصفحك لا يدعم تشغيل الفيديو.
-                                    </video>
-                                @else
-                                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: flex; align-items: center; justify-content: center;">
-                                        <i class="fas fa-video fa-3x text-white"></i>
-                                    </div>
-                                @endif
+                                {{-- Always try to show the video, even if file doesn't exist locally --}}
+                                {{-- The onerror handler will show placeholder if video fails to load --}}
+                                <video muted loop playsinline onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <source src="{{ $fileUrl }}" type="video/mp4">
+                                    <source src="{{ $fileUrl }}" type="video/webm">
+                                    <source src="{{ $fileUrl }}" type="video/ogg">
+                                    متصفحك لا يدعم تشغيل الفيديو.
+                                </video>
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #08788B 0%, #025469 100%); display: none; align-items: center; justify-content: center; position: absolute; top: 0; left: 0;">
+                                    <i class="fas fa-video fa-3x text-white"></i>
+                                </div>
                             @endif
                             <div class="our-work-overlay">
                                 <i class="fas fa-{{ $item->type === 'image' ? 'image' : 'play' }} fa-2x text-white"></i>
