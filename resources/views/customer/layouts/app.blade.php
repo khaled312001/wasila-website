@@ -57,6 +57,15 @@
             z-index: 1000;
         }
         
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            min-height: 100vh;
+            width: 100%;
+            max-width: calc(100vw - 300px);
+        }
+        
         .sidebar::before {
             content: '';
             position: absolute;
@@ -267,14 +276,6 @@
             color: white !important;
         }
         
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-            min-height: 100vh;
-            width: 100%;
-            max-width: calc(100vw - 300px);
-        }
         
         /* Top Bar */
         .top-bar {
@@ -508,6 +509,40 @@
 <body>
     <!-- Layout Container -->
     <div class="layout-container">
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">@yield('page-title', __('messages.dashboard'))</h1>
+                @hasSection('page-subtitle')
+                <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle')</p>
+                @endif
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark">
+                    {{ __('messages.back_to_home') }}
+                </a>
+            </div>
+        </div>
+        
+        <!-- Alerts -->
+        @if(session('success'))
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
+            <p class="text-green-700">{{ session('success') }}</p>
+        </div>
+        @endif
+        
+        @if(session('error'))
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
+            <p class="text-red-700">{{ session('error') }}</p>
+        </div>
+        @endif
+        
+        <!-- Page Content -->
+        @yield('content')
+    </main>
+    
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
@@ -564,40 +599,6 @@
             </form>
         </div>
     </aside>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">@yield('page-title', __('messages.dashboard'))</h1>
-                @hasSection('page-subtitle')
-                <p class="text-gray-600 text-sm mt-1">@yield('page-subtitle')</p>
-                @endif
-            </div>
-            <div class="flex items-center gap-4">
-                <a href="{{ route('home') }}" class="text-primary-medium hover:text-primary-dark">
-                    {{ __('messages.back_to_home') }}
-                </a>
-            </div>
-        </div>
-        
-        <!-- Alerts -->
-        @if(session('success'))
-        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
-            <p class="text-green-700">{{ session('success') }}</p>
-        </div>
-        @endif
-        
-        @if(session('error'))
-        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-            <p class="text-red-700">{{ session('error') }}</p>
-        </div>
-        @endif
-        
-        <!-- Page Content -->
-        @yield('content')
-    </main>
     </div>
     
     <!-- Sidebar Overlay -->

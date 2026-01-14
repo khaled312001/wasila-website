@@ -758,71 +758,6 @@
         box-shadow: var(--shadow-xl);
     }
     
-    /* Orders Filter Sidebar */
-    .orders-sidebar {
-        background: white;
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-md);
-        border: 1px solid #e5e7eb;
-        margin-top: 1.5rem;
-    }
-    
-    .orders-sidebar-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-    
-    .orders-sidebar-header i {
-        color: #08788B;
-        font-size: 1.25rem;
-    }
-    
-    .orders-sidebar-header h2 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1e293b;
-    }
-    
-    .order-filter-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .order-filter-item {
-        padding: 0.875rem 1rem;
-        border-radius: var(--border-radius-sm);
-        transition: var(--transition-base);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-    }
-    
-    .order-filter-item:hover {
-        transform: translateX(-4px);
-    }
-    
-    .order-filter-item.active {
-        background: var(--primary-gradient);
-        color: white;
-        box-shadow: var(--shadow-md);
-    }
-    
-    .order-filter-item:not(.active) {
-        background: #f8fafc;
-        color: #64748b;
-    }
-    
-    .order-filter-item:not(.active):hover {
-        background: #f1f5f9;
-        color: #475569;
-    }
-    
     /* Responsive Design */
     @media (max-width: 1024px) {
         .chat-container {
@@ -1123,28 +1058,6 @@
                     <i class="fas fa-envelope"></i>
                     <span>{{ __('messages.contact_us') }}</span>
                 </a>
-            </div>
-        </div>
-
-        <!-- Orders Filter Sidebar -->
-        <div class="orders-sidebar">
-            <div class="orders-sidebar-header">
-                <i class="fas fa-filter"></i>
-                <h2>{{ __('messages.filter_by_order') }}</h2>
-            </div>
-            <div class="order-filter-list">
-                <a href="{{ route('customer.messages.index') }}" 
-                   class="order-filter-item {{ !request('order_id') ? 'active' : '' }}">
-                    <i class="fas fa-comments"></i>
-                    <span>{{ __('messages.all_messages') }}</span>
-                </a>
-                @foreach(auth('customer')->user()->orders as $order)
-                <a href="{{ route('customer.messages.index', ['order_id' => $order->id]) }}" 
-                   class="order-filter-item {{ request('order_id') == $order->id ? 'active' : '' }}">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>{{ __('messages.order') }} #{{ $order->order_number }}</span>
-                </a>
-                @endforeach
             </div>
         </div>
     </div>
