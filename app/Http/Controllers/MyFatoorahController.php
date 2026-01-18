@@ -231,17 +231,27 @@ class MyFatoorahController extends Controller
                     'curl_data_keys' => is_array($curlData) ? array_keys($curlData) : 'not_array'
                 ]);
                 
-                // Return user-friendly error message
-                $errorMessage = 'Error creating invoice';
+                // Return user-friendly error message in Arabic
+                $locale = app()->getLocale();
+                $errorMessage = $locale === 'ar' 
+                    ? 'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.' 
+                    : 'Error creating payment invoice. Please try again.';
+                    
                 if (strpos($e->getMessage(), 'session') !== false || strpos($e->getMessage(), 'Session') !== false) {
-                    $errorMessage = 'Invalid session. Please try the payment again.';
+                    $errorMessage = $locale === 'ar'
+                        ? 'جلسة الدفع غير صالحة. يرجى المحاولة مرة أخرى.'
+                        : 'Invalid payment session. Please try again.';
                 } elseif (strpos($e->getMessage(), 'invoice') !== false || strpos($e->getMessage(), 'Invoice') !== false) {
-                    $errorMessage = 'Error creating payment invoice. Please try again.';
+                    $errorMessage = $locale === 'ar'
+                        ? 'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.'
+                        : 'Error creating payment invoice. Please try again.';
                 }
                 
                 return response()->json([
                     'success' => false,
                     'message' => $errorMessage,
+                    'error' => true,
+                    'error_type' => 'invoice_creation_error',
                     'error_details' => [
                         'code' => $e->getCode(),
                         'message' => $e->getMessage()
@@ -421,11 +431,16 @@ class MyFatoorahController extends Controller
                     'invoice_status' => $invoiceStatus
                 ]);
                 
+                $locale = app()->getLocale();
+                $message = $locale === 'ar'
+                    ? 'فشل الدفع. يرجى المحاولة مرة أخرى.'
+                    : 'Payment failed. Please try again.';
+                
                 return response()->json([
                     'success' => false,
                     'paymentId' => $paymentId,
                     'status' => 'failed',
-                    'message' => 'Payment failed. Please try again.',
+                    'message' => $message,
                     'redirect' => true,
                     'callbackUrl' => route('myfatoorah.callback', ['paymentId' => $paymentId])
                 ]);
@@ -446,11 +461,15 @@ class MyFatoorahController extends Controller
                 $locale = app()->getLocale();
                 $pollUrl = ($locale === 'en') ? '/en/myfatoorah/check-payment-status/' . $paymentId : '/myfatoorah/check-payment-status/' . $paymentId;
                 
+                $message = $locale === 'ar'
+                    ? 'جاري معالجة الدفع. يرجى الانتظار...'
+                    : 'Payment is still being processed. Please wait...';
+                
                 return response()->json([
                     'success' => false,
                     'paymentId' => $paymentId,
                     'status' => $invoiceStatus,
-                    'message' => 'Payment is still being processed. Please wait...',
+                    'message' => $message,
                     'redirect' => false,
                     'keepPolling' => true,
                     'pollUrl' => $pollUrl
@@ -464,9 +483,16 @@ class MyFatoorahController extends Controller
                 'order_id' => $request->input('orderId')
             ]);
             
+            $locale = app()->getLocale();
+            $errorMessage = $locale === 'ar'
+                ? 'حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى.'
+                : 'An error occurred processing the payment. Please try again.';
+            
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'error' => true,
+                'message' => $errorMessage,
+                'error_type' => 'general_error'
             ], 500);
         }
     }

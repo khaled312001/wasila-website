@@ -171,11 +171,13 @@
             console.log('Execute payment HTTP response:', response);
             if (!response.ok) {
                 // Try to get error message from response
-                let errorMessage = 'HTTP error! status: ' + response.status;
+                let errorMessage = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع." : "An error occurred processing the payment." }}';
                 try {
                     const errorData = await response.json();
                     if (errorData.message) {
                         errorMessage = errorData.message;
+                    } else if (errorData.error && errorData.error.message) {
+                        errorMessage = errorData.error.message;
                     }
                 } catch (e) {
                     // If response is not JSON, use status text
@@ -229,8 +231,24 @@
                 setTimeout(() => {
                     window.location.href = data.callbackUrl;
                 }, 1000);
+            } else if (data.error) {
+                // Payment error occurred (e.g., invoice creation error)
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                
+                const errorMsg = data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+                alert(errorMsg);
+                
+                // Re-enable button
+                const submitButton = document.querySelector('.mf-pay-now-btn');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
+                    submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
+                }
             } else {
-                // Payment failed or error occurred
+                // Payment failed or unknown status
                 if (typeof hideLoadingOverlay === 'function') {
                     hideLoadingOverlay();
                 }
@@ -253,25 +271,19 @@
                 hideLoadingOverlay();
             }
             
-            // Try to get error message from response if available
-            let errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في التحقق من حالة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred verifying payment status. Please try again." }}';
+            // Default error message
+            let errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
             
-            // If error has response, try to parse it
-            if (error.response) {
-                error.response.json().then(data => {
-                    if (data.message) {
-                        errorMsg = data.message;
-                    }
-                    alert(errorMsg);
-                }).catch(() => {
-                    alert(errorMsg);
-                });
-            } else {
-                if (error.message) {
-                    errorMsg += ' (' + error.message + ')';
-                }
-                alert(errorMsg);
+            // If error is a string (from throw new Error), use it directly
+            if (typeof error === 'string') {
+                errorMsg = error;
+            } else if (error && error.message) {
+                // If error has a message, use it
+                errorMsg = error.message;
             }
+            
+            // Show error message
+            alert(errorMsg);
             
             // Re-enable button
             const submitButton = document.querySelector('.mf-pay-now-btn');
