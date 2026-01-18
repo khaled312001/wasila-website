@@ -217,8 +217,26 @@
         })
         .then(data => {
             console.log('Execute payment response:', data);
+            console.log('Execute payment response keys:', Object.keys(data || {}));
             
-            if (data.success && data.paymentId) {
+            // PRIORITY 1: Check for invoiceURL FIRST - this is needed for OTP/3D Secure
+            // This must be checked before any other conditions
+            if (data.invoiceURL) {
+                console.log('Invoice URL found, redirecting to OTP page:', data.invoiceURL);
+                
+                // Hide any loading overlay
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                
+                // Redirect to invoice URL immediately (this is where OTP happens)
+                // No delay - redirect immediately to allow OTP flow
+                window.location.href = data.invoiceURL;
+                return; // Stop execution here
+            }
+            
+            // PRIORITY 2: Payment is successful with paymentId
+            if (data.success && data.paymentId && !data.keepPolling) {
                 // Payment is successful, use the paymentId
                 const responseWithPaymentId = {
                     ...originalResponse,
@@ -235,7 +253,11 @@
                     console.log('mfCallback not found, redirecting to callback');
                     window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + data.paymentId;
                 }
-            } else if (data.keepPolling && data.pollUrl) {
+                return; // Stop execution here
+            }
+            
+            // PRIORITY 3: Payment needs polling (only if no invoiceURL)
+            if (data.keepPolling && data.pollUrl) {
                 // Payment is still pending - poll status until it's paid
                 console.log('Payment is still pending, starting polling:', data.pollUrl);
                 
@@ -246,18 +268,11 @@
                 
                 // Start polling payment status
                 pollPaymentStatus(data.pollUrl, data.paymentId, 0);
-            } else if (data.redirect && data.invoiceURL) {
-                // Payment needs redirect to invoice URL for OTP/3D Secure
-                console.log('Payment needs redirect to invoice URL for OTP:', data.invoiceURL);
-                
-                // Show message to user
-                if (typeof showLoadingOverlay === 'function') {
-                    showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري توجيهك إلى صفحة البنك لإتمام الدفع..." : "Redirecting to bank page to complete payment..." }}');
-                }
-                
-                // Redirect to invoice URL immediately (this is where OTP happens)
-                window.location.href = data.invoiceURL;
-            } else if (data.redirect && data.callbackUrl) {
+                return; // Stop execution here
+            }
+            
+            // PRIORITY 4: Other redirect scenarios
+            if (data.redirect && data.callbackUrl) {
                 // Payment failed or needs redirect to callback
                 console.log('Payment needs redirect to callback:', data.callbackUrl);
                 

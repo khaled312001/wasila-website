@@ -202,7 +202,11 @@ class MyFatoorahController extends Controller
                     'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array',
                     'payment_type' => gettype($payment),
                     'has_invoice_id' => isset($payment['InvoiceId']),
-                    'has_invoice_url' => isset($payment['invoiceURL'])
+                    'has_invoice_url' => isset($payment['invoiceURL']),
+                    'invoice_url_value' => $payment['invoiceURL'] ?? $payment['InvoiceURL'] ?? $payment['invoice_url'] ?? 'NOT_FOUND',
+                    'all_url_keys' => is_array($payment) ? array_filter(array_keys($payment), function($key) {
+                        return stripos($key, 'url') !== false || stripos($key, 'invoice') !== false;
+                    }) : []
                 ]);
                 
                 // Log full response for debugging (but limit size)
@@ -263,11 +267,15 @@ class MyFatoorahController extends Controller
             
             // Check if invoiceURL exists - this is needed for OTP/3D Secure authentication
             // If invoiceURL exists, we MUST redirect user to it to complete payment
-            if (isset($payment['invoiceURL']) && !empty($payment['invoiceURL'])) {
+            // This check MUST be done FIRST before any other processing
+            $invoiceURL = $payment['invoiceURL'] ?? $payment['InvoiceURL'] ?? $payment['invoice_url'] ?? null;
+            
+            if ($invoiceURL && !empty(trim($invoiceURL))) {
                 Log::info('MyFatoorah executePayment: Invoice URL found, redirecting user for OTP/3D Secure', [
-                    'invoice_url' => $payment['invoiceURL'],
+                    'invoice_url' => $invoiceURL,
                     'has_invoice_id' => isset($payment['InvoiceId']),
-                    'invoice_id' => $payment['InvoiceId'] ?? null
+                    'invoice_id' => $payment['InvoiceId'] ?? null,
+                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array'
                 ]);
                 
                 // Extract paymentId/InvoiceId if available for tracking
@@ -281,10 +289,11 @@ class MyFatoorahController extends Controller
                     ]);
                 }
                 
-                // Return invoiceURL for frontend to redirect
+                // Return invoiceURL for frontend to redirect - this is the most important response
+                // Frontend MUST redirect to this URL for OTP authentication
                 return response()->json([
                     'success' => true,
-                    'invoiceURL' => $payment['invoiceURL'],
+                    'invoiceURL' => $invoiceURL,
                     'redirect' => true,
                     'paymentId' => $paymentId,
                     'message' => app()->getLocale() === 'ar' 
