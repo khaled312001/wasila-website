@@ -125,8 +125,21 @@
                     console.log('mfCallback not found, redirecting to callback');
                     window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + data.paymentId;
                 }
+            } else if (data.redirect && data.callbackUrl) {
+                // Payment is pending or being processed - redirect to callback to verify final status
+                console.log('Payment is being processed, redirecting to callback:', data.callbackUrl);
+                
+                // Show message to user
+                if (typeof showLoadingOverlay === 'function') {
+                    showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري التحقق من حالة الدفع..." : "Verifying payment status..." }}');
+                }
+                
+                // Redirect to callback URL after a brief delay
+                setTimeout(() => {
+                    window.location.href = data.callbackUrl;
+                }, 1000);
             } else {
-                // Payment is not completed yet
+                // Payment failed or error occurred
                 if (typeof hideLoadingOverlay === 'function') {
                     hideLoadingOverlay();
                 }

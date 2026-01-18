@@ -289,38 +289,73 @@ class MyFatoorahController extends Controller
                 'payment_id' => $paymentId
             ]);
             
-            // Wait a moment for payment to process (3D Secure, OTP, etc.)
-            sleep(2);
+            // Save paymentId to order for tracking
+            $order->update([
+                'payment_reference' => $paymentId,
+                'notes' => 'في انتظار تأكيد الدفع من MyFatoorah'
+            ]);
             
-            // Check payment status from MyFatoorah
-            try {
-                $mfStatusObj = new MyFatoorahPaymentStatus($this->mfConfig);
-                $paymentStatus = $mfStatusObj->getPaymentStatus($paymentId, 'PaymentId');
-                
-                // Convert object to array if needed (MyFatoorah may return stdClass objects)
-                if (is_object($paymentStatus)) {
-                    $paymentStatus = json_decode(json_encode($paymentStatus), true);
+            // Wait a moment for payment to process (3D Secure, OTP, etc.)
+            sleep(3);
+            
+            // Check payment status from MyFatoorah - try multiple times for pending payments
+            $maxRetries = 3;
+            $retryDelay = 2; // seconds
+            $paymentStatus = null;
+            $invoiceStatus = 'Unknown';
+            
+            for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+                try {
+                    $mfStatusObj = new MyFatoorahPaymentStatus($this->mfConfig);
+                    $paymentStatus = $mfStatusObj->getPaymentStatus($paymentId, 'PaymentId');
+                    
+                    // Convert object to array if needed (MyFatoorah may return stdClass objects)
+                    if (is_object($paymentStatus)) {
+                        $paymentStatus = json_decode(json_encode($paymentStatus), true);
+                    }
+                    
+                    $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Unknown';
+                    
+                    Log::info('MyFatoorah executePayment: Payment status checked', [
+                        'payment_id' => $paymentId,
+                        'attempt' => $attempt,
+                        'invoice_status' => $invoiceStatus,
+                        'payment_status_data' => $paymentStatus
+                    ]);
+                    
+                    // If payment is paid or failed, break the loop
+                    if (strtolower($invoiceStatus) === 'paid' || strtolower($invoiceStatus) === 'failed') {
+                        break;
+                    }
+                    
+                    // If not the last attempt, wait before retrying
+                    if ($attempt < $maxRetries) {
+                        sleep($retryDelay);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('MyFatoorah executePayment: Error checking payment status', [
+                        'payment_id' => $paymentId,
+                        'attempt' => $attempt,
+                        'error' => $e->getMessage()
+                    ]);
+                    
+                    // If it's the last attempt, return error
+                    if ($attempt === $maxRetries) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Error checking payment status: ' . $e->getMessage(),
+                            'paymentId' => $paymentId,
+                            'redirect' => true,
+                            'callbackUrl' => route('myfatoorah.callback', ['paymentId' => $paymentId])
+                        ], 500);
+                    }
+                    
+                    // Wait before retrying
+                    sleep($retryDelay);
                 }
-                
-                Log::info('MyFatoorah executePayment: Payment status checked', [
-                    'payment_id' => $paymentId,
-                    'invoice_status' => $paymentStatus['InvoiceStatus'] ?? 'Unknown',
-                    'payment_status_data' => $paymentStatus
-                ]);
-            } catch (\Exception $e) {
-                Log::error('MyFatoorah executePayment: Error checking payment status', [
-                    'payment_id' => $paymentId,
-                    'error' => $e->getMessage()
-                ]);
-                
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error checking payment status: ' . $e->getMessage(),
-                    'paymentId' => $paymentId
-                ], 500);
             }
             
-            if ($paymentStatus && strtolower($paymentStatus['InvoiceStatus'] ?? '') === 'paid') {
+            if ($paymentStatus && strtolower($invoiceStatus) === 'paid') {
                 // Payment is successful, update order
                 $paymentMethod = $paymentStatus['PaymentMethod'] ?? 'MyFatoorah';
                 if (stripos($paymentMethod, 'myfatoorah') === false && $paymentMethod !== 'MyFatoorah') {
@@ -360,19 +395,23 @@ class MyFatoorahController extends Controller
                     'order_id' => $orderId
                 ]);
             } else {
-                // Payment is pending or failed
-                $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Unknown';
+                // Payment is still pending or failed - redirect to callback to let MyFatoorah handle it
+                $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Pending';
                 
-                Log::warning('MyFatoorah executePayment: Payment not completed', [
+                Log::info('MyFatoorah executePayment: Payment status is ' . $invoiceStatus . ', redirecting to callback', [
                     'payment_id' => $paymentId,
                     'invoice_status' => $invoiceStatus
                 ]);
                 
+                // Return paymentId and callback URL so frontend can redirect
+                // The callback will check the final status and update the order accordingly
                 return response()->json([
                     'success' => false,
                     'paymentId' => $paymentId,
                     'status' => $invoiceStatus,
-                    'message' => 'Payment is not completed yet. Status: ' . $invoiceStatus
+                    'message' => 'Payment is being processed. Redirecting to verify status...',
+                    'redirect' => true,
+                    'callbackUrl' => route('myfatoorah.callback', ['paymentId' => $paymentId])
                 ]);
             }
             
