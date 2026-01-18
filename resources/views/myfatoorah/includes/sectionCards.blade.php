@@ -1,15 +1,28 @@
+@if(isset($paymentMethods['cards']) && is_array($paymentMethods['cards']))
 @foreach($paymentMethods['cards'] as $mfCard)
-@php($mfCardTitle = App::isLocale('ar') ? $mfCard->PaymentMethodAr : $mfCard->PaymentMethodEn)
-<div class="mf-card-container mf-div-{{$mfCard->PaymentMethodCode}}" onclick="mfCardSubmit('{{$mfCard->PaymentMethodId}}')">
+@php
+    // Handle both array and object formats
+    $mfCardTitle = App::isLocale('ar') 
+        ? ($mfCard['PaymentMethodAr'] ?? $mfCard->PaymentMethodAr ?? '')
+        : ($mfCard['PaymentMethodEn'] ?? $mfCard->PaymentMethodEn ?? '');
+    $paymentMethodCode = $mfCard['PaymentMethodCode'] ?? $mfCard->PaymentMethodCode ?? '';
+    $paymentMethodId = $mfCard['PaymentMethodId'] ?? $mfCard->PaymentMethodId ?? '';
+    $imageUrl = $mfCard['ImageUrl'] ?? $mfCard->ImageUrl ?? '';
+    $gatewayData = $mfCard['GatewayData'] ?? $mfCard->GatewayData ?? [];
+    $gatewayTotalAmount = is_array($gatewayData) ? ($gatewayData['GatewayTotalAmount'] ?? '') : ($gatewayData->GatewayTotalAmount ?? '');
+    $gatewayCurrency = is_array($gatewayData) ? ($gatewayData['GatewayCurrency'] ?? 'SAR') : ($gatewayData->GatewayCurrency ?? 'SAR');
+@endphp
+<div class="mf-card-container mf-div-{{$paymentMethodCode}}" onclick="mfCardSubmit('{{$paymentMethodId}}')">
     <div class="mf-row-container">
-        <img class="mf-payment-logo" src="{{$mfCard->ImageUrl}}" alt="{{$mfCardTitle}}">
+        <img class="mf-payment-logo" src="{{$imageUrl}}" alt="{{$mfCardTitle}}">
         <span class="mf-payment-text mf-card-title">{{$mfCardTitle}}</span>
     </div>
     <span class="mf-payment-text">
-        {{ $mfCard->GatewayData['GatewayTotalAmount'] }} {{ $mfCard->GatewayData['GatewayCurrency'] }}
+        {{ $gatewayTotalAmount }} {{ $gatewayCurrency }}
     </span>
 </div>
 @endforeach
+@endif
 
 <script>
     function mfCardSubmit(pmid){

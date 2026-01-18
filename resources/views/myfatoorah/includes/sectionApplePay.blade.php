@@ -1,3 +1,4 @@
+@if(isset($paymentMethods['ap']) && (isset($paymentMethods['ap']['GatewayData']) || (is_object($paymentMethods['ap']) && isset($paymentMethods['ap']->GatewayData))))
 <script>
     // Polyfill for browser object to prevent ReferenceError
     if (typeof browser === 'undefined') {
@@ -15,8 +16,8 @@
 var mfApConfig = {
     sessionId: "{{$mfSession->SessionId}}", // Here you add the "SessionId" you receive from the InitiateSession endpoint.
     countryCode: "{{$mfSession->CountryCode}}", // Here, add your country code.
-    amount: "{{$paymentMethods['ap']->GatewayData['GatewayTotalAmount']}}", // Add the invoice amount.
-    currencyCode: "{{$paymentMethods['ap']->GatewayData['GatewayCurrency']}}", // Here, add your currency code.
+    amount: "{{is_array($paymentMethods['ap']['GatewayData'] ?? null) ? ($paymentMethods['ap']['GatewayData']['GatewayTotalAmount'] ?? '') : ($paymentMethods['ap']->GatewayData->GatewayTotalAmount ?? '')}}", // Add the invoice amount.
+    currencyCode: "{{is_array($paymentMethods['ap']['GatewayData'] ?? null) ? ($paymentMethods['ap']['GatewayData']['GatewayCurrency'] ?? 'SAR') : ($paymentMethods['ap']->GatewayData->GatewayCurrency ?? 'SAR')}}", // Here, add your currency code.
     cardViewId: "mf-ap-element",
     callback: function(response) {
         console.log('MyFatoorah Apple Pay callback:', response);
@@ -61,3 +62,4 @@ var mfApConfig = {
 
 myFatoorahAP.init(mfApConfig);
 </script>
+@endif

@@ -1,3 +1,4 @@
+@if(isset($paymentMethods['gp']) && (isset($paymentMethods['gp']['GatewayData']) || (is_object($paymentMethods['gp']) && isset($paymentMethods['gp']->GatewayData))))
 <script>
     // Polyfill for browser object to prevent ReferenceError
     if (typeof browser === 'undefined') {
@@ -15,8 +16,8 @@
 var mfGpConfig = {
     sessionId: "{{$mfSession->SessionId}}", // Here you add the "SessionId" you receive from the InitiateSession endpoint.
     countryCode: "{{$mfSession->CountryCode}}", // Here, add your country code.
-    amount: "{{$paymentMethods['gp']->GatewayData['GatewayTotalAmount']}}", // Add the invoice amount.
-    currencyCode: "{{$paymentMethods['gp']->GatewayData['GatewayCurrency']}}", // Here, add your currency code.
+    amount: "{{is_array($paymentMethods['gp']['GatewayData'] ?? null) ? ($paymentMethods['gp']['GatewayData']['GatewayTotalAmount'] ?? '') : ($paymentMethods['gp']->GatewayData->GatewayTotalAmount ?? '')}}", // Add the invoice amount.
+    currencyCode: "{{is_array($paymentMethods['gp']['GatewayData'] ?? null) ? ($paymentMethods['gp']['GatewayData']['GatewayCurrency'] ?? 'SAR') : ($paymentMethods['gp']->GatewayData->GatewayCurrency ?? 'SAR')}}", // Here, add your currency code.
     cardViewId: "mf-gp-element",
     isProduction: {{Config::get('myfatoorah.test_mode')? 'false' : 'true'}},
     callback: function(response) {
@@ -62,3 +63,4 @@ var mfGpConfig = {
 
 myFatoorahGP.init(mfGpConfig);
 </script>
+@endif
