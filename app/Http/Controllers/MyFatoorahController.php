@@ -1019,37 +1019,63 @@ class MyFatoorahController extends Controller
                     ->with('error', 'لم يتم العثور على الطلب.');
             }
 
-            // Prepare order data for MyFatoorah
-            $orderData = [
-                'total' => $order->total_amount,
-                'currency' => 'SAR'
-            ];
-
-            // Get customer ID for card saving
-            $customerId = $order->customer_email; // Using email as customer identifier
-
-            // Use user defined field for order tracking
-            $userDefinedField = $order->id;
-
-            // Get the enabled gateways at your MyFatoorah account
-            $mfObj = new MyFatoorahPaymentEmbedded($this->mfConfig);
-            $paymentMethods = $mfObj->getCheckoutGateways((float)$orderData['total'], $orderData['currency'], config('myfatoorah.register_apple_pay'));
-
-            if (empty($paymentMethods['all'])) {
-                throw new Exception('noPaymentGateways');
+            // Use standard MyFatoorah PHP library approach
+            // Get available payment methods using initiatePayment()
+            $mfObj = new MyFatoorahPayment($this->mfConfig);
+            
+            try {
+                // Get all available payment methods from MyFatoorah
+                $paymentMethods = $mfObj->initiatePayment();
+                
+                // Convert object to array if needed
+                if (is_object($paymentMethods)) {
+                    $paymentMethods = json_decode(json_encode($paymentMethods), true);
+                }
+                
+                Log::info('MyFatoorah initiatePayment response', [
+                    'payment_methods_count' => isset($paymentMethods['Data']) && isset($paymentMethods['Data']['PaymentMethods']) ? count($paymentMethods['Data']['PaymentMethods']) : 0,
+                    'has_data' => isset($paymentMethods['Data']),
+                    'is_success' => $paymentMethods['IsSuccess'] ?? false
+                ]);
+                
+                // Check if payment methods were retrieved successfully
+                if (!isset($paymentMethods['IsSuccess']) || !$paymentMethods['IsSuccess']) {
+                    $errorMsg = $paymentMethods['Message'] ?? 'Failed to get payment methods';
+                    Log::error('MyFatoorah initiatePayment failed', [
+                        'message' => $errorMsg,
+                        'response' => $paymentMethods
+                    ]);
+                    throw new Exception($errorMsg);
+                }
+                
+                if (empty($paymentMethods['Data']['PaymentMethods'])) {
+                    Log::warning('MyFatoorah: No payment methods available');
+                    throw new Exception('noPaymentGateways');
+                }
+                
+                // Prepare payment methods for view
+                $availableMethods = $paymentMethods['Data']['PaymentMethods'] ?? [];
+                
+                // Get Environment URL for redirects
+                $isTest = $this->mfConfig['isTest'];
+                $vcCode = $this->mfConfig['vcCode'];
+                $countries = MyFatoorah::getMFCountries();
+                $jsDomain = ($isTest) ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
+                
+                return view('myfatoorah.checkout', compact('availableMethods', 'jsDomain', 'order'));
+                
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah checkout error: ' . $e->getMessage(), [
+                    'order_id' => $orderId,
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                $exMessage = __('myfatoorah.' . $e->getMessage());
+                if ($exMessage === 'myfatoorah.' . $e->getMessage()) {
+                    $exMessage = $e->getMessage();
+                }
+                return view('myfatoorah.error', compact('exMessage'));
             }
-
-            // Generate MyFatoorah session for embedded payment
-            $mfSession = $mfObj->getEmbeddedSession($userDefinedField);
-
-            // Get Environment URL
-            $isTest = $this->mfConfig['isTest'];
-            $vcCode = $this->mfConfig['vcCode'];
-
-            $countries = MyFatoorah::getMFCountries();
-            $jsDomain = ($isTest) ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
-
-            return view('myfatoorah.checkout', compact('mfSession', 'paymentMethods', 'jsDomain', 'userDefinedField', 'order'));
         } catch (Exception $ex) {
             $exMessage = __('myfatoorah.' . $ex->getMessage());
             return view('myfatoorah.error', compact('exMessage'));

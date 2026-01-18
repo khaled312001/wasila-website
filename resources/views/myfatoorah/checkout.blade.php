@@ -26,6 +26,24 @@
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.2);
             }
+            
+            .payment-method-item {
+                transition: all 0.3s ease;
+            }
+            
+            .payment-method-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+            
+            .payment-method-item.border-primary {
+                border-color: var(--primary) !important;
+                background-color: rgba(15, 76, 129, 0.05);
+            }
+            
+            .bg-primary-light {
+                background-color: rgba(15, 76, 129, 0.05);
+            }
         </style>
     </head>
 
@@ -96,218 +114,107 @@
             </div>
         </div>
         @endif
-        <div class="mf-payment-methods-container" id="mf-noPaymentGateways">
-            <div class="mf-danger-text">
-                {{__('myfatoorah.noPaymentGateways')}}
-            </div>
-        </div>
-        <div class="mf-payment-methods-container" id="mf-paymentGateways" >
-            <div class="mf-grey-text">
-                {{__('myfatoorah.howWouldYouLikeToPay')}}
-            </div>
-
-            <!-- Google Pay & Apple Pay -->
-            <div id="mf-sectionButtons">
-                <!-- Apple Pay -->
-                @if(!empty($paymentMethods['ap']))
-                <div id="mf-sectionAP">
-                    <div id="mf-ap-element" style="height: 40px;"></div>
+        <!-- Payment Methods Selection -->
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            @if(empty($availableMethods))
+                <div class="glass-effect rounded-2xl p-6 text-center">
+                    <div class="text-red-600 mb-4">
+                        <i class="fas fa-exclamation-triangle text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">
+                        {{ app()->getLocale() === 'ar' ? 'لا توجد طرق دفع متاحة' : 'No Payment Methods Available' }}
+                    </h3>
+                    <p class="text-gray-600">
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'يرجى التواصل مع الدعم لتفعيل طرق الدفع' 
+                            : 'Please contact support to enable payment methods' }}
+                    </p>
                 </div>
-                @endif
-                <!-- Google Pay -->
-                @if(!empty($paymentMethods['gp']))
-                <div id="mf-sectionGP">
-                    <div id="mf-gp-element"></div>
-                </div>
-                @endif
-            </div>
-
-            @if(!empty($paymentMethods['cards'] ))
-            <div id="mf-sectionCard">
-                <div class="mf-divider card-divider" id="mf-payWith-cardDivider">
-                    <span class="mf-divider-span" id="mf-payWith-divider">
-                        <span id="mf-or-cardsDivider">
-                            {{!empty($paymentMethods['ap'] ) || !empty($paymentMethods['gp'] ) ? __('myfatoorah.or') : ''}}
-                        </span>
-                        {{__('myfatoorah.payWith')}}
-                    </span>
-                </div>
-                <div id="mf-cards">
-                    @include('myfatoorah.includes.sectionCards')
-                </div>
-            </div>
-            @endif
-
-            <!-- Payment Form -->
-            @if(!empty($paymentMethods['form']))
-            <div class="mf-divider">
-                <span class="mf-divider-span">
-                    <span id="mf-or-formDivider">
-                        {{!empty($paymentMethods['cards'] ) || !empty($paymentMethods['ap'] ) || !empty($paymentMethods['gp'] ) ? __('myfatoorah.or') :''}}
-                    </span>
-                    {{__('myfatoorah.insertCardDetails')}}
-                </span>
-            </div>
-            <div id="mf-form-element" style="width:99%; max-width:800px; padding: 0rem 0.2rem"></div>
-
-            <button class="mf-btn mf-pay-now-btn" onclick="submit()" type="button" style="
-                    border: none; border-radius: 8px;
-                    padding: 7px 3px; background-color: #0293cc">
-                <span class="mf-pay-now-span">
-                    {{__('myfatoorah.payNow')}}
-                </span>
-            </button>
-            @endif
-
-            <script src="{{asset('vendor/myfatoorah/js/checkout.js')}}"></script>
-            <script>
-                // Loading overlay to show during payment processing
-                function showLoadingOverlay(message) {
-                    const overlay = document.createElement('div');
-                    overlay.id = 'mf-loading-overlay';
-                    overlay.style.cssText = `
-                        position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0, 0, 0, 0.8);
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: center;
-                        z-index: 9999;
-                        color: white;
-                        font-size: 18px;
-                        text-align: center;
-                    `;
-                    overlay.innerHTML = `
-                        <div style="background: white; padding: 30px; border-radius: 10px; color: #333; max-width: 400px; margin: 20px;">
-                            <div style="margin-bottom: 20px;">
-                                <svg class="animate-spin" style="width: 50px; height: 50px; margin: 0 auto; display: block;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
+            @else
+                <div class="glass-effect rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">
+                        {{ app()->getLocale() === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method' }}
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        @foreach($availableMethods as $method)
+                            <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-primary transition cursor-pointer payment-method-item"
+                                 data-payment-method-id="{{ $method['PaymentMethodId'] }}"
+                                 onclick="selectPaymentMethod({{ $method['PaymentMethodId'] }}, '{{ $method['PaymentMethodEn'] ?? $method['PaymentMethodAr'] ?? 'Payment' }}')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        @if(isset($method['PaymentMethodLogoUrl']))
+                                            <img src="{{ $method['PaymentMethodLogoUrl'] }}" 
+                                                 alt="{{ $method['PaymentMethodEn'] ?? $method['PaymentMethodAr'] ?? 'Payment' }}" 
+                                                 class="w-12 h-12 mr-4">
+                                        @endif
+                                        <div>
+                                            <h3 class="font-semibold text-gray-800">
+                                                {{ app()->getLocale() === 'ar' 
+                                                    ? ($method['PaymentMethodAr'] ?? $method['PaymentMethodEn'] ?? 'دفع') 
+                                                    : ($method['PaymentMethodEn'] ?? $method['PaymentMethodAr'] ?? 'Payment') }}
+                                            </h3>
+                                            @if(isset($method['PaymentMethodCode']))
+                                                <p class="text-sm text-gray-600">{{ $method['PaymentMethodCode'] }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="payment-method-check hidden">
+                                        <i class="fas fa-check-circle text-green-500 text-2xl"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <p style="font-size: 16px; margin-bottom: 10px; font-weight: bold;">${message}</p>
-                            <p style="font-size: 14px; color: #666;">{{ app()->getLocale() === 'ar' ? 'يرجى الانتظار...' : 'Please wait...' }}</p>
-                        </div>
-                    `;
-                    document.body.appendChild(overlay);
-                }
-                
-                function hideLoadingOverlay() {
-                    const overlay = document.getElementById('mf-loading-overlay');
-                    if (overlay) {
-                        overlay.remove();
-                    }
-                }
-                
-                function mfCallback(response) {
-                    // Validate response first
-                    if (!response) {
-                        console.error('MyFatoorah: Invalid payment response - response is null or undefined', response);
-                        hideLoadingOverlay();
-                        const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
-                        alert(errorMsg);
-                        return false;
-                    }
+                        @endforeach
+                    </div>
                     
-                    // Validate paymentId
-                    if (!response.paymentId || response.paymentId === '' || response.paymentId === null || response.paymentId === undefined) {
-                        console.error('MyFatoorah: Invalid payment response - paymentId is missing or invalid', response);
-                        hideLoadingOverlay();
-                        const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
-                        alert(errorMsg);
-                        return false;
-                    }
-                    
-                    console.log('MyFatoorah: Payment successful, paymentId:', response.paymentId);
-                    
-                    // Show success message first
-                    const successMessage = document.createElement('div');
-                    successMessage.id = 'mf-success-message';
-                    successMessage.style.cssText = `
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                        color: white;
-                        padding: 30px 40px;
-                        border-radius: 15px;
-                        z-index: 10000;
-                        text-align: center;
-                        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                        min-width: 300px;
-                        max-width: 90%;
-                    `;
-                    successMessage.innerHTML = `
-                        <div style="margin-bottom: 15px;">
-                            <svg style="width: 60px; height: 60px; margin: 0 auto; display: block;" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">
-                            {{ app()->getLocale() === "ar" ? "تم الدفع بنجاح!" : "Payment Successful!" }}
-                        </h3>
-                        <p style="font-size: 14px; opacity: 0.9;">
-                            {{ app()->getLocale() === "ar" ? "جاري إعادة التوجيه..." : "Redirecting..." }}
-                        </p>
-                    `;
-                    document.body.appendChild(successMessage);
-                    
-                    // Wait a moment to allow user to see any OTP or success messages from MyFatoorah
-                    // This gives time for OTP popups or bank messages to appear
-                    setTimeout(function() {
-                        // Show loading overlay with message
-                        showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري معالجة الدفع..." : "Processing payment..." }}');
-                        
-                        // Remove success message
-                        if (successMessage.parentNode) {
-                            successMessage.remove();
-                        }
-                        
-                        // Redirect to MyFatoorah callback with payment ID
-                        setTimeout(function() {
-                            window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
-                        }, 500);
-                    }, 3000); // 3 second delay to allow OTP/success messages to appear
-                }
-                
-                // Handle payment errors globally
-                window.addEventListener('error', function(e) {
-                    if (e.message && (e.message.includes('myFatoorah') || e.message.includes('MyFatoorah'))) {
-                        hideLoadingOverlay();
-                        console.error('MyFatoorah global error:', e);
-                    }
-                });
-                
-                // Handle unhandled promise rejections
-                window.addEventListener('unhandledrejection', function(e) {
-                    if (e.reason && (e.reason.message && (e.reason.message.includes('myFatoorah') || e.reason.message.includes('MyFatoorah')))) {
-                        hideLoadingOverlay();
-                        console.error('MyFatoorah unhandled rejection:', e.reason);
-                        alert('{{ app()->getLocale() === "ar" ? "حدث خطأ غير متوقع في عملية الدفع. يرجى المحاولة مرة أخرى." : "An unexpected error occurred during payment. Please try again." }}');
-                    }
-                });
-            </script>
-
-            <!-- Google Pay Scripts -->
-            @if(!empty($paymentMethods['gp']))
-            @include('myfatoorah.includes.sectionGooglePay')
-            @endif
-
-            <!-- Apple Pay Scripts -->
-            @if(!empty($paymentMethods['ap']))
-            @include('myfatoorah.includes.sectionApplePay')
-            @endif
-
-            <!-- Payment Form Scripts -->
-            @if(!empty($paymentMethods['form']))
-            @include('myfatoorah.includes.sectionForm')
+                    <div class="mt-6">
+                        <button id="proceed-to-payment-btn" 
+                                onclick="proceedToPayment()" 
+                                disabled
+                                class="w-full bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-dark transition disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            {{ app()->getLocale() === 'ar' ? 'المتابعة للدفع' : 'Proceed to Payment' }}
+                        </button>
+                    </div>
+                </div>
             @endif
         </div>
+
+        <script>
+            let selectedPaymentMethodId = null;
+            
+            function selectPaymentMethod(methodId, methodName) {
+                // Remove selection from all items
+                document.querySelectorAll('.payment-method-item').forEach(item => {
+                    item.classList.remove('border-primary', 'bg-primary-light');
+                    item.querySelector('.payment-method-check').classList.add('hidden');
+                });
+                
+                // Add selection to clicked item
+                const clickedItem = event.currentTarget;
+                clickedItem.classList.add('border-primary', 'bg-primary-light');
+                clickedItem.querySelector('.payment-method-check').classList.remove('hidden');
+                
+                selectedPaymentMethodId = methodId;
+                document.getElementById('proceed-to-payment-btn').disabled = false;
+                
+                console.log('Selected payment method:', methodId, methodName);
+            }
+            
+            function proceedToPayment() {
+                if (!selectedPaymentMethodId) {
+                    alert('{{ app()->getLocale() === "ar" ? "يرجى اختيار طريقة الدفع" : "Please select a payment method" }}');
+                    return;
+                }
+                
+                // Show loading
+                const btn = document.getElementById('proceed-to-payment-btn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>{{ app()->getLocale() === "ar" ? "جاري التوجيه..." : "Redirecting..." }}';
+                
+                // Redirect to payment URL
+                window.location.href = '{{ route("myfatoorah.index") }}?oid={{ $order->id }}&pmid=' + selectedPaymentMethodId;
+            }
+        </script>
         
         <!-- Footer -->
         <footer class="bg-gray-800 text-white py-8 mt-16">
