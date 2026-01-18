@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Set default timezone for Carbon to Mecca time (Asia/Riyadh)
-        Carbon::setDefaultTimezone('Asia/Riyadh');
+        // Ensure timezone is set to Mecca time (Asia/Riyadh)
+        // This is already set in config/app.php, but we ensure it here as well
+        date_default_timezone_set(config('app.timezone', 'Asia/Riyadh'));
     }
 }
