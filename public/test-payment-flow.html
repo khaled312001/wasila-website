@@ -250,83 +250,177 @@
         
         function testMfCallback() {
             const results = [];
+            const container = document.getElementById('callback-test');
+            container.innerHTML = '<p style="color: #3b82f6;">جاري الاختبار...</p>';
             
             // Test with valid response
             try {
+                // Clear any existing messages
+                const existingMsg = document.getElementById('mf-success-message');
+                if (existingMsg) existingMsg.remove();
+                const existingOverlay = document.getElementById('mf-loading-overlay');
+                if (existingOverlay) existingOverlay.remove();
+                
                 mfCallback({paymentId: 'TEST123456'});
-                results.push({test: 'mfCallback مع response صحيح', pass: true});
+                // Check if success message was created
+                setTimeout(() => {
+                    const successMsg = document.getElementById('mf-success-message');
+                    if (successMsg) {
+                        results.push({test: 'mfCallback مع response صحيح', pass: true});
+                        // Clean up
+                        successMsg.remove();
+                    } else {
+                        results.push({test: 'mfCallback مع response صحيح', pass: false, note: 'لم تظهر رسالة النجاح'});
+                    }
+                    
+                    // Now test with invalid response
+                    testInvalidResponse(results);
+                }, 100);
             } catch (e) {
                 results.push({test: 'mfCallback مع response صحيح', pass: false, error: e.message});
+                testInvalidResponse(results);
             }
-            
-            // Test with invalid response - mock alert to check if it's called
+        }
+        
+        function testInvalidResponse(results) {
+            // Mock alert to check if it's called
             let alertCalled = false;
             const originalAlert = window.alert;
+            
             window.alert = function(message) {
                 alertCalled = true;
-                originalAlert(message);
+                console.log('Test: Alert called with message:', message);
+                // Don't show actual alert during test
             };
+            
+            // Clear any existing messages
+            const existingMsg = document.getElementById('mf-success-message');
+            if (existingMsg) existingMsg.remove();
+            const existingOverlay = document.getElementById('mf-loading-overlay');
+            if (existingOverlay) existingOverlay.remove();
             
             try {
                 mfCallback(null);
-                // Check if alert was called (error handling worked)
-                if (alertCalled) {
-                    results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert بنجاح'});
-                } else {
-                    results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'لم يتم استدعاء alert'});
-                }
+                
+                // Wait a bit to check if alert was called and no success message was created
+                setTimeout(() => {
+                    const successMsg = document.getElementById('mf-success-message');
+                    const hasNoSuccessMsg = !successMsg;
+                    
+                    // Check if alert was called (error handling worked)
+                    if (alertCalled && hasNoSuccessMsg) {
+                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                    } else if (alertCalled) {
+                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert'});
+                    } else {
+                        results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'لم يتم استدعاء alert'});
+                    }
+                    
+                    // Clean up
+                    if (successMsg) successMsg.remove();
+                    const overlay = document.getElementById('mf-loading-overlay');
+                    if (overlay) overlay.remove();
+                    
+                    window.alert = originalAlert;
+                    displayResults(results, 'callback-test');
+                }, 300);
             } catch (e) {
-                results.push({test: 'mfCallback مع response خاطئ', pass: false, error: e.message});
-            } finally {
                 window.alert = originalAlert;
+                results.push({test: 'mfCallback مع response خاطئ', pass: false, error: e.message});
+                displayResults(results, 'callback-test');
             }
-            
-            displayResults(results, 'callback-test');
         }
         
         function testErrorHandling() {
             const results = [];
+            const container = document.getElementById('error-test');
+            container.innerHTML = '<p style="color: #3b82f6;">جاري الاختبار...</p>';
             
             // Mock alert to check if error handling works
-            let alertCalledCount = 0;
+            let alertCalled = false;
             const originalAlert = window.alert;
+            
             window.alert = function(message) {
-                alertCalledCount++;
+                alertCalled = true;
+                console.log('Test: Alert called:', message);
                 // Don't show actual alert during test
-                console.log('Alert called:', message);
             };
             
             // Test null response
+            // Clear any existing messages
+            const existingMsg = document.getElementById('mf-success-message');
+            if (existingMsg) existingMsg.remove();
+            const existingOverlay = document.getElementById('mf-loading-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            
+            alertCalled = false;
+            
             try {
                 mfCallback(null);
-                if (alertCalledCount > 0) {
-                    results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert'});
-                } else {
-                    results.push({test: 'معالجة null response', pass: false, note: 'لم يتم استدعاء alert'});
-                }
+                
+                // Give it a moment to process
+                setTimeout(() => {
+                    const successMsg = document.getElementById('mf-success-message');
+                    const hasNoSuccessMsg = !successMsg;
+                    
+                    if (alertCalled && hasNoSuccessMsg) {
+                        results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                    } else if (alertCalled) {
+                        results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert'});
+                    } else {
+                        results.push({test: 'معالجة null response', pass: false, note: 'لم يتم استدعاء alert'});
+                    }
+                    
+                    // Clean up
+                    if (successMsg) successMsg.remove();
+                    const overlay = document.getElementById('mf-loading-overlay');
+                    if (overlay) overlay.remove();
+                    
+                    // Test missing paymentId
+                    alertCalled = false;
+                    
+                    // Clear any existing messages
+                    const existingMsg2 = document.getElementById('mf-success-message');
+                    if (existingMsg2) existingMsg2.remove();
+                    const existingOverlay2 = document.getElementById('mf-loading-overlay');
+                    if (existingOverlay2) existingOverlay2.remove();
+                    
+                    try {
+                        mfCallback({});
+                        
+                        setTimeout(() => {
+                            const successMsg2 = document.getElementById('mf-success-message');
+                            const hasNoSuccessMsg2 = !successMsg2;
+                            
+                            if (alertCalled && hasNoSuccessMsg2) {
+                                results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                            } else if (alertCalled) {
+                                results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert'});
+                            } else {
+                                results.push({test: 'معالجة missing paymentId', pass: false, note: 'لم يتم استدعاء alert'});
+                            }
+                            
+                            // Clean up
+                            if (successMsg2) successMsg2.remove();
+                            const overlay2 = document.getElementById('mf-loading-overlay');
+                            if (overlay2) overlay2.remove();
+                            
+                            // Restore original function
+                            window.alert = originalAlert;
+                            
+                            displayResults(results, 'error-test');
+                        }, 300);
+                    } catch (e) {
+                        window.alert = originalAlert;
+                        results.push({test: 'معالجة missing paymentId', pass: false, error: e.message});
+                        displayResults(results, 'error-test');
+                    }
+                }, 300);
             } catch (e) {
+                window.alert = originalAlert;
                 results.push({test: 'معالجة null response', pass: false, error: e.message});
+                displayResults(results, 'error-test');
             }
-            
-            // Reset counter for next test
-            alertCalledCount = 0;
-            
-            // Test missing paymentId
-            try {
-                mfCallback({});
-                if (alertCalledCount > 0) {
-                    results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert'});
-                } else {
-                    results.push({test: 'معالجة missing paymentId', pass: false, note: 'لم يتم استدعاء alert'});
-                }
-            } catch (e) {
-                results.push({test: 'معالجة missing paymentId', pass: false, error: e.message});
-            }
-            
-            // Restore original alert
-            window.alert = originalAlert;
-            
-            displayResults(results, 'error-test');
         }
         
         function displayResults(results, containerId) {
