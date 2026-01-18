@@ -230,10 +230,12 @@
             if (invoiceURL && invoiceURL.trim() !== '') {
                 console.log('=== INVOICE URL FOUND - REDIRECTING TO OTP PAGE ===');
                 console.log('Invoice URL:', invoiceURL);
+                console.log('URL length:', invoiceURL.length);
                 console.log('Stopping all other processing - redirecting immediately');
                 
                 // Set a flag to prevent any other processing
                 window.paymentRedirecting = true;
+                window.paymentRedirectAttempted = true;
                 
                 // Hide any loading overlay immediately
                 if (typeof hideLoadingOverlay === 'function') {
@@ -251,30 +253,79 @@
                     window.paymentPollingTimer = null;
                 }
                 
+                // Clear any other pending timeouts
+                for (let i = 1; i < 99999; i++) {
+                    try {
+                        clearTimeout(i);
+                        clearInterval(i);
+                    } catch (e) {
+                        // Ignore errors
+                    }
+                }
+                
                 // CRITICAL: Redirect to invoice URL immediately (this is where OTP happens)
-                // Use window.location.replace() to prevent back button issues
                 // This is critical - user MUST be redirected to bank's OTP page
+                // For OTP/3D Secure, we need to redirect the entire page, not use popup
                 try {
-                    console.log('Attempting redirect to:', invoiceURL);
+                    console.log('Attempting redirect to OTP page:', invoiceURL);
+                    console.log('URL length:', invoiceURL.length);
+                    console.log('Current location before redirect:', window.location.href);
                     
-                    // Redirect immediately - no delay
-                    window.location.replace(invoiceURL);
+                    // Validate URL format
+                    if (!invoiceURL.startsWith('http://') && !invoiceURL.startsWith('https://')) {
+                        console.error('Invalid URL format:', invoiceURL);
+                        throw new Error('Invalid URL format');
+                    }
                     
-                    // Force redirect if replace doesn't work immediately
+                    // Method 1: Try direct href assignment (most reliable)
+                    // This will redirect the entire page to the OTP page
+                    // Use a small delay to ensure all cleanup is done first
                     setTimeout(function() {
-                        if (window.paymentRedirecting && window.location.href !== invoiceURL && !window.location.href.includes('myfatoorah.com')) {
-                            console.warn('Location replace may have failed, forcing redirect with href');
-                            window.location.href = invoiceURL;
+                        console.log('Executing redirect now...');
+                        window.location.href = invoiceURL;
+                    }, 10);
+                    
+                    // Method 2: Immediate redirect as backup
+                    window.location.href = invoiceURL;
+                    
+                    // Method 3: If href doesn't work, try assign after a delay
+                    setTimeout(function() {
+                        const currentUrl = window.location.href;
+                        console.log('Checking redirect status, current URL:', currentUrl);
+                        if (!currentUrl.includes('myfatoorah.com') && !currentUrl.includes('PayInvoice') && !currentUrl.includes('CyberSource')) {
+                            console.warn('Redirect may have failed, forcing with location.assign');
+                            window.location.assign(invoiceURL);
                         }
-                    }, 50);
+                    }, 200);
                     
                     // Stop all execution - do NOT continue to any other code
                     // This return statement is critical
                     return false;
                 } catch (redirectError) {
                     console.error('Error during redirect:', redirectError);
-                    // Fallback redirect - must happen
-                    window.location.href = invoiceURL;
+                    // Fallback: try multiple redirect methods immediately
+                    try {
+                        window.location.href = invoiceURL;
+                    } catch (e1) {
+                        console.error('href failed:', e1);
+                        try {
+                            window.location.assign(invoiceURL);
+                        } catch (e2) {
+                            console.error('assign failed:', e2);
+                            try {
+                                window.location.replace(invoiceURL);
+                            } catch (e3) {
+                                console.error('replace failed:', e3);
+                                // Last resort: create a link and click it
+                                const link = document.createElement('a');
+                                link.href = invoiceURL;
+                                link.target = '_self';
+                                link.style.display = 'none';
+                                document.body.appendChild(link);
+                                link.click();
+                            }
+                        }
+                    }
                     return false;
                 }
             }
