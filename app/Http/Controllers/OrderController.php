@@ -478,17 +478,31 @@ class OrderController extends Controller
             // بناء الاستعلام - بدون أي فلترة افتراضية
             $query = Order::query();
             
-            // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
-            // إلا إذا كان المستخدم يطبق فلتر محدد على payment_method أو payment_status
-            $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
-            if (!$hasPaymentFilter) {
-                $query->where(function($q) {
-                    $q->where('payment_method', '!=', 'MyFatoorah')
-                      ->orWhere(function($subQ) {
-                          $subQ->where('payment_method', 'MyFatoorah')
-                               ->where('payment_status', 'paid');
-                      });
-                });
+            // التحقق من وجود أي فلتر مطبق
+            $hasAnyFilter = $request->filled('order_number') || 
+                           $request->filled('customer_name') || 
+                           $request->filled('customer_email') || 
+                           $request->filled('status') || 
+                           $request->filled('payment_status') || 
+                           $request->filled('payment_method') || 
+                           $request->filled('date_from') || 
+                           $request->filled('date_to') || 
+                           $request->filled('amount_min') || 
+                           $request->filled('amount_max');
+            
+            // إخفاء الطلبات غير المدفوعة من MyFatoorah فقط عند تطبيق أي فلتر
+            // إذا لم يكن هناك أي فلتر، اظهر جميع الطلبات
+            if ($hasAnyFilter) {
+                $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
+                if (!$hasPaymentFilter) {
+                    $query->where(function($q) {
+                        $q->where('payment_method', '!=', 'MyFatoorah')
+                          ->orWhere(function($subQ) {
+                              $subQ->where('payment_method', 'MyFatoorah')
+                                   ->where('payment_status', 'paid');
+                          });
+                    });
+                }
             }
             
             // تحميل العلاقات بشكل آمن
@@ -661,17 +675,31 @@ class OrderController extends Controller
     {
         $query = Order::with('orderItems.service');
         
-        // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
-        // إلا إذا كان المستخدم يطبق فلتر محدد على payment_method أو payment_status
-        $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
-        if (!$hasPaymentFilter) {
-            $query->where(function($q) {
-                $q->where('payment_method', '!=', 'MyFatoorah')
-                  ->orWhere(function($subQ) {
-                      $subQ->where('payment_method', 'MyFatoorah')
-                           ->where('payment_status', 'paid');
-                  });
-            });
+        // التحقق من وجود أي فلتر مطبق
+        $hasAnyFilter = $request->filled('order_number') || 
+                       $request->filled('customer_name') || 
+                       $request->filled('customer_email') || 
+                       $request->filled('status') || 
+                       $request->filled('payment_status') || 
+                       $request->filled('payment_method') || 
+                       $request->filled('date_from') || 
+                       $request->filled('date_to') || 
+                       $request->filled('amount_min') || 
+                       $request->filled('amount_max');
+        
+        // إخفاء الطلبات غير المدفوعة من MyFatoorah فقط عند تطبيق أي فلتر
+        // إذا لم يكن هناك أي فلتر، اظهر جميع الطلبات
+        if ($hasAnyFilter) {
+            $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
+            if (!$hasPaymentFilter) {
+                $query->where(function($q) {
+                    $q->where('payment_method', '!=', 'MyFatoorah')
+                      ->orWhere(function($subQ) {
+                          $subQ->where('payment_method', 'MyFatoorah')
+                               ->where('payment_status', 'paid');
+                      });
+                });
+            }
         }
         
         // Apply same filters as index

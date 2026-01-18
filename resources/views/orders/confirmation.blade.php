@@ -1,28 +1,122 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب - وسيلة' : 'Order Confirmation - Wasila' }}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo-arabic.png') }}">
+    
+    <!-- SEO -->
+    <x-seo 
+        title="{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب - وسيلة' : 'Order Confirmation - Wasila' }}"
+        description="{{ app()->getLocale() === 'ar' 
+            ? 'تم تأكيد طلبك بنجاح. شكراً لك على دعمك لمشروع وسيلة.'
+            : 'Your order has been confirmed successfully. Thank you for supporting Wasila.' }}"
+        keywords="{{ app()->getLocale() === 'ar' 
+            ? 'تأكيد الطلب, وسيلة, شكر'
+            : 'order confirmation, wasila, thank you' }}"
+        image="{{ asset('images/logo-arabic.png') }}"
+        url="{{ url('/orders/confirmation') }}"
+        type="website"
+        author="وسيلة"
+    />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Error Fixes Script -->
+    <script src="{{ asset('js/error-fixes.js') }}"></script>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('css/wasila.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/wasila-header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/wasila-footer.css') }}">
+</head>
+<body>
+    <!-- Main Header -->
+    <header class="wasila-header">
+        <div class="wasila-header-container">
+            <div class="wasila-header-logo">
+                <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}" class="wasila-logo-link">
+                    <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة" class="wasila-logo-img">
+                </a>
+            </div>
+            
+            <nav class="wasila-header-nav">
+                <ul class="wasila-nav-list">
+                    <li class="wasila-nav-item">
+                        <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-home"></i>
+                            <span>{{ __('messages.home') }}</span>
+                        </a>
+                    </li>
+                    <li class="wasila-nav-item">
+                        <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-kaaba"></i>
+                            <span>{{ __('messages.services') }}</span>
+                        </a>
+                    </li>
+                    <li class="wasila-nav-item">
+                        <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}#about" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-info-circle"></i>
+                            <span>{{ __('messages.about') }}</span>
+                        </a>
+                    </li>
+                    <li class="wasila-nav-item">
+                        <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}#contact" class="wasila-nav-link">
+                            <i class="wasila-nav-icon fas fa-envelope"></i>
+                            <span>{{ __('messages.contact') }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="wasila-header-actions">
+                <div class="wasila-lang-switcher">
+                    <a href="{{ route('lang.switch', 'ar') }}" class="wasila-lang-btn {{ app()->getLocale() === 'ar' ? 'wasila-lang-active' : '' }}">
+                        عربي
+                    </a>
+                    <a href="{{ route('lang.switch', 'en') }}" class="wasila-lang-btn {{ app()->getLocale() === 'en' ? 'wasila-lang-active' : '' }}">
+                        EN
+                    </a>
+                </div>
+                
+                <button class="wasila-menu-toggle" id="wasilaMenuToggle">
+                    <span class="wasila-menu-line"></span>
+                    <span class="wasila-menu-line"></span>
+                    <span class="wasila-menu-line"></span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="wasila-mobile-menu" id="wasilaMobileMenu">
+            <ul class="wasila-mobile-nav-list">
+                <li><a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}"><i class="fas fa-home"></i> {{ __('messages.home') }}</a></li>
+                <li><a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}"><i class="fas fa-kaaba"></i> {{ __('messages.services') }}</a></li>
+                <li><a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}#about"><i class="fas fa-info-circle"></i> {{ __('messages.about') }}</a></li>
+                <li><a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}#contact"><i class="fas fa-envelope"></i> {{ __('messages.contact') }}</a></li>
+            </ul>
+        </div>
+    </header>
 
-@section('title', app()->getLocale() === 'ar' ? 'تأكيد الطلب - وسيلة' : 'Order Confirmation - Wasila')
-
-@push('head')
-<x-seo 
-    title="{{ app()->getLocale() === 'ar' ? 'تأكيد الطلب - وسيلة' : 'Order Confirmation - Wasila' }}"
-    description="{{ app()->getLocale() === 'ar' 
-        ? 'تم تأكيد طلبك بنجاح. شكراً لك على دعمك لمشروع وسيلة.'
-        : 'Your order has been confirmed successfully. Thank you for supporting Wasila.' }}"
-    keywords="{{ app()->getLocale() === 'ar' 
-        ? 'تأكيد الطلب, وسيلة, شكر'
-        : 'order confirmation, wasila, thank you' }}"
-    image="{{ asset('images/logo-arabic.png') }}"
-    url="{{ url('/orders/confirmation') }}"
-    type="website"
-    author="وسيلة"
-/>
-@endpush
-
-@push('styles')
-<link href="{{ asset('css/landing-custom.css') }}" rel="stylesheet">
-@endpush
-
-@section('content')
+    <!-- Main Content -->
+    <main style="padding-top: 100px;">
 <!-- Confirmation Header -->
 <section class="gradient-bg text-white py-12 md:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -343,12 +437,128 @@
     </div>
 </section>
 @endif
+    </main>
 
-@endsection
+    <!-- Main Footer -->
+    <footer class="wasila-footer">
+        <div class="wasila-footer-container">
+            <div class="wasila-footer-grid">
+                <div class="wasila-footer-col wasila-footer-about">
+                    <div class="wasila-footer-logo">
+                        <img src="{{ asset('images/logo-footer.png') }}" alt="وسيلة" class="wasila-footer-logo-img">
+                    </div>
+                    <p class="wasila-footer-desc">{{ __('messages.social_charity_project_aim') }}</p>
+                    <div class="wasila-footer-social">
+                        <a href="#" class="wasila-social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="wasila-social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="wasila-social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/966501234567" class="wasila-social-link" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="wasila-footer-col wasila-footer-links">
+                    <h4 class="wasila-footer-title">
+                        <i class="fas fa-link wasila-footer-title-icon"></i>
+                        {{ __('messages.quick_links_footer') }}
+                    </h4>
+                    <ul class="wasila-footer-list">
+                        <li><a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}"><i class="fas fa-chevron-left"></i> {{ __('messages.home_link') }}</a></li>
+                        <li><a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}"><i class="fas fa-chevron-left"></i> {{ __('messages.services_link') }}</a></li>
+                        <li><a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}#about"><i class="fas fa-chevron-left"></i> {{ __('messages.about_link') }}</a></li>
+                        <li><a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}#contact"><i class="fas fa-chevron-left"></i> {{ __('messages.contact_link') }}</a></li>
+                    </ul>
+                </div>
+                
+                <div class="wasila-footer-col wasila-footer-contact">
+                    <h4 class="wasila-footer-title">
+                        <i class="fas fa-address-card wasila-footer-title-icon"></i>
+                        {{ __('messages.contact_information_footer') }}
+                    </h4>
+                    <ul class="wasila-footer-list">
+                        <li class="wasila-footer-contact-item">
+                            <i class="wasila-footer-contact-icon fas fa-envelope"></i>
+                            <div>
+                                <span class="wasila-footer-contact-label">{{ __('messages.email_colon_footer') }}</span>
+                                <a href="mailto:{{ \App\Helpers\SettingsHelper::contactEmail() }}" class="wasila-footer-contact-value">{{ \App\Helpers\SettingsHelper::contactEmail() }}</a>
+                            </div>
+                        </li>
+                        <li class="wasila-footer-contact-item">
+                            <i class="wasila-footer-contact-icon fas fa-phone"></i>
+                            <div>
+                                <span class="wasila-footer-contact-label">{{ __('messages.phone_colon_footer') }}</span>
+                                <a href="tel:{{ \App\Helpers\SettingsHelper::contactPhone() }}" class="wasila-footer-contact-value">{{ \App\Helpers\SettingsHelper::contactPhone() }}</a>
+                            </div>
+                        </li>
+                        <li class="wasila-footer-contact-item">
+                            <i class="wasila-footer-contact-icon fas fa-map-marker-alt"></i>
+                            <div>
+                                <span class="wasila-footer-contact-label">{{ __('messages.address_colon_footer') }}</span>
+                                <span class="wasila-footer-contact-value">{{ \App\Helpers\SettingsHelper::address() }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="wasila-footer-bottom">
+                <div class="wasila-footer-bottom-content">
+                    <p class="wasila-footer-copyright">
+                        <i class="fas fa-copyright"></i>
+                        {{ date('Y') }} {{ __('messages.copyright_2025_wasila') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-@push('scripts')
-<script>
-function printInvoice() {
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced Header scroll effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('.wasila-header');
+            const currentScroll = window.scrollY;
+            
+            if (currentScroll > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('wasilaMenuToggle');
+        const mobileMenu = document.getElementById('wasilaMobileMenu');
+        
+        if (menuToggle && mobileMenu) {
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+            });
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (mobileMenu && menuToggle) {
+                if (!mobileMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                    mobileMenu.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                }
+            }
+        });
+
+        function printInvoice() {
     // Create a new window for printing
     const printWindow = window.open('', '_blank');
     
@@ -537,6 +747,7 @@ function printInvoice() {
         printWindow.print();
         printWindow.close();
     };
-}
-</script>
-@endpush
+    }
+    </script>
+</body>
+</html>
