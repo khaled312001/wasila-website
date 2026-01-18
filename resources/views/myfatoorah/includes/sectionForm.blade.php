@@ -1,3 +1,16 @@
+<!-- Credit Card Payment Form (Visa/Mastercard) -->
+<div class="mf-payment-section mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        {{ app()->getLocale() === 'ar' ? 'الدفع بالبطاقة الائتمانية' : 'Credit Card Payment' }}
+    </h3>
+    <div class="bg-gray-50 p-4 rounded-lg">
+        <div id="mf-form-element" class="mb-4"></div>
+        <button type="button" onclick="submit()" class="mf-pay-now-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300">
+            <span class="mf-pay-now-span">{{__('myfatoorah.payNow')}}</span>
+        </button>
+    </div>
+</div>
+
 <script>
     // Polyfill for browser object to prevent ReferenceError
     if (typeof browser === 'undefined') {

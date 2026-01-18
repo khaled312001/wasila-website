@@ -890,9 +890,79 @@ class MyFatoorahController extends Controller
                 Log::info('MyFatoorah checkout: getCheckoutGateways success', [
                     'payment_methods_count' => isset($paymentMethods['all']) ? count($paymentMethods['all']) : 0,
                     'has_cards' => isset($paymentMethods['cards']),
+                    'cards_count' => isset($paymentMethods['cards']) ? count($paymentMethods['cards']) : 0,
                     'has_google_pay' => isset($paymentMethods['gp']),
                     'has_apple_pay' => isset($paymentMethods['ap'])
                 ]);
+                
+                // If no cards are returned from getCheckoutGateways, try to get them from initiatePayment
+                if (empty($paymentMethods['cards']) || !isset($paymentMethods['cards'])) {
+                    Log::info('MyFatoorah checkout: No cards found in getCheckoutGateways, trying initiatePayment');
+                    try {
+                        $mfPaymentObj = new MyFatoorahPayment($this->mfConfig);
+                        $allPaymentMethods = $mfPaymentObj->initiatePayment($order->total_amount, 'SAR');
+                        
+                        // Convert object to array if needed
+                        if (is_object($allPaymentMethods)) {
+                            $allPaymentMethods = json_decode(json_encode($allPaymentMethods), true);
+                        }
+                        
+                        // Filter for credit card payment methods (Visa, Mastercard, etc.)
+                        if (isset($allPaymentMethods['Data']['PaymentMethods']) && is_array($allPaymentMethods['Data']['PaymentMethods'])) {
+                            $cardMethods = [];
+                            foreach ($allPaymentMethods['Data']['PaymentMethods'] as $method) {
+                                // Convert object to array if needed
+                                if (is_object($method)) {
+                                    $method = json_decode(json_encode($method), true);
+                                }
+                                
+                                $paymentMethodCode = $method['PaymentMethodCode'] ?? '';
+                                // Check if it's a credit card method (Visa, Mastercard, etc.)
+                                // Common codes: 'VISA', 'MASTERCARD', 'AMEX', 'MADA', etc.
+                                if (in_array(strtoupper($paymentMethodCode), ['VISA', 'MASTERCARD', 'AMEX', 'MADA', 'DINERS', 'DISCOVER', 'JCB']) || 
+                                    stripos($method['PaymentMethodEn'] ?? '', 'card') !== false ||
+                                    stripos($method['PaymentMethodAr'] ?? '', 'بطاقة') !== false) {
+                                    
+                                    // Calculate gateway data for this method
+                                    $gatewayData = [
+                                        'GatewayTotalAmount' => $order->total_amount,
+                                        'GatewayCurrency' => 'SAR'
+                                    ];
+                                    
+                                    // Add GatewayData to method
+                                    $method['GatewayData'] = $gatewayData;
+                                    
+                                    $cardMethods[] = $method;
+                                }
+                            }
+                            
+                            if (!empty($cardMethods)) {
+                                // Initialize cards array if not exists
+                                if (!isset($paymentMethods['cards'])) {
+                                    $paymentMethods['cards'] = [];
+                                }
+                                
+                                // Merge with existing cards (avoid duplicates)
+                                $existingIds = array_column($paymentMethods['cards'], 'PaymentMethodId');
+                                foreach ($cardMethods as $cardMethod) {
+                                    if (!in_array($cardMethod['PaymentMethodId'] ?? null, $existingIds)) {
+                                        $paymentMethods['cards'][] = $cardMethod;
+                                    }
+                                }
+                                
+                                Log::info('MyFatoorah checkout: Added credit card methods from initiatePayment', [
+                                    'cards_added' => count($cardMethods),
+                                    'total_cards' => count($paymentMethods['cards'])
+                                ]);
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('MyFatoorah checkout: Failed to get cards from initiatePayment', [
+                            'error' => $e->getMessage()
+                        ]);
+                        // Continue without cards - don't fail the checkout
+                    }
+                }
             } catch (\Exception $e) {
                 Log::error('MyFatoorah checkout: getCheckoutGateways failed', [
                     'error' => $e->getMessage(),
