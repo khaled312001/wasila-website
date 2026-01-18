@@ -221,6 +221,35 @@
             console.log('Has invoiceURL:', !!data.invoiceURL);
             console.log('Has keepPolling:', !!data.keepPolling);
             console.log('Has paymentId:', !!data.paymentId);
+            console.log('Has error:', !!data.error);
+            console.log('Success:', data.success);
+            
+            // Check for errors FIRST - if there's an error, don't proceed
+            if (data.error || !data.success) {
+                console.error('Execute payment returned error:', data);
+                
+                // Hide loading overlay
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                
+                // Get error message
+                let errorMsg = data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+                
+                // Show error message
+                alert(errorMsg);
+                
+                // Re-enable button
+                const submitButton = document.querySelector('.mf-pay-now-btn');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
+                    submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
+                }
+                
+                // DO NOT redirect - stop here
+                return false;
+            }
             
             // PRIORITY 1: Check for invoiceURL FIRST - this is needed for OTP/3D Secure
             // This must be checked before any other conditions

@@ -197,6 +197,29 @@ class MyFatoorahController extends Controller
                     $payment = json_decode(json_encode($payment), true);
                 }
                 
+                // Check if response contains an error
+                if (isset($payment['IsSuccess']) && $payment['IsSuccess'] === false) {
+                    $errorMessage = $payment['Message'] ?? $payment['message'] ?? 'Unknown error from MyFatoorah';
+                    Log::error('MyFatoorah executePayment: Invoice creation failed', [
+                        'error_message' => $errorMessage,
+                        'payment_response' => $payment,
+                        'session_id' => $sessionId,
+                        'order_id' => $orderId
+                    ]);
+                    
+                    throw new \Exception($errorMessage);
+                }
+                
+                // Check if response is null or empty
+                if (empty($payment)) {
+                    Log::error('MyFatoorah executePayment: Empty payment response', [
+                        'session_id' => $sessionId,
+                        'order_id' => $orderId,
+                        'curl_data' => $curlData
+                    ]);
+                    throw new \Exception('Empty response from MyFatoorah');
+                }
+                
                 Log::info('MyFatoorah executePayment: Invoice created', [
                     'payment_response' => $payment,
                     'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array',
@@ -235,6 +258,10 @@ class MyFatoorahController extends Controller
                     'curl_data_keys' => is_array($curlData) ? array_keys($curlData) : 'not_array'
                 ]);
                 
+                // DO NOT update order status to failed here - this is just an invoice creation error
+                // The order should remain in its current state so user can retry
+                // Only update order status when we get a confirmed failure from MyFatoorah payment status
+                
                 // Return user-friendly error message in Arabic
                 $locale = app()->getLocale();
                 $errorMessage = $locale === 'ar' 
@@ -261,7 +288,8 @@ class MyFatoorahController extends Controller
                     'success' => false,
                     'message' => $errorMessage,
                     'error' => true,
-                    'error_type' => 'invoice_creation_error'
+                    'error_type' => 'invoice_creation_error',
+                    'retry' => true  // Indicate that user can retry
                 ], 500);
             }
             
