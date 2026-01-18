@@ -75,6 +75,11 @@ class MyFatoorahController extends Controller
             $mfObj   = new MyFatoorahPayment($this->mfConfig);
             $payment = $mfObj->getInvoiceURL($curlData, $paymentId, $orderId, $sessionId);
 
+            // Convert object to array if needed (MyFatoorah may return stdClass objects)
+            if (is_object($payment)) {
+                $payment = json_decode(json_encode($payment), true);
+            }
+
             return redirect($payment['invoiceURL']);
         } catch (Exception $ex) {
             $exMessage = __('myfatoorah.' . $ex->getMessage());
@@ -187,6 +192,11 @@ class MyFatoorahController extends Controller
                 // Note: getInvoiceURL signature is: getInvoiceURL($data, $paymentMethodId, $orderId, $sessionId)
                 $payment = $mfObj->getInvoiceURL($curlData, 0, $orderId, $sessionId);
                 
+                // Convert object to array if needed (MyFatoorah may return stdClass objects)
+                if (is_object($payment)) {
+                    $payment = json_decode(json_encode($payment), true);
+                }
+                
                 Log::info('MyFatoorah executePayment: Invoice created', [
                     'payment_response' => $payment,
                     'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array',
@@ -286,6 +296,11 @@ class MyFatoorahController extends Controller
             try {
                 $mfStatusObj = new MyFatoorahPaymentStatus($this->mfConfig);
                 $paymentStatus = $mfStatusObj->getPaymentStatus($paymentId, 'PaymentId');
+                
+                // Convert object to array if needed (MyFatoorah may return stdClass objects)
+                if (is_object($paymentStatus)) {
+                    $paymentStatus = json_decode(json_encode($paymentStatus), true);
+                }
                 
                 Log::info('MyFatoorah executePayment: Payment status checked', [
                     'payment_id' => $paymentId,
@@ -409,6 +424,11 @@ class MyFatoorahController extends Controller
                 ]);
                 return redirect()->route('home')
                     ->with('error', 'فشل في التحقق من حالة الدفع. يرجى التواصل معنا.');
+            }
+
+            // Convert object to array if needed (MyFatoorah may return stdClass objects)
+            if (is_object($data)) {
+                $data = json_decode(json_encode($data), true);
             }
 
             $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
@@ -771,8 +791,13 @@ class MyFatoorahController extends Controller
             $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
             $data  = $mfObj->getPaymentStatus($invoiceId, 'InvoiceId');
 
-            $status = $data->InvoiceStatus;
-            $error  = $data->InvoiceError;
+            // Convert object to array if needed (MyFatoorah may return stdClass objects)
+            if (is_object($data)) {
+                $data = json_decode(json_encode($data), true);
+            }
+
+            $status = $data['InvoiceStatus'] ?? 'Unknown';
+            $error  = $data['InvoiceError'] ?? '';
         }
 
         $message = $this->getTestMessage($status, $error);
@@ -877,6 +902,11 @@ class MyFatoorahController extends Controller
             try {
                 $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
                 $paymentDetails = $mfObj->getPaymentStatus($order->payment_reference, 'PaymentId');
+                
+                // Convert object to array if needed (MyFatoorah may return stdClass objects)
+                if (is_object($paymentDetails)) {
+                    $paymentDetails = json_decode(json_encode($paymentDetails), true);
+                }
             } catch (\Exception $e) {
                 // Handle error silently
             }
@@ -1210,6 +1240,12 @@ class MyFatoorahController extends Controller
             
             $mfObj = new MyFatoorahPayment($this->mfConfig);
             $payment = $mfObj->getInvoiceURL($paymentData, 0, $order->id);
+            
+            // Convert object to array if needed (MyFatoorah may return stdClass objects)
+            if (is_object($payment)) {
+                $payment = json_decode(json_encode($payment), true);
+            }
+            
             $paymentUrl = $payment['invoiceURL'];
             
             return redirect($paymentUrl);
