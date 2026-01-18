@@ -45,13 +45,24 @@ class MyFatoorahController extends Controller
             'EG' => 'EGY',  // Egypt
         ];
         
-        // Get API key and trim whitespace
-        $apiKey = is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key');
+        // Get API key directly from env first, then config, then default
+        // This ensures we get the most up-to-date value
+        $apiKey = env('MYFATOORAH_API_KEY');
+        if (empty($apiKey)) {
+            $apiKey = is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key');
+        }
         $apiKey = trim($apiKey ?? '');
         
-        // Get test mode
-        $testMode = is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode');
-        // Ensure boolean value
+        // Get test mode - prefer env over config
+        $testMode = env('MYFATOORAH_TEST_MODE');
+        if ($testMode === null) {
+            $testMode = is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode');
+        }
+        // Ensure boolean value - handle string 'false' and '0' as false
+        if (is_string($testMode)) {
+            $testMode = strtolower($testMode);
+            $testMode = !in_array($testMode, ['false', '0', 'no', 'off', '']);
+        }
         $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
         
         $this->mfConfig = [
@@ -64,7 +75,18 @@ class MyFatoorahController extends Controller
         if (empty($this->mfConfig['apiKey'])) {
             Log::warning('MyFatoorah: API key is empty', [
                 'env_key_exists' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
-                'config_key_exists' => config('myfatoorah.api_key') ? 'yes' : 'no'
+                'env_key_value' => env('MYFATOORAH_API_KEY') ? substr(env('MYFATOORAH_API_KEY'), 0, 15) . '...' : 'empty',
+                'config_key_exists' => config('myfatoorah.api_key') ? 'yes' : 'no',
+                'config_key_value' => config('myfatoorah.api_key') ? substr(config('myfatoorah.api_key'), 0, 15) . '...' : 'empty'
+            ]);
+        } else {
+            // Log successful API key loading (first 15 chars only for security)
+            Log::info('MyFatoorah: API key loaded successfully', [
+                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15) . '...',
+                'api_key_length' => strlen($this->mfConfig['apiKey']),
+                'is_test' => $this->mfConfig['isTest'],
+                'vc_code' => $this->mfConfig['vcCode'],
+                'api_key_source' => env('MYFATOORAH_API_KEY') ? 'env' : 'config'
             ]);
         }
     }
@@ -1049,47 +1071,64 @@ class MyFatoorahController extends Controller
             Log::info('MyFatoorah checkout: Configuration', [
                 'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15) . '...',
                 'api_key_length' => strlen($this->mfConfig['apiKey']),
+                'api_key_full' => $this->mfConfig['apiKey'], // Log full key for debugging (remove in production)
                 'is_test' => $this->mfConfig['isTest'],
                 'vc_code' => $this->mfConfig['vcCode'],
                 'order_id' => $orderId,
                 'order_total' => $order->total_amount,
-                'config_source' => 'from_env_file'
+                'env_api_key' => env('MYFATOORAH_API_KEY') ? substr(env('MYFATOORAH_API_KEY'), 0, 15) . '...' : 'not_set',
+                'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
+                'config_api_key' => config('myfatoorah.api_key') ? substr(config('myfatoorah.api_key'), 0, 15) . '...' : 'not_set',
+                'config_test_mode' => config('myfatoorah.test_mode')
             ]);
+            
+            // Verify API key format
+            $apiKey = $this->mfConfig['apiKey'];
+            if (!preg_match('/^SK_[A-Z]{3}_/', $apiKey)) {
+                Log::error('MyFatoorah: API key format is invalid', [
+                    'api_key_prefix' => substr($apiKey, 0, 10),
+                    'expected_format' => 'SK_XXX_...'
+                ]);
+                throw new Exception('تنسيق مفتاح API غير صحيح. يجب أن يبدأ بـ SK_XXX_');
+            }
             
             // Use standard MyFatoorah PHP library approach
             // Get available payment methods using initiatePayment()
             $mfObj = new MyFatoorahPayment($this->mfConfig);
             
             try {
-                
                 // Get all available payment methods from MyFatoorah
-                // initiatePayment() can optionally take invoice value and currency
+                // According to MyFatoorah PHP library docs, initiatePayment() can be called without parameters
+                // or with invoice value and currency
                 $invoiceValue = (float)$order->total_amount;
                 $currencyIso = 'SAR';
                 
+                // Try calling initiatePayment() without parameters first (as per documentation)
                 try {
-                    // Try with invoice value and currency first
-                    $paymentMethods = $mfObj->initiatePayment($invoiceValue, $currencyIso);
-                } catch (\Exception $initError) {
-                    Log::warning('MyFatoorah initiatePayment with parameters failed, trying without parameters', [
-                        'error' => $initError->getMessage(),
-                        'code' => $initError->getCode()
+                    $paymentMethods = $mfObj->initiatePayment();
+                    Log::info('MyFatoorah: initiatePayment() called without parameters - success');
+                } catch (\Exception $noParamsError) {
+                    Log::warning('MyFatoorah initiatePayment without parameters failed, trying with parameters', [
+                        'error' => $noParamsError->getMessage(),
+                        'code' => $noParamsError->getCode()
                     ]);
                     
-                    // Fallback: try without parameters
+                    // Fallback: try with invoice value and currency
                     try {
-                        $paymentMethods = $mfObj->initiatePayment();
-                    } catch (\Exception $fallbackError) {
+                        $paymentMethods = $mfObj->initiatePayment($invoiceValue, $currencyIso);
+                        Log::info('MyFatoorah: initiatePayment() called with parameters - success');
+                    } catch (\Exception $withParamsError) {
                         Log::error('MyFatoorah initiatePayment failed with both methods', [
-                            'with_params_error' => $initError->getMessage(),
-                            'without_params_error' => $fallbackError->getMessage(),
+                            'without_params_error' => $noParamsError->getMessage(),
+                            'with_params_error' => $withParamsError->getMessage(),
                             'config' => [
                                 'is_test' => $this->mfConfig['isTest'],
                                 'vc_code' => $this->mfConfig['vcCode'],
-                                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 10)
+                                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
+                                'api_key_length' => strlen($this->mfConfig['apiKey'])
                             ]
                         ]);
-                        throw new Exception('Failed to get payment methods: ' . $fallbackError->getMessage());
+                        throw new Exception('Failed to get payment methods: ' . $withParamsError->getMessage());
                     }
                 }
                 
@@ -1397,15 +1436,21 @@ class MyFatoorahController extends Controller
     public function testConnection()
     {
         try {
+            // Get API key directly from env and config for comparison
+            $envApiKey = env('MYFATOORAH_API_KEY');
+            $configApiKey = config('myfatoorah.api_key');
+            
             // Log the current configuration for debugging
-            Log::info('MyFatoorah Test Connection - Config:', [
-                'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 15) . '...',
-                'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+            Log::info('MyFatoorah Test Connection - Full Debug', [
+                'api_key_from_env' => $envApiKey ? substr($envApiKey, 0, 20) . '...' : 'NOT_SET',
+                'api_key_from_config' => $configApiKey ? substr($configApiKey, 0, 20) . '...' : 'NOT_SET',
+                'api_key_from_mfConfig' => $this->mfConfig['apiKey'] ? substr($this->mfConfig['apiKey'], 0, 20) . '...' : 'NOT_SET',
+                'api_key_length_env' => $envApiKey ? strlen($envApiKey) : 0,
+                'api_key_length_config' => $configApiKey ? strlen($configApiKey) : 0,
+                'api_key_length_mfConfig' => strlen($this->mfConfig['apiKey'] ?? ''),
                 'is_test' => $this->mfConfig['isTest'],
                 'vc_code' => $this->mfConfig['vcCode'],
-                'env_api_key' => env('MYFATOORAH_API_KEY') ? 'set' : 'not_set',
                 'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
-                'config_api_key' => config('myfatoorah.api_key') ? 'set' : 'not_set',
                 'config_test_mode' => config('myfatoorah.test_mode')
             ]);
             
@@ -1413,8 +1458,22 @@ class MyFatoorahController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'مفتاح API غير صالح أو غير موجود',
-                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
-                    'api_key_from_env' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no'
+                    'debug' => [
+                        'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                        'api_key_from_env' => $envApiKey ? 'yes' : 'no',
+                        'api_key_from_config' => $configApiKey ? 'yes' : 'no',
+                        'env_key_value' => $envApiKey ? substr($envApiKey, 0, 15) . '...' : 'empty',
+                        'config_key_value' => $configApiKey ? substr($configApiKey, 0, 15) . '...' : 'empty'
+                    ]
+                ]);
+            }
+            
+            // Validate API key format
+            if (!preg_match('/^SK_[A-Z]{3}_/', $this->mfConfig['apiKey'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'تنسيق مفتاح API غير صحيح. يجب أن يبدأ بـ SK_XXX_',
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 10)
                 ]);
             }
             
@@ -1432,18 +1491,36 @@ class MyFatoorahController extends Controller
             $mfObj = new MyFatoorahPayment($this->mfConfig);
             
             try {
+                // Try without parameters first
                 $result = $mfObj->initiatePayment();
+                Log::info('MyFatoorah testConnection: initiatePayment() without parameters - success');
             } catch (\Exception $e) {
+                Log::warning('MyFatoorah testConnection: initiatePayment() without parameters failed', [
+                    'error' => $e->getMessage()
+                ]);
+                
                 // Try with parameters
                 try {
                     $result = $mfObj->initiatePayment(15, 'SAR');
+                    Log::info('MyFatoorah testConnection: initiatePayment() with parameters - success');
                 } catch (\Exception $e2) {
+                    Log::error('MyFatoorah testConnection: Both methods failed', [
+                        'error1' => $e->getMessage(),
+                        'error2' => $e2->getMessage(),
+                        'config' => [
+                            'is_test' => $this->mfConfig['isTest'],
+                            'vc_code' => $this->mfConfig['vcCode'],
+                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15)
+                        ]
+                    ]);
+                    
                     return response()->json([
                         'success' => false,
                         'message' => 'فشل في الاتصال مع MyFatoorah: ' . $e2->getMessage(),
                         'error_details' => [
-                            'error1' => $e->getMessage(),
-                            'error2' => $e2->getMessage()
+                            'error_without_params' => $e->getMessage(),
+                            'error_with_params' => $e2->getMessage(),
+                            'suggestion' => 'يرجى التحقق من: 1) صحة مفتاح API 2) أن المفتاح مفعل في حساب MyFatoorah 3) أن وضع الاختبار يطابق نوع المفتاح'
                         ]
                     ]);
                 }
@@ -1453,6 +1530,12 @@ class MyFatoorahController extends Controller
             if (is_object($result)) {
                 $result = json_decode(json_encode($result), true);
             }
+            
+            Log::info('MyFatoorah testConnection: Response received', [
+                'is_success' => $result['IsSuccess'] ?? 'not_set',
+                'message' => $result['Message'] ?? 'no_message',
+                'has_payment_methods' => isset($result['Data']['PaymentMethods'])
+            ]);
             
             if (isset($result['IsSuccess']) && $result['IsSuccess'] && 
                 isset($result['Data']['PaymentMethods']) && !empty($result['Data']['PaymentMethods'])) {
@@ -1469,22 +1552,30 @@ class MyFatoorahController extends Controller
                     }, $result['Data']['PaymentMethods'])
                 ]);
             } else {
-                $errorMsg = $result['Message'] ?? 'فشل في جلب طرق الدفع';
+                $errorMsg = $result['Message'] ?? $result['message'] ?? 'فشل في جلب طرق الدفع';
                 return response()->json([
                     'success' => false,
                     'message' => $errorMsg,
-                    'response' => $result
+                    'response' => $result,
+                    'suggestion' => 'يرجى التحقق من مفتاح API في حساب MyFatoorah'
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('MyFatoorah Test Connection Error: ' . $e->getMessage(), [
-                'config' => $this->mfConfig,
+                'config' => [
+                    'is_test' => $this->mfConfig['isTest'],
+                    'vc_code' => $this->mfConfig['vcCode'],
+                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 15)
+                ],
                 'trace' => $e->getTraceAsString()
             ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'خطأ في الاتصال: ' . $e->getMessage()
+                'message' => 'خطأ في الاتصال: ' . $e->getMessage(),
+                'error_type' => get_class($e),
+                'suggestion' => 'يرجى التحقق من سجلات Laravel للحصول على تفاصيل أكثر'
             ]);
         }
     }
