@@ -87,10 +87,21 @@
                 orderId: orderId
             })
         })
-        .then(response => {
+        .then(async response => {
             console.log('Execute payment HTTP response:', response);
             if (!response.ok) {
-                throw new Error('HTTP error! status: ' + response.status);
+                // Try to get error message from response
+                let errorMessage = 'HTTP error! status: ' + response.status;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (e) {
+                    // If response is not JSON, use status text
+                    errorMessage = response.statusText || errorMessage;
+                }
+                throw new Error(errorMessage);
             }
             return response.json();
         })
@@ -138,11 +149,25 @@
                 hideLoadingOverlay();
             }
             
+            // Try to get error message from response if available
             let errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في التحقق من حالة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred verifying payment status. Please try again." }}';
-            if (error.message) {
-                errorMsg += ' (' + error.message + ')';
+            
+            // If error has response, try to parse it
+            if (error.response) {
+                error.response.json().then(data => {
+                    if (data.message) {
+                        errorMsg = data.message;
+                    }
+                    alert(errorMsg);
+                }).catch(() => {
+                    alert(errorMsg);
+                });
+            } else {
+                if (error.message) {
+                    errorMsg += ' (' + error.message + ')';
+                }
+                alert(errorMsg);
             }
-            alert(errorMsg);
             
             // Re-enable button
             const submitButton = document.querySelector('.mf-pay-now-btn');

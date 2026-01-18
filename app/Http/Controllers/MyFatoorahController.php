@@ -176,13 +176,68 @@ class MyFatoorahController extends Controller
             ]);
             
             // Use sessionId to create invoice and get paymentId
-            // According to MyFatoorah docs, we pass sessionId to getInvoiceURL
-            $mfObj = new MyFatoorahPayment($this->mfConfig);
-            $payment = $mfObj->getInvoiceURL($curlData, 0, $orderId, $sessionId);
-            
-            Log::info('MyFatoorah executePayment: Invoice created', [
-                'payment_response' => $payment
-            ]);
+            // According to MyFatoorah docs, when we have sessionId from embedded payment,
+            // we need to use it to create invoice and execute payment
+            // The sessionId is used to link the payment to the embedded session
+            try {
+                $mfObj = new MyFatoorahPayment($this->mfConfig);
+                
+                // Pass sessionId as the 4th parameter to getInvoiceURL
+                // This will create an invoice using the existing session
+                // Note: getInvoiceURL signature is: getInvoiceURL($data, $paymentMethodId, $orderId, $sessionId)
+                $payment = $mfObj->getInvoiceURL($curlData, 0, $orderId, $sessionId);
+                
+                Log::info('MyFatoorah executePayment: Invoice created', [
+                    'payment_response' => $payment,
+                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array',
+                    'payment_type' => gettype($payment),
+                    'has_invoice_id' => isset($payment['InvoiceId']),
+                    'has_invoice_url' => isset($payment['invoiceURL'])
+                ]);
+                
+                // Log full response for debugging (but limit size)
+                if (is_array($payment)) {
+                    $logData = $payment;
+                    // Remove large data if present
+                    if (isset($logData['InvoiceTransactions']) && is_array($logData['InvoiceTransactions'])) {
+                        $logData['InvoiceTransactions'] = '[' . count($logData['InvoiceTransactions']) . ' transactions]';
+                    }
+                    Log::info('MyFatoorah executePayment: Full payment response', $logData);
+                } else {
+                    Log::warning('MyFatoorah executePayment: Payment response is not an array', [
+                        'response_type' => gettype($payment),
+                        'response_value' => $payment
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah executePayment: Error creating invoice', [
+                    'error' => $e->getMessage(),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                    'session_id' => $sessionId,
+                    'order_id' => $orderId,
+                    'curl_data_keys' => is_array($curlData) ? array_keys($curlData) : 'not_array'
+                ]);
+                
+                // Return user-friendly error message
+                $errorMessage = 'Error creating invoice';
+                if (strpos($e->getMessage(), 'session') !== false || strpos($e->getMessage(), 'Session') !== false) {
+                    $errorMessage = 'Invalid session. Please try the payment again.';
+                } elseif (strpos($e->getMessage(), 'invoice') !== false || strpos($e->getMessage(), 'Invoice') !== false) {
+                    $errorMessage = 'Error creating payment invoice. Please try again.';
+                }
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'error_details' => [
+                        'code' => $e->getCode(),
+                        'message' => $e->getMessage()
+                    ]
+                ], 500);
+            }
             
             // Extract paymentId/InvoiceId from response
             $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
@@ -196,15 +251,39 @@ class MyFatoorahController extends Controller
                 }
             }
             
-            if ($paymentId) {
-                Log::info('MyFatoorah executePayment: Payment ID extracted', [
-                    'payment_id' => $paymentId
+            // If still no paymentId, the payment might not be completed yet
+            // In this case, we should redirect user to the invoice URL to complete payment
+            if (!$paymentId) {
+                Log::warning('MyFatoorah executePayment: No paymentId found, payment may not be completed yet', [
+                    'payment_response' => $payment,
+                    'has_invoice_url' => isset($payment['invoiceURL'])
                 ]);
                 
-                // Wait a moment for payment to process (3D Secure, OTP, etc.)
-                sleep(2);
+                // If we have invoiceURL, redirect user to complete payment
+                if (isset($payment['invoiceURL'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Payment not completed yet',
+                        'invoiceURL' => $payment['invoiceURL'],
+                        'redirect' => true
+                    ]);
+                }
                 
-                // Check payment status from MyFatoorah
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Could not extract payment ID. Payment may not be completed yet.'
+                ], 400);
+            }
+            
+            Log::info('MyFatoorah executePayment: Payment ID extracted', [
+                'payment_id' => $paymentId
+            ]);
+            
+            // Wait a moment for payment to process (3D Secure, OTP, etc.)
+            sleep(2);
+            
+            // Check payment status from MyFatoorah
+            try {
                 $mfStatusObj = new MyFatoorahPaymentStatus($this->mfConfig);
                 $paymentStatus = $mfStatusObj->getPaymentStatus($paymentId, 'PaymentId');
                 
@@ -213,72 +292,73 @@ class MyFatoorahController extends Controller
                     'invoice_status' => $paymentStatus['InvoiceStatus'] ?? 'Unknown',
                     'payment_status_data' => $paymentStatus
                 ]);
-                
-                if ($paymentStatus && strtolower($paymentStatus['InvoiceStatus'] ?? '') === 'paid') {
-                    // Payment is successful, update order
-                    $paymentMethod = $paymentStatus['PaymentMethod'] ?? 'MyFatoorah';
-                    if (stripos($paymentMethod, 'myfatoorah') === false && $paymentMethod !== 'MyFatoorah') {
-                        $paymentMethod = 'MyFatoorah';
-                    }
-                    
-                    $order->update([
-                        'payment_status' => 'paid',
-                        'payment_method' => $paymentMethod,
-                        'payment_reference' => $paymentId,
-                        'status' => 'confirmed',
-                        'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
-                    ]);
-                    
-                    $order->refresh();
-                    
-                    Log::info('MyFatoorah executePayment: Order updated successfully', [
-                        'order_id' => $orderId,
-                        'payment_id' => $paymentId,
-                        'payment_status' => $order->payment_status,
-                        'payment_method' => $order->payment_method
-                    ]);
-                    
-                    // Send email to admin
-                    try {
-                        $adminEmail = SettingsHelper::contactEmail();
-                        Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
-                        Log::info('Order paid email sent successfully to: ' . $adminEmail);
-                    } catch (\Exception $emailException) {
-                        Log::error('Failed to send order paid email: ' . $emailException->getMessage());
-                    }
-                    
-                    return response()->json([
-                        'success' => true,
-                        'paymentId' => $paymentId,
-                        'message' => 'Payment successful',
-                        'order_id' => $orderId
-                    ]);
-                } else {
-                    // Payment is pending or failed
-                    $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Unknown';
-                    
-                    Log::warning('MyFatoorah executePayment: Payment not completed', [
-                        'payment_id' => $paymentId,
-                        'invoice_status' => $invoiceStatus
-                    ]);
-                    
-                    return response()->json([
-                        'success' => false,
-                        'paymentId' => $paymentId,
-                        'status' => $invoiceStatus,
-                        'message' => 'Payment is not completed yet. Status: ' . $invoiceStatus
-                    ]);
-                }
-            } else {
-                Log::error('MyFatoorah executePayment: Could not extract payment ID', [
-                    'payment_response' => $payment
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah executePayment: Error checking payment status', [
+                    'payment_id' => $paymentId,
+                    'error' => $e->getMessage()
                 ]);
                 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Could not extract payment ID from MyFatoorah response',
-                    'response' => $payment
+                    'message' => 'Error checking payment status: ' . $e->getMessage(),
+                    'paymentId' => $paymentId
                 ], 500);
+            }
+            
+            if ($paymentStatus && strtolower($paymentStatus['InvoiceStatus'] ?? '') === 'paid') {
+                // Payment is successful, update order
+                $paymentMethod = $paymentStatus['PaymentMethod'] ?? 'MyFatoorah';
+                if (stripos($paymentMethod, 'myfatoorah') === false && $paymentMethod !== 'MyFatoorah') {
+                    $paymentMethod = 'MyFatoorah';
+                }
+                
+                $order->update([
+                    'payment_status' => 'paid',
+                    'payment_method' => $paymentMethod,
+                    'payment_reference' => $paymentId,
+                    'status' => 'confirmed',
+                    'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
+                ]);
+                
+                $order->refresh();
+                
+                Log::info('MyFatoorah executePayment: Order updated successfully', [
+                    'order_id' => $orderId,
+                    'payment_id' => $paymentId,
+                    'payment_status' => $order->payment_status,
+                    'payment_method' => $order->payment_method
+                ]);
+                
+                // Send email to admin
+                try {
+                    $adminEmail = SettingsHelper::contactEmail();
+                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
+                    Log::info('Order paid email sent successfully to: ' . $adminEmail);
+                } catch (\Exception $emailException) {
+                    Log::error('Failed to send order paid email: ' . $emailException->getMessage());
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'paymentId' => $paymentId,
+                    'message' => 'Payment successful',
+                    'order_id' => $orderId
+                ]);
+            } else {
+                // Payment is pending or failed
+                $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Unknown';
+                
+                Log::warning('MyFatoorah executePayment: Payment not completed', [
+                    'payment_id' => $paymentId,
+                    'invoice_status' => $invoiceStatus
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'paymentId' => $paymentId,
+                    'status' => $invoiceStatus,
+                    'message' => 'Payment is not completed yet. Status: ' . $invoiceStatus
+                ]);
             }
             
         } catch (\Exception $e) {
