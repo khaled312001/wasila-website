@@ -1,16 +1,29 @@
-@if(isset($paymentMethods['cards']) && is_array($paymentMethods['cards']))
+@if(isset($paymentMethods['cards']))
 @foreach($paymentMethods['cards'] as $mfCard)
 @php
+    // Convert object to array if needed
+    if (is_object($mfCard)) {
+        $mfCardArray = json_decode(json_encode($mfCard), true);
+    } else {
+        $mfCardArray = $mfCard;
+    }
+    
     // Handle both array and object formats
     $mfCardTitle = App::isLocale('ar') 
-        ? ($mfCard['PaymentMethodAr'] ?? $mfCard->PaymentMethodAr ?? '')
-        : ($mfCard['PaymentMethodEn'] ?? $mfCard->PaymentMethodEn ?? '');
-    $paymentMethodCode = $mfCard['PaymentMethodCode'] ?? $mfCard->PaymentMethodCode ?? '';
-    $paymentMethodId = $mfCard['PaymentMethodId'] ?? $mfCard->PaymentMethodId ?? '';
-    $imageUrl = $mfCard['ImageUrl'] ?? $mfCard->ImageUrl ?? '';
-    $gatewayData = $mfCard['GatewayData'] ?? $mfCard->GatewayData ?? [];
-    $gatewayTotalAmount = is_array($gatewayData) ? ($gatewayData['GatewayTotalAmount'] ?? '') : ($gatewayData->GatewayTotalAmount ?? '');
-    $gatewayCurrency = is_array($gatewayData) ? ($gatewayData['GatewayCurrency'] ?? 'SAR') : ($gatewayData->GatewayCurrency ?? 'SAR');
+        ? ($mfCardArray['PaymentMethodAr'] ?? '')
+        : ($mfCardArray['PaymentMethodEn'] ?? '');
+    $paymentMethodCode = $mfCardArray['PaymentMethodCode'] ?? '';
+    $paymentMethodId = $mfCardArray['PaymentMethodId'] ?? '';
+    $imageUrl = $mfCardArray['ImageUrl'] ?? '';
+    $gatewayData = $mfCardArray['GatewayData'] ?? [];
+    
+    // Convert GatewayData to array if it's an object
+    if (is_object($gatewayData)) {
+        $gatewayData = json_decode(json_encode($gatewayData), true);
+    }
+    
+    $gatewayTotalAmount = $gatewayData['GatewayTotalAmount'] ?? '';
+    $gatewayCurrency = $gatewayData['GatewayCurrency'] ?? 'SAR';
 @endphp
 <div class="mf-card-container mf-div-{{$paymentMethodCode}}" onclick="mfCardSubmit('{{$paymentMethodId}}')">
     <div class="mf-row-container">
