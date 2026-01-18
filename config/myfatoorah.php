@@ -12,7 +12,7 @@ return [
      * Test Mode (boolean)
      * Accepted value: true for the test mode or false for the live mode
      */
-    'test_mode' => env('MYFATOORAH_TEST_MODE', '0') == '1', // Default to false (live mode) since API key starts with SK_SAU_
+    'test_mode' => env('MYFATOORAH_TEST_MODE', false), // Live mode (production) - set to false for real payments
     /**
      * Country ISO Code (string)
      * Accepted value: KWT, SAU, ARE, QAT, BHR, OMN, JOD, or EGY.
