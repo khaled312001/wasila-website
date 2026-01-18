@@ -92,16 +92,44 @@
             // On success
             .then(function (response) {
                 console.log('MyFatoorah submit response:', response);
+                console.log('MyFatoorah submit response type:', typeof response);
+                console.log('MyFatoorah submit response keys:', response ? Object.keys(response) : 'null');
                 
                 // Check if response is valid
                 if (!response) {
                     throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - لا توجد استجابة" : "Invalid response from payment gateway - no response" }}');
                 }
                 
-                // Validate paymentId more thoroughly
-                if (!response.paymentId || response.paymentId === '' || response.paymentId === null || response.paymentId === undefined) {
+                // MyFatoorah may return paymentId, InvoiceId, or PaymentId
+                // Try to get paymentId from various possible fields
+                let paymentId = response.paymentId || response.PaymentId || response.InvoiceId || response.invoiceId || response.payment_id || response.payment_id;
+                
+                // If still no paymentId, check if response is a string (some versions return just the ID)
+                if (!paymentId && typeof response === 'string') {
+                    paymentId = response;
+                }
+                
+                // If still no paymentId, check if response has a data property
+                if (!paymentId && response.data) {
+                    paymentId = response.data.paymentId || response.data.PaymentId || response.data.InvoiceId;
+                }
+                
+                // Validate paymentId
+                if (!paymentId || paymentId === '' || paymentId === null || paymentId === undefined) {
+                    console.error('MyFatoorah: Could not extract paymentId from response', {
+                        response: response,
+                        responseType: typeof response,
+                        responseKeys: Object.keys(response || {})
+                    });
                     throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود أو غير صالح" : "Invalid response from payment gateway - payment ID missing or invalid" }}');
                 }
+                
+                // Normalize response to have paymentId
+                if (!response.paymentId) {
+                    response.paymentId = paymentId;
+                }
+                
+                console.log('MyFatoorah: Extracted paymentId:', paymentId);
                 
                 // Call callback function
                 if (typeof mfCallback === 'function') {
@@ -109,7 +137,7 @@
                 } else {
                     console.warn('MyFatoorah: mfCallback function not found, redirecting directly');
                     // Fallback: redirect directly if callback is not defined
-                    window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
+                    window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + paymentId;
                 }
             })
             // In case of errors
