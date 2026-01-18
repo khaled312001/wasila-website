@@ -95,14 +95,49 @@
                 console.log('MyFatoorah submit response type:', typeof response);
                 console.log('MyFatoorah submit response keys:', response ? Object.keys(response) : 'null');
                 
+                // Log all response values for debugging
+                if (response) {
+                    console.log('MyFatoorah submit response values:', Object.keys(response).map(key => key + ': ' + JSON.stringify(response[key])));
+                }
+                
                 // Check if response is valid
                 if (!response) {
                     throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - لا توجد استجابة" : "Invalid response from payment gateway - no response" }}');
                 }
                 
-                // MyFatoorah may return paymentId, InvoiceId, or PaymentId
+                // MyFatoorah may return paymentId, InvoiceId, PaymentId, or other fields
                 // Try to get paymentId from various possible fields
-                let paymentId = response.paymentId || response.PaymentId || response.InvoiceId || response.invoiceId || response.payment_id || response.payment_id;
+                let paymentId = response.paymentId || response.PaymentId || response.InvoiceId || response.invoiceId || 
+                               response.payment_id || response.Payment_ID || response.paymentId || 
+                               response.InvoiceID || response.Invoice_ID;
+                
+                // Check all keys for potential ID values
+                if (!paymentId) {
+                    const keys = Object.keys(response);
+                    for (let i = 0; i < keys.length; i++) {
+                        const key = keys[i];
+                        const value = response[key];
+                        // Check if key contains 'id', 'Id', 'ID' and value is not empty
+                        if ((key.toLowerCase().includes('id') || key.toLowerCase().includes('payment') || key.toLowerCase().includes('invoice')) && 
+                            value && value !== '' && value !== null && value !== undefined) {
+                            // If value is a number or string, use it
+                            if (typeof value === 'string' || typeof value === 'number') {
+                                paymentId = String(value);
+                                console.log('MyFatoorah: Found potential paymentId in key "' + key + '":', paymentId);
+                                break;
+                            }
+                            // If value is an object, check its properties
+                            else if (typeof value === 'object' && value !== null) {
+                                const nestedId = value.paymentId || value.PaymentId || value.InvoiceId || value.id || value.Id || value.ID;
+                                if (nestedId) {
+                                    paymentId = String(nestedId);
+                                    console.log('MyFatoorah: Found potential paymentId in nested object "' + key + '":', paymentId);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 // If still no paymentId, check if response is a string (some versions return just the ID)
                 if (!paymentId && typeof response === 'string') {
@@ -111,7 +146,8 @@
                 
                 // If still no paymentId, check if response has a data property
                 if (!paymentId && response.data) {
-                    paymentId = response.data.paymentId || response.data.PaymentId || response.data.InvoiceId;
+                    paymentId = response.data.paymentId || response.data.PaymentId || response.data.InvoiceId || 
+                               response.data.id || response.data.Id || response.data.ID;
                 }
                 
                 // Validate paymentId
@@ -119,9 +155,13 @@
                     console.error('MyFatoorah: Could not extract paymentId from response', {
                         response: response,
                         responseType: typeof response,
-                        responseKeys: Object.keys(response || {})
+                        responseKeys: Object.keys(response || {}),
+                        allValues: response ? Object.keys(response).reduce((acc, key) => {
+                            acc[key] = response[key];
+                            return acc;
+                        }, {}) : {}
                     });
-                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود أو غير صالح" : "Invalid response from payment gateway - payment ID missing or invalid" }}');
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود أو غير صالح. يرجى التحقق من Console للمزيد من التفاصيل." : "Invalid response from payment gateway - payment ID missing or invalid. Please check Console for more details." }}');
                 }
                 
                 // Normalize response to have paymentId
