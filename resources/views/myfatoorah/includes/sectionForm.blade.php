@@ -218,11 +218,18 @@
         .then(data => {
             console.log('Execute payment response:', data);
             console.log('Execute payment response keys:', Object.keys(data || {}));
+            console.log('Has invoiceURL:', !!data.invoiceURL);
+            console.log('Has keepPolling:', !!data.keepPolling);
+            console.log('Has paymentId:', !!data.paymentId);
             
             // PRIORITY 1: Check for invoiceURL FIRST - this is needed for OTP/3D Secure
             // This must be checked before any other conditions
-            if (data.invoiceURL) {
-                console.log('Invoice URL found, redirecting to OTP page:', data.invoiceURL);
+            // invoiceURL can be in different formats: invoiceURL, InvoiceURL, invoice_url
+            const invoiceURL = data.invoiceURL || data.InvoiceURL || data.invoice_url || null;
+            
+            if (invoiceURL && invoiceURL.trim() !== '') {
+                console.log('Invoice URL found, redirecting to OTP page:', invoiceURL);
+                console.log('Stopping all other processing - redirecting immediately');
                 
                 // Hide any loading overlay
                 if (typeof hideLoadingOverlay === 'function') {
@@ -231,9 +238,12 @@
                 
                 // Redirect to invoice URL immediately (this is where OTP happens)
                 // No delay - redirect immediately to allow OTP flow
-                window.location.href = data.invoiceURL;
-                return; // Stop execution here
+                // This is critical - user MUST be redirected to bank's OTP page
+                window.location.href = invoiceURL;
+                return; // Stop execution here - do NOT continue to polling or other logic
             }
+            
+            console.log('No invoiceURL found, continuing with other payment logic');
             
             // PRIORITY 2: Payment is successful with paymentId
             if (data.success && data.paymentId && !data.keepPolling) {

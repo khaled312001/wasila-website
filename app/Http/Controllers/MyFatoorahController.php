@@ -265,21 +265,70 @@ class MyFatoorahController extends Controller
                 ], 500);
             }
             
+            // Extract paymentId/InvoiceId from response
+            $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
+            
             // Check if invoiceURL exists - this is needed for OTP/3D Secure authentication
             // If invoiceURL exists, we MUST redirect user to it to complete payment
             // This check MUST be done FIRST before any other processing
             $invoiceURL = $payment['invoiceURL'] ?? $payment['InvoiceURL'] ?? $payment['invoice_url'] ?? null;
             
-            if ($invoiceURL && !empty(trim($invoiceURL))) {
-                Log::info('MyFatoorah executePayment: Invoice URL found, redirecting user for OTP/3D Secure', [
-                    'invoice_url' => $invoiceURL,
-                    'has_invoice_id' => isset($payment['InvoiceId']),
-                    'invoice_id' => $payment['InvoiceId'] ?? null,
-                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array'
+            // If invoiceURL is not in response but we have InvoiceId, build the URL manually
+            // This is needed for Embedded Payment flow where invoiceURL might not be returned
+            if (!$invoiceURL && $paymentId) {
+                Log::info('MyFatoorah executePayment: Building invoiceURL from InvoiceId', [
+                    'invoice_id' => $paymentId
                 ]);
                 
-                // Extract paymentId/InvoiceId if available for tracking
-                $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
+                // Get portal URL from MyFatoorah configuration
+                $isTest = $this->mfConfig['isTest'];
+                $vcCode = $this->mfConfig['vcCode'];
+                $countries = MyFatoorah::getMFCountries();
+                
+                if (isset($countries[$vcCode])) {
+                    $portalBase = $isTest ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
+                    // Build invoice URL: https://portal.myfatoorah.com/pay/{InvoiceId}
+                    // Or: https://portal.myfatoorah.com/invoice/{InvoiceId}
+                    // Try both formats
+                    $invoiceURL = rtrim($portalBase, '/') . '/pay/' . $paymentId;
+                    
+                    Log::info('MyFatoorah executePayment: Built invoiceURL', [
+                        'invoice_url' => $invoiceURL,
+                        'portal_base' => $portalBase,
+                        'invoice_id' => $paymentId,
+                        'is_test' => $isTest,
+                        'vc_code' => $vcCode,
+                        'country_config' => $countries[$vcCode] ?? 'not_found'
+                    ]);
+                } else {
+                    Log::warning('MyFatoorah executePayment: Could not build invoiceURL - country not found', [
+                        'vc_code' => $vcCode,
+                        'available_countries' => array_keys($countries ?? []),
+                        'is_test' => $isTest
+                    ]);
+                    
+                    // Fallback: use default portal URL
+                    if ($isTest) {
+                        $invoiceURL = 'https://test.myfatoorah.com/pay/' . $paymentId;
+                    } else {
+                        $invoiceURL = 'https://portal.myfatoorah.com/pay/' . $paymentId;
+                    }
+                    
+                    Log::info('MyFatoorah executePayment: Using fallback invoiceURL', [
+                        'invoice_url' => $invoiceURL
+                    ]);
+                }
+            }
+            
+            // If we have invoiceURL, redirect user to it for OTP/3D Secure
+            if ($invoiceURL && !empty(trim($invoiceURL))) {
+                Log::info('MyFatoorah executePayment: Invoice URL found/built, redirecting user for OTP/3D Secure', [
+                    'invoice_url' => $invoiceURL,
+                    'has_invoice_id' => isset($payment['InvoiceId']),
+                    'invoice_id' => $paymentId,
+                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array',
+                    'url_source' => isset($payment['invoiceURL']) ? 'from_response' : 'built_from_invoice_id'
+                ]);
                 
                 // If we have paymentId, save it for tracking
                 if ($paymentId) {
@@ -301,9 +350,6 @@ class MyFatoorahController extends Controller
                         : 'You will be redirected to complete payment'
                 ]);
             }
-            
-            // Extract paymentId/InvoiceId from response (if no invoiceURL)
-            $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
             
             // If no paymentId and no invoiceURL, something went wrong
             if (!$paymentId) {
