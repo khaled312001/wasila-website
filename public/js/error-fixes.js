@@ -28,8 +28,31 @@
             return;
         }
         
+        // Suppress Google Pay manifest warnings
+        if (message.includes('Unable to download payment manifest') || 
+            message.includes('google.com/pay') ||
+            message.includes('payment manifest')) {
+            return;
+        }
+        
         // Call original warn for other messages
         originalWarn.apply(console, args);
+    };
+    
+    // Suppress specific console errors (like Google Pay manifest errors)
+    const originalError = console.error;
+    console.error = function(...args) {
+        const message = args.join(' ');
+        
+        // Suppress Google Pay manifest errors
+        if (message.includes('Unable to download payment manifest') || 
+            message.includes('google.com/pay') ||
+            message.includes('payment manifest')) {
+            return;
+        }
+        
+        // Call original error for other messages
+        originalError.apply(console, args);
     };
     
     // Global error handler
@@ -42,19 +65,41 @@
                 }
             }
             
+            // Suppress Google Pay manifest errors
+            if (e && e.message && typeof e.message === 'string') {
+                const message = e.message.toLowerCase();
+                if (message.includes('unable to download payment manifest') ||
+                    message.includes('google.com/pay') ||
+                    message.includes('payment manifest')) {
+                    return; // Silently ignore Google Pay manifest errors
+                }
+            }
+            
+            // Suppress errors from Google Pay scripts
+            if (e && e.filename && typeof e.filename === 'string') {
+                const filename = e.filename.toLowerCase();
+                if (filename.includes('googlepay') || filename.includes('google-pay')) {
+                    return; // Silently ignore Google Pay script errors
+                }
+            }
+            
             // Only log non-critical errors
             if (e && e.message && typeof e.message === 'string') {
                 const message = e.message.toLowerCase();
                 if (!message.includes('youtube') && 
                     !message.includes('youtubejs') && 
                     !message.includes('404') &&
-                    !message.includes('failed to load resource')) {
+                    !message.includes('failed to load resource') &&
+                    !message.includes('payment manifest')) {
                     console.log('Wasila Error Fixes: JavaScript error handled:', e.message);
                 }
             } else if (e && e.filename && typeof e.filename === 'string') {
                 // Handle errors without message but with filename
                 const filename = e.filename.toLowerCase();
-                if (!filename.includes('youtube') && !filename.includes('404')) {
+                if (!filename.includes('youtube') && 
+                    !filename.includes('404') &&
+                    !filename.includes('googlepay') &&
+                    !filename.includes('google-pay')) {
                     // Only log if it's not a media file error
                     if (!filename.match(/\.(png|jpg|jpeg|gif|svg|mp4|avi|mov|wmv)$/i)) {
                         console.log('Wasila Error Fixes: JavaScript error in file:', e.filename);
