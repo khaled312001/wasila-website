@@ -71,6 +71,86 @@
     };
     myFatoorah.init(config);
 
+    // Function to poll payment status until it's paid or failed
+    function pollPaymentStatus(pollUrl, paymentId, attempt) {
+        const maxAttempts = 40; // Poll for up to 2 minutes (40 * 3 seconds)
+        const pollInterval = 3000; // 3 seconds
+        
+        if (attempt >= maxAttempts) {
+            console.error('Payment polling timeout after', maxAttempts, 'attempts');
+            if (typeof hideLoadingOverlay === 'function') {
+                hideLoadingOverlay();
+            }
+            alert('{{ app()->getLocale() === "ar" ? "انتهت مهلة الانتظار. يرجى التحقق من حالة الدفع لاحقاً أو التواصل معنا." : "Polling timeout. Please check payment status later or contact us." }}');
+            // Redirect to callback as fallback
+            window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + paymentId;
+            return;
+        }
+        
+        console.log('Polling payment status, attempt:', attempt + 1, 'of', maxAttempts);
+        
+        fetch(pollUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Payment status poll response:', data);
+            
+            if (data.success && data.isPaid) {
+                // Payment is paid! Redirect to confirmation
+                console.log('Payment confirmed as paid, redirecting to confirmation');
+                
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                
+                // Redirect to callback which will then redirect to confirmation
+                window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + paymentId;
+            } else if (data.isFailed) {
+                // Payment failed
+                console.log('Payment failed');
+                
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                
+                // Redirect to callback to show error
+                window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + paymentId;
+            } else if (data.isPending) {
+                // Still pending, continue polling
+                setTimeout(() => {
+                    pollPaymentStatus(pollUrl, paymentId, attempt + 1);
+                }, pollInterval);
+            } else {
+                // Unknown status, continue polling
+                setTimeout(() => {
+                    pollPaymentStatus(pollUrl, paymentId, attempt + 1);
+                }, pollInterval);
+            }
+        })
+        .catch(error => {
+            console.error('Error polling payment status:', error);
+            
+            // On error, continue polling (might be temporary network issue)
+            if (attempt < maxAttempts - 5) {
+                setTimeout(() => {
+                    pollPaymentStatus(pollUrl, paymentId, attempt + 1);
+                }, pollInterval);
+            } else {
+                // Too many errors, redirect to callback
+                console.error('Too many polling errors, redirecting to callback');
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + paymentId;
+            }
+        });
+    }
+    
     // Function to execute payment using sessionId
     function executePaymentWithSessionId(sessionId, orderId, originalResponse) {
         console.log('Executing payment with sessionId:', sessionId, 'orderId:', orderId);
@@ -125,9 +205,20 @@
                     console.log('mfCallback not found, redirecting to callback');
                     window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + data.paymentId;
                 }
+            } else if (data.keepPolling && data.pollUrl) {
+                // Payment is still pending - poll status until it's paid
+                console.log('Payment is still pending, starting polling:', data.pollUrl);
+                
+                // Show message to user
+                if (typeof showLoadingOverlay === 'function') {
+                    showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري انتظار تأكيد الدفع من البنك... يرجى الانتظار" : "Waiting for bank confirmation... Please wait" }}');
+                }
+                
+                // Start polling payment status
+                pollPaymentStatus(data.pollUrl, data.paymentId, 0);
             } else if (data.redirect && data.callbackUrl) {
-                // Payment is pending or being processed - redirect to callback to verify final status
-                console.log('Payment is being processed, redirecting to callback:', data.callbackUrl);
+                // Payment failed or needs redirect
+                console.log('Payment needs redirect:', data.callbackUrl);
                 
                 // Show message to user
                 if (typeof showLoadingOverlay === 'function') {

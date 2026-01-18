@@ -298,11 +298,18 @@ class MyFatoorahController extends Controller
             // Wait a moment for payment to process (3D Secure, OTP, etc.)
             sleep(3);
             
-            // Check payment status from MyFatoorah - try multiple times for pending payments
-            $maxRetries = 3;
-            $retryDelay = 2; // seconds
+            // Check payment status from MyFatoorah - poll multiple times until payment is actually charged
+            // We will wait up to 60 seconds (20 attempts * 3 seconds) for payment to be processed
+            $maxRetries = 20;
+            $retryDelay = 3; // seconds
             $paymentStatus = null;
             $invoiceStatus = 'Unknown';
+            
+            Log::info('MyFatoorah executePayment: Starting payment status polling', [
+                'payment_id' => $paymentId,
+                'max_retries' => $maxRetries,
+                'retry_delay' => $retryDelay
+            ]);
             
             for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
                 try {
@@ -319,16 +326,30 @@ class MyFatoorahController extends Controller
                     Log::info('MyFatoorah executePayment: Payment status checked', [
                         'payment_id' => $paymentId,
                         'attempt' => $attempt,
+                        'max_attempts' => $maxRetries,
                         'invoice_status' => $invoiceStatus,
                         'payment_status_data' => $paymentStatus
                     ]);
                     
-                    // If payment is paid or failed, break the loop
-                    if (strtolower($invoiceStatus) === 'paid' || strtolower($invoiceStatus) === 'failed') {
+                    // If payment is paid, break immediately - payment is successfully charged
+                    if (strtolower($invoiceStatus) === 'paid') {
+                        Log::info('MyFatoorah executePayment: Payment confirmed as Paid', [
+                            'payment_id' => $paymentId,
+                            'attempt' => $attempt
+                        ]);
                         break;
                     }
                     
-                    // If not the last attempt, wait before retrying
+                    // If payment failed, break the loop
+                    if (strtolower($invoiceStatus) === 'failed') {
+                        Log::info('MyFatoorah executePayment: Payment failed', [
+                            'payment_id' => $paymentId,
+                            'attempt' => $attempt
+                        ]);
+                        break;
+                    }
+                    
+                    // If still pending and not the last attempt, wait before retrying
                     if ($attempt < $maxRetries) {
                         sleep($retryDelay);
                     }
@@ -339,22 +360,14 @@ class MyFatoorahController extends Controller
                         'error' => $e->getMessage()
                     ]);
                     
-                    // If it's the last attempt, return error
-                    if ($attempt === $maxRetries) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Error checking payment status: ' . $e->getMessage(),
-                            'paymentId' => $paymentId,
-                            'redirect' => true,
-                            'callbackUrl' => route('myfatoorah.callback', ['paymentId' => $paymentId])
-                        ], 500);
+                    // If it's the last attempt, we'll handle it below
+                    if ($attempt < $maxRetries) {
+                        sleep($retryDelay);
                     }
-                    
-                    // Wait before retrying
-                    sleep($retryDelay);
                 }
             }
             
+            // Only proceed if payment is actually paid
             if ($paymentStatus && strtolower($invoiceStatus) === 'paid') {
                 // Payment is successful, update order
                 $paymentMethod = $paymentStatus['PaymentMethod'] ?? 'MyFatoorah';
@@ -394,24 +407,53 @@ class MyFatoorahController extends Controller
                     'message' => 'Payment successful',
                     'order_id' => $orderId
                 ]);
-            } else {
-                // Payment is still pending or failed - redirect to callback to let MyFatoorah handle it
-                $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Pending';
+            } elseif ($paymentStatus && strtolower($invoiceStatus) === 'failed') {
+                // Payment failed
+                $order->update([
+                    'payment_status' => 'failed',
+                    'payment_reference' => $paymentId,
+                    'status' => 'cancelled',
+                    'notes' => 'فشل في الدفع: ' . ($paymentStatus['InvoiceError'] ?? 'Unknown error')
+                ]);
                 
-                Log::info('MyFatoorah executePayment: Payment status is ' . $invoiceStatus . ', redirecting to callback', [
+                Log::info('MyFatoorah executePayment: Payment failed', [
                     'payment_id' => $paymentId,
                     'invoice_status' => $invoiceStatus
                 ]);
                 
-                // Return paymentId and callback URL so frontend can redirect
-                // The callback will check the final status and update the order accordingly
+                return response()->json([
+                    'success' => false,
+                    'paymentId' => $paymentId,
+                    'status' => 'failed',
+                    'message' => 'Payment failed. Please try again.',
+                    'redirect' => true,
+                    'callbackUrl' => route('myfatoorah.callback', ['paymentId' => $paymentId])
+                ]);
+            } else {
+                // Payment is still pending after all retries - don't redirect yet
+                // Return a status that tells frontend to continue polling
+                $invoiceStatus = $paymentStatus['InvoiceStatus'] ?? 'Pending';
+                
+                Log::info('MyFatoorah executePayment: Payment still pending after ' . $maxRetries . ' attempts', [
+                    'payment_id' => $paymentId,
+                    'invoice_status' => $invoiceStatus,
+                    'total_wait_time' => ($maxRetries * $retryDelay) . ' seconds'
+                ]);
+                
+                // Don't redirect yet - payment hasn't been charged
+                // Return status that tells frontend to continue polling
+                // Use direct URL path to avoid locale issues
+                $locale = app()->getLocale();
+                $pollUrl = ($locale === 'en') ? '/en/myfatoorah/check-payment-status/' . $paymentId : '/myfatoorah/check-payment-status/' . $paymentId;
+                
                 return response()->json([
                     'success' => false,
                     'paymentId' => $paymentId,
                     'status' => $invoiceStatus,
-                    'message' => 'Payment is being processed. Redirecting to verify status...',
-                    'redirect' => true,
-                    'callbackUrl' => route('myfatoorah.callback', ['paymentId' => $paymentId])
+                    'message' => 'Payment is still being processed. Please wait...',
+                    'redirect' => false,
+                    'keepPolling' => true,
+                    'pollUrl' => $pollUrl
                 ]);
             }
             
@@ -422,6 +464,90 @@ class MyFatoorahController extends Controller
                 'order_id' => $request->input('orderId')
             ]);
             
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check payment status by paymentId
+     * Used for polling payment status from frontend
+     * 
+     * @param string $paymentId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkPaymentStatus($paymentId) {
+        try {
+            if (!$paymentId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payment ID is required'
+                ], 400);
+            }
+
+            $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
+            $data = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+
+            if (!$data) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to get payment status'
+                ], 404);
+            }
+
+            // Convert object to array if needed
+            if (is_object($data)) {
+                $data = json_decode(json_encode($data), true);
+            }
+
+            $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
+            $orderId = $data['UserDefinedField'] ?? null;
+
+            // If payment is paid, update order and return success
+            if (strtolower($invoiceStatus) === 'paid' && $orderId) {
+                $order = Order::find($orderId);
+                if ($order && $order->payment_status !== 'paid') {
+                    $paymentMethod = $data['PaymentMethod'] ?? 'MyFatoorah';
+                    if (stripos($paymentMethod, 'myfatoorah') === false && $paymentMethod !== 'MyFatoorah') {
+                        $paymentMethod = 'MyFatoorah';
+                    }
+                    
+                    $order->update([
+                        'payment_status' => 'paid',
+                        'payment_method' => $paymentMethod,
+                        'payment_reference' => $paymentId,
+                        'status' => 'confirmed',
+                        'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
+                    ]);
+
+                    // Send email to admin
+                    try {
+                        $adminEmail = SettingsHelper::contactEmail();
+                        Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
+                        Log::info('Order paid email sent successfully to: ' . $adminEmail);
+                    } catch (\Exception $emailException) {
+                        Log::error('Failed to send order paid email: ' . $emailException->getMessage());
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => strtolower($invoiceStatus) === 'paid',
+                'status' => $invoiceStatus,
+                'paymentId' => $paymentId,
+                'orderId' => $orderId,
+                'isPaid' => strtolower($invoiceStatus) === 'paid',
+                'isFailed' => strtolower($invoiceStatus) === 'failed',
+                'isPending' => strtolower($invoiceStatus) !== 'paid' && strtolower($invoiceStatus) !== 'failed'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('MyFatoorah checkPaymentStatus error: ' . $e->getMessage(), [
+                'payment_id' => $paymentId,
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
