@@ -612,8 +612,10 @@ class MyFatoorahController extends Controller
                 $session = request()->session();
                 $session->save();
                 
-                // Use full URL to ensure proper redirect with session
-                $confirmationUrl = route('orders.confirmation');
+                // Use direct URL path to avoid route resolution issues
+                // The route is /orders/confirmation for Arabic (default) and /en/orders/confirmation for English
+                $locale = app()->getLocale();
+                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
                 
                 return redirect($confirmationUrl)
                     ->with('success', 'تم الدفع بنجاح! شكراً لك على دعمك لمشروع وسيلة الخيري.');
@@ -655,8 +657,9 @@ class MyFatoorahController extends Controller
                 $session = request()->session();
                 $session->save();
                 
-                // Use full URL to ensure proper redirect with session
-                $confirmationUrl = route('orders.confirmation');
+                // Use direct URL path to avoid route resolution issues
+                $locale = app()->getLocale();
+                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
                 
                 return redirect($confirmationUrl)
                     ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.');
@@ -700,8 +703,9 @@ class MyFatoorahController extends Controller
                 $session = request()->session();
                 $session->save();
                 
-                // Use full URL to ensure proper redirect with session
-                $confirmationUrl = route('orders.confirmation');
+                // Use direct URL path to avoid route resolution issues
+                $locale = app()->getLocale();
+                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
                 
                 return redirect($confirmationUrl)
                     ->with('info', 'تم استلام طلبك بنجاح. في انتظار تأكيد الدفع.');
