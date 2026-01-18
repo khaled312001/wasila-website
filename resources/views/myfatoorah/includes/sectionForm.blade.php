@@ -72,14 +72,58 @@
     myFatoorah.init(config);
 
     function submit() {
+        // Show loading message
+        const submitButton = document.querySelector('.mf-pay-now-btn');
+        if (submitButton) {
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="mf-pay-now-span">{{ app()->getLocale() === "ar" ? "جاري المعالجة..." : "Processing..." }}</span>';
+            
+            // Re-enable button after 5 seconds if no response
+            setTimeout(function() {
+                if (submitButton.disabled) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }
+            }, 5000);
+        }
+        
         myFatoorah.submit()
             // On success
             .then(function (response) {
-                mfCallback(response);
+                // Check if response is valid
+                if (!response || !response.paymentId) {
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع" : "Invalid response from payment gateway" }}');
+                }
+                
+                // Call callback function
+                if (typeof mfCallback === 'function') {
+                    mfCallback(response);
+                } else {
+                    // Fallback: redirect directly if callback is not defined
+                    window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
+                }
             })
             // In case of errors
             .catch(function (error) {
-                alert(error);
+                // Re-enable button
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
+                    submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
+                }
+                
+                // Show user-friendly error message
+                let errorMessage = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع" : "An error occurred processing the payment" }}';
+                
+                if (error && typeof error === 'string') {
+                    errorMessage += ': ' + error;
+                } else if (error && error.message) {
+                    errorMessage += ': ' + error.message;
+                }
+                
+                alert(errorMessage);
+                console.error('MyFatoorah payment error:', error);
             });
     }
 </script>

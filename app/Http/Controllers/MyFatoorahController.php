@@ -145,21 +145,44 @@ class MyFatoorahController extends Controller
             $paymentId = request('paymentId');
 
             if (!$paymentId) {
+                Log::warning('MyFatoorah callback: Missing paymentId', [
+                    'request_data' => request()->all(),
+                    'url' => request()->fullUrl()
+                ]);
                 return redirect()->route('home')
                     ->with('error', 'لم يتم العثور على معرف الدفع. يرجى التواصل معنا.');
             }
+
+            Log::info('MyFatoorah callback: Processing payment', [
+                'payment_id' => $paymentId,
+                'session_id' => request()->session()->getId()
+            ]);
 
             $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
             $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
 
             if (!$data) {
+                Log::error('MyFatoorah callback: Failed to get payment status', [
+                    'payment_id' => $paymentId,
+                    'config' => $this->mfConfig
+                ]);
                 return redirect()->route('home')
                     ->with('error', 'فشل في التحقق من حالة الدفع. يرجى التواصل معنا.');
             }
 
+            Log::info('MyFatoorah callback: Payment status retrieved', [
+                'payment_id' => $paymentId,
+                'invoice_status' => $data['InvoiceStatus'] ?? 'Unknown',
+                'payment_method' => $data['PaymentMethod'] ?? 'Unknown'
+            ]);
+
             $orderId = $data['UserDefinedField'] ?? null;
             
             if (!$orderId) {
+                Log::error('MyFatoorah callback: Missing order ID in UserDefinedField', [
+                    'payment_id' => $paymentId,
+                    'data' => $data
+                ]);
                 return redirect()->route('home')
                     ->with('error', 'لم يتم العثور على معرف الطلب. يرجى التواصل معنا.');
             }
@@ -167,7 +190,10 @@ class MyFatoorahController extends Controller
             $order = Order::with('orderItems.service')->find($orderId);
             
             if (!$order) {
-                Log::error('MyFatoorah callback: Order not found', ['order_id' => $orderId]);
+                Log::error('MyFatoorah callback: Order not found', [
+                    'order_id' => $orderId,
+                    'payment_id' => $paymentId
+                ]);
                 return redirect()->route('home')
                     ->with('error', 'لم يتم العثور على الطلب. يرجى التواصل معنا.');
             }

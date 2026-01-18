@@ -19,7 +19,20 @@ var mfGpConfig = {
     currencyCode: "{{$paymentMethods['gp']->GatewayData['GatewayCurrency']}}", // Here, add your currency code.
     cardViewId: "mf-gp-element",
     isProduction: {{Config::get('myfatoorah.test_mode')? 'false' : 'true'}},
-    callback: mfCallback
+    callback: function(response) {
+        // Ensure callback is called with proper delay for OTP/success messages
+        if (typeof mfCallback === 'function') {
+            mfCallback(response);
+        } else {
+            // Fallback: show loading and redirect
+            if (typeof showLoadingOverlay === 'function') {
+                showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري معالجة الدفع..." : "Processing payment..." }}');
+            }
+            setTimeout(function() {
+                window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
+            }, 2000);
+        }
+    }
 };
 
 myFatoorahGP.init(mfGpConfig);

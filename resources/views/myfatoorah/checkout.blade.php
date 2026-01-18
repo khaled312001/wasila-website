@@ -161,10 +161,114 @@
 
             <script src="{{asset('vendor/myfatoorah/js/checkout.js')}}"></script>
             <script>
-                function mfCallback(response) {
-                    // Redirect to MyFatoorah callback with payment ID
-                    window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
+                // Loading overlay to show during payment processing
+                function showLoadingOverlay(message) {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'mf-loading-overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.8);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 9999;
+                        color: white;
+                        font-size: 18px;
+                        text-align: center;
+                    `;
+                    overlay.innerHTML = `
+                        <div style="background: white; padding: 30px; border-radius: 10px; color: #333; max-width: 400px; margin: 20px;">
+                            <div style="margin-bottom: 20px;">
+                                <svg class="animate-spin" style="width: 50px; height: 50px; margin: 0 auto; display: block;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                            <p style="font-size: 16px; margin-bottom: 10px; font-weight: bold;">${message}</p>
+                            <p style="font-size: 14px; color: #666;">{{ app()->getLocale() === 'ar' ? 'يرجى الانتظار...' : 'Please wait...' }}</p>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
                 }
+                
+                function hideLoadingOverlay() {
+                    const overlay = document.getElementById('mf-loading-overlay');
+                    if (overlay) {
+                        overlay.remove();
+                    }
+                }
+                
+                function mfCallback(response) {
+                    // Check if response is valid
+                    if (!response || !response.paymentId) {
+                        console.error('Invalid payment response:', response);
+                        alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
+                        return;
+                    }
+                    
+                    // Show success message first
+                    const successMessage = document.createElement('div');
+                    successMessage.id = 'mf-success-message';
+                    successMessage.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        color: white;
+                        padding: 30px 40px;
+                        border-radius: 15px;
+                        z-index: 10000;
+                        text-align: center;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                        min-width: 300px;
+                        max-width: 90%;
+                    `;
+                    successMessage.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <svg style="width: 60px; height: 60px; margin: 0 auto; display: block;" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+                            {{ app()->getLocale() === "ar" ? "تم الدفع بنجاح!" : "Payment Successful!" }}
+                        </h3>
+                        <p style="font-size: 14px; opacity: 0.9;">
+                            {{ app()->getLocale() === "ar" ? "جاري إعادة التوجيه..." : "Redirecting..." }}
+                        </p>
+                    `;
+                    document.body.appendChild(successMessage);
+                    
+                    // Wait a moment to allow user to see any OTP or success messages from MyFatoorah
+                    // This gives time for OTP popups or bank messages to appear
+                    setTimeout(function() {
+                        // Show loading overlay with message
+                        showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري معالجة الدفع..." : "Processing payment..." }}');
+                        
+                        // Remove success message
+                        if (successMessage.parentNode) {
+                            successMessage.remove();
+                        }
+                        
+                        // Redirect to MyFatoorah callback with payment ID
+                        setTimeout(function() {
+                            window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
+                        }, 500);
+                    }, 3000); // 3 second delay to allow OTP/success messages to appear
+                }
+                
+                // Handle payment errors globally
+                window.addEventListener('error', function(e) {
+                    if (e.message && e.message.includes('myFatoorah')) {
+                        hideLoadingOverlay();
+                        console.error('MyFatoorah error:', e);
+                    }
+                });
             </script>
 
             <!-- Google Pay Scripts -->
