@@ -228,21 +228,58 @@
             const invoiceURL = data.invoiceURL || data.InvoiceURL || data.invoice_url || null;
             
             if (invoiceURL && invoiceURL.trim() !== '') {
-                console.log('Invoice URL found, redirecting to OTP page:', invoiceURL);
+                console.log('=== INVOICE URL FOUND - REDIRECTING TO OTP PAGE ===');
+                console.log('Invoice URL:', invoiceURL);
                 console.log('Stopping all other processing - redirecting immediately');
                 
-                // Hide any loading overlay
+                // Set a flag to prevent any other processing
+                window.paymentRedirecting = true;
+                
+                // Hide any loading overlay immediately
                 if (typeof hideLoadingOverlay === 'function') {
-                    hideLoadingOverlay();
+                    try {
+                        hideLoadingOverlay();
+                    } catch (e) {
+                        console.warn('Error hiding overlay:', e);
+                    }
                 }
                 
-                // Redirect to invoice URL immediately (this is where OTP happens)
-                // No delay - redirect immediately to allow OTP flow
+                // Stop all timers and clear any pending operations
+                if (window.paymentPollingTimer) {
+                    clearTimeout(window.paymentPollingTimer);
+                    clearInterval(window.paymentPollingTimer);
+                    window.paymentPollingTimer = null;
+                }
+                
+                // CRITICAL: Redirect to invoice URL immediately (this is where OTP happens)
+                // Use window.location.replace() to prevent back button issues
                 // This is critical - user MUST be redirected to bank's OTP page
-                window.location.href = invoiceURL;
-                return; // Stop execution here - do NOT continue to polling or other logic
+                try {
+                    console.log('Attempting redirect to:', invoiceURL);
+                    
+                    // Redirect immediately - no delay
+                    window.location.replace(invoiceURL);
+                    
+                    // Force redirect if replace doesn't work immediately
+                    setTimeout(function() {
+                        if (window.paymentRedirecting && window.location.href !== invoiceURL && !window.location.href.includes('myfatoorah.com')) {
+                            console.warn('Location replace may have failed, forcing redirect with href');
+                            window.location.href = invoiceURL;
+                        }
+                    }, 50);
+                    
+                    // Stop all execution - do NOT continue to any other code
+                    // This return statement is critical
+                    return false;
+                } catch (redirectError) {
+                    console.error('Error during redirect:', redirectError);
+                    // Fallback redirect - must happen
+                    window.location.href = invoiceURL;
+                    return false;
+                }
             }
             
+            // Only continue if no invoiceURL was found
             console.log('No invoiceURL found, continuing with other payment logic');
             
             // PRIORITY 2: Payment is successful with paymentId
