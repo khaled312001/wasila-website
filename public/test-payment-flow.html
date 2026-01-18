@@ -283,37 +283,42 @@
         }
         
         function testInvalidResponse(results) {
-            // Mock alert to check if it's called
-            let alertCalled = false;
-            const originalAlert = window.alert;
-            
-            window.alert = function(message) {
-                alertCalled = true;
-                console.log('Test: Alert called with message:', message);
-                // Don't show actual alert during test
-            };
-            
-            // Clear any existing messages
+            // Clear any existing messages first
             const existingMsg = document.getElementById('mf-success-message');
             if (existingMsg) existingMsg.remove();
             const existingOverlay = document.getElementById('mf-loading-overlay');
             if (existingOverlay) existingOverlay.remove();
             
+            // Mock alert BEFORE calling mfCallback - use object to ensure reference is maintained
+            const alertTracker = { called: false, message: '' };
+            const originalAlert = window.alert;
+            
+            window.alert = function(message) {
+                alertTracker.called = true;
+                alertTracker.message = message;
+                console.log('Test: Alert called with message:', message);
+                // Don't show actual alert during test
+            };
+            
             try {
+                // Call mfCallback with null - alert should be called immediately
                 mfCallback(null);
                 
-                // Wait a bit to check if alert was called and no success message was created
+                // Check immediately (synchronous check)
+                const immediateCheck = alertTracker.called;
+                
+                // Also wait a bit to check if success message was NOT created
                 setTimeout(() => {
                     const successMsg = document.getElementById('mf-success-message');
                     const hasNoSuccessMsg = !successMsg;
                     
                     // Check if alert was called (error handling worked)
-                    if (alertCalled && hasNoSuccessMsg) {
+                    if (alertTracker.called && hasNoSuccessMsg) {
                         results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
-                    } else if (alertCalled) {
-                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert'});
+                    } else if (alertTracker.called) {
+                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert (لكن رسالة النجاح ظهرت أيضاً)'});
                     } else {
-                        results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'لم يتم استدعاء alert'});
+                        results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'لم يتم استدعاء alert. immediateCheck=' + immediateCheck + ', hasNoSuccessMsg=' + hasNoSuccessMsg + ', alertTracker.called=' + alertTracker.called});
                     }
                     
                     // Clean up
@@ -323,7 +328,7 @@
                     
                     window.alert = originalAlert;
                     displayResults(results, 'callback-test');
-                }, 300);
+                }, 100);
             } catch (e) {
                 window.alert = originalAlert;
                 results.push({test: 'mfCallback مع response خاطئ', pass: false, error: e.message});
@@ -336,39 +341,44 @@
             const container = document.getElementById('error-test');
             container.innerHTML = '<p style="color: #3b82f6;">جاري الاختبار...</p>';
             
-            // Mock alert to check if error handling works
-            let alertCalled = false;
             const originalAlert = window.alert;
             
-            window.alert = function(message) {
-                alertCalled = true;
-                console.log('Test: Alert called:', message);
-                // Don't show actual alert during test
-            };
-            
             // Test null response
+            testNullResponse(results, originalAlert);
+        }
+        
+        function testNullResponse(results, originalAlert) {
             // Clear any existing messages
             const existingMsg = document.getElementById('mf-success-message');
             if (existingMsg) existingMsg.remove();
             const existingOverlay = document.getElementById('mf-loading-overlay');
             if (existingOverlay) existingOverlay.remove();
             
-            alertCalled = false;
+            // Mock alert BEFORE calling mfCallback - use object to ensure reference is maintained
+            const alertTracker = { called: false, message: '' };
+            window.alert = function(message) {
+                alertTracker.called = true;
+                alertTracker.message = message;
+                console.log('Test: Alert called for null response:', message);
+            };
             
             try {
                 mfCallback(null);
                 
-                // Give it a moment to process
+                // Check immediately (synchronous check)
+                const immediateCheck = alertTracker.called;
+                
+                // Also wait a bit to check if success message was NOT created
                 setTimeout(() => {
                     const successMsg = document.getElementById('mf-success-message');
                     const hasNoSuccessMsg = !successMsg;
                     
-                    if (alertCalled && hasNoSuccessMsg) {
+                    if (alertTracker.called && hasNoSuccessMsg) {
                         results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
-                    } else if (alertCalled) {
+                    } else if (alertTracker.called) {
                         results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert'});
                     } else {
-                        results.push({test: 'معالجة null response', pass: false, note: 'لم يتم استدعاء alert'});
+                        results.push({test: 'معالجة null response', pass: false, note: 'لم يتم استدعاء alert. immediateCheck=' + immediateCheck + ', alertTracker.called=' + alertTracker.called});
                     }
                     
                     // Clean up
@@ -376,49 +386,62 @@
                     const overlay = document.getElementById('mf-loading-overlay');
                     if (overlay) overlay.remove();
                     
-                    // Test missing paymentId
-                    alertCalled = false;
-                    
-                    // Clear any existing messages
-                    const existingMsg2 = document.getElementById('mf-success-message');
-                    if (existingMsg2) existingMsg2.remove();
-                    const existingOverlay2 = document.getElementById('mf-loading-overlay');
-                    if (existingOverlay2) existingOverlay2.remove();
-                    
-                    try {
-                        mfCallback({});
-                        
-                        setTimeout(() => {
-                            const successMsg2 = document.getElementById('mf-success-message');
-                            const hasNoSuccessMsg2 = !successMsg2;
-                            
-                            if (alertCalled && hasNoSuccessMsg2) {
-                                results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
-                            } else if (alertCalled) {
-                                results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert'});
-                            } else {
-                                results.push({test: 'معالجة missing paymentId', pass: false, note: 'لم يتم استدعاء alert'});
-                            }
-                            
-                            // Clean up
-                            if (successMsg2) successMsg2.remove();
-                            const overlay2 = document.getElementById('mf-loading-overlay');
-                            if (overlay2) overlay2.remove();
-                            
-                            // Restore original function
-                            window.alert = originalAlert;
-                            
-                            displayResults(results, 'error-test');
-                        }, 300);
-                    } catch (e) {
-                        window.alert = originalAlert;
-                        results.push({test: 'معالجة missing paymentId', pass: false, error: e.message});
-                        displayResults(results, 'error-test');
-                    }
-                }, 300);
+                    // Now test missing paymentId
+                    testMissingPaymentId(results, originalAlert);
+                }, 100);
             } catch (e) {
                 window.alert = originalAlert;
                 results.push({test: 'معالجة null response', pass: false, error: e.message});
+                testMissingPaymentId(results, originalAlert);
+            }
+        }
+        
+        function testMissingPaymentId(results, originalAlert) {
+            // Clear any existing messages
+            const existingMsg = document.getElementById('mf-success-message');
+            if (existingMsg) existingMsg.remove();
+            const existingOverlay = document.getElementById('mf-loading-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            
+            // Mock alert BEFORE calling mfCallback - use object to ensure reference is maintained
+            const alertTracker = { called: false, message: '' };
+            window.alert = function(message) {
+                alertTracker.called = true;
+                alertTracker.message = message;
+                console.log('Test: Alert called for missing paymentId:', message);
+            };
+            
+            try {
+                mfCallback({});
+                
+                // Check immediately (synchronous check)
+                const immediateCheck = alertTracker.called;
+                
+                setTimeout(() => {
+                    const successMsg = document.getElementById('mf-success-message');
+                    const hasNoSuccessMsg = !successMsg;
+                    
+                    if (alertTracker.called && hasNoSuccessMsg) {
+                        results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                    } else if (alertTracker.called) {
+                        results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert'});
+                    } else {
+                        results.push({test: 'معالجة missing paymentId', pass: false, note: 'لم يتم استدعاء alert. immediateCheck=' + immediateCheck + ', alertTracker.called=' + alertTracker.called});
+                    }
+                    
+                    // Clean up
+                    if (successMsg) successMsg.remove();
+                    const overlay = document.getElementById('mf-loading-overlay');
+                    if (overlay) overlay.remove();
+                    
+                    // Restore original function
+                    window.alert = originalAlert;
+                    
+                    displayResults(results, 'error-test');
+                }, 100);
+            } catch (e) {
+                window.alert = originalAlert;
+                results.push({test: 'معالجة missing paymentId', pass: false, error: e.message});
                 displayResults(results, 'error-test');
             }
         }
