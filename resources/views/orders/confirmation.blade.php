@@ -20,7 +20,7 @@
 
 @section('content')
 <!-- Confirmation Header -->
-<section class="gradient-bg text-white py-16">
+<section class="gradient-bg text-white py-12 md:py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
             @php
@@ -100,54 +100,69 @@
 
 <!-- Order Details -->
 @if(isset($orderData) && $orderData)
-<section class="py-16 bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
             <!-- Order Header -->
-            <div class="bg-primary-light px-6 py-4">
-                <h2 class="text-xl font-bold text-white">
-                    {{ app()->getLocale() === 'ar' ? 'تفاصيل الطلب' : 'Order Details' }}
-                </h2>
+            <div class="gradient-bg px-6 py-5">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl md:text-2xl font-bold text-white">
+                        {{ app()->getLocale() === 'ar' ? 'تفاصيل الطلب' : 'Order Details' }}
+                    </h2>
+                    @if(($orderData['payment_status'] ?? '') === 'paid')
+                    <div class="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-white font-semibold">{{ app()->getLocale() === 'ar' ? 'مدفوع' : 'Paid' }}</span>
+                    </div>
+                    @endif
+                </div>
             </div>
             
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-6 md:p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <!-- Order Information -->
-                    <div>
-                        <h3 class="text-lg font-semibold text-primary-dark mb-4">
-                            {{ app()->getLocale() === 'ar' ? 'معلومات الطلب' : 'Order Information' }}
-                        </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold text-primary-dark mb-4 pb-2 border-b-2 border-primary-light">
+                                {{ app()->getLocale() === 'ar' ? 'معلومات الطلب' : 'Order Information' }}
+                            </h3>
+                        </div>
                         
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'رقم الطلب:' : 'Order Number:' }}
                                 </span>
-                                <span class="font-semibold text-primary-dark">{{ $orderData['order_number'] ?? 'N/A' }}</span>
+                                <span class="font-bold text-primary-dark text-lg">{{ $orderData['order_number'] ?? 'N/A' }}</span>
                             </div>
                             
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'تاريخ الطلب:' : 'Order Date:' }}
                                 </span>
-                                <span class="font-semibold">{{ now()->format('Y-m-d H:i') }}</span>
+                                <span class="font-semibold text-gray-800">{{ now()->format('Y-m-d H:i') }}</span>
                             </div>
                             
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'حالة الدفع:' : 'Payment Status:' }}
                                 </span>
                                 <span class="font-semibold">
                                     @if(($orderData['payment_status'] ?? '') === 'paid')
-                                        <span class="text-green-600">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
                                             {{ app()->getLocale() === 'ar' ? 'مدفوع' : 'Paid' }}
                                         </span>
                                     @elseif(($orderData['payment_status'] ?? '') === 'failed')
-                                        <span class="text-red-600">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
                                             {{ app()->getLocale() === 'ar' ? 'فشل الدفع' : 'Payment Failed' }}
                                         </span>
                                     @else
-                                        <span class="text-yellow-600">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
                                             {{ app()->getLocale() === 'ar' ? 'في الانتظار' : 'Pending' }}
                                         </span>
                                     @endif
@@ -155,49 +170,51 @@
                             </div>
                             
                             @if(isset($orderData['payment_method']))
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'طريقة الدفع:' : 'Payment Method:' }}
                                 </span>
-                                <span class="font-semibold">{{ $orderData['payment_method'] }}</span>
+                                <span class="font-semibold text-gray-800">{{ $orderData['payment_method'] }}</span>
                             </div>
                             @endif
                         </div>
                     </div>
                     
                     <!-- Service Information -->
-                    <div>
-                        <h3 class="text-lg font-semibold text-primary-dark mb-4">
-                            {{ app()->getLocale() === 'ar' ? 'تفاصيل الخدمة' : 'Service Details' }}
-                        </h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg md:text-xl font-bold text-primary-dark mb-4 pb-2 border-b-2 border-primary-light">
+                                {{ app()->getLocale() === 'ar' ? 'تفاصيل الخدمة' : 'Service Details' }}
+                            </h3>
+                        </div>
                         
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'اسم الخدمة:' : 'Service Name:' }}
                                 </span>
                                 <span class="font-semibold text-primary-dark">{{ $orderData['service_name'] ?? 'N/A' }}</span>
                             </div>
                             
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'السعر:' : 'Price:' }}
                                 </span>
-                                <span class="font-semibold">{{ number_format($orderData['service_price'] ?? 0, 2) }} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
+                                <span class="font-semibold text-gray-800">{{ number_format($orderData['service_price'] ?? 0, 2) }} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
                             </div>
                             
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700 font-medium">
                                     {{ app()->getLocale() === 'ar' ? 'الكمية:' : 'Quantity:' }}
                                 </span>
-                                <span class="font-semibold">{{ $orderData['service_quantity'] ?? 1 }}</span>
+                                <span class="font-semibold text-gray-800">{{ $orderData['service_quantity'] ?? 1 }}</span>
                             </div>
                             
-                            <div class="flex justify-between border-t pt-3">
-                                <span class="text-gray-600 font-semibold">
+                            <div class="flex justify-between items-center p-4 bg-gradient-to-r from-primary-light to-primary-medium rounded-lg mt-4">
+                                <span class="text-white font-bold text-lg">
                                     {{ app()->getLocale() === 'ar' ? 'المجموع:' : 'Total:' }}
                                 </span>
-                                <span class="font-bold text-accent text-lg">{{ number_format($orderData['total_amount'] ?? 0, 2) }} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
+                                <span class="font-bold text-white text-xl">{{ number_format($orderData['total_amount'] ?? 0, 2) }} {{ app()->getLocale() === 'ar' ? 'ريال' : 'SAR' }}</span>
                             </div>
                         </div>
                     </div>
@@ -206,65 +223,65 @@
         </div>
         
         <!-- Customer Information -->
-        <div class="bg-white rounded-lg shadow-lg mt-8 overflow-hidden">
-            <div class="bg-primary-light px-6 py-4">
-                <h2 class="text-xl font-bold text-white">
+        <div class="bg-white rounded-xl shadow-xl mt-8 overflow-hidden border border-gray-100">
+            <div class="gradient-bg px-6 py-5">
+                <h2 class="text-xl md:text-2xl font-bold text-white">
                     {{ app()->getLocale() === 'ar' ? 'معلومات العميل' : 'Customer Information' }}
                 </h2>
             </div>
             
-            <div class="p-6">
+            <div class="p-6 md:p-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <label class="block text-sm font-bold text-primary-dark mb-2">
                             {{ app()->getLocale() === 'ar' ? 'الاسم:' : 'Name:' }}
                         </label>
-                        <p class="text-gray-900">{{ $orderData['customer_name'] ?? 'N/A' }}</p>
+                        <p class="text-gray-800 font-medium">{{ $orderData['customer_name'] ?? 'N/A' }}</p>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <label class="block text-sm font-bold text-primary-dark mb-2">
                             {{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني:' : 'Email:' }}
                         </label>
-                        <p class="text-gray-900">{{ $orderData['customer_email'] ?? 'N/A' }}</p>
+                        <p class="text-gray-800 font-medium break-all">{{ $orderData['customer_email'] ?? 'N/A' }}</p>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <label class="block text-sm font-bold text-primary-dark mb-2">
                             {{ app()->getLocale() === 'ar' ? 'رقم الهاتف:' : 'Phone:' }}
                         </label>
-                        <p class="text-gray-900">{{ $orderData['customer_phone'] ?? 'N/A' }}</p>
+                        <p class="text-gray-800 font-medium">{{ $orderData['customer_phone'] ?? 'N/A' }}</p>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <label class="block text-sm font-bold text-primary-dark mb-2">
                             {{ app()->getLocale() === 'ar' ? 'العنوان:' : 'Address:' }}
                         </label>
-                        <p class="text-gray-900">{{ $orderData['customer_address'] ?? 'N/A' }}</p>
+                        <p class="text-gray-800 font-medium">{{ $orderData['customer_address'] ?? 'N/A' }}</p>
                     </div>
                 </div>
             </div>
         </div>
         
         <!-- Action Buttons -->
-        <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             @if(($orderData['payment_status'] ?? '') === 'paid')
             <button onclick="printInvoice()" 
-                    class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-lg text-center flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    class="btn-primary text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-xl text-center flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/>
                 </svg>
                 {{ app()->getLocale() === 'ar' ? 'طباعة الفاتورة' : 'Print Invoice' }}
             </button>
             @endif
             
-            <a href="{{ route('home') }}" 
-               class="bg-primary-medium hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-lg text-center">
+            <a href="{{ app()->getLocale() === 'ar' ? route('home') : route('home.en') }}" 
+               class="btn-primary text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-xl text-center">
                 {{ app()->getLocale() === 'ar' ? 'العودة للرئيسية' : 'Back to Home' }}
             </a>
             
-            <a href="{{ route('services') }}" 
-               class="bg-accent hover:bg-accent-dark text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-lg text-center">
+            <a href="{{ app()->getLocale() === 'ar' ? route('services') : route('services.en') }}" 
+               class="btn-accent text-white font-semibold py-3 px-8 rounded-lg transition duration-300 hover:shadow-xl text-center">
                 {{ app()->getLocale() === 'ar' ? 'تصفح المزيد من الخدمات' : 'Browse More Services' }}
             </a>
         </div>
