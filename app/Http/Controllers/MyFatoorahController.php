@@ -53,6 +53,15 @@ class MyFatoorahController extends Controller
         }
         $apiKey = trim($apiKey ?? '');
         
+        // Validate API key is not empty
+        if (empty($apiKey)) {
+            Log::error('MyFatoorah: API key is empty or not set', [
+                'env_exists' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
+                'config_exists' => config('myfatoorah.api_key') ? 'yes' : 'no'
+            ]);
+            throw new \Exception('MyFatoorah API key is not configured. Please set MYFATOORAH_API_KEY in your .env file.');
+        }
+        
         // Get test mode - prefer env over config
         $testMode = env('MYFATOORAH_TEST_MODE');
         if ($testMode === null) {
@@ -1099,6 +1108,18 @@ class MyFatoorahController extends Controller
                 throw new Exception('تنسيق مفتاح API غير صحيح. يجب أن يبدأ بـ SK_XXX_');
             }
             
+            // Check if API key matches test mode
+            // Test keys usually contain 'test' or are shorter, but this is not always reliable
+            // The best way is to check the response from MyFatoorah
+            $isTestMode = $this->mfConfig['isTest'];
+            Log::info('MyFatoorah checkout: Configuration check', [
+                'api_key_prefix' => substr($apiKey, 0, 20) . '...',
+                'api_key_length' => strlen($apiKey),
+                'is_test_mode' => $isTestMode,
+                'vc_code' => $this->mfConfig['vcCode'],
+                'note' => 'If token error persists, verify API key matches test/live mode setting'
+            ]);
+            
             // Use standard MyFatoorah PHP library approach
             // Get available payment methods using initiatePayment()
             $mfObj = new MyFatoorahPayment($this->mfConfig);
@@ -1110,26 +1131,46 @@ class MyFatoorahController extends Controller
                 $invoiceValue = (float)$order->total_amount;
                 $currencyIso = 'SAR';
                 
-                // According to MyFatoorah PHP library documentation:
-                // initiatePayment() can be called without parameters to list all available payment gateways
+                // Try calling initiatePayment() with invoice value and currency first (recommended for live mode)
+                // If that fails, try without parameters
+                $paymentMethods = null;
+                $lastError = null;
+                
                 try {
-                    $paymentMethods = $mfObj->initiatePayment();
-                    Log::info('MyFatoorah: initiatePayment() called without parameters - success');
-                } catch (\Exception $e) {
-                    Log::error('MyFatoorah initiatePayment failed', [
-                        'error' => $e->getMessage(),
-                        'error_code' => $e->getCode(),
-                        'error_file' => $e->getFile(),
-                        'error_line' => $e->getLine(),
-                        'config' => [
-                            'is_test' => $this->mfConfig['isTest'],
-                            'vc_code' => $this->mfConfig['vcCode'],
-                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
-                            'api_key_length' => strlen($this->mfConfig['apiKey'])
-                        ],
-                        'trace' => $e->getTraceAsString()
+                    // First attempt: with invoice value and currency (recommended for live mode)
+                    $paymentMethods = $mfObj->initiatePayment($invoiceValue, $currencyIso);
+                    Log::info('MyFatoorah: initiatePayment() called with invoice value and currency - success');
+                } catch (\Exception $e1) {
+                    $lastError = $e1;
+                    Log::warning('MyFatoorah initiatePayment with parameters failed, trying without parameters', [
+                        'error' => $e1->getMessage(),
+                        'error_code' => $e1->getCode()
                     ]);
-                    throw new Exception('Failed to get payment methods: ' . $e->getMessage());
+                    
+                    // Second attempt: without parameters
+                    try {
+                        $paymentMethods = $mfObj->initiatePayment();
+                        Log::info('MyFatoorah: initiatePayment() called without parameters - success');
+                    } catch (\Exception $e2) {
+                        $lastError = $e2;
+                        Log::error('MyFatoorah initiatePayment failed with both methods', [
+                            'with_params_error' => $e1->getMessage(),
+                            'without_params_error' => $e2->getMessage(),
+                            'config' => [
+                                'is_test' => $this->mfConfig['isTest'],
+                                'vc_code' => $this->mfConfig['vcCode'],
+                                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
+                                'api_key_length' => strlen($this->mfConfig['apiKey']),
+                                'api_key_full' => $this->mfConfig['apiKey'] // Log full key for debugging
+                            ],
+                            'trace' => $e2->getTraceAsString()
+                        ]);
+                        throw new Exception('Failed to get payment methods: ' . $e2->getMessage());
+                    }
+                }
+                
+                if ($paymentMethods === null) {
+                    throw new Exception('Failed to get payment methods: No response from MyFatoorah');
                 }
                 
                 // Convert object to array if needed
@@ -1159,13 +1200,30 @@ class MyFatoorahController extends Controller
                     // Check if it's a token validation error
                     $isTokenError = stripos($errorMsg, 'token') !== false || 
                                    stripos($errorMsg, 'expired') !== false ||
-                                   stripos($errorMsg, 'invalid') !== false;
+                                   stripos($errorMsg, 'invalid') !== false ||
+                                   stripos($errorMsg, 'غير صالح') !== false ||
+                                   stripos($errorMsg, 'منتهي') !== false;
+                    
+                    // Provide more helpful error message for token errors
+                    if ($isTokenError) {
+                        $errorMsg = 'مفتاح API غير صالح أو منتهي الصلاحية. يرجى التحقق من: ' . 
+                                   '1) أن مفتاح API في ملف .env صحيح ' .
+                                   '2) أن مفتاح API يتطابق مع وضع الاختبار/الإنتاج (MYFATOORAH_TEST_MODE) ' .
+                                   '3) أن مفتاح API نشط في حساب MyFatoorah. ' .
+                                   'الخطأ الأصلي: ' . $errorMsg;
+                    }
                     
                     Log::error('MyFatoorah initiatePayment failed', [
                         'message' => $errorMsg,
                         'is_success' => $paymentMethods['IsSuccess'] ?? 'not_set',
                         'is_token_error' => $isTokenError,
                         'response' => $paymentMethods,
+                        'config' => [
+                            'is_test' => $this->mfConfig['isTest'],
+                            'vc_code' => $this->mfConfig['vcCode'],
+                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 20) . '...',
+                            'api_key_length' => strlen($this->mfConfig['apiKey'])
+                        ],
                         'config' => [
                             'is_test' => $this->mfConfig['isTest'],
                             'vc_code' => $this->mfConfig['vcCode'],
