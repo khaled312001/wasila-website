@@ -18,6 +18,10 @@
 />
 @endpush
 
+@push('styles')
+<link href="{{ asset('css/landing-custom.css') }}" rel="stylesheet">
+@endpush
+
 @section('content')
 <!-- Confirmation Header -->
 <section class="gradient-bg text-white py-12 md:py-16">
