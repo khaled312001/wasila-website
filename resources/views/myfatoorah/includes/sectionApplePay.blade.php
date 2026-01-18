@@ -1,4 +1,24 @@
-@if(isset($paymentMethods['ap']) && (isset($paymentMethods['ap']['GatewayData']) || (is_object($paymentMethods['ap']) && isset($paymentMethods['ap']->GatewayData))))
+@php
+    $hasApplePay = false;
+    $apGatewayData = null;
+    
+    if (isset($paymentMethods['ap'])) {
+        if (is_object($paymentMethods['ap'])) {
+            $apArray = json_decode(json_encode($paymentMethods['ap']), true);
+            $apGatewayData = $apArray['GatewayData'] ?? null;
+        } else {
+            $apGatewayData = $paymentMethods['ap']['GatewayData'] ?? null;
+        }
+        
+        // Convert GatewayData to array if it's an object
+        if (is_object($apGatewayData)) {
+            $apGatewayData = json_decode(json_encode($apGatewayData), true);
+        }
+        
+        $hasApplePay = !empty($apGatewayData);
+    }
+@endphp
+@if($hasApplePay)
 <script>
     // Polyfill for browser object to prevent ReferenceError
     if (typeof browser === 'undefined') {
@@ -16,8 +36,8 @@
 var mfApConfig = {
     sessionId: "{{$mfSession->SessionId}}", // Here you add the "SessionId" you receive from the InitiateSession endpoint.
     countryCode: "{{$mfSession->CountryCode}}", // Here, add your country code.
-    amount: "{{is_array($paymentMethods['ap']['GatewayData'] ?? null) ? ($paymentMethods['ap']['GatewayData']['GatewayTotalAmount'] ?? '') : ($paymentMethods['ap']->GatewayData->GatewayTotalAmount ?? '')}}", // Add the invoice amount.
-    currencyCode: "{{is_array($paymentMethods['ap']['GatewayData'] ?? null) ? ($paymentMethods['ap']['GatewayData']['GatewayCurrency'] ?? 'SAR') : ($paymentMethods['ap']->GatewayData->GatewayCurrency ?? 'SAR')}}", // Here, add your currency code.
+    amount: "{{$apGatewayData['GatewayTotalAmount'] ?? ''}}", // Add the invoice amount.
+    currencyCode: "{{$apGatewayData['GatewayCurrency'] ?? 'SAR'}}", // Here, add your currency code.
     cardViewId: "mf-ap-element",
     callback: function(response) {
         console.log('MyFatoorah Apple Pay callback:', response);

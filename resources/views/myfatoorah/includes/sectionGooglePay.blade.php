@@ -1,4 +1,24 @@
-@if(isset($paymentMethods['gp']) && (isset($paymentMethods['gp']['GatewayData']) || (is_object($paymentMethods['gp']) && isset($paymentMethods['gp']->GatewayData))))
+@php
+    $hasGooglePay = false;
+    $gpGatewayData = null;
+    
+    if (isset($paymentMethods['gp'])) {
+        if (is_object($paymentMethods['gp'])) {
+            $gpArray = json_decode(json_encode($paymentMethods['gp']), true);
+            $gpGatewayData = $gpArray['GatewayData'] ?? null;
+        } else {
+            $gpGatewayData = $paymentMethods['gp']['GatewayData'] ?? null;
+        }
+        
+        // Convert GatewayData to array if it's an object
+        if (is_object($gpGatewayData)) {
+            $gpGatewayData = json_decode(json_encode($gpGatewayData), true);
+        }
+        
+        $hasGooglePay = !empty($gpGatewayData);
+    }
+@endphp
+@if($hasGooglePay)
 <script>
     // Polyfill for browser object to prevent ReferenceError
     if (typeof browser === 'undefined') {
@@ -16,8 +36,8 @@
 var mfGpConfig = {
     sessionId: "{{$mfSession->SessionId}}", // Here you add the "SessionId" you receive from the InitiateSession endpoint.
     countryCode: "{{$mfSession->CountryCode}}", // Here, add your country code.
-    amount: "{{is_array($paymentMethods['gp']['GatewayData'] ?? null) ? ($paymentMethods['gp']['GatewayData']['GatewayTotalAmount'] ?? '') : ($paymentMethods['gp']->GatewayData->GatewayTotalAmount ?? '')}}", // Add the invoice amount.
-    currencyCode: "{{is_array($paymentMethods['gp']['GatewayData'] ?? null) ? ($paymentMethods['gp']['GatewayData']['GatewayCurrency'] ?? 'SAR') : ($paymentMethods['gp']->GatewayData->GatewayCurrency ?? 'SAR')}}", // Here, add your currency code.
+    amount: "{{$gpGatewayData['GatewayTotalAmount'] ?? ''}}", // Add the invoice amount.
+    currencyCode: "{{$gpGatewayData['GatewayCurrency'] ?? 'SAR'}}", // Here, add your currency code.
     cardViewId: "mf-gp-element",
     isProduction: {{Config::get('myfatoorah.test_mode')? 'false' : 'true'}},
     callback: function(response) {
