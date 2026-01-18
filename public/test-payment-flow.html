@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تدفق الدفع - MyFatoorah</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #0f4c81;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #0a3a5f;
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .info {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+        #test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #0f4c81;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .test-item.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .test-item.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <h1>اختبار تدفق الدفع - MyFatoorah</h1>
+    
+    <div class="test-section">
+        <h2>1. اختبار الدوال الأساسية</h2>
+        <button class="test-button" onclick="testFunctions()">اختبار الدوال</button>
+        <div id="functions-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. اختبار رسالة النجاح</h2>
+        <button class="test-button" onclick="testSuccessMessage()">عرض رسالة النجاح</button>
+        <button class="test-button" onclick="hideSuccessMessage()">إخفاء الرسالة</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. اختبار Loading Overlay</h2>
+        <button class="test-button" onclick="testLoadingOverlay()">عرض Loading</button>
+        <button class="test-button" onclick="hideLoadingOverlay()">إخفاء Loading</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. اختبار mfCallback</h2>
+        <button class="test-button" onclick="testMfCallback()">اختبار Callback</button>
+        <div id="callback-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. اختبار معالجة الأخطاء</h2>
+        <button class="test-button" onclick="testErrorHandling()">اختبار الأخطاء</button>
+        <div id="error-test"></div>
+    </div>
+    
+    <div id="test-results" style="display: none;">
+        <h3>نتائج الاختبار:</h3>
+        <div id="results-content"></div>
+    </div>
+
+    <script>
+        // نسخ الدوال من checkout.blade.php للاختبار
+        function showLoadingOverlay(message) {
+            const overlay = document.createElement('div');
+            overlay.id = 'mf-loading-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                color: white;
+                font-size: 18px;
+                text-align: center;
+            `;
+            overlay.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; color: #333; max-width: 400px; margin: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <svg class="animate-spin" style="width: 50px; height: 50px; margin: 0 auto; display: block;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <p style="font-size: 16px; margin-bottom: 10px; font-weight: bold;">${message}</p>
+                    <p style="font-size: 14px; color: #666;">يرجى الانتظار...</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+        
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('mf-loading-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+        
+        function mfCallback(response) {
+            // Check if response is valid
+            if (!response || !response.paymentId) {
+                console.error('Invalid payment response:', response);
+                alert('حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى.');
+                return;
+            }
+            
+            // Show success message first
+            const successMessage = document.createElement('div');
+            successMessage.id = 'mf-success-message';
+            successMessage.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                padding: 30px 40px;
+                border-radius: 15px;
+                z-index: 10000;
+                text-align: center;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                min-width: 300px;
+                max-width: 90%;
+            `;
+            successMessage.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <svg style="width: 60px; height: 60px; margin: 0 auto; display: block;" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">
+                    تم الدفع بنجاح!
+                </h3>
+                <p style="font-size: 14px; opacity: 0.9;">
+                    جاري إعادة التوجيه...
+                </p>
+            `;
+            document.body.appendChild(successMessage);
+            
+            // Wait a moment to allow user to see any OTP or success messages from MyFatoorah
+            setTimeout(function() {
+                showLoadingOverlay('جاري معالجة الدفع...');
+                
+                if (successMessage.parentNode) {
+                    successMessage.remove();
+                }
+                
+                setTimeout(function() {
+                    console.log('Would redirect to callback with paymentId:', response.paymentId);
+                    hideLoadingOverlay();
+                    alert('في الواقع الحقيقي، سيتم إعادة التوجيه إلى: /myfatoorah/callback?paymentId=' + response.paymentId);
+                }, 500);
+            }, 3000);
+        }
+        
+        function hideSuccessMessage() {
+            const msg = document.getElementById('mf-success-message');
+            if (msg) {
+                msg.remove();
+            }
+        }
+        
+        // اختبارات
+        function testFunctions() {
+            const results = [];
+            
+            // Test 1: Check if functions exist
+            if (typeof showLoadingOverlay === 'function') {
+                results.push({test: 'showLoadingOverlay موجودة', pass: true});
+            } else {
+                results.push({test: 'showLoadingOverlay موجودة', pass: false});
+            }
+            
+            if (typeof hideLoadingOverlay === 'function') {
+                results.push({test: 'hideLoadingOverlay موجودة', pass: true});
+            } else {
+                results.push({test: 'hideLoadingOverlay موجودة', pass: false});
+            }
+            
+            if (typeof mfCallback === 'function') {
+                results.push({test: 'mfCallback موجودة', pass: true});
+            } else {
+                results.push({test: 'mfCallback موجودة', pass: false});
+            }
+            
+            displayResults(results, 'functions-test');
+        }
+        
+        function testSuccessMessage() {
+            mfCallback({paymentId: 'TEST123456'});
+        }
+        
+        function testLoadingOverlay() {
+            showLoadingOverlay('اختبار Loading Overlay');
+            setTimeout(() => {
+                hideLoadingOverlay();
+            }, 2000);
+        }
+        
+        function testMfCallback() {
+            const results = [];
+            
+            // Test with valid response
+            try {
+                mfCallback({paymentId: 'TEST123456'});
+                results.push({test: 'mfCallback مع response صحيح', pass: true});
+            } catch (e) {
+                results.push({test: 'mfCallback مع response صحيح', pass: false, error: e.message});
+            }
+            
+            // Test with invalid response
+            try {
+                mfCallback(null);
+                results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'يجب أن يظهر خطأ'});
+            } catch (e) {
+                results.push({test: 'mfCallback مع response خاطئ', pass: true});
+            }
+            
+            displayResults(results, 'callback-test');
+        }
+        
+        function testErrorHandling() {
+            const results = [];
+            
+            // Test null response
+            try {
+                mfCallback(null);
+                results.push({test: 'معالجة null response', pass: false});
+            } catch (e) {
+                results.push({test: 'معالجة null response', pass: true});
+            }
+            
+            // Test missing paymentId
+            try {
+                mfCallback({});
+                results.push({test: 'معالجة missing paymentId', pass: false});
+            } catch (e) {
+                results.push({test: 'معالجة missing paymentId', pass: true});
+            }
+            
+            displayResults(results, 'error-test');
+        }
+        
+        function displayResults(results, containerId) {
+            const container = document.getElementById(containerId);
+            let html = '<div style="margin-top: 15px;">';
+            
+            results.forEach(result => {
+                const className = result.pass ? 'pass' : 'fail';
+                const icon = result.pass ? '✓' : '✗';
+                html += `<div class="test-item ${className}">${icon} ${result.test}`;
+                if (result.error) {
+                    html += ` <span style="color: #991b1b;">(${result.error})</span>`;
+                }
+                if (result.note) {
+                    html += ` <span style="color: #92400e;">(${result.note})</span>`;
+                }
+                html += '</div>';
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            // Show main results
+            document.getElementById('test-results').style.display = 'block';
+            const allResults = [];
+            document.querySelectorAll('.test-item').forEach(item => {
+                allResults.push(item.outerHTML);
+            });
+            document.getElementById('results-content').innerHTML = allResults.join('');
+        }
+        
+        // Auto-run basic tests on load
+        window.addEventListener('load', function() {
+            console.log('اختبار تدفق الدفع جاهز');
+            console.log('الدوال المتاحة:', {
+                showLoadingOverlay: typeof showLoadingOverlay,
+                hideLoadingOverlay: typeof hideLoadingOverlay,
+                mfCallback: typeof mfCallback
+            });
+        });
+    </script>
+</body>
+</html>
