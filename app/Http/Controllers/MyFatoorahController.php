@@ -1024,8 +1024,45 @@ class MyFatoorahController extends Controller
             $mfObj = new MyFatoorahPayment($this->mfConfig);
             
             try {
+                // Log configuration for debugging
+                Log::info('MyFatoorah checkout: Configuration', [
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 10) . '...',
+                    'is_test' => $this->mfConfig['isTest'],
+                    'vc_code' => $this->mfConfig['vcCode'],
+                    'order_id' => $orderId,
+                    'order_total' => $order->total_amount
+                ]);
+                
                 // Get all available payment methods from MyFatoorah
-                $paymentMethods = $mfObj->initiatePayment();
+                // initiatePayment() can optionally take invoice value and currency
+                $invoiceValue = (float)$order->total_amount;
+                $currencyIso = 'SAR';
+                
+                try {
+                    // Try with invoice value and currency first
+                    $paymentMethods = $mfObj->initiatePayment($invoiceValue, $currencyIso);
+                } catch (\Exception $initError) {
+                    Log::warning('MyFatoorah initiatePayment with parameters failed, trying without parameters', [
+                        'error' => $initError->getMessage(),
+                        'code' => $initError->getCode()
+                    ]);
+                    
+                    // Fallback: try without parameters
+                    try {
+                        $paymentMethods = $mfObj->initiatePayment();
+                    } catch (\Exception $fallbackError) {
+                        Log::error('MyFatoorah initiatePayment failed with both methods', [
+                            'with_params_error' => $initError->getMessage(),
+                            'without_params_error' => $fallbackError->getMessage(),
+                            'config' => [
+                                'is_test' => $this->mfConfig['isTest'],
+                                'vc_code' => $this->mfConfig['vcCode'],
+                                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 10)
+                            ]
+                        ]);
+                        throw new Exception('Failed to get payment methods: ' . $fallbackError->getMessage());
+                    }
+                }
                 
                 // Convert object to array if needed
                 if (is_object($paymentMethods)) {
@@ -1033,23 +1070,41 @@ class MyFatoorahController extends Controller
                 }
                 
                 Log::info('MyFatoorah initiatePayment response', [
-                    'payment_methods_count' => isset($paymentMethods['Data']) && isset($paymentMethods['Data']['PaymentMethods']) ? count($paymentMethods['Data']['PaymentMethods']) : 0,
+                    'response_type' => gettype($paymentMethods),
+                    'response_keys' => is_array($paymentMethods) ? array_keys($paymentMethods) : 'not_array',
+                    'is_success' => $paymentMethods['IsSuccess'] ?? 'not_set',
+                    'message' => $paymentMethods['Message'] ?? 'no_message',
                     'has_data' => isset($paymentMethods['Data']),
-                    'is_success' => $paymentMethods['IsSuccess'] ?? false
+                    'payment_methods_count' => isset($paymentMethods['Data']['PaymentMethods']) ? count($paymentMethods['Data']['PaymentMethods']) : 0,
+                    'full_response' => $paymentMethods
                 ]);
                 
                 // Check if payment methods were retrieved successfully
                 if (!isset($paymentMethods['IsSuccess']) || !$paymentMethods['IsSuccess']) {
-                    $errorMsg = $paymentMethods['Message'] ?? 'Failed to get payment methods';
+                    $errorMsg = $paymentMethods['Message'] ?? $paymentMethods['message'] ?? 'Failed to get payment methods';
+                    
+                    // Check for specific error messages
+                    if (isset($paymentMethods['ValidationErrors']) && !empty($paymentMethods['ValidationErrors'])) {
+                        $errorMsg .= ' - ' . json_encode($paymentMethods['ValidationErrors']);
+                    }
+                    
                     Log::error('MyFatoorah initiatePayment failed', [
                         'message' => $errorMsg,
-                        'response' => $paymentMethods
+                        'is_success' => $paymentMethods['IsSuccess'] ?? 'not_set',
+                        'response' => $paymentMethods,
+                        'config' => [
+                            'is_test' => $this->mfConfig['isTest'],
+                            'vc_code' => $this->mfConfig['vcCode'],
+                            'api_key_length' => strlen($this->mfConfig['apiKey'])
+                        ]
                     ]);
                     throw new Exception($errorMsg);
                 }
                 
                 if (empty($paymentMethods['Data']['PaymentMethods'])) {
-                    Log::warning('MyFatoorah: No payment methods available');
+                    Log::warning('MyFatoorah: No payment methods available', [
+                        'data_structure' => isset($paymentMethods['Data']) ? array_keys($paymentMethods['Data']) : 'no_data'
+                    ]);
                     throw new Exception('noPaymentGateways');
                 }
                 
