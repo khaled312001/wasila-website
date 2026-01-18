@@ -71,6 +71,89 @@
     };
     myFatoorah.init(config);
 
+    // Function to execute payment using sessionId
+    function executePaymentWithSessionId(sessionId, orderId, originalResponse) {
+        console.log('Executing payment with sessionId:', sessionId, 'orderId:', orderId);
+        
+        fetch('{{ route("myfatoorah.execute-payment") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                sessionId: sessionId,
+                orderId: orderId
+            })
+        })
+        .then(response => {
+            console.log('Execute payment HTTP response:', response);
+            if (!response.ok) {
+                throw new Error('HTTP error! status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Execute payment response:', data);
+            
+            if (data.success && data.paymentId) {
+                // Payment is successful, use the paymentId
+                const responseWithPaymentId = {
+                    ...originalResponse,
+                    paymentId: data.paymentId
+                };
+                
+                console.log('Payment successful, calling mfCallback with paymentId:', data.paymentId);
+                
+                // Call mfCallback with the paymentId
+                if (typeof mfCallback === 'function') {
+                    mfCallback(responseWithPaymentId);
+                } else {
+                    // Fallback: redirect to callback
+                    console.log('mfCallback not found, redirecting to callback');
+                    window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + data.paymentId;
+                }
+            } else {
+                // Payment is not completed yet
+                if (typeof hideLoadingOverlay === 'function') {
+                    hideLoadingOverlay();
+                }
+                
+                const errorMsg = data.message || '{{ app()->getLocale() === "ar" ? "لم يكتمل الدفع بعد. يرجى المحاولة مرة أخرى." : "Payment has not completed yet. Please try again." }}';
+                alert(errorMsg);
+                
+                // Re-enable button
+                const submitButton = document.querySelector('.mf-pay-now-btn');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
+                    submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error executing payment:', error);
+            if (typeof hideLoadingOverlay === 'function') {
+                hideLoadingOverlay();
+            }
+            
+            let errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في التحقق من حالة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred verifying payment status. Please try again." }}';
+            if (error.message) {
+                errorMsg += ' (' + error.message + ')';
+            }
+            alert(errorMsg);
+            
+            // Re-enable button
+            const submitButton = document.querySelector('.mf-pay-now-btn');
+            if (submitButton) {
+                submitButton.disabled = false;
+                const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
+                submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
+            }
+        });
+    }
+    
     function submit() {
         // Show loading message
         const submitButton = document.querySelector('.mf-pay-now-btn');
@@ -79,13 +162,13 @@
             submitButton.disabled = true;
             submitButton.innerHTML = '<span class="mf-pay-now-span">{{ app()->getLocale() === "ar" ? "جاري المعالجة..." : "Processing..." }}</span>';
             
-            // Re-enable button after 5 seconds if no response
+            // Re-enable button after 10 seconds if no response
             setTimeout(function() {
                 if (submitButton.disabled) {
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalText;
                 }
-            }, 5000);
+            }, 10000);
         }
         
         myFatoorah.submit()
@@ -113,37 +196,9 @@
                                response.payment_id || response.Payment_ID || 
                                response.InvoiceID || response.Invoice_ID;
                 
-                // Check all keys for potential ID values
-                if (!paymentId) {
-                    const keys = Object.keys(response);
-                    for (let i = 0; i < keys.length; i++) {
-                        const key = keys[i];
-                        const value = response[key];
-                        // Check if key contains 'id', 'Id', 'ID' and value is not empty
-                        if ((key.toLowerCase().includes('id') || key.toLowerCase().includes('payment') || key.toLowerCase().includes('invoice')) && 
-                            value && value !== '' && value !== null && value !== undefined) {
-                            // Skip sessionId as it's not the paymentId
-                            if (key.toLowerCase() === 'sessionid') {
-                                continue;
-                            }
-                            // If value is a number or string, use it
-                            if (typeof value === 'string' || typeof value === 'number') {
-                                paymentId = String(value);
-                                console.log('MyFatoorah: Found potential paymentId in key "' + key + '":', paymentId);
-                                break;
-                            }
-                            // If value is an object, check its properties
-                            else if (typeof value === 'object' && value !== null) {
-                                const nestedId = value.paymentId || value.PaymentId || value.InvoiceId || value.id || value.Id || value.ID;
-                                if (nestedId) {
-                                    paymentId = String(nestedId);
-                                    console.log('MyFatoorah: Found potential paymentId in nested object "' + key + '":', paymentId);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                // Don't try to extract paymentId from other fields
+                // If paymentId is not present, it means payment hasn't completed yet
+                // We should use sessionId to execute payment and get paymentId
                 
                 // If still no paymentId, check if response is a string (some versions return just the ID)
                 if (!paymentId && typeof response === 'string') {
@@ -156,21 +211,36 @@
                                response.data.id || response.data.Id || response.data.ID;
                 }
                 
-                // If we only have sessionId/cardToken, this means payment is still processing
+                // If we only have sessionId/cardToken, we need to execute payment to get paymentId
                 // In MyFatoorah Embedded Payment, when payment is successful, it should return paymentId directly
-                // If we only get sessionId/cardToken, the payment might be pending or there's an issue
+                // If we only get sessionId, we need to use it to create invoice and get paymentId
                 if (!paymentId && (response.sessionId || response.cardToken || response.cardIdentifier)) {
-                    console.warn('MyFatoorah: Payment response contains only card token, not paymentId. This might indicate payment is still processing.');
+                    console.log('MyFatoorah: Payment response contains sessionId, executing payment to get paymentId...');
                     console.log('MyFatoorah full response:', JSON.stringify(response, null, 2));
                     
-                    // In MyFatoorah Embedded Payment, successful payment should return paymentId
-                    // If we only get sessionId, it might mean:
-                    // 1. Payment is still processing (3D Secure, OTP, etc.)
-                    // 2. Payment failed but didn't throw error
-                    // 3. Configuration issue
+                    // Show loading message
+                    if (typeof showLoadingOverlay === 'function') {
+                        showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري التحقق من حالة الدفع مع MyFatoorah..." : "Verifying payment status with MyFatoorah..." }}');
+                    }
                     
-                    // Show user-friendly message
-                    const errorMsg = '{{ app()->getLocale() === "ar" ? "لم يكتمل الدفع بعد. يرجى التحقق من حالة الدفع أو المحاولة مرة أخرى. إذا استمرت المشكلة، يرجى التواصل معنا." : "Payment has not completed yet. Please check payment status or try again. If the problem persists, please contact us." }}';
+                    // Get order ID from URL or page
+                    const orderId = @if(isset($order) && $order){{ $order->id }}@else null @endif;
+                    let finalOrderId = orderId;
+                    if (!finalOrderId) {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        finalOrderId = urlParams.get('oid');
+                    }
+                    
+                    if (finalOrderId && response.sessionId) {
+                        executePaymentWithSessionId(response.sessionId, finalOrderId, response);
+                        return;
+                    }
+                    
+                    // If we can't get order ID or sessionId, show error
+                    if (typeof hideLoadingOverlay === 'function') {
+                        hideLoadingOverlay();
+                    }
+                    const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
                     alert(errorMsg);
                     
                     // Re-enable button
@@ -179,8 +249,6 @@
                         const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
                         submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
                     }
-                    
-                    hideLoadingOverlay();
                     return;
                 }
                 
