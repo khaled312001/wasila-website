@@ -378,7 +378,11 @@ class OrderController extends Controller
                     'payment_method' => $order->payment_method
                 ]);
                 
-                return redirect()->route('orders.confirmation')
+                // Use direct URL path to avoid route resolution issues
+                $locale = app()->getLocale();
+                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
+                
+                return redirect($confirmationUrl)
                     ->with('success', 'تم الدفع بنجاح! شكراً لك على دعمك لمشروع وسيلة الخيري.');
                     
             } elseif ($paymentStatus['InvoiceStatus'] === 'Failed') {
@@ -389,7 +393,11 @@ class OrderController extends Controller
                     'notes' => 'فشل في الدفع: ' . ($paymentStatus['InvoiceError'] ?? 'Unknown error')
                 ]);
                 
-                return redirect()->route('orders.confirmation')
+                // Use direct URL path to avoid route resolution issues
+                $locale = app()->getLocale();
+                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
+                
+                return redirect($confirmationUrl)
                     ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.')
                     ->with('order_data', [
                         'order_number' => $order->order_number,
@@ -414,7 +422,11 @@ class OrderController extends Controller
                     'notes' => 'في انتظار تأكيد الدفع'
                 ]);
                 
-                return redirect()->route('orders.confirmation')
+                // Use direct URL path to avoid route resolution issues
+                $locale = app()->getLocale();
+                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
+                
+                return redirect($confirmationUrl)
                     ->with('info', 'تم استلام طلبك بنجاح. في انتظار تأكيد الدفع.')
                     ->with('order_data', [
                         'order_number' => $order->order_number,
