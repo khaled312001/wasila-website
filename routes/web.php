@@ -19,8 +19,8 @@ Route::group(['prefix' => '', 'middleware' => ['web', 'setlocale:ar']], function
     Route::get('/portfolio', [App\Http\Controllers\PortfolioController::class, 'index'])->name('portfolio');
     Route::get('/orders/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
     Route::post('/orders', [OrderController::class, 'store'])->middleware('auth:customer')->name('orders.store');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     
     // Payment routes
     Route::get('/payment/callback', [OrderController::class, 'paymentCallback'])->name('payment.callback');
@@ -44,8 +44,8 @@ Route::group(['prefix' => 'en', 'middleware' => ['web', 'setlocale:en']], functi
     Route::get('/portfolio', [App\Http\Controllers\PortfolioController::class, 'index'])->name('portfolio.en');
     Route::get('/orders/checkout', [OrderController::class, 'checkout'])->name('orders.checkout.en');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store.en');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show.en');
     Route::get('/orders/confirmation', [OrderController::class, 'confirmation'])->name('orders.confirmation.en');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show.en');
     
     // Payment routes
     Route::get('/payment/callback', [OrderController::class, 'paymentCallback'])->name('payment.callback.en');
