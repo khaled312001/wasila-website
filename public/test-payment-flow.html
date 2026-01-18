@@ -259,12 +259,26 @@
                 results.push({test: 'mfCallback مع response صحيح', pass: false, error: e.message});
             }
             
-            // Test with invalid response
+            // Test with invalid response - mock alert to check if it's called
+            let alertCalled = false;
+            const originalAlert = window.alert;
+            window.alert = function(message) {
+                alertCalled = true;
+                originalAlert(message);
+            };
+            
             try {
                 mfCallback(null);
-                results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'يجب أن يظهر خطأ'});
+                // Check if alert was called (error handling worked)
+                if (alertCalled) {
+                    results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert بنجاح'});
+                } else {
+                    results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'لم يتم استدعاء alert'});
+                }
             } catch (e) {
-                results.push({test: 'mfCallback مع response خاطئ', pass: true});
+                results.push({test: 'mfCallback مع response خاطئ', pass: false, error: e.message});
+            } finally {
+                window.alert = originalAlert;
             }
             
             displayResults(results, 'callback-test');
@@ -273,21 +287,44 @@
         function testErrorHandling() {
             const results = [];
             
+            // Mock alert to check if error handling works
+            let alertCalledCount = 0;
+            const originalAlert = window.alert;
+            window.alert = function(message) {
+                alertCalledCount++;
+                // Don't show actual alert during test
+                console.log('Alert called:', message);
+            };
+            
             // Test null response
             try {
                 mfCallback(null);
-                results.push({test: 'معالجة null response', pass: false});
+                if (alertCalledCount > 0) {
+                    results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert'});
+                } else {
+                    results.push({test: 'معالجة null response', pass: false, note: 'لم يتم استدعاء alert'});
+                }
             } catch (e) {
-                results.push({test: 'معالجة null response', pass: true});
+                results.push({test: 'معالجة null response', pass: false, error: e.message});
             }
+            
+            // Reset counter for next test
+            alertCalledCount = 0;
             
             // Test missing paymentId
             try {
                 mfCallback({});
-                results.push({test: 'معالجة missing paymentId', pass: false});
+                if (alertCalledCount > 0) {
+                    results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert'});
+                } else {
+                    results.push({test: 'معالجة missing paymentId', pass: false, note: 'لم يتم استدعاء alert'});
+                }
             } catch (e) {
-                results.push({test: 'معالجة missing paymentId', pass: true});
+                results.push({test: 'معالجة missing paymentId', pass: false, error: e.message});
             }
+            
+            // Restore original alert
+            window.alert = originalAlert;
             
             displayResults(results, 'error-test');
         }
