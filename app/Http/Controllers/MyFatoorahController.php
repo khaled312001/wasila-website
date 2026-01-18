@@ -49,9 +49,28 @@ class MyFatoorahController extends Controller
         // Otherwise, convert it using the map
         $vcCode = $vcCodeMap[$countryIso] ?? $countryIso;
         
+        // Get API key - prefer env over config
+        $apiKey = env('MYFATOORAH_API_KEY');
+        if (empty($apiKey)) {
+            $apiKey = config('myfatoorah.api_key');
+        }
+        $apiKey = trim($apiKey ?? '');
+        
+        // Get test mode - prefer env over config
+        $testMode = env('MYFATOORAH_TEST_MODE');
+        if ($testMode === null) {
+            $testMode = config('myfatoorah.test_mode');
+        }
+        // Ensure boolean value
+        if (is_string($testMode)) {
+            $testMode = strtolower($testMode);
+            $testMode = !in_array($testMode, ['false', '0', 'no', 'off', '']);
+        }
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
+        
         $this->mfConfig = [
-            'apiKey'      => config('myfatoorah.api_key'),
-            'isTest'      => config('myfatoorah.test_mode'),
+            'apiKey'      => $apiKey,
+            'isTest'      => $testMode,
             'countryCode' => $vcCode, // Use vcCode format (SAU, KWT, etc.)
             'vcCode'      => $vcCode, // Also set vcCode for MyFatoorahPaymentEmbedded compatibility
         ];
@@ -427,7 +446,7 @@ class MyFatoorahController extends Controller
                 
                 // Get portal URL from MyFatoorah configuration
                 $isTest = $this->mfConfig['isTest'];
-                $vcCode = $this->mfConfig['vcCode'];
+                $vcCode = $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU';
                 $countries = MyFatoorah::getMFCountries();
                 
                 if (isset($countries[$vcCode])) {
@@ -817,6 +836,30 @@ class MyFatoorahController extends Controller
                 throw new Exception('Order not found');
             }
 
+            // Log configuration for debugging
+            Log::info('MyFatoorah checkout: Configuration check', [
+                'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 20) . '...',
+                'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                'is_test' => $this->mfConfig['isTest'] ?? null,
+                'country_code' => $this->mfConfig['countryCode'] ?? null,
+                'vc_code' => $this->mfConfig['vcCode'] ?? null,
+                'order_id' => $orderId,
+                'order_total' => $order->total_amount,
+                'env_api_key' => env('MYFATOORAH_API_KEY') ? substr(env('MYFATOORAH_API_KEY'), 0, 20) . '...' : 'not_set',
+                'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
+                'config_api_key' => config('myfatoorah.api_key') ? substr(config('myfatoorah.api_key'), 0, 20) . '...' : 'not_set',
+                'config_test_mode' => config('myfatoorah.test_mode')
+            ]);
+
+            // Validate API key
+            if (empty($this->mfConfig['apiKey']) || strlen($this->mfConfig['apiKey']) < 20) {
+                Log::error('MyFatoorah checkout: Invalid API key', [
+                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 10)
+                ]);
+                throw new Exception('مفتاح API غير صالح. يرجى التحقق من إعدادات MyFatoorah.');
+            }
+
             //You can replace this variable with customer Id in your system
             $customerId = request('customerId');
 
@@ -824,8 +867,24 @@ class MyFatoorahController extends Controller
             $userDefinedField = config('myfatoorah.save_card') && $customerId ? "CK-$customerId" : '';
 
             //Get the enabled gateways at your MyFatoorah acount to be displayed on checkout page
-            $mfObj          = new MyFatoorahPaymentEmbedded($this->mfConfig);
-            $paymentMethods = $mfObj->getCheckoutGateways($order->total_amount, 'SAR', config('myfatoorah.register_apple_pay'));
+            try {
+                $mfObj          = new MyFatoorahPaymentEmbedded($this->mfConfig);
+                $paymentMethods = $mfObj->getCheckoutGateways($order->total_amount, 'SAR', config('myfatoorah.register_apple_pay'));
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah checkout: getCheckoutGateways failed', [
+                    'error' => $e->getMessage(),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'config' => [
+                        'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 20) . '...',
+                        'is_test' => $this->mfConfig['isTest'] ?? null,
+                        'vc_code' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? null
+                    ],
+                    'trace' => $e->getTraceAsString()
+                ]);
+                throw new Exception('Failed to get payment methods: ' . $e->getMessage());
+            }
 
             if (empty($paymentMethods['all'])) {
                 throw new Exception('noPaymentGateways');
@@ -843,8 +902,41 @@ class MyFatoorahController extends Controller
 
             return view('myfatoorah.checkout', compact('mfSession', 'paymentMethods', 'jsDomain', 'userDefinedField', 'order'));
         } catch (Exception $ex) {
-            $exMessage = __('myfatoorah.' . $ex->getMessage());
-            return view('myfatoorah.error', compact('exMessage'));
+            $exMessage = $ex->getMessage();
+            
+            // Check if it's a token validation error
+            $isTokenError = stripos($exMessage, 'token') !== false || 
+                           stripos($exMessage, 'expired') !== false ||
+                           stripos($exMessage, 'invalid') !== false ||
+                           stripos($exMessage, 'غير صالح') !== false ||
+                           stripos($exMessage, 'منتهي') !== false;
+            
+            if ($isTokenError) {
+                $exMessage = 'مفتاح API غير صالح أو منتهي الصلاحية. يرجى التحقق من: ' . 
+                           '1) أن مفتاح API في ملف .env صحيح ' .
+                           '2) أن مفتاح API يتطابق مع وضع الاختبار/الإنتاج (MYFATOORAH_TEST_MODE) ' .
+                           '3) أن مفتاح API نشط في حساب MyFatoorah. ' .
+                           'الخطأ الأصلي: ' . $exMessage;
+            }
+            
+            // Try to translate the message
+            $translatedMessage = __('myfatoorah.' . $exMessage);
+            if ($translatedMessage === 'myfatoorah.' . $exMessage) {
+                $translatedMessage = $exMessage;
+            }
+            
+            Log::error('MyFatoorah checkout error', [
+                'error' => $ex->getMessage(),
+                'is_token_error' => $isTokenError,
+                'order_id' => request('oid'),
+                'config' => [
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 20) . '...',
+                    'is_test' => $this->mfConfig['isTest'] ?? null,
+                    'vc_code' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? null
+                ]
+            ]);
+            
+            return view('myfatoorah.error', ['exMessage' => $translatedMessage]);
         }
     }
 
@@ -1068,7 +1160,7 @@ class MyFatoorahController extends Controller
                 'api_key_length_config' => $configApiKey ? strlen($configApiKey) : 0,
                 'api_key_length_mfConfig' => strlen($this->mfConfig['apiKey'] ?? ''),
                 'is_test' => $this->mfConfig['isTest'],
-                'vc_code' => $this->mfConfig['vcCode'],
+                'vc_code' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU',
                 'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
                 'config_test_mode' => config('myfatoorah.test_mode')
             ]);
@@ -1098,11 +1190,12 @@ class MyFatoorahController extends Controller
             
             // Validate vcCode before making the call
             $validVcCodes = ['KWT', 'SAU', 'ARE', 'QAT', 'BHR', 'OMN', 'JOR', 'EGY'];
-            if (!in_array($this->mfConfig['vcCode'], $validVcCodes)) {
-                Log::error('Invalid vcCode: ' . $this->mfConfig['vcCode']);
+            $vcCode = $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU';
+            if (!in_array($vcCode, $validVcCodes)) {
+                Log::error('Invalid vcCode: ' . $vcCode);
                 return response()->json([
                     'success' => false,
-                    'message' => 'رمز البلد غير صحيح: ' . $this->mfConfig['vcCode'] . '. يجب أن يكون واحداً من: ' . implode(', ', $validVcCodes)
+                    'message' => 'رمز البلد غير صحيح: ' . $vcCode . '. يجب أن يكون واحداً من: ' . implode(', ', $validVcCodes)
                 ]);
             }
             
@@ -1128,7 +1221,7 @@ class MyFatoorahController extends Controller
                         'error2' => $e2->getMessage(),
                         'config' => [
                             'is_test' => $this->mfConfig['isTest'],
-                            'vc_code' => $this->mfConfig['vcCode'],
+                            'vc_code' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU',
                             'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15)
                         ]
                     ]);
@@ -1183,7 +1276,7 @@ class MyFatoorahController extends Controller
             Log::error('MyFatoorah Test Connection Error: ' . $e->getMessage(), [
                 'config' => [
                     'is_test' => $this->mfConfig['isTest'],
-                    'vc_code' => $this->mfConfig['vcCode'],
+                    'vc_code' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU',
                     'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
                     'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 15)
                 ],
@@ -1210,7 +1303,7 @@ class MyFatoorahController extends Controller
         
         // Add debug information
         $debug = [
-            'current_vccode' => $this->mfConfig['vcCode'],
+            'current_vccode' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU',
             'country_mapping' => [
                 'SA' => 'SAU', 'AE' => 'ARE', 'KW' => 'KWT', 'BH' => 'BHR',
                 'QA' => 'QAT', 'OM' => 'OMN', 'JO' => 'JOR', 'EG' => 'EGY'
