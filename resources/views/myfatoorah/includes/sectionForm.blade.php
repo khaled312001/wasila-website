@@ -105,10 +105,12 @@
                     throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - لا توجد استجابة" : "Invalid response from payment gateway - no response" }}');
                 }
                 
-                // MyFatoorah may return paymentId, InvoiceId, PaymentId, or other fields
-                // Try to get paymentId from various possible fields
+                // MyFatoorah embedded payment may return different response formats
+                // 1. If payment is successful, it should return paymentId or InvoiceId
+                // 2. If only card token is returned (sessionId, cardToken), payment is still processing
+                
                 let paymentId = response.paymentId || response.PaymentId || response.InvoiceId || response.invoiceId || 
-                               response.payment_id || response.Payment_ID || response.paymentId || 
+                               response.payment_id || response.Payment_ID || 
                                response.InvoiceID || response.Invoice_ID;
                 
                 // Check all keys for potential ID values
@@ -120,6 +122,10 @@
                         // Check if key contains 'id', 'Id', 'ID' and value is not empty
                         if ((key.toLowerCase().includes('id') || key.toLowerCase().includes('payment') || key.toLowerCase().includes('invoice')) && 
                             value && value !== '' && value !== null && value !== undefined) {
+                            // Skip sessionId as it's not the paymentId
+                            if (key.toLowerCase() === 'sessionid') {
+                                continue;
+                            }
                             // If value is a number or string, use it
                             if (typeof value === 'string' || typeof value === 'number') {
                                 paymentId = String(value);
@@ -150,6 +156,34 @@
                                response.data.id || response.data.Id || response.data.ID;
                 }
                 
+                // If we only have sessionId/cardToken, this means payment is still processing
+                // In MyFatoorah Embedded Payment, when payment is successful, it should return paymentId directly
+                // If we only get sessionId/cardToken, the payment might be pending or there's an issue
+                if (!paymentId && (response.sessionId || response.cardToken || response.cardIdentifier)) {
+                    console.warn('MyFatoorah: Payment response contains only card token, not paymentId. This might indicate payment is still processing.');
+                    console.log('MyFatoorah full response:', JSON.stringify(response, null, 2));
+                    
+                    // In MyFatoorah Embedded Payment, successful payment should return paymentId
+                    // If we only get sessionId, it might mean:
+                    // 1. Payment is still processing (3D Secure, OTP, etc.)
+                    // 2. Payment failed but didn't throw error
+                    // 3. Configuration issue
+                    
+                    // Show user-friendly message
+                    const errorMsg = '{{ app()->getLocale() === "ar" ? "لم يكتمل الدفع بعد. يرجى التحقق من حالة الدفع أو المحاولة مرة أخرى. إذا استمرت المشكلة، يرجى التواصل معنا." : "Payment has not completed yet. Please check payment status or try again. If the problem persists, please contact us." }}';
+                    alert(errorMsg);
+                    
+                    // Re-enable button
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        const originalText = submitButton.querySelector('.mf-pay-now-span')?.textContent || '{{__("myfatoorah.payNow")}}';
+                        submitButton.innerHTML = '<span class="mf-pay-now-span">' + originalText + '</span>';
+                    }
+                    
+                    hideLoadingOverlay();
+                    return;
+                }
+                
                 // Validate paymentId
                 if (!paymentId || paymentId === '' || paymentId === null || paymentId === undefined) {
                     console.error('MyFatoorah: Could not extract paymentId from response', {
@@ -161,7 +195,7 @@
                             return acc;
                         }, {}) : {}
                     });
-                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود أو غير صالح. يرجى التحقق من Console للمزيد من التفاصيل." : "Invalid response from payment gateway - payment ID missing or invalid. Please check Console for more details." }}');
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود أو غير صالح. يرجى المحاولة مرة أخرى." : "Invalid response from payment gateway - payment ID missing or invalid. Please try again." }}');
                 }
                 
                 // Normalize response to have paymentId
