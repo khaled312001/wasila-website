@@ -830,7 +830,7 @@ class MyFatoorahController extends Controller
             if (!$orderId) {
                 throw new Exception('Order ID is required');
             }
-            
+
             $order = Order::with('orderItems.service')->find($orderId);
             if (!$order) {
                 throw new Exception('Order not found');
@@ -840,15 +840,19 @@ class MyFatoorahController extends Controller
             Log::info('MyFatoorah checkout: Configuration check', [
                 'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 20) . '...',
                 'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                'api_key_full' => $this->mfConfig['apiKey'] ?? 'EMPTY', // Log full key for debugging (remove in production)
                 'is_test' => $this->mfConfig['isTest'] ?? null,
                 'country_code' => $this->mfConfig['countryCode'] ?? null,
                 'vc_code' => $this->mfConfig['vcCode'] ?? null,
+                'mf_config_keys' => array_keys($this->mfConfig),
+                'mf_config_full' => $this->mfConfig, // Log full config for debugging
                 'order_id' => $orderId,
                 'order_total' => $order->total_amount,
                 'env_api_key' => env('MYFATOORAH_API_KEY') ? substr(env('MYFATOORAH_API_KEY'), 0, 20) . '...' : 'not_set',
                 'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
                 'config_api_key' => config('myfatoorah.api_key') ? substr(config('myfatoorah.api_key'), 0, 20) . '...' : 'not_set',
-                'config_test_mode' => config('myfatoorah.test_mode')
+                'config_test_mode' => config('myfatoorah.test_mode'),
+                'config_country_iso' => config('myfatoorah.country_iso')
             ]);
 
             // Validate API key
@@ -868,8 +872,27 @@ class MyFatoorahController extends Controller
 
             //Get the enabled gateways at your MyFatoorah acount to be displayed on checkout page
             try {
+                // Log the exact config being passed to MyFatoorahPaymentEmbedded
+                Log::info('MyFatoorah checkout: Creating MyFatoorahPaymentEmbedded with config', [
+                    'config_keys' => array_keys($this->mfConfig),
+                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 30) . '...',
+                    'is_test' => $this->mfConfig['isTest'],
+                    'country_code' => $this->mfConfig['countryCode'] ?? null,
+                    'vc_code' => $this->mfConfig['vcCode'] ?? null,
+                    'order_total' => $order->total_amount,
+                    'currency' => 'SAR'
+                ]);
+                
                 $mfObj          = new MyFatoorahPaymentEmbedded($this->mfConfig);
                 $paymentMethods = $mfObj->getCheckoutGateways($order->total_amount, 'SAR', config('myfatoorah.register_apple_pay'));
+                
+                Log::info('MyFatoorah checkout: getCheckoutGateways success', [
+                    'payment_methods_count' => isset($paymentMethods['all']) ? count($paymentMethods['all']) : 0,
+                    'has_cards' => isset($paymentMethods['cards']),
+                    'has_google_pay' => isset($paymentMethods['gp']),
+                    'has_apple_pay' => isset($paymentMethods['ap'])
+                ]);
             } catch (\Exception $e) {
                 Log::error('MyFatoorah checkout: getCheckoutGateways failed', [
                     'error' => $e->getMessage(),
@@ -877,9 +900,13 @@ class MyFatoorahController extends Controller
                     'error_file' => $e->getFile(),
                     'error_line' => $e->getLine(),
                     'config' => [
-                        'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 20) . '...',
+                        'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 30) . '...',
+                        'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                        'api_key_full' => $this->mfConfig['apiKey'] ?? 'EMPTY', // Log full key for debugging
                         'is_test' => $this->mfConfig['isTest'] ?? null,
-                        'vc_code' => $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? null
+                        'country_code' => $this->mfConfig['countryCode'] ?? null,
+                        'vc_code' => $this->mfConfig['vcCode'] ?? null,
+                        'config_keys' => array_keys($this->mfConfig)
                     ],
                     'trace' => $e->getTraceAsString()
                 ]);
