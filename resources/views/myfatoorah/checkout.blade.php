@@ -205,11 +205,21 @@
                 
                 function mfCallback(response) {
                     // Check if response is valid
-                    if (!response || !response.paymentId) {
-                        console.error('Invalid payment response:', response);
+                    if (!response) {
+                        console.error('MyFatoorah: Invalid payment response - response is null or undefined', response);
                         alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
-                        return;
+                        hideLoadingOverlay();
+                        return false;
                     }
+                    
+                    if (!response.paymentId) {
+                        console.error('MyFatoorah: Invalid payment response - paymentId is missing', response);
+                        alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
+                        hideLoadingOverlay();
+                        return false;
+                    }
+                    
+                    console.log('MyFatoorah: Payment successful, paymentId:', response.paymentId);
                     
                     // Show success message first
                     const successMessage = document.createElement('div');
@@ -264,9 +274,18 @@
                 
                 // Handle payment errors globally
                 window.addEventListener('error', function(e) {
-                    if (e.message && e.message.includes('myFatoorah')) {
+                    if (e.message && (e.message.includes('myFatoorah') || e.message.includes('MyFatoorah'))) {
                         hideLoadingOverlay();
-                        console.error('MyFatoorah error:', e);
+                        console.error('MyFatoorah global error:', e);
+                    }
+                });
+                
+                // Handle unhandled promise rejections
+                window.addEventListener('unhandledrejection', function(e) {
+                    if (e.reason && (e.reason.message && (e.reason.message.includes('myFatoorah') || e.reason.message.includes('MyFatoorah')))) {
+                        hideLoadingOverlay();
+                        console.error('MyFatoorah unhandled rejection:', e.reason);
+                        alert('{{ app()->getLocale() === "ar" ? "حدث خطأ غير متوقع في عملية الدفع. يرجى المحاولة مرة أخرى." : "An unexpected error occurred during payment. Please try again." }}');
                     }
                 });
             </script>

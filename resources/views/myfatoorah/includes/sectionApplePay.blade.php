@@ -19,10 +19,23 @@ var mfApConfig = {
     currencyCode: "{{$paymentMethods['ap']->GatewayData['GatewayCurrency']}}", // Here, add your currency code.
     cardViewId: "mf-ap-element",
     callback: function(response) {
+        console.log('MyFatoorah Apple Pay callback:', response);
+        
+        // Validate response
+        if (!response || !response.paymentId) {
+            console.error('MyFatoorah Apple Pay: Invalid response', response);
+            alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
+            if (typeof hideLoadingOverlay === 'function') {
+                hideLoadingOverlay();
+            }
+            return;
+        }
+        
         // Ensure callback is called with proper delay for OTP/success messages
         if (typeof mfCallback === 'function') {
             mfCallback(response);
         } else {
+            console.warn('MyFatoorah Apple Pay: mfCallback function not found, redirecting directly');
             // Fallback: show loading and redirect
             if (typeof showLoadingOverlay === 'function') {
                 showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري معالجة الدفع..." : "Processing payment..." }}');

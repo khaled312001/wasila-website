@@ -91,15 +91,22 @@
         myFatoorah.submit()
             // On success
             .then(function (response) {
+                console.log('MyFatoorah submit response:', response);
+                
                 // Check if response is valid
-                if (!response || !response.paymentId) {
-                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع" : "Invalid response from payment gateway" }}');
+                if (!response) {
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - لا توجد استجابة" : "Invalid response from payment gateway - no response" }}');
+                }
+                
+                if (!response.paymentId) {
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود" : "Invalid response from payment gateway - payment ID missing" }}');
                 }
                 
                 // Call callback function
                 if (typeof mfCallback === 'function') {
                     mfCallback(response);
                 } else {
+                    console.warn('MyFatoorah: mfCallback function not found, redirecting directly');
                     // Fallback: redirect directly if callback is not defined
                     window.location.href = "{{route('myfatoorah.callback')}}?paymentId=" + response.paymentId;
                 }

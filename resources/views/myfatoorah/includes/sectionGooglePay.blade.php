@@ -20,10 +20,23 @@ var mfGpConfig = {
     cardViewId: "mf-gp-element",
     isProduction: {{Config::get('myfatoorah.test_mode')? 'false' : 'true'}},
     callback: function(response) {
+        console.log('MyFatoorah Google Pay callback:', response);
+        
+        // Validate response
+        if (!response || !response.paymentId) {
+            console.error('MyFatoorah Google Pay: Invalid response', response);
+            alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
+            if (typeof hideLoadingOverlay === 'function') {
+                hideLoadingOverlay();
+            }
+            return;
+        }
+        
         // Ensure callback is called with proper delay for OTP/success messages
         if (typeof mfCallback === 'function') {
             mfCallback(response);
         } else {
+            console.warn('MyFatoorah Google Pay: mfCallback function not found, redirecting directly');
             // Fallback: show loading and redirect
             if (typeof showLoadingOverlay === 'function') {
                 showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري معالجة الدفع..." : "Processing payment..." }}');
