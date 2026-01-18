@@ -19,6 +19,16 @@
     }
 @endphp
 @if($hasGooglePay)
+<!-- Google Pay Payment Section -->
+<div class="mf-payment-section mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        {{ app()->getLocale() === 'ar' ? 'الدفع عبر Google Pay' : 'Google Pay Payment' }}
+    </h3>
+    <div class="bg-gray-50 p-4 rounded-lg">
+        <div id="mf-gp-element" class="mb-4"></div>
+    </div>
+</div>
+
 <script>
     // Polyfill for browser object to prevent ReferenceError
     if (typeof browser === 'undefined') {

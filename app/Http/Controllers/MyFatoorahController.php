@@ -275,6 +275,228 @@ class MyFatoorahController extends Controller
     }
 
     /**
+     * Execute payment using sessionId from embedded payment
+     */
+    public function executePayment(Request $request) {
+        try {
+            $sessionId = $request->input('sessionId');
+            $orderId = $request->input('orderId');
+            
+            Log::info('MyFatoorah executePayment: Starting', [
+                'session_id' => $sessionId,
+                'order_id' => $orderId
+            ]);
+            
+            if (!$sessionId || !$orderId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session ID and Order ID are required'
+                ], 400);
+            }
+            
+            $order = Order::with('orderItems.service')->find($orderId);
+            
+            if (!$order) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Order not found'
+                ], 404);
+            }
+            
+            // Prepare invoice data
+            $curlData = $this->getPayLoadData($orderId);
+            
+            Log::info('MyFatoorah executePayment: Invoice data prepared', [
+                'order_id' => $orderId,
+                'total_amount' => $order->total_amount
+            ]);
+            
+            // Use sessionId to create invoice and get paymentId
+            // According to MyFatoorah docs, when we have sessionId from embedded payment,
+            // we need to use it to create invoice and execute payment
+            // The sessionId is used to link the payment to the embedded session
+            try {
+                $mfObj = new MyFatoorahPayment($this->mfConfig);
+                
+                // According to MyFatoorah PHP library docs: getInvoiceURL($postFields, $paymentMethodId)
+                // For embedded payment with sessionId, we need to include sessionId in the postFields
+                // Add sessionId to the payload data
+                if ($sessionId) {
+                    $curlData['SessionId'] = $sessionId;
+                }
+                
+                // $paymentMethodId = 0 means redirect to MyFatoorah invoice page
+                $payment = $mfObj->getInvoiceURL($curlData, 0);
+                
+                // Convert object to array if needed (MyFatoorah may return stdClass objects)
+                if (is_object($payment)) {
+                    $payment = json_decode(json_encode($payment), true);
+                }
+                
+                // Check if response contains an error
+                if (isset($payment['IsSuccess']) && $payment['IsSuccess'] === false) {
+                    $errorMessage = $payment['Message'] ?? $payment['message'] ?? 'Unknown error from MyFatoorah';
+                    Log::error('MyFatoorah executePayment: Invoice creation failed', [
+                        'error_message' => $errorMessage,
+                        'payment_response' => $payment,
+                        'session_id' => $sessionId,
+                        'order_id' => $orderId
+                    ]);
+                    
+                    throw new \Exception($errorMessage);
+                }
+                
+                // Check if response is null or empty
+                if (empty($payment)) {
+                    Log::error('MyFatoorah executePayment: Empty payment response', [
+                        'session_id' => $sessionId,
+                        'order_id' => $orderId,
+                        'curl_data' => $curlData
+                    ]);
+                    throw new \Exception('Empty response from MyFatoorah');
+                }
+                
+                Log::info('MyFatoorah executePayment: Invoice created', [
+                    'payment_response' => $payment,
+                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array',
+                    'payment_type' => gettype($payment),
+                    'has_invoice_id' => isset($payment['InvoiceId']),
+                    'has_invoice_url' => isset($payment['invoiceURL']),
+                    'invoice_url_value' => $payment['invoiceURL'] ?? $payment['InvoiceURL'] ?? $payment['invoice_url'] ?? 'NOT_FOUND',
+                    'all_url_keys' => is_array($payment) ? array_filter(array_keys($payment), function($key) {
+                        return stripos($key, 'url') !== false || stripos($key, 'invoice') !== false;
+                    }) : []
+                ]);
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah executePayment: Error creating invoice', [
+                    'error' => $e->getMessage(),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                    'session_id' => $sessionId,
+                    'order_id' => $orderId,
+                    'curl_data_keys' => is_array($curlData) ? array_keys($curlData) : 'not_array'
+                ]);
+                
+                $locale = app()->getLocale();
+                $errorMessage = $locale === 'ar' 
+                    ? 'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.' 
+                    : 'Error creating payment invoice. Please try again.';
+                    
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'error' => true,
+                    'error_type' => 'invoice_creation_error',
+                    'retry' => true
+                ], 500);
+            }
+            
+            // Extract paymentId/InvoiceId from response
+            $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
+            
+            // Check if invoiceURL exists - this is needed for OTP/3D Secure authentication
+            $invoiceURL = $payment['invoiceURL'] ?? $payment['InvoiceURL'] ?? $payment['invoice_url'] ?? null;
+            
+            // If invoiceURL is not in response but we have InvoiceId, build the URL manually
+            if (!$invoiceURL && $paymentId) {
+                $isTest = $this->mfConfig['isTest'];
+                $vcCode = $this->mfConfig['vcCode'] ?? $this->mfConfig['countryCode'] ?? 'SAU';
+                $countries = MyFatoorah::getMFCountries();
+                
+                if (isset($countries[$vcCode])) {
+                    $portalBase = $isTest ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
+                    $invoiceURL = rtrim($portalBase, '/') . '/pay/' . $paymentId;
+                } else {
+                    // Fallback: use default portal URL
+                    if ($isTest) {
+                        $invoiceURL = 'https://test.myfatoorah.com/pay/' . $paymentId;
+                    } else {
+                        $invoiceURL = 'https://portal.myfatoorah.com/pay/' . $paymentId;
+                    }
+                }
+            }
+            
+            // If we have invoiceURL, redirect user to it for OTP/3D Secure
+            if ($invoiceURL && !empty(trim($invoiceURL))) {
+                Log::info('MyFatoorah executePayment: Invoice URL found/built, redirecting user for OTP/3D Secure', [
+                    'invoice_url' => $invoiceURL,
+                    'invoice_id' => $paymentId
+                ]);
+                
+                // If we have paymentId, save it for tracking
+                if ($paymentId) {
+                    $order->update([
+                        'payment_reference' => $paymentId,
+                        'notes' => 'في انتظار إتمام الدفع (OTP/3D Secure)'
+                    ]);
+                }
+                
+                // Return invoiceURL for frontend to redirect
+                return response()->json([
+                    'success' => true,
+                    'invoiceURL' => $invoiceURL,
+                    'redirect' => true,
+                    'paymentId' => $paymentId,
+                    'message' => app()->getLocale() === 'ar' 
+                        ? 'سيتم توجيهك إلى صفحة البنك لإتمام الدفع' 
+                        : 'You will be redirected to complete payment'
+                ]);
+            }
+            
+            // If no paymentId and no invoiceURL, something went wrong
+            if (!$paymentId) {
+                Log::error('MyFatoorah executePayment: No paymentId and no invoiceURL found', [
+                    'payment_response' => $payment,
+                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array'
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => app()->getLocale() === 'ar' 
+                        ? 'لم يتم إنشاء رابط الدفع. يرجى المحاولة مرة أخرى.' 
+                        : 'Payment link could not be created. Please try again.'
+                ], 400);
+            }
+            
+            // Save paymentId to order for tracking
+            $order->update([
+                'payment_reference' => $paymentId,
+                'notes' => 'في انتظار تأكيد الدفع من MyFatoorah'
+            ]);
+            
+            // Return paymentId for frontend to check status
+            return response()->json([
+                'success' => true,
+                'paymentId' => $paymentId,
+                'message' => 'Payment invoice created',
+                'redirect' => false,
+                'keepPolling' => true,
+                'pollUrl' => route('myfatoorah.check-payment-status', ['paymentId' => $paymentId])
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('MyFatoorah executePayment error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'session_id' => $request->input('sessionId'),
+                'order_id' => $request->input('orderId')
+            ]);
+            
+            $locale = app()->getLocale();
+            $errorMessage = $locale === 'ar'
+                ? 'حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى.'
+                : 'An error occurred processing the payment. Please try again.';
+            
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage,
+                'error' => true
+            ], 500);
+        }
+    }
+
+    /**
      * OLD executePayment - REMOVED - Use callback() instead
      */
     private function executePayment_OLD(Request $request) {
