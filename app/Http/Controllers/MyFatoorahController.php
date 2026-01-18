@@ -45,11 +45,28 @@ class MyFatoorahController extends Controller
             'EG' => 'EGY',  // Egypt
         ];
         
+        // Get API key and trim whitespace
+        $apiKey = is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key');
+        $apiKey = trim($apiKey ?? '');
+        
+        // Get test mode
+        $testMode = is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode');
+        // Ensure boolean value
+        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
+        
         $this->mfConfig = [
-            'apiKey'      => is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key'),
-            'isTest'      => is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode'),
+            'apiKey'      => $apiKey,
+            'isTest'      => $testMode,
             'vcCode'      => $vcCodeMap[$countryIso] ?? 'SAU', // Default to Saudi Arabia
         ];
+        
+        // Log configuration on first load for debugging
+        if (empty($this->mfConfig['apiKey'])) {
+            Log::warning('MyFatoorah: API key is empty', [
+                'env_key_exists' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
+                'config_key_exists' => config('myfatoorah.api_key') ? 'yes' : 'no'
+            ]);
+        }
     }
 
     /**
@@ -1381,12 +1398,23 @@ class MyFatoorahController extends Controller
     {
         try {
             // Log the current configuration for debugging
-            Log::info('MyFatoorah Test Connection - Config:', $this->mfConfig);
+            Log::info('MyFatoorah Test Connection - Config:', [
+                'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 15) . '...',
+                'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                'is_test' => $this->mfConfig['isTest'],
+                'vc_code' => $this->mfConfig['vcCode'],
+                'env_api_key' => env('MYFATOORAH_API_KEY') ? 'set' : 'not_set',
+                'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
+                'config_api_key' => config('myfatoorah.api_key') ? 'set' : 'not_set',
+                'config_test_mode' => config('myfatoorah.test_mode')
+            ]);
             
-            if (!$this->mfConfig['apiKey']) {
+            if (!$this->mfConfig['apiKey'] || strlen($this->mfConfig['apiKey']) < 20) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'يرجى إدخال مفتاح API أولاً'
+                    'message' => 'مفتاح API غير صالح أو غير موجود',
+                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                    'api_key_from_env' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no'
                 ]);
             }
             
@@ -1400,20 +1428,52 @@ class MyFatoorahController extends Controller
                 ]);
             }
             
-            $mfObj = new MyFatoorahPaymentEmbedded($this->mfConfig);
-            $result = $mfObj->getCheckoutGateways(15, 'SAR', false);
+            // Use standard MyFatoorahPayment with initiatePayment()
+            $mfObj = new MyFatoorahPayment($this->mfConfig);
             
-            if ($result && isset($result['all']) && !empty($result['all'])) {
+            try {
+                $result = $mfObj->initiatePayment();
+            } catch (\Exception $e) {
+                // Try with parameters
+                try {
+                    $result = $mfObj->initiatePayment(15, 'SAR');
+                } catch (\Exception $e2) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'فشل في الاتصال مع MyFatoorah: ' . $e2->getMessage(),
+                        'error_details' => [
+                            'error1' => $e->getMessage(),
+                            'error2' => $e2->getMessage()
+                        ]
+                    ]);
+                }
+            }
+            
+            // Convert object to array if needed
+            if (is_object($result)) {
+                $result = json_decode(json_encode($result), true);
+            }
+            
+            if (isset($result['IsSuccess']) && $result['IsSuccess'] && 
+                isset($result['Data']['PaymentMethods']) && !empty($result['Data']['PaymentMethods'])) {
                 return response()->json([
                     'success' => true,
                     'message' => 'تم الاتصال بنجاح مع MyFatoorah',
-                    'payment_methods_count' => count($result['all']),
-                    'payment_methods' => $result['all']
+                    'payment_methods_count' => count($result['Data']['PaymentMethods']),
+                    'payment_methods' => array_map(function($method) {
+                        return [
+                            'id' => $method['PaymentMethodId'] ?? null,
+                            'name_ar' => $method['PaymentMethodAr'] ?? null,
+                            'name_en' => $method['PaymentMethodEn'] ?? null
+                        ];
+                    }, $result['Data']['PaymentMethods'])
                 ]);
             } else {
+                $errorMsg = $result['Message'] ?? 'فشل في جلب طرق الدفع';
                 return response()->json([
                     'success' => false,
-                    'message' => 'فشل في الاتصال مع MyFatoorah'
+                    'message' => $errorMsg,
+                    'response' => $result
                 ]);
             }
         } catch (\Exception $e) {
