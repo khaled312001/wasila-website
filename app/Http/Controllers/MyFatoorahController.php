@@ -31,80 +31,18 @@ class MyFatoorahController extends Controller
      * Initiate MyFatoorah Configuration
      */
     public function __construct() {
-        $countryIso = is_callable(config('myfatoorah.country_iso')) ? config('myfatoorah.country_iso')() : config('myfatoorah.country_iso');
-        
-        // Convert country ISO codes to MyFatoorah vcCode format
-        $vcCodeMap = [
-            'SA' => 'SAU',  // Saudi Arabia
-            'AE' => 'ARE',  // UAE
-            'KW' => 'KWT',  // Kuwait
-            'BH' => 'BHR',  // Bahrain
-            'QA' => 'QAT',  // Qatar
-            'OM' => 'OMN',  // Oman
-            'JO' => 'JOR',  // Jordan
-            'EG' => 'EGY',  // Egypt
-        ];
-        
-        // Get API key directly from env first, then config, then default
-        // This ensures we get the most up-to-date value
-        $apiKey = env('MYFATOORAH_API_KEY');
-        if (empty($apiKey)) {
-            $apiKey = is_callable(config('myfatoorah.api_key')) ? config('myfatoorah.api_key')() : config('myfatoorah.api_key');
-        }
-        $apiKey = trim($apiKey ?? '');
-        
-        // Validate API key is not empty
-        if (empty($apiKey)) {
-            Log::error('MyFatoorah: API key is empty or not set', [
-                'env_exists' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
-                'config_exists' => config('myfatoorah.api_key') ? 'yes' : 'no'
-            ]);
-            throw new \Exception('MyFatoorah API key is not configured. Please set MYFATOORAH_API_KEY in your .env file.');
-        }
-        
-        // Get test mode - prefer env over config
-        $testMode = env('MYFATOORAH_TEST_MODE');
-        if ($testMode === null) {
-            $testMode = is_callable(config('myfatoorah.test_mode')) ? config('myfatoorah.test_mode')() : config('myfatoorah.test_mode');
-        }
-        // Ensure boolean value - handle string 'false' and '0' as false
-        if (is_string($testMode)) {
-            $testMode = strtolower($testMode);
-            $testMode = !in_array($testMode, ['false', '0', 'no', 'off', '']);
-        }
-        $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
-        
         $this->mfConfig = [
-            'apiKey'      => $apiKey,
-            'isTest'      => $testMode,
-            'vcCode'      => $vcCodeMap[$countryIso] ?? 'SAU', // Default to Saudi Arabia
+            'apiKey'      => config('myfatoorah.api_key'),
+            'isTest'      => config('myfatoorah.test_mode'),
+            'countryCode' => config('myfatoorah.country_iso'),
         ];
-        
-        // Log configuration on first load for debugging
-        if (empty($this->mfConfig['apiKey'])) {
-            Log::warning('MyFatoorah: API key is empty', [
-                'env_key_exists' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
-                'env_key_value' => env('MYFATOORAH_API_KEY') ? substr(env('MYFATOORAH_API_KEY'), 0, 15) . '...' : 'empty',
-                'config_key_exists' => config('myfatoorah.api_key') ? 'yes' : 'no',
-                'config_key_value' => config('myfatoorah.api_key') ? substr(config('myfatoorah.api_key'), 0, 15) . '...' : 'empty'
-            ]);
-        } else {
-            // Log successful API key loading (first 15 chars only for security)
-            Log::info('MyFatoorah: API key loaded successfully', [
-                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15) . '...',
-                'api_key_length' => strlen($this->mfConfig['apiKey']),
-                'is_test' => $this->mfConfig['isTest'],
-                'vc_code' => $this->mfConfig['vcCode'],
-                'api_key_source' => env('MYFATOORAH_API_KEY') ? 'env' : 'config'
-            ]);
-        }
     }
 
     /**
      * Redirect to MyFatoorah Invoice URL
      * Provide the index method with the order id and (payment method id or session id)
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @return Response
      */
     public function index() {
         try {
@@ -112,8 +50,7 @@ class MyFatoorahController extends Controller
             $paymentId = request('pmid') ?: 0;
             $sessionId = request('sid') ?: null;
 
-            $orderId = request('oid');
-            
+            $orderId  = request('oid') ?: null;
             if (!$orderId) {
                 throw new Exception('Order ID is required. Please provide the order ID in the URL parameter (oid).');
             }
@@ -121,11 +58,9 @@ class MyFatoorahController extends Controller
             $curlData = $this->getPayLoadData($orderId);
 
             $mfObj   = new MyFatoorahPayment($this->mfConfig);
-            // According to MyFatoorah PHP library docs: getInvoiceURL($postFields, $paymentMethodId)
-            // $paymentMethodId = 0 means redirect to MyFatoorah invoice page
-            $payment = $mfObj->getInvoiceURL($curlData, $paymentId);
+            $payment = $mfObj->getInvoiceURL($curlData, $paymentId, $orderId, $sessionId);
 
-            // Convert object to array if needed (MyFatoorah may return stdClass objects)
+            // Convert object to array if needed
             if (is_object($payment)) {
                 $payment = json_decode(json_encode($payment), true);
             }
@@ -133,16 +68,13 @@ class MyFatoorahController extends Controller
             return redirect($payment['invoiceURL']);
         } catch (Exception $ex) {
             $exMessage = __('myfatoorah.' . $ex->getMessage());
-            // If translation doesn't exist, use the original message
-            if ($exMessage === 'myfatoorah.' . $ex->getMessage()) {
-                $exMessage = $ex->getMessage();
-            }
             return response()->json(['IsSuccess' => 'false', 'Message' => $exMessage]);
         }
     }
 
     /**
-     * Map order data to MyFatoorah payload
+     * Example on how to map order data to MyFatoorah
+     * You can get the data using the order object in your system
      * 
      * @param int|string $orderId
      * 
@@ -151,6 +83,7 @@ class MyFatoorahController extends Controller
     private function getPayLoadData($orderId = null) {
         $callbackURL = route('myfatoorah.callback');
 
+        //You can get the data using the order object in your system
         $order = Order::with('orderItems.service')->find($orderId);
         
         if (!$order) {
@@ -158,25 +91,25 @@ class MyFatoorahController extends Controller
         }
 
         return [
-            'CustomerName'         => $order->customer_name,
-            'InvoiceValue'         => $order->total_amount,
-            'DisplayCurrencyIso'   => 'SAR',
-            'CustomerEmail'        => $order->customer_email,
-            'CallBackUrl'          => $callbackURL,
-            'ErrorUrl'             => $callbackURL,
-            'MobileCountryCode'    => $order->country_code ?? '+966',
-            'CustomerMobile'       => $order->customer_phone, // Phone without country code
-            'Language'             => 'ar',
-            'CustomerReference'    => $order->order_number,
-            'UserDefinedField'     => $order->id,
-            'CustomerAddress'      => [
+            'CustomerName'       => $order->customer_name,
+            'InvoiceValue'       => $order->total_amount,
+            'DisplayCurrencyIso' => 'SAR',
+            'CustomerEmail'      => $order->customer_email,
+            'CallBackUrl'        => $callbackURL,
+            'ErrorUrl'           => $callbackURL,
+            'MobileCountryCode'  => $order->country_code ?? '+966',
+            'CustomerMobile'     => $order->customer_phone,
+            'Language'           => app()->getLocale() === 'ar' ? 'ar' : 'en',
+            'CustomerReference'  => $order->order_number,
+            'UserDefinedField'   => $order->id,
+            'CustomerAddress'    => [
                 'Address' => $order->customer_address,
                 'City' => 'الرياض',
                 'Country' => 'SA'
             ],
-            'InvoiceItems'         => $order->orderItems->map(function ($item) {
+            'InvoiceItems'       => $order->orderItems->map(function ($item) {
                 return [
-                    'ItemName' => $item->service->name_ar,
+                    'ItemName' => $item->service->name_ar ?? $item->service->name_en ?? 'Item',
                     'Quantity' => $item->quantity,
                     'UnitPrice' => $item->unit_price,
                     'Weight' => 0,
@@ -185,18 +118,74 @@ class MyFatoorahController extends Controller
                     'Depth' => 0
                 ];
             })->toArray(),
-            'SourceInfo'           => 'Laravel ' . app()::VERSION . ' - MyFatoorah Package ' . MYFATOORAH_LARAVEL_PACKAGE_VERSION
+            'SourceInfo'         => 'Laravel ' . app()::VERSION . ' - MyFatoorah Package ' . (defined('MYFATOORAH_LARAVEL_PACKAGE_VERSION') ? MYFATOORAH_LARAVEL_PACKAGE_VERSION : '2.2')
         ];
     }
 
     /**
-     * Execute payment using sessionId and get paymentId
-     * This is called when MyFatoorah returns sessionId instead of paymentId
-     * According to MyFatoorah docs, we need to use sessionId to create invoice
+     * Get MyFatoorah Payment Information
+     * Provide the callback method with the paymentId
      * 
-     * @return \Illuminate\Http\JsonResponse
+     * @return Response
      */
-    public function executePayment(Request $request) {
+    public function callback() {
+        try {
+            $paymentId = request('paymentId');
+
+            $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
+            $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+
+            // Convert object to array if needed
+            if (is_object($data)) {
+                $data = json_decode(json_encode($data), true);
+            }
+
+            $message = $this->getTestMessage($data['InvoiceStatus'] ?? 'Unknown', $data['InvoiceError'] ?? '');
+
+            // Update order status if payment is successful
+            if (isset($data['UserDefinedField']) && $data['UserDefinedField']) {
+                $orderId = $data['UserDefinedField'];
+                $order = Order::find($orderId);
+                
+                if ($order) {
+                    $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
+                    
+                    if (strtolower($invoiceStatus) === 'paid') {
+                        $order->update([
+                            'payment_status' => 'paid',
+                            'payment_method' => $data['PaymentMethod'] ?? 'MyFatoorah',
+                            'payment_reference' => $paymentId,
+                            'status' => 'confirmed'
+                        ]);
+                        
+                        // Send email to admin
+                        try {
+                            $adminEmail = SettingsHelper::contactEmail();
+                            Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
+                        } catch (\Exception $e) {
+                            Log::error('Failed to send order email: ' . $e->getMessage());
+                        }
+                    } elseif (strtolower($invoiceStatus) === 'failed') {
+                        $order->update([
+                            'payment_status' => 'failed',
+                            'payment_reference' => $paymentId
+                        ]);
+                    }
+                }
+            }
+
+            $response = ['IsSuccess' => true, 'Message' => $message, 'Data' => $data];
+        } catch (Exception $ex) {
+            $exMessage = __('myfatoorah.' . $ex->getMessage());
+            $response  = ['IsSuccess' => 'false', 'Message' => $exMessage];
+        }
+        return response()->json($response);
+    }
+
+    /**
+     * OLD executePayment - REMOVED - Use callback() instead
+     */
+    private function executePayment_OLD(Request $request) {
         try {
             $sessionId = $request->input('sessionId');
             $orderId = $request->input('orderId');
@@ -1054,227 +1043,49 @@ class MyFatoorahController extends Controller
     }
 
     /**
-     * Display MyFatoorah checkout page with payment methods
+     * Example on how to Display the enabled gateways at your MyFatoorah account to be displayed on the checkout page
+     * Provide the checkout method with the order id to display its total amount and currency
      * 
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     * @return View
      */
     public function checkout() {
         try {
-            $orderId = request('oid');
-            
+            //You can get the data using the order object in your system
+            $orderId = request('oid') ?: null;
             if (!$orderId) {
-                return redirect()->route('home')
-                    ->with('error', 'لم يتم العثور على معرف الطلب.');
+                throw new Exception('Order ID is required');
             }
-
+            
             $order = Order::with('orderItems.service')->find($orderId);
-            
             if (!$order) {
-                return redirect()->route('home')
-                    ->with('error', 'لم يتم العثور على الطلب.');
+                throw new Exception('Order not found');
             }
 
-            // Validate API key before proceeding
-            if (empty($this->mfConfig['apiKey']) || strlen($this->mfConfig['apiKey']) < 20) {
-                Log::error('MyFatoorah: Invalid API key', [
-                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
-                    'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 10)
-                ]);
-                throw new Exception('مفتاح API غير صالح. يرجى التحقق من إعدادات MyFatoorah.');
+            //You can replace this variable with customer Id in your system
+            $customerId = request('customerId');
+
+            //You can use the user defined field if you want to save card
+            $userDefinedField = config('myfatoorah.save_card') && $customerId ? "CK-$customerId" : '';
+
+            //Get the enabled gateways at your MyFatoorah acount to be displayed on checkout page
+            $mfObj          = new MyFatoorahPaymentEmbedded($this->mfConfig);
+            $paymentMethods = $mfObj->getCheckoutGateways($order->total_amount, 'SAR', config('myfatoorah.register_apple_pay'));
+
+            if (empty($paymentMethods['all'])) {
+                throw new Exception('noPaymentGateways');
             }
-            
-            // Log configuration for debugging
-            Log::info('MyFatoorah checkout: Configuration', [
-                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15) . '...',
-                'api_key_length' => strlen($this->mfConfig['apiKey']),
-                'api_key_full' => $this->mfConfig['apiKey'], // Log full key for debugging (remove in production)
-                'is_test' => $this->mfConfig['isTest'],
-                'vc_code' => $this->mfConfig['vcCode'],
-                'order_id' => $orderId,
-                'order_total' => $order->total_amount,
-                'env_api_key' => env('MYFATOORAH_API_KEY') ? substr(env('MYFATOORAH_API_KEY'), 0, 15) . '...' : 'not_set',
-                'env_test_mode' => env('MYFATOORAH_TEST_MODE'),
-                'config_api_key' => config('myfatoorah.api_key') ? substr(config('myfatoorah.api_key'), 0, 15) . '...' : 'not_set',
-                'config_test_mode' => config('myfatoorah.test_mode')
-            ]);
-            
-            // Verify API key format
-            $apiKey = $this->mfConfig['apiKey'];
-            if (!preg_match('/^SK_[A-Z]{3}_/', $apiKey)) {
-                Log::error('MyFatoorah: API key format is invalid', [
-                    'api_key_prefix' => substr($apiKey, 0, 10),
-                    'expected_format' => 'SK_XXX_...'
-                ]);
-                throw new Exception('تنسيق مفتاح API غير صحيح. يجب أن يبدأ بـ SK_XXX_');
-            }
-            
-            // Check if API key matches test mode
-            // Test keys usually contain 'test' or are shorter, but this is not always reliable
-            // The best way is to check the response from MyFatoorah
-            $isTestMode = $this->mfConfig['isTest'];
-            Log::info('MyFatoorah checkout: Configuration check', [
-                'api_key_prefix' => substr($apiKey, 0, 20) . '...',
-                'api_key_length' => strlen($apiKey),
-                'is_test_mode' => $isTestMode,
-                'vc_code' => $this->mfConfig['vcCode'],
-                'note' => 'If token error persists, verify API key matches test/live mode setting'
-            ]);
-            
-            // Use standard MyFatoorah PHP library approach
-            // Get available payment methods using initiatePayment()
-            $mfObj = new MyFatoorahPayment($this->mfConfig);
-            
-            try {
-                // Get all available payment methods from MyFatoorah
-                // According to MyFatoorah PHP library docs, initiatePayment() can be called without parameters
-                // or with invoice value and currency
-                $invoiceValue = (float)$order->total_amount;
-                $currencyIso = 'SAR';
-                
-                // Try calling initiatePayment() with invoice value and currency first (recommended for live mode)
-                // If that fails, try without parameters
-                $paymentMethods = null;
-                $lastError = null;
-                
-                try {
-                    // First attempt: with invoice value and currency (recommended for live mode)
-                    $paymentMethods = $mfObj->initiatePayment($invoiceValue, $currencyIso);
-                    Log::info('MyFatoorah: initiatePayment() called with invoice value and currency - success');
-                } catch (\Exception $e1) {
-                    $lastError = $e1;
-                    Log::warning('MyFatoorah initiatePayment with parameters failed, trying without parameters', [
-                        'error' => $e1->getMessage(),
-                        'error_code' => $e1->getCode()
-                    ]);
-                    
-                    // Second attempt: without parameters
-                    try {
-                        $paymentMethods = $mfObj->initiatePayment();
-                        Log::info('MyFatoorah: initiatePayment() called without parameters - success');
-                    } catch (\Exception $e2) {
-                        $lastError = $e2;
-                        Log::error('MyFatoorah initiatePayment failed with both methods', [
-                            'with_params_error' => $e1->getMessage(),
-                            'without_params_error' => $e2->getMessage(),
-                            'config' => [
-                                'is_test' => $this->mfConfig['isTest'],
-                                'vc_code' => $this->mfConfig['vcCode'],
-                                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
-                                'api_key_length' => strlen($this->mfConfig['apiKey']),
-                                'api_key_full' => $this->mfConfig['apiKey'] // Log full key for debugging
-                            ],
-                            'trace' => $e2->getTraceAsString()
-                        ]);
-                        throw new Exception('Failed to get payment methods: ' . $e2->getMessage());
-                    }
-                }
-                
-                if ($paymentMethods === null) {
-                    throw new Exception('Failed to get payment methods: No response from MyFatoorah');
-                }
-                
-                // Convert object to array if needed
-                if (is_object($paymentMethods)) {
-                    $paymentMethods = json_decode(json_encode($paymentMethods), true);
-                }
-                
-                Log::info('MyFatoorah initiatePayment response', [
-                    'response_type' => gettype($paymentMethods),
-                    'response_keys' => is_array($paymentMethods) ? array_keys($paymentMethods) : 'not_array',
-                    'is_success' => $paymentMethods['IsSuccess'] ?? 'not_set',
-                    'message' => $paymentMethods['Message'] ?? 'no_message',
-                    'has_data' => isset($paymentMethods['Data']),
-                    'payment_methods_count' => isset($paymentMethods['Data']['PaymentMethods']) ? count($paymentMethods['Data']['PaymentMethods']) : 0,
-                    'full_response' => $paymentMethods
-                ]);
-                
-                // Check if payment methods were retrieved successfully
-                if (!isset($paymentMethods['IsSuccess']) || !$paymentMethods['IsSuccess']) {
-                    $errorMsg = $paymentMethods['Message'] ?? $paymentMethods['message'] ?? 'Failed to get payment methods';
-                    
-                    // Check for specific error messages
-                    if (isset($paymentMethods['ValidationErrors']) && !empty($paymentMethods['ValidationErrors'])) {
-                        $errorMsg .= ' - ' . json_encode($paymentMethods['ValidationErrors']);
-                    }
-                    
-                    // Check if it's a token validation error
-                    $isTokenError = stripos($errorMsg, 'token') !== false || 
-                                   stripos($errorMsg, 'expired') !== false ||
-                                   stripos($errorMsg, 'invalid') !== false ||
-                                   stripos($errorMsg, 'غير صالح') !== false ||
-                                   stripos($errorMsg, 'منتهي') !== false;
-                    
-                    // Provide more helpful error message for token errors
-                    if ($isTokenError) {
-                        $errorMsg = 'مفتاح API غير صالح أو منتهي الصلاحية. يرجى التحقق من: ' . 
-                                   '1) أن مفتاح API في ملف .env صحيح ' .
-                                   '2) أن مفتاح API يتطابق مع وضع الاختبار/الإنتاج (MYFATOORAH_TEST_MODE) ' .
-                                   '3) أن مفتاح API نشط في حساب MyFatoorah. ' .
-                                   'الخطأ الأصلي: ' . $errorMsg;
-                    }
-                    
-                    Log::error('MyFatoorah initiatePayment failed', [
-                        'message' => $errorMsg,
-                        'is_success' => $paymentMethods['IsSuccess'] ?? 'not_set',
-                        'is_token_error' => $isTokenError,
-                        'response' => $paymentMethods,
-                        'config' => [
-                            'is_test' => $this->mfConfig['isTest'],
-                            'vc_code' => $this->mfConfig['vcCode'],
-                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 20) . '...',
-                            'api_key_length' => strlen($this->mfConfig['apiKey'])
-                        ],
-                        'config' => [
-                            'is_test' => $this->mfConfig['isTest'],
-                            'vc_code' => $this->mfConfig['vcCode'],
-                            'api_key_length' => strlen($this->mfConfig['apiKey']),
-                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
-                            'api_key_from_env' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
-                            'test_mode_from_env' => env('MYFATOORAH_TEST_MODE')
-                        ]
-                    ]);
-                    
-                    // Provide more helpful error message for token errors
-                    if ($isTokenError) {
-                        $helpfulMsg = app()->getLocale() === 'ar' 
-                            ? 'مفتاح API غير صالح أو منتهي الصلاحية. يرجى التحقق من: 1) أن المفتاح صحيح في ملف .env 2) أن المفتاح مفعل في حساب MyFatoorah 3) أن وضع الاختبار (test_mode) يطابق نوع المفتاح'
-                            : 'API key is invalid or expired. Please check: 1) The key is correct in .env file 2) The key is active in MyFatoorah account 3) Test mode matches the key type';
-                        throw new Exception($helpfulMsg);
-                    }
-                    
-                    throw new Exception($errorMsg);
-                }
-                
-                if (empty($paymentMethods['Data']['PaymentMethods'])) {
-                    Log::warning('MyFatoorah: No payment methods available', [
-                        'data_structure' => isset($paymentMethods['Data']) ? array_keys($paymentMethods['Data']) : 'no_data'
-                    ]);
-                    throw new Exception('noPaymentGateways');
-                }
-                
-                // Prepare payment methods for view
-                $availableMethods = $paymentMethods['Data']['PaymentMethods'] ?? [];
-                
-                // Get Environment URL for redirects
-                $isTest = $this->mfConfig['isTest'];
-                $vcCode = $this->mfConfig['vcCode'];
-                $countries = MyFatoorah::getMFCountries();
-                $jsDomain = ($isTest) ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
-                
-                return view('myfatoorah.checkout', compact('availableMethods', 'jsDomain', 'order'));
-                
-            } catch (\Exception $e) {
-                Log::error('MyFatoorah checkout error: ' . $e->getMessage(), [
-                    'order_id' => $orderId,
-                    'trace' => $e->getTraceAsString()
-                ]);
-                
-                $exMessage = __('myfatoorah.' . $e->getMessage());
-                if ($exMessage === 'myfatoorah.' . $e->getMessage()) {
-                    $exMessage = $e->getMessage();
-                }
-                return view('myfatoorah.error', compact('exMessage'));
-            }
+
+            //Generate MyFatoorah session for embedded payment
+            $mfSession = $mfObj->getEmbeddedSession($userDefinedField);
+
+            //Get Environment url
+            $isTest = $this->mfConfig['isTest'];
+            $vcCode = $this->mfConfig['countryCode'];
+
+            $countries = MyFatoorah::getMFCountries();
+            $jsDomain  = ($isTest) ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
+
+            return view('myfatoorah.checkout', compact('mfSession', 'paymentMethods', 'jsDomain', 'userDefinedField', 'order'));
         } catch (Exception $ex) {
             $exMessage = __('myfatoorah.' . $ex->getMessage());
             return view('myfatoorah.error', compact('exMessage'));
@@ -1350,13 +1161,6 @@ class MyFatoorahController extends Controller
         return ['IsSuccess' => true, 'Message' => $message, 'Data' => $inputData];
     }
 
-    private function getTestOrderData($orderId) {
-        return [
-            'total'    => 15,
-            'currency' => 'KWD'
-        ];
-    }
-
     private function getTestMessage($status, $error) {
         if ($status == 'Paid') {
             return 'Invoice is paid.';
@@ -1365,6 +1169,7 @@ class MyFatoorahController extends Controller
         } else if ($status == 'Expired') {
             return $error;
         }
+        return 'Payment status: ' . $status;
     }
 
     // Admin Dashboard Methods
