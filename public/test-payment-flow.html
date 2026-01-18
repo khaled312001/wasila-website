@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>اختبار تدفق الدفع - MyFatoorah</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 50px auto;
             padding: 20px;
             background: #f5f5f5;
@@ -31,6 +32,10 @@
         }
         .test-button:hover {
             background: #0a3a5f;
+        }
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
         }
         .success {
             color: #10b981;
@@ -64,6 +69,44 @@
             background: #fee2e2;
             color: #991b1b;
         }
+        .test-item.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .log-entry.success { color: #4ec9b0; }
+        .log-entry.error { color: #f48771; }
+        .log-entry.info { color: #569cd6; }
+        .log-entry.warn { color: #dcdcaa; }
     </style>
 </head>
 <body>
@@ -94,9 +137,56 @@
     </div>
     
     <div class="test-section">
-        <h2>5. اختبار معالجة الأخطاء</h2>
+        <h2>5. اختبار executePayment</h2>
+        <div class="input-group">
+            <label>Session ID:</label>
+            <input type="text" id="test-session-id" placeholder="أدخل Session ID للاختبار">
+        </div>
+        <div class="input-group">
+            <label>Order ID:</label>
+            <input type="text" id="test-order-id" placeholder="أدخل Order ID للاختبار">
+        </div>
+        <button class="test-button" onclick="testExecutePayment()">اختبار executePayment</button>
+        <button class="test-button" onclick="testExecutePaymentMock()">اختبار Mock (بدون API)</button>
+        <div id="execute-payment-test"></div>
+        <div id="execute-payment-log" class="log-container" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. اختبار pollPaymentStatus</h2>
+        <div class="input-group">
+            <label>Payment ID:</label>
+            <input type="text" id="test-payment-id" placeholder="أدخل Payment ID للاختبار">
+        </div>
+        <button class="test-button" onclick="testPollPaymentStatus()">اختبار Polling</button>
+        <button class="test-button" onclick="testPollPaymentStatusMock()">اختبار Mock (بدون API)</button>
+        <button class="test-button" onclick="stopPolling()">إيقاف Polling</button>
+        <div id="poll-test"></div>
+        <div id="poll-log" class="log-container" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>7. اختبار checkPaymentStatus API</h2>
+        <div class="input-group">
+            <label>Payment ID:</label>
+            <input type="text" id="test-check-payment-id" placeholder="أدخل Payment ID للاختبار">
+        </div>
+        <button class="test-button" onclick="testCheckPaymentStatus()">اختبار API</button>
+        <div id="check-status-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>8. اختبار معالجة الأخطاء</h2>
         <button class="test-button" onclick="testErrorHandling()">اختبار الأخطاء</button>
+        <button class="test-button" onclick="testErrorMessages()">اختبار رسائل الخطأ</button>
         <div id="error-test"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>9. اختبار keepPolling Scenario</h2>
+        <button class="test-button" onclick="testKeepPollingScenario()">اختبار سيناريو keepPolling</button>
+        <div id="keep-polling-test"></div>
+        <div id="keep-polling-log" class="log-container" style="display: none;"></div>
     </div>
     
     <div id="test-results" style="display: none;">
@@ -105,6 +195,12 @@
     </div>
 
     <script>
+        // Get CSRF token from meta tag
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+        let pollingInterval = null;
+        let pollingAttempts = 0;
+        const MAX_POLLING_ATTEMPTS = 40;
+        
         // نسخ الدوال من checkout.blade.php للاختبار
         function showLoadingOverlay(message) {
             const overlay = document.createElement('div');
@@ -128,7 +224,7 @@
             overlay.innerHTML = `
                 <div style="background: white; padding: 30px; border-radius: 10px; color: #333; max-width: 400px; margin: 20px;">
                     <div style="margin-bottom: 20px;">
-                        <svg class="animate-spin" style="width: 50px; height: 50px; margin: 0 auto; display: block;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg class="animate-spin" style="width: 50px; height: 50px; margin: 0 auto; display: block; animation: spin 1s linear infinite;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -211,11 +307,156 @@
             }
         }
         
+        // Function to execute payment using sessionId (from sectionForm.blade.php)
+        function executePaymentWithSessionId(sessionId, orderId, originalResponse) {
+            const logContainer = document.getElementById('execute-payment-log');
+            logContainer.style.display = 'block';
+            addLog(logContainer, 'info', `بدء executePayment: sessionId=${sessionId}, orderId=${orderId}`);
+            
+            fetch('{{ route("myfatoorah.execute-payment") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    sessionId: sessionId,
+                    orderId: orderId
+                })
+            })
+            .then(async response => {
+                addLog(logContainer, 'info', `HTTP Response: ${response.status} ${response.statusText}`);
+                if (!response.ok) {
+                    let errorMessage = 'HTTP error! status: ' + response.status;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.message) {
+                            errorMessage = errorData.message;
+                        }
+                    } catch (e) {
+                        errorMessage = response.statusText || errorMessage;
+                    }
+                    throw new Error(errorMessage);
+                }
+                return response.json();
+            })
+            .then(data => {
+                addLog(logContainer, 'success', 'Execute payment response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.success && data.paymentId) {
+                    addLog(logContainer, 'success', 'Payment successful! PaymentId: ' + data.paymentId);
+                    if (typeof mfCallback === 'function') {
+                        const responseWithPaymentId = {
+                            ...originalResponse,
+                            paymentId: data.paymentId
+                        };
+                        mfCallback(responseWithPaymentId);
+                    }
+                } else if (data.keepPolling && data.pollUrl) {
+                    addLog(logContainer, 'info', 'Payment pending, starting polling: ' + data.pollUrl);
+                    showLoadingOverlay('جاري انتظار تأكيد الدفع من البنك... يرجى الانتظار');
+                    pollPaymentStatus(data.pollUrl, data.paymentId, 0);
+                } else if (data.redirect && data.callbackUrl) {
+                    addLog(logContainer, 'info', 'Redirecting to callback: ' + data.callbackUrl);
+                    showLoadingOverlay('جاري التحقق من حالة الدفع...');
+                    setTimeout(() => {
+                        window.location.href = data.callbackUrl;
+                    }, 1000);
+                } else {
+                    addLog(logContainer, 'error', 'Payment failed or error occurred: ' + (data.message || 'Unknown error'));
+                    hideLoadingOverlay();
+                    alert(data.message || 'حدث خطأ في معالجة الدفع');
+                }
+            })
+            .catch(error => {
+                addLog(logContainer, 'error', 'Error executing payment: ' + error.message);
+                hideLoadingOverlay();
+                alert('حدث خطأ في التحقق من حالة الدفع: ' + error.message);
+            });
+        }
+        
+        // Function to poll payment status (from sectionForm.blade.php)
+        function pollPaymentStatus(pollUrl, paymentId, attempt) {
+            const logContainer = document.getElementById('poll-log');
+            logContainer.style.display = 'block';
+            
+            if (attempt >= MAX_POLLING_ATTEMPTS) {
+                addLog(logContainer, 'error', `Polling timeout after ${MAX_POLLING_ATTEMPTS} attempts`);
+                hideLoadingOverlay();
+                alert('انتهت مهلة الانتظار. يرجى التحقق من حالة الدفع لاحقاً أو التواصل معنا.');
+                window.location.href = '{{ route("myfatoorah.callback") }}?paymentId=' + paymentId;
+                return;
+            }
+            
+            addLog(logContainer, 'info', `Polling attempt ${attempt + 1}/${MAX_POLLING_ATTEMPTS}: ${pollUrl}`);
+            
+            fetch(pollUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                addLog(logContainer, 'info', 'Poll response: ' + JSON.stringify(data, null, 2));
+                
+                if (data.success && data.isPaid) {
+                    addLog(logContainer, 'success', 'Payment confirmed as paid!');
+                    hideLoadingOverlay();
+                    window.location.href = '{{ route("myfatoorah.callback") }}?paymentId=' + paymentId;
+                } else if (data.isFailed) {
+                    addLog(logContainer, 'error', 'Payment failed');
+                    hideLoadingOverlay();
+                    window.location.href = '{{ route("myfatoorah.callback") }}?paymentId=' + paymentId;
+                } else if (data.isPending) {
+                    addLog(logContainer, 'warn', 'Payment still pending, continuing to poll...');
+                    pollingInterval = setTimeout(() => {
+                        pollPaymentStatus(pollUrl, paymentId, attempt + 1);
+                    }, 3000);
+                } else {
+                    addLog(logContainer, 'warn', 'Unknown status, continuing to poll...');
+                    pollingInterval = setTimeout(() => {
+                        pollPaymentStatus(pollUrl, paymentId, attempt + 1);
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                addLog(logContainer, 'error', 'Error polling payment status: ' + error.message);
+                if (attempt < MAX_POLLING_ATTEMPTS - 5) {
+                    pollingInterval = setTimeout(() => {
+                        pollPaymentStatus(pollUrl, paymentId, attempt + 1);
+                    }, 3000);
+                } else {
+                    addLog(logContainer, 'error', 'Too many polling errors, redirecting to callback');
+                    hideLoadingOverlay();
+                    window.location.href = '{{ route("myfatoorah.callback") }}?paymentId=' + paymentId;
+                }
+            });
+        }
+        
+        function stopPolling() {
+            if (pollingInterval) {
+                clearTimeout(pollingInterval);
+                pollingInterval = null;
+                addLog(document.getElementById('poll-log'), 'info', 'Polling stopped by user');
+            }
+        }
+        
+        function addLog(container, type, message) {
+            if (!container) return;
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+        }
+        
         // اختبارات
         function testFunctions() {
             const results = [];
             
-            // Test 1: Check if functions exist
             if (typeof showLoadingOverlay === 'function') {
                 results.push({test: 'showLoadingOverlay موجودة', pass: true});
             } else {
@@ -232,6 +473,18 @@
                 results.push({test: 'mfCallback موجودة', pass: true});
             } else {
                 results.push({test: 'mfCallback موجودة', pass: false});
+            }
+            
+            if (typeof executePaymentWithSessionId === 'function') {
+                results.push({test: 'executePaymentWithSessionId موجودة', pass: true});
+            } else {
+                results.push({test: 'executePaymentWithSessionId موجودة', pass: false});
+            }
+            
+            if (typeof pollPaymentStatus === 'function') {
+                results.push({test: 'pollPaymentStatus موجودة', pass: true});
+            } else {
+                results.push({test: 'pollPaymentStatus موجودة', pass: false});
             }
             
             displayResults(results, 'functions-test');
@@ -253,27 +506,21 @@
             const container = document.getElementById('callback-test');
             container.innerHTML = '<p style="color: #3b82f6;">جاري الاختبار...</p>';
             
-            // Test with valid response
             try {
-                // Clear any existing messages
                 const existingMsg = document.getElementById('mf-success-message');
                 if (existingMsg) existingMsg.remove();
                 const existingOverlay = document.getElementById('mf-loading-overlay');
                 if (existingOverlay) existingOverlay.remove();
                 
                 mfCallback({paymentId: 'TEST123456'});
-                // Check if success message was created
                 setTimeout(() => {
                     const successMsg = document.getElementById('mf-success-message');
                     if (successMsg) {
                         results.push({test: 'mfCallback مع response صحيح', pass: true});
-                        // Clean up
                         successMsg.remove();
                     } else {
                         results.push({test: 'mfCallback مع response صحيح', pass: false, note: 'لم تظهر رسالة النجاح'});
                     }
-                    
-                    // Now test with invalid response
                     testInvalidResponse(results);
                 }, 100);
             } catch (e) {
@@ -283,45 +530,33 @@
         }
         
         function testInvalidResponse(results) {
-            // Clear any existing messages first
             const existingMsg = document.getElementById('mf-success-message');
             if (existingMsg) existingMsg.remove();
             const existingOverlay = document.getElementById('mf-loading-overlay');
             if (existingOverlay) existingOverlay.remove();
             
-            // Mock alert BEFORE calling mfCallback - use object to ensure reference is maintained
             const alertTracker = { called: false, message: '' };
             const originalAlert = window.alert;
             
             window.alert = function(message) {
                 alertTracker.called = true;
                 alertTracker.message = message;
-                console.log('Test: Alert called with message:', message);
-                // Don't show actual alert during test
             };
             
             try {
-                // Call mfCallback with null - alert should be called immediately
                 mfCallback(null);
-                
-                // Check immediately (synchronous check)
-                const immediateCheck = alertTracker.called;
-                
-                // Also wait a bit to check if success message was NOT created
                 setTimeout(() => {
                     const successMsg = document.getElementById('mf-success-message');
                     const hasNoSuccessMsg = !successMsg;
                     
-                    // Check if alert was called (error handling worked)
                     if (alertTracker.called && hasNoSuccessMsg) {
-                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                        results.push({test: 'mfCallback مع response خاطئ', pass: true});
                     } else if (alertTracker.called) {
-                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert (لكن رسالة النجاح ظهرت أيضاً)'});
+                        results.push({test: 'mfCallback مع response خاطئ', pass: true, note: 'تم استدعاء alert'});
                     } else {
-                        results.push({test: 'mfCallback مع response خاطئ', pass: false, note: 'لم يتم استدعاء alert. immediateCheck=' + immediateCheck + ', hasNoSuccessMsg=' + hasNoSuccessMsg + ', alertTracker.called=' + alertTracker.called});
+                        results.push({test: 'mfCallback مع response خاطئ', pass: false});
                     }
                     
-                    // Clean up
                     if (successMsg) successMsg.remove();
                     const overlay = document.getElementById('mf-loading-overlay');
                     if (overlay) overlay.remove();
@@ -336,57 +571,214 @@
             }
         }
         
+        function testExecutePayment() {
+            const sessionId = document.getElementById('test-session-id').value;
+            const orderId = document.getElementById('test-order-id').value;
+            
+            if (!sessionId || !orderId) {
+                alert('يرجى إدخال Session ID و Order ID');
+                return;
+            }
+            
+            const container = document.getElementById('execute-payment-test');
+            container.innerHTML = '<p style="color: #3b82f6;">جاري اختبار executePayment...</p>';
+            
+            executePaymentWithSessionId(sessionId, orderId, {sessionId: sessionId});
+        }
+        
+        function testExecutePaymentMock() {
+            const container = document.getElementById('execute-payment-test');
+            const logContainer = document.getElementById('execute-payment-log');
+            logContainer.style.display = 'block';
+            
+            container.innerHTML = '<p style="color: #3b82f6;">جاري اختبار Mock executePayment...</p>';
+            
+            const scenarios = [
+                {
+                    name: 'Success Response',
+                    data: {
+                        success: true,
+                        paymentId: 'MOCK123456',
+                        message: 'Payment successful'
+                    }
+                },
+                {
+                    name: 'Pending Response (keepPolling)',
+                    data: {
+                        success: false,
+                        paymentId: 'MOCK123456',
+                        status: 'Pending',
+                        message: 'Payment is still being processed. Please wait...',
+                        redirect: false,
+                        keepPolling: true,
+                        pollUrl: '{{ route("myfatoorah.check-payment-status", ["paymentId" => "MOCK123456"]) }}'
+                    }
+                },
+                {
+                    name: 'Error Response',
+                    data: {
+                        success: false,
+                        error: true,
+                        message: 'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.'
+                    }
+                }
+            ];
+            
+            let scenarioIndex = 0;
+            const testScenario = () => {
+                if (scenarioIndex >= scenarios.length) {
+                    container.innerHTML = '<p class="success">✓ تم اختبار جميع السيناريوهات</p>';
+                    return;
+                }
+                
+                const scenario = scenarios[scenarioIndex];
+                addLog(logContainer, 'info', `Testing scenario: ${scenario.name}`);
+                addLog(logContainer, 'info', 'Mock response: ' + JSON.stringify(scenario.data, null, 2));
+                
+                if (scenario.data.success && scenario.data.paymentId) {
+                    addLog(logContainer, 'success', 'Mock: Payment successful!');
+                } else if (scenario.data.keepPolling && scenario.data.pollUrl) {
+                    addLog(logContainer, 'info', 'Mock: Payment pending, would start polling');
+                } else {
+                    addLog(logContainer, 'error', 'Mock: Payment error: ' + scenario.data.message);
+                }
+                
+                scenarioIndex++;
+                setTimeout(testScenario, 2000);
+            };
+            
+            testScenario();
+        }
+        
+        function testPollPaymentStatus() {
+            const paymentId = document.getElementById('test-payment-id').value;
+            
+            if (!paymentId) {
+                alert('يرجى إدخال Payment ID');
+                return;
+            }
+            
+            const pollUrl = `{{ route("myfatoorah.check-payment-status", ["paymentId" => "PLACEHOLDER"]) }}`.replace('PLACEHOLDER', paymentId);
+            const container = document.getElementById('poll-test');
+            container.innerHTML = '<p style="color: #3b82f6;">جاري اختبار Polling...</p>';
+            
+            showLoadingOverlay('جاري انتظار تأكيد الدفع من البنك... يرجى الانتظار');
+            pollPaymentStatus(pollUrl, paymentId, 0);
+        }
+        
+        function testPollPaymentStatusMock() {
+            const container = document.getElementById('poll-test');
+            const logContainer = document.getElementById('poll-log');
+            logContainer.style.display = 'block';
+            
+            container.innerHTML = '<p style="color: #3b82f6;">جاري اختبار Mock Polling...</p>';
+            
+            let attempt = 0;
+            const mockPoll = () => {
+                attempt++;
+                addLog(logContainer, 'info', `Mock polling attempt ${attempt}`);
+                
+                if (attempt < 3) {
+                    addLog(logContainer, 'warn', 'Mock: Payment still pending');
+                } else if (attempt === 3) {
+                    addLog(logContainer, 'success', 'Mock: Payment confirmed as paid!');
+                    container.innerHTML = '<p class="success">✓ تم محاكاة نجاح الدفع بعد 3 محاولات</p>';
+                    return;
+                }
+                
+                if (attempt < 10) {
+                    setTimeout(mockPoll, 1000);
+                } else {
+                    addLog(logContainer, 'error', 'Mock: Polling timeout');
+                    container.innerHTML = '<p class="error">✗ انتهت مهلة Polling</p>';
+                }
+            };
+            
+            mockPoll();
+        }
+        
+        function testCheckPaymentStatus() {
+            const paymentId = document.getElementById('test-check-payment-id').value;
+            
+            if (!paymentId) {
+                alert('يرجى إدخال Payment ID');
+                return;
+            }
+            
+            const container = document.getElementById('check-status-test');
+            container.innerHTML = '<p style="color: #3b82f6;">جاري التحقق من حالة الدفع...</p>';
+            
+            fetch(`{{ route("myfatoorah.check-payment-status", ["paymentId" => "PLACEHOLDER"]) }}`.replace('PLACEHOLDER', paymentId), {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const results = [];
+                if (data.success) {
+                    results.push({test: 'API Response Success', pass: true});
+                } else {
+                    results.push({test: 'API Response Success', pass: false});
+                }
+                
+                if (data.isPaid) {
+                    results.push({test: 'Payment is Paid', pass: true});
+                } else if (data.isPending) {
+                    results.push({test: 'Payment is Pending', pass: true, note: 'Status: ' + data.status});
+                } else if (data.isFailed) {
+                    results.push({test: 'Payment Failed', pass: true, note: 'Status: ' + data.status});
+                }
+                
+                results.push({test: 'Response Data', pass: true, note: JSON.stringify(data, null, 2)});
+                displayResults(results, 'check-status-test');
+            })
+            .catch(error => {
+                container.innerHTML = `<p class="error">✗ خطأ: ${error.message}</p>`;
+            });
+        }
+        
         function testErrorHandling() {
             const results = [];
             const container = document.getElementById('error-test');
             container.innerHTML = '<p style="color: #3b82f6;">جاري الاختبار...</p>';
             
             const originalAlert = window.alert;
-            
-            // Test null response
             testNullResponse(results, originalAlert);
         }
         
         function testNullResponse(results, originalAlert) {
-            // Clear any existing messages
             const existingMsg = document.getElementById('mf-success-message');
             if (existingMsg) existingMsg.remove();
             const existingOverlay = document.getElementById('mf-loading-overlay');
             if (existingOverlay) existingOverlay.remove();
             
-            // Mock alert BEFORE calling mfCallback - use object to ensure reference is maintained
             const alertTracker = { called: false, message: '' };
             window.alert = function(message) {
                 alertTracker.called = true;
                 alertTracker.message = message;
-                console.log('Test: Alert called for null response:', message);
             };
             
             try {
                 mfCallback(null);
-                
-                // Check immediately (synchronous check)
-                const immediateCheck = alertTracker.called;
-                
-                // Also wait a bit to check if success message was NOT created
                 setTimeout(() => {
                     const successMsg = document.getElementById('mf-success-message');
                     const hasNoSuccessMsg = !successMsg;
                     
                     if (alertTracker.called && hasNoSuccessMsg) {
-                        results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                        results.push({test: 'معالجة null response', pass: true});
                     } else if (alertTracker.called) {
                         results.push({test: 'معالجة null response', pass: true, note: 'تم استدعاء alert'});
                     } else {
-                        results.push({test: 'معالجة null response', pass: false, note: 'لم يتم استدعاء alert. immediateCheck=' + immediateCheck + ', alertTracker.called=' + alertTracker.called});
+                        results.push({test: 'معالجة null response', pass: false});
                     }
                     
-                    // Clean up
                     if (successMsg) successMsg.remove();
                     const overlay = document.getElementById('mf-loading-overlay');
                     if (overlay) overlay.remove();
                     
-                    // Now test missing paymentId
                     testMissingPaymentId(results, originalAlert);
                 }, 100);
             } catch (e) {
@@ -397,46 +789,36 @@
         }
         
         function testMissingPaymentId(results, originalAlert) {
-            // Clear any existing messages
             const existingMsg = document.getElementById('mf-success-message');
             if (existingMsg) existingMsg.remove();
             const existingOverlay = document.getElementById('mf-loading-overlay');
             if (existingOverlay) existingOverlay.remove();
             
-            // Mock alert BEFORE calling mfCallback - use object to ensure reference is maintained
             const alertTracker = { called: false, message: '' };
             window.alert = function(message) {
                 alertTracker.called = true;
                 alertTracker.message = message;
-                console.log('Test: Alert called for missing paymentId:', message);
             };
             
             try {
                 mfCallback({});
-                
-                // Check immediately (synchronous check)
-                const immediateCheck = alertTracker.called;
-                
                 setTimeout(() => {
                     const successMsg = document.getElementById('mf-success-message');
                     const hasNoSuccessMsg = !successMsg;
                     
                     if (alertTracker.called && hasNoSuccessMsg) {
-                        results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert وتم إيقاف التنفيذ'});
+                        results.push({test: 'معالجة missing paymentId', pass: true});
                     } else if (alertTracker.called) {
                         results.push({test: 'معالجة missing paymentId', pass: true, note: 'تم استدعاء alert'});
                     } else {
-                        results.push({test: 'معالجة missing paymentId', pass: false, note: 'لم يتم استدعاء alert. immediateCheck=' + immediateCheck + ', alertTracker.called=' + alertTracker.called});
+                        results.push({test: 'معالجة missing paymentId', pass: false});
                     }
                     
-                    // Clean up
                     if (successMsg) successMsg.remove();
                     const overlay = document.getElementById('mf-loading-overlay');
                     if (overlay) overlay.remove();
                     
-                    // Restore original function
                     window.alert = originalAlert;
-                    
                     displayResults(results, 'error-test');
                 }, 100);
             } catch (e) {
@@ -444,6 +826,66 @@
                 results.push({test: 'معالجة missing paymentId', pass: false, error: e.message});
                 displayResults(results, 'error-test');
             }
+        }
+        
+        function testErrorMessages() {
+            const container = document.getElementById('error-test');
+            const results = [];
+            
+            const errorMessages = [
+                'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.',
+                'جلسة الدفع غير صالحة. يرجى المحاولة مرة أخرى.',
+                'حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى.'
+            ];
+            
+            errorMessages.forEach((msg, index) => {
+                results.push({
+                    test: `رسالة خطأ ${index + 1}`,
+                    pass: msg.includes('خطأ') || msg.includes('غير صالحة'),
+                    note: msg
+                });
+            });
+            
+            displayResults(results, 'error-test');
+        }
+        
+        function testKeepPollingScenario() {
+            const container = document.getElementById('keep-polling-test');
+            const logContainer = document.getElementById('keep-polling-log');
+            logContainer.style.display = 'block';
+            
+            container.innerHTML = '<p style="color: #3b82f6;">جاري اختبار سيناريو keepPolling...</p>';
+            
+            addLog(logContainer, 'info', 'Simulating executePayment response with keepPolling: true');
+            
+            const mockResponse = {
+                success: false,
+                paymentId: 'MOCK123456',
+                status: 'Pending',
+                message: 'Payment is still being processed. Please wait...',
+                redirect: false,
+                keepPolling: true,
+                pollUrl: '{{ route("myfatoorah.check-payment-status", ["paymentId" => "MOCK123456"]) }}'
+            };
+            
+            addLog(logContainer, 'info', 'Mock response: ' + JSON.stringify(mockResponse, null, 2));
+            
+            let pollAttempt = 0;
+            const simulatePolling = () => {
+                pollAttempt++;
+                addLog(logContainer, 'info', `Polling attempt ${pollAttempt}`);
+                
+                if (pollAttempt < 3) {
+                    addLog(logContainer, 'warn', 'Status: Pending - continuing to poll...');
+                    setTimeout(simulatePolling, 2000);
+                } else {
+                    addLog(logContainer, 'success', 'Status: Paid - payment confirmed!');
+                    container.innerHTML = '<p class="success">✓ تم محاكاة سيناريو keepPolling بنجاح</p>';
+                }
+            };
+            
+            showLoadingOverlay('جاري انتظار تأكيد الدفع من البنك... يرجى الانتظار');
+            simulatePolling();
         }
         
         function displayResults(results, containerId) {
@@ -466,7 +908,6 @@
             html += '</div>';
             container.innerHTML = html;
             
-            // Show main results
             document.getElementById('test-results').style.display = 'block';
             const allResults = [];
             document.querySelectorAll('.test-item').forEach(item => {
@@ -481,7 +922,9 @@
             console.log('الدوال المتاحة:', {
                 showLoadingOverlay: typeof showLoadingOverlay,
                 hideLoadingOverlay: typeof hideLoadingOverlay,
-                mfCallback: typeof mfCallback
+                mfCallback: typeof mfCallback,
+                executePaymentWithSessionId: typeof executePaymentWithSessionId,
+                pollPaymentStatus: typeof pollPaymentStatus
             });
         });
     </script>

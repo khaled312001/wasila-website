@@ -237,61 +237,77 @@ class MyFatoorahController extends Controller
                     ? 'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.' 
                     : 'Error creating payment invoice. Please try again.';
                     
-                if (strpos($e->getMessage(), 'session') !== false || strpos($e->getMessage(), 'Session') !== false) {
+                // Check for specific error types
+                $errorMsgLower = strtolower($e->getMessage());
+                if (strpos($errorMsgLower, 'session') !== false || strpos($errorMsgLower, 'expired') !== false) {
                     $errorMessage = $locale === 'ar'
-                        ? 'جلسة الدفع غير صالحة. يرجى المحاولة مرة أخرى.'
-                        : 'Invalid payment session. Please try again.';
-                } elseif (strpos($e->getMessage(), 'invoice') !== false || strpos($e->getMessage(), 'Invoice') !== false) {
+                        ? 'انتهت صلاحية جلسة الدفع. يرجى المحاولة مرة أخرى من البداية.'
+                        : 'Payment session expired. Please try again from the beginning.';
+                } elseif (strpos($errorMsgLower, 'invoice') !== false || strpos($errorMsgLower, 'invalid') !== false) {
                     $errorMessage = $locale === 'ar'
-                        ? 'حدث خطأ في إنشاء فاتورة الدفع. يرجى المحاولة مرة أخرى.'
-                        : 'Error creating payment invoice. Please try again.';
+                        ? 'حدث خطأ في إنشاء فاتورة الدفع. يرجى التحقق من البيانات والمحاولة مرة أخرى.'
+                        : 'Error creating payment invoice. Please check your data and try again.';
+                } elseif (strpos($errorMsgLower, 'network') !== false || strpos($errorMsgLower, 'connection') !== false) {
+                    $errorMessage = $locale === 'ar'
+                        ? 'مشكلة في الاتصال. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.'
+                        : 'Connection problem. Please check your internet connection and try again.';
                 }
                 
                 return response()->json([
                     'success' => false,
                     'message' => $errorMessage,
                     'error' => true,
-                    'error_type' => 'invoice_creation_error',
-                    'error_details' => [
-                        'code' => $e->getCode(),
-                        'message' => $e->getMessage()
-                    ]
+                    'error_type' => 'invoice_creation_error'
                 ], 500);
             }
             
-            // Extract paymentId/InvoiceId from response
-            $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
-            
-            if (!$paymentId && isset($payment['invoiceURL'])) {
-                // Try to extract from invoiceURL
-                $urlParts = parse_url($payment['invoiceURL']);
-                if (isset($urlParts['query'])) {
-                    parse_str($urlParts['query'], $queryParams);
-                    $paymentId = $queryParams['paymentId'] ?? $queryParams['InvoiceId'] ?? $queryParams['PaymentId'] ?? null;
-                }
-            }
-            
-            // If still no paymentId, the payment might not be completed yet
-            // In this case, we should redirect user to the invoice URL to complete payment
-            if (!$paymentId) {
-                Log::warning('MyFatoorah executePayment: No paymentId found, payment may not be completed yet', [
-                    'payment_response' => $payment,
-                    'has_invoice_url' => isset($payment['invoiceURL'])
+            // Check if invoiceURL exists - this is needed for OTP/3D Secure authentication
+            // If invoiceURL exists, we MUST redirect user to it to complete payment
+            if (isset($payment['invoiceURL']) && !empty($payment['invoiceURL'])) {
+                Log::info('MyFatoorah executePayment: Invoice URL found, redirecting user for OTP/3D Secure', [
+                    'invoice_url' => $payment['invoiceURL'],
+                    'has_invoice_id' => isset($payment['InvoiceId']),
+                    'invoice_id' => $payment['InvoiceId'] ?? null
                 ]);
                 
-                // If we have invoiceURL, redirect user to complete payment
-                if (isset($payment['invoiceURL'])) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Payment not completed yet',
-                        'invoiceURL' => $payment['invoiceURL'],
-                        'redirect' => true
+                // Extract paymentId/InvoiceId if available for tracking
+                $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
+                
+                // If we have paymentId, save it for tracking
+                if ($paymentId) {
+                    $order->update([
+                        'payment_reference' => $paymentId,
+                        'notes' => 'في انتظار إتمام الدفع (OTP/3D Secure)'
                     ]);
                 }
                 
+                // Return invoiceURL for frontend to redirect
+                return response()->json([
+                    'success' => true,
+                    'invoiceURL' => $payment['invoiceURL'],
+                    'redirect' => true,
+                    'paymentId' => $paymentId,
+                    'message' => app()->getLocale() === 'ar' 
+                        ? 'سيتم توجيهك إلى صفحة البنك لإتمام الدفع' 
+                        : 'You will be redirected to complete payment'
+                ]);
+            }
+            
+            // Extract paymentId/InvoiceId from response (if no invoiceURL)
+            $paymentId = $payment['InvoiceId'] ?? $payment['paymentId'] ?? $payment['PaymentId'] ?? null;
+            
+            // If no paymentId and no invoiceURL, something went wrong
+            if (!$paymentId) {
+                Log::error('MyFatoorah executePayment: No paymentId and no invoiceURL found', [
+                    'payment_response' => $payment,
+                    'payment_keys' => is_array($payment) ? array_keys($payment) : 'not_array'
+                ]);
+                
                 return response()->json([
                     'success' => false,
-                    'message' => 'Could not extract payment ID. Payment may not be completed yet.'
+                    'message' => app()->getLocale() === 'ar' 
+                        ? 'لم يتم إنشاء رابط الدفع. يرجى المحاولة مرة أخرى.' 
+                        : 'Payment link could not be created. Please try again.'
                 ], 400);
             }
             

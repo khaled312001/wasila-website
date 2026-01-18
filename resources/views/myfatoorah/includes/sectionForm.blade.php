@@ -169,23 +169,51 @@
         })
         .then(async response => {
             console.log('Execute payment HTTP response:', response);
+            const contentType = response.headers.get('content-type');
+            const isJson = contentType && contentType.includes('application/json');
+            
             if (!response.ok) {
                 // Try to get error message from response
                 let errorMessage = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع." : "An error occurred processing the payment." }}';
                 try {
-                    const errorData = await response.json();
-                    if (errorData.message) {
-                        errorMessage = errorData.message;
-                    } else if (errorData.error && errorData.error.message) {
-                        errorMessage = errorData.error.message;
+                    if (isJson) {
+                        const errorData = await response.json();
+                        if (errorData.message) {
+                            errorMessage = errorData.message;
+                        } else if (errorData.error && typeof errorData.error === 'object' && errorData.error.message) {
+                            errorMessage = errorData.error.message;
+                        } else if (typeof errorData.error === 'string') {
+                            errorMessage = errorData.error;
+                        }
+                    } else {
+                        // If response is not JSON, try to get text
+                        const text = await response.text();
+                        if (text) {
+                            errorMessage = text;
+                        } else {
+                            errorMessage = response.statusText || errorMessage;
+                        }
                     }
                 } catch (e) {
+                    console.error('Error parsing error response:', e);
                     // If response is not JSON, use status text
                     errorMessage = response.statusText || errorMessage;
                 }
                 throw new Error(errorMessage);
             }
-            return response.json();
+            
+            // Parse JSON response
+            if (isJson) {
+                return response.json();
+            } else {
+                // If not JSON, try to parse as text
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من الخادم" : "Invalid response from server" }}');
+                }
+            }
         })
         .then(data => {
             console.log('Execute payment response:', data);
@@ -218,9 +246,20 @@
                 
                 // Start polling payment status
                 pollPaymentStatus(data.pollUrl, data.paymentId, 0);
+            } else if (data.redirect && data.invoiceURL) {
+                // Payment needs redirect to invoice URL for OTP/3D Secure
+                console.log('Payment needs redirect to invoice URL for OTP:', data.invoiceURL);
+                
+                // Show message to user
+                if (typeof showLoadingOverlay === 'function') {
+                    showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري توجيهك إلى صفحة البنك لإتمام الدفع..." : "Redirecting to bank page to complete payment..." }}');
+                }
+                
+                // Redirect to invoice URL immediately (this is where OTP happens)
+                window.location.href = data.invoiceURL;
             } else if (data.redirect && data.callbackUrl) {
-                // Payment failed or needs redirect
-                console.log('Payment needs redirect:', data.callbackUrl);
+                // Payment failed or needs redirect to callback
+                console.log('Payment needs redirect to callback:', data.callbackUrl);
                 
                 // Show message to user
                 if (typeof showLoadingOverlay === 'function') {
@@ -231,13 +270,24 @@
                 setTimeout(() => {
                     window.location.href = data.callbackUrl;
                 }, 1000);
-            } else if (data.error) {
+            } else if (data.error || !data.success) {
                 // Payment error occurred (e.g., invoice creation error)
                 if (typeof hideLoadingOverlay === 'function') {
                     hideLoadingOverlay();
                 }
                 
-                const errorMsg = data.message || '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+                // Get error message from response
+                let errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+                
+                if (data.message) {
+                    errorMsg = data.message;
+                } else if (data.error && typeof data.error === 'string') {
+                    errorMsg = data.error;
+                } else if (data.error && data.error.message) {
+                    errorMsg = data.error.message;
+                }
+                
+                // Show error message
                 alert(errorMsg);
                 
                 // Re-enable button
@@ -280,10 +330,17 @@
             } else if (error && error.message) {
                 // If error has a message, use it
                 errorMsg = error.message;
+            } else if (error && error.toString && error.toString() !== '[object Object]') {
+                // Try to get string representation
+                errorMsg = error.toString();
             }
             
-            // Show error message
-            alert(errorMsg);
+            // Show error message - use a more user-friendly alert
+            if (errorMsg && errorMsg.trim() !== '') {
+                alert(errorMsg);
+            } else {
+                alert('{{ app()->getLocale() === "ar" ? "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى أو التواصل مع الدعم." : "An unexpected error occurred. Please try again or contact support." }}');
+            }
             
             // Re-enable button
             const submitButton = document.querySelector('.mf-pay-now-btn');
