@@ -673,7 +673,9 @@ class MyFatoorahController extends Controller
 
             Log::info('MyFatoorah callback: Processing payment', [
                 'payment_id' => $paymentId,
-                'session_id' => request()->session()->getId()
+                'session_id' => request()->session()->getId(),
+                'referer' => request()->header('referer'),
+                'user_agent' => request()->header('user-agent')
             ]);
 
             $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
@@ -694,6 +696,15 @@ class MyFatoorahController extends Controller
             }
 
             $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
+            
+            // Log full payment data for debugging
+            Log::info('MyFatoorah callback: Payment status retrieved', [
+                'payment_id' => $paymentId,
+                'invoice_status' => $invoiceStatus,
+                'payment_method' => $data['PaymentMethod'] ?? 'Unknown',
+                'invoice_value' => $data['InvoiceValue'] ?? null,
+                'invoice_transactions' => isset($data['InvoiceTransactions']) ? count($data['InvoiceTransactions']) : 0
+            ]);
             
             Log::info('MyFatoorah callback: Payment status retrieved', [
                 'payment_id' => $paymentId,
@@ -888,50 +899,64 @@ class MyFatoorahController extends Controller
                     ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.');
                     
             } else {
-                // حالة أخرى (مثل Pending)
-                // Use 'confirmed' status with payment_status 'pending' instead of 'payment_pending'
-                $order->update([
-                    'payment_status' => 'pending',
-                    'payment_reference' => $paymentId,
-                    'status' => 'confirmed',
-                    'notes' => 'في انتظار تأكيد الدفع'
-                ]);
+                // حالة أخرى (مثل Pending) - Payment is still pending (OTP not completed yet)
+                // According to MyFatoorah docs, CallBackUrl should only be called after payment completion
+                // If we get Pending status, it means OTP/3D Secure wasn't completed
+                // We should NOT redirect to confirmation page - instead redirect back to MyFatoorah payment page
                 
-                $orderData = [
-                    'order_number' => $order->order_number,
-                    'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
-                    'service_price' => $order->orderItems->first()->unit_price ?? 0,
-                    'service_quantity' => $order->orderItems->first()->quantity ?? 1,
-                    'customer_name' => $order->customer_name,
-                    'customer_email' => $order->customer_email,
-                    'customer_phone' => $order->customer_phone,
-                    'customer_address' => $order->customer_address,
-                    'total_amount' => $order->total_amount,
-                    'payment_status' => 'pending'
-                ];
-                
-                // Save session data
-                $session = request()->session();
-                $session->put('order_confirmation', $orderData);
-                $session->save();
-                
-                Log::info('MyFatoorah callback: Payment pending', [
+                Log::info('MyFatoorah callback: Payment still pending (OTP not completed)', [
                     'order_id' => $orderId,
                     'payment_id' => $paymentId,
                     'invoice_status' => $data['InvoiceStatus'],
                     'session_id' => request()->session()->getId()
                 ]);
                 
-                // Ensure session is saved before redirect
-                $session = request()->session();
-                $session->save();
+                // Update order status but don't mark as confirmed yet
+                $order->update([
+                    'payment_status' => 'pending',
+                    'payment_reference' => $paymentId,
+                    'status' => 'pending',
+                    'notes' => 'في انتظار إتمام الدفع (OTP/3D Secure)'
+                ]);
                 
-                // Use direct URL path to avoid route resolution issues
-                $locale = app()->getLocale();
-                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
+                // Build MyFatoorah payment URL to redirect user back to complete OTP
+                // According to MyFatoorah docs, the payment URL format is:
+                // Test: https://demo.myfatoorah.com/En/{vcCode}/PayInvoice/{InvoiceId}
+                // Live: https://portal.myfatoorah.com/pay/{InvoiceId}
+                $isTest = $this->mfConfig['isTest'];
+                $vcCode = $this->mfConfig['vcCode'];
+                $countries = MyFatoorah::getMFCountries();
                 
-                return redirect($confirmationUrl)
-                    ->with('info', 'تم استلام طلبك بنجاح. في انتظار تأكيد الدفع.');
+                $paymentUrl = null;
+                if (isset($countries[$vcCode])) {
+                    if ($isTest) {
+                        // Test mode: https://demo.myfatoorah.com/En/{vcCode}/PayInvoice/{InvoiceId}
+                        $portalBase = $countries[$vcCode]['testPortal'];
+                        $paymentUrl = rtrim($portalBase, '/') . '/En/' . $vcCode . '/PayInvoice/' . $paymentId;
+                    } else {
+                        // Live mode: https://portal.myfatoorah.com/pay/{InvoiceId}
+                        $portalBase = $countries[$vcCode]['portal'];
+                        $paymentUrl = rtrim($portalBase, '/') . '/pay/' . $paymentId;
+                    }
+                } else {
+                    // Fallback
+                    if ($isTest) {
+                        $paymentUrl = 'https://demo.myfatoorah.com/En/' . $vcCode . '/PayInvoice/' . $paymentId;
+                    } else {
+                        $paymentUrl = 'https://portal.myfatoorah.com/pay/' . $paymentId;
+                    }
+                }
+                
+                Log::info('MyFatoorah callback: Redirecting back to payment page for OTP completion', [
+                    'payment_url' => $paymentUrl,
+                    'payment_id' => $paymentId,
+                    'is_test' => $isTest,
+                    'vc_code' => $vcCode
+                ]);
+                
+                // Redirect user back to MyFatoorah payment page to complete OTP
+                // Note: This will allow user to complete OTP, after which MyFatoorah will call CallBackUrl again
+                return redirect($paymentUrl);
             }
                 
         } catch (Exception $ex) {

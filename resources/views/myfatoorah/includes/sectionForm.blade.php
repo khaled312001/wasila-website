@@ -277,26 +277,19 @@
                         throw new Error('Invalid URL format');
                     }
                     
-                    // Method 1: Try direct href assignment (most reliable)
-                    // This will redirect the entire page to the OTP page
-                    // Use a small delay to ensure all cleanup is done first
-                    setTimeout(function() {
-                        console.log('Executing redirect now...');
-                        window.location.href = invoiceURL;
-                    }, 10);
+                    // Set a flag to prevent any other redirects
+                    window.paymentRedirecting = true;
+                    window.paymentRedirectAttempted = true;
+                    window.paymentInvoiceURL = invoiceURL;
                     
-                    // Method 2: Immediate redirect as backup
-                    window.location.href = invoiceURL;
+                    // Clear any existing timers that might interfere
+                    if (window.paymentRedirectTimer) {
+                        clearTimeout(window.paymentRedirectTimer);
+                    }
                     
-                    // Method 3: If href doesn't work, try assign after a delay
-                    setTimeout(function() {
-                        const currentUrl = window.location.href;
-                        console.log('Checking redirect status, current URL:', currentUrl);
-                        if (!currentUrl.includes('myfatoorah.com') && !currentUrl.includes('PayInvoice') && !currentUrl.includes('CyberSource')) {
-                            console.warn('Redirect may have failed, forcing with location.assign');
-                            window.location.assign(invoiceURL);
-                        }
-                    }, 200);
+                    // Use location.replace to prevent back button issues
+                    // This is the most reliable method for payment redirects
+                    window.location.replace(invoiceURL);
                     
                     // Stop all execution - do NOT continue to any other code
                     // This return statement is critical
