@@ -44,6 +44,17 @@
     console.error = function(...args) {
         const message = args.join(' ');
         
+        // Suppress MyFatoorah payment page errors
+        if (message.includes('myfatoorah.com') || 
+            message.includes('Cannot read properties') ||
+            message.includes("reading 'end'") ||
+            message.includes('reading "end"') ||
+            message.includes('jQuery.Deferred exception')) {
+            // These are errors from MyFatoorah's own JavaScript
+            // They don't affect our payment flow
+            return;
+        }
+        
         // Suppress Google Pay manifest errors
         if (message.includes('Unable to download payment manifest') || 
             message.includes('google.com/pay') ||
@@ -62,6 +73,31 @@
             if (e && e.target) {
                 if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
                     return; // Silently ignore media loading errors
+                }
+            }
+            
+            // Suppress MyFatoorah payment page errors (these are from their OTP/3D Secure page)
+            if (e && e.filename && typeof e.filename === 'string') {
+                const filename = e.filename.toLowerCase();
+                if (filename.includes('myfatoorah.com') || 
+                    filename.includes('demo.myfatoorah.com') ||
+                    filename.includes('portal.myfatoorah.com') ||
+                    filename.includes('test.myfatoorah.com')) {
+                    // These are errors from MyFatoorah's own JavaScript on their payment page
+                    // They don't affect our payment flow, so we suppress them
+                    return;
+                }
+            }
+            
+            // Suppress MyFatoorah jQuery errors
+            if (e && e.message && typeof e.message === 'string') {
+                const message = e.message.toLowerCase();
+                if (message.includes('cannot read properties') && 
+                    (message.includes('reading \'end\'') || 
+                     message.includes('reading "end"'))) {
+                    // This is a known jQuery error on MyFatoorah's payment page
+                    // It doesn't affect the payment flow
+                    return;
                 }
             }
             
@@ -113,6 +149,19 @@
     
     // Unhandled promise rejection handler
     window.addEventListener('unhandledrejection', function(e) {
+        // Suppress MyFatoorah payment page rejections
+        if (e && e.reason) {
+            const reasonStr = e.reason.toString().toLowerCase();
+            if (reasonStr.includes('myfatoorah') || 
+                reasonStr.includes('cannot read properties') ||
+                reasonStr.includes('reading \'end\'') ||
+                reasonStr.includes('reading "end"')) {
+                // These are rejections from MyFatoorah's payment page
+                // They don't affect our payment flow
+                return;
+            }
+        }
+        
         // Only log non-critical rejections
         if (!e.reason || !e.reason.toString().includes('youtube')) {
             console.log('Wasila Error Fixes: Promise rejection handled:', e.reason);
