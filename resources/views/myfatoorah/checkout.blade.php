@@ -204,18 +204,21 @@
                 }
                 
                 function mfCallback(response) {
-                    // Check if response is valid
+                    // Validate response first
                     if (!response) {
                         console.error('MyFatoorah: Invalid payment response - response is null or undefined', response);
-                        alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
                         hideLoadingOverlay();
+                        const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+                        alert(errorMsg);
                         return false;
                     }
                     
-                    if (!response.paymentId) {
-                        console.error('MyFatoorah: Invalid payment response - paymentId is missing', response);
-                        alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
+                    // Validate paymentId
+                    if (!response.paymentId || response.paymentId === '' || response.paymentId === null || response.paymentId === undefined) {
+                        console.error('MyFatoorah: Invalid payment response - paymentId is missing or invalid', response);
                         hideLoadingOverlay();
+                        const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+                        alert(errorMsg);
                         return false;
                     }
                     

@@ -98,8 +98,9 @@
                     throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - لا توجد استجابة" : "Invalid response from payment gateway - no response" }}');
                 }
                 
-                if (!response.paymentId) {
-                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود" : "Invalid response from payment gateway - payment ID missing" }}');
+                // Validate paymentId more thoroughly
+                if (!response.paymentId || response.paymentId === '' || response.paymentId === null || response.paymentId === undefined) {
+                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من بوابة الدفع - معرف الدفع مفقود أو غير صالح" : "Invalid response from payment gateway - payment ID missing or invalid" }}');
                 }
                 
                 // Call callback function

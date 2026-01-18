@@ -23,9 +23,21 @@ var mfGpConfig = {
         console.log('MyFatoorah Google Pay callback:', response);
         
         // Validate response
-        if (!response || !response.paymentId) {
-            console.error('MyFatoorah Google Pay: Invalid response', response);
-            alert('{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}');
+        if (!response) {
+            console.error('MyFatoorah Google Pay: Invalid response - response is null or undefined', response);
+            const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+            alert(errorMsg);
+            if (typeof hideLoadingOverlay === 'function') {
+                hideLoadingOverlay();
+            }
+            return;
+        }
+        
+        // Validate paymentId
+        if (!response.paymentId || response.paymentId === '' || response.paymentId === null || response.paymentId === undefined) {
+            console.error('MyFatoorah Google Pay: Invalid response - paymentId is missing or invalid', response);
+            const errorMsg = '{{ app()->getLocale() === "ar" ? "حدث خطأ في معالجة الدفع. يرجى المحاولة مرة أخرى." : "An error occurred processing the payment. Please try again." }}';
+            alert(errorMsg);
             if (typeof hideLoadingOverlay === 'function') {
                 hideLoadingOverlay();
             }
