@@ -132,6 +132,11 @@ class MyFatoorahController extends Controller
         try {
             $paymentId = request('paymentId');
 
+            if (!$paymentId) {
+                return redirect()->route('home')
+                    ->with('error', 'لم يتم العثور على معرف الدفع.');
+            }
+
             $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
             $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
 
@@ -145,7 +150,7 @@ class MyFatoorahController extends Controller
             // Update order status if payment is successful
             if (isset($data['UserDefinedField']) && $data['UserDefinedField']) {
                 $orderId = $data['UserDefinedField'];
-                $order = Order::find($orderId);
+                $order = Order::with('orderItems.service')->find($orderId);
                 
                 if ($order) {
                     $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
@@ -165,21 +170,70 @@ class MyFatoorahController extends Controller
                         } catch (\Exception $e) {
                             Log::error('Failed to send order email: ' . $e->getMessage());
                         }
+                        
+                        // Store order data in session for confirmation page
+                        $orderData = [
+                            'order_number' => $order->order_number,
+                            'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
+                            'service_price' => $order->orderItems->first()->unit_price ?? 0,
+                            'service_quantity' => $order->orderItems->first()->quantity ?? 1,
+                            'customer_name' => $order->customer_name,
+                            'customer_email' => $order->customer_email,
+                            'customer_phone' => $order->customer_phone,
+                            'customer_address' => $order->customer_address,
+                            'total_amount' => $order->total_amount,
+                            'payment_status' => 'paid',
+                            'payment_method' => $order->payment_method
+                        ];
+                        
+                        request()->session()->put('order_confirmation', $orderData);
+                        
+                        // Redirect to confirmation page
+                        $locale = app()->getLocale();
+                        $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
+                        return redirect($confirmationUrl)
+                            ->with('success', 'تم الدفع بنجاح! شكراً لك على دعمك لمشروع وسيلة الخيري.');
                     } elseif (strtolower($invoiceStatus) === 'failed') {
                         $order->update([
                             'payment_status' => 'failed',
                             'payment_reference' => $paymentId
                         ]);
+                        
+                        // Store order data in session
+                        $orderData = [
+                            'order_number' => $order->order_number,
+                            'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
+                            'service_price' => $order->orderItems->first()->unit_price ?? 0,
+                            'service_quantity' => $order->orderItems->first()->quantity ?? 1,
+                            'customer_name' => $order->customer_name,
+                            'customer_email' => $order->customer_email,
+                            'customer_phone' => $order->customer_phone,
+                            'customer_address' => $order->customer_address,
+                            'total_amount' => $order->total_amount,
+                            'payment_status' => 'failed'
+                        ];
+                        
+                        request()->session()->put('order_confirmation', $orderData);
+                        
+                        // Redirect to confirmation page
+                        $locale = app()->getLocale();
+                        $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
+                        return redirect($confirmationUrl)
+                            ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.');
                     }
                 }
             }
 
             $response = ['IsSuccess' => true, 'Message' => $message, 'Data' => $data];
+            return response()->json($response);
         } catch (Exception $ex) {
             $exMessage = __('myfatoorah.' . $ex->getMessage());
-            $response  = ['IsSuccess' => 'false', 'Message' => $exMessage];
+            if ($exMessage === 'myfatoorah.' . $ex->getMessage()) {
+                $exMessage = $ex->getMessage();
+            }
+            return redirect()->route('home')
+                ->with('error', 'حدث خطأ في معالجة الدفع: ' . $exMessage);
         }
-        return response()->json($response);
     }
 
     /**
@@ -724,323 +778,6 @@ class MyFatoorahController extends Controller
         }
     }
 
-    /**
-     * Get MyFatoorah Payment Information
-     * Provide the callback method with the paymentId
-     * 
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function callback() {
-        try {
-            $paymentId = request('paymentId');
-
-            if (!$paymentId) {
-                Log::warning('MyFatoorah callback: Missing paymentId', [
-                    'request_data' => request()->all(),
-                    'url' => request()->fullUrl()
-                ]);
-                return redirect()->route('home')
-                    ->with('error', 'لم يتم العثور على معرف الدفع. يرجى التواصل معنا.');
-            }
-
-            Log::info('MyFatoorah callback: Processing payment', [
-                'payment_id' => $paymentId,
-                'session_id' => request()->session()->getId(),
-                'referer' => request()->header('referer'),
-                'user_agent' => request()->header('user-agent')
-            ]);
-
-            $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
-            $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
-
-            if (!$data) {
-                Log::error('MyFatoorah callback: Failed to get payment status', [
-                    'payment_id' => $paymentId,
-                    'config' => $this->mfConfig
-                ]);
-                return redirect()->route('home')
-                    ->with('error', 'فشل في التحقق من حالة الدفع. يرجى التواصل معنا.');
-            }
-
-            // Convert object to array if needed (MyFatoorah may return stdClass objects)
-            if (is_object($data)) {
-                $data = json_decode(json_encode($data), true);
-            }
-
-            $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
-            
-            // Log full payment data for debugging
-            Log::info('MyFatoorah callback: Payment status retrieved', [
-                'payment_id' => $paymentId,
-                'invoice_status' => $invoiceStatus,
-                'payment_method' => $data['PaymentMethod'] ?? 'Unknown',
-                'invoice_value' => $data['InvoiceValue'] ?? null,
-                'invoice_transactions' => isset($data['InvoiceTransactions']) ? count($data['InvoiceTransactions']) : 0
-            ]);
-            
-            Log::info('MyFatoorah callback: Payment status retrieved', [
-                'payment_id' => $paymentId,
-                'invoice_status' => $invoiceStatus,
-                'payment_method' => $data['PaymentMethod'] ?? 'Unknown',
-                'all_data_keys' => array_keys($data),
-                'invoice_status_type' => gettype($invoiceStatus),
-                'invoice_status_lowercase' => strtolower($invoiceStatus)
-            ]);
-
-            $orderId = $data['UserDefinedField'] ?? null;
-            
-            if (!$orderId) {
-                Log::error('MyFatoorah callback: Missing order ID in UserDefinedField', [
-                    'payment_id' => $paymentId,
-                    'data' => $data
-                ]);
-                return redirect()->route('home')
-                    ->with('error', 'لم يتم العثور على معرف الطلب. يرجى التواصل معنا.');
-            }
-
-            $order = Order::with('orderItems.service')->find($orderId);
-            
-            if (!$order) {
-                Log::error('MyFatoorah callback: Order not found', [
-                    'order_id' => $orderId,
-                    'payment_id' => $paymentId
-                ]);
-                return redirect()->route('home')
-                    ->with('error', 'لم يتم العثور على الطلب. يرجى التواصل معنا.');
-            }
-            
-            // Log order state before update
-            Log::info('MyFatoorah callback: Order state before update', [
-                'order_id' => $orderId,
-                'current_payment_status' => $order->payment_status,
-                'current_payment_method' => $order->payment_method,
-                'current_status' => $order->status
-            ]);
-
-            // تحديث حالة الطلب بناءً على حالة الدفع
-            // Check for 'Paid' status (case-insensitive)
-            if (strtolower($invoiceStatus) === 'paid') {
-                // Ensure payment_method is set to 'MyFatoorah' if not already set
-                $paymentMethod = $data['PaymentMethod'] ?? 'MyFatoorah';
-                // Normalize payment method name
-                if (stripos($paymentMethod, 'myfatoorah') === false && $paymentMethod !== 'MyFatoorah') {
-                    $paymentMethod = 'MyFatoorah';
-                }
-                
-                $order->update([
-                    'payment_status' => 'paid',
-                    'payment_method' => $paymentMethod,
-                    'payment_reference' => $paymentId,
-                    'status' => 'confirmed',
-                    'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
-                ]);
-                
-                // Refresh order to ensure changes are saved
-                $order->refresh();
-                
-                Log::info('MyFatoorah callback: Order updated successfully', [
-                    'order_id' => $orderId,
-                    'payment_status' => $order->payment_status,
-                    'payment_method' => $order->payment_method,
-                    'payment_reference' => $order->payment_reference,
-                    'status' => $order->status
-                ]);
-                
-                // إرسال إيميل للإدارة عند الدفع الناجح
-                try {
-                    $adminEmail = SettingsHelper::contactEmail();
-                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
-                    Log::info('Order paid email sent successfully to: ' . $adminEmail);
-                } catch (\Exception $emailException) {
-                    Log::error('Failed to send order paid email: ' . $emailException->getMessage());
-                }
-                
-                // Store order data in session for confirmation page
-                $orderData = [
-                    'order_number' => $order->order_number,
-                    'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
-                    'service_price' => $order->orderItems->first()->unit_price ?? 0,
-                    'service_quantity' => $order->orderItems->first()->quantity ?? 1,
-                    'customer_name' => $order->customer_name,
-                    'customer_email' => $order->customer_email,
-                    'customer_phone' => $order->customer_phone,
-                    'customer_address' => $order->customer_address,
-                    'total_amount' => $order->total_amount,
-                    'payment_status' => 'paid',
-                    'payment_method' => $order->payment_method
-                ];
-                
-                // Save session data and ensure it's persisted
-                $session = request()->session();
-                $session->put('order_confirmation', $orderData);
-                $session->save();
-                
-                Log::info('MyFatoorah callback: Payment successful', [
-                    'order_id' => $orderId,
-                    'payment_id' => $paymentId,
-                    'order_number' => $order->order_number,
-                    'payment_status' => $order->payment_status,
-                    'payment_method' => $order->payment_method,
-                    'order_status' => $order->status,
-                    'session_id' => request()->session()->getId()
-                ]);
-                
-                // Double-check that order is visible in admin panel
-                // Order should be visible if: payment_method = 'MyFatoorah' AND payment_status = 'paid'
-                $orderAfterUpdate = Order::find($orderId);
-                if ($orderAfterUpdate) {
-                    $willBeVisible = ($orderAfterUpdate->payment_method === 'MyFatoorah' && $orderAfterUpdate->payment_status === 'paid');
-                    Log::info('MyFatoorah callback: Order visibility check', [
-                        'order_id' => $orderId,
-                        'order_number' => $orderAfterUpdate->order_number,
-                        'payment_method' => $orderAfterUpdate->payment_method,
-                        'payment_status' => $orderAfterUpdate->payment_status,
-                        'status' => $orderAfterUpdate->status,
-                        'will_be_visible' => $willBeVisible,
-                        'payment_method_check' => ($orderAfterUpdate->payment_method === 'MyFatoorah'),
-                        'payment_status_check' => ($orderAfterUpdate->payment_status === 'paid')
-                    ]);
-                    
-                    // If order should be visible but isn't, log warning
-                    if (!$willBeVisible) {
-                        Log::warning('MyFatoorah callback: Order may not be visible in admin panel', [
-                            'order_id' => $orderId,
-                            'order_number' => $orderAfterUpdate->order_number,
-                            'payment_method' => $orderAfterUpdate->payment_method,
-                            'payment_status' => $orderAfterUpdate->payment_status,
-                            'expected_payment_method' => 'MyFatoorah',
-                            'expected_payment_status' => 'paid'
-                        ]);
-                    }
-                }
-                
-                // Ensure session is saved before redirect
-                $session = request()->session();
-                $session->save();
-                
-                // Use direct URL path to avoid route resolution issues
-                // The route is /orders/confirmation for Arabic (default) and /en/orders/confirmation for English
-                $locale = app()->getLocale();
-                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
-                
-                return redirect($confirmationUrl)
-                    ->with('success', 'تم الدفع بنجاح! شكراً لك على دعمك لمشروع وسيلة الخيري.');
-                    
-            } elseif ($data['InvoiceStatus'] === 'Failed') {
-                $order->update([
-                    'payment_status' => 'failed',
-                    'payment_reference' => $paymentId,
-                    'status' => 'cancelled',
-                    'notes' => 'فشل في الدفع: ' . ($data['InvoiceError'] ?? 'Unknown error')
-                ]);
-                
-                $orderData = [
-                    'order_number' => $order->order_number,
-                    'service_name' => $order->orderItems->first()->service->name_ar ?? 'Service',
-                    'service_price' => $order->orderItems->first()->unit_price ?? 0,
-                    'service_quantity' => $order->orderItems->first()->quantity ?? 1,
-                    'customer_name' => $order->customer_name,
-                    'customer_email' => $order->customer_email,
-                    'customer_phone' => $order->customer_phone,
-                    'customer_address' => $order->customer_address,
-                    'total_amount' => $order->total_amount,
-                    'payment_status' => 'failed'
-                ];
-                
-                // Save session data
-                $session = request()->session();
-                $session->put('order_confirmation', $orderData);
-                $session->save();
-                
-                Log::info('MyFatoorah callback: Payment failed', [
-                    'order_id' => $orderId,
-                    'payment_id' => $paymentId,
-                    'error' => $data['InvoiceError'] ?? 'Unknown error',
-                    'session_id' => request()->session()->getId()
-                ]);
-                
-                // Ensure session is saved before redirect
-                $session = request()->session();
-                $session->save();
-                
-                // Use direct URL path to avoid route resolution issues
-                $locale = app()->getLocale();
-                $confirmationUrl = ($locale === 'en') ? '/en/orders/confirmation' : '/orders/confirmation';
-                
-                return redirect($confirmationUrl)
-                    ->with('error', 'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى أو التواصل معنا.');
-                    
-            } else {
-                // حالة أخرى (مثل Pending) - Payment is still pending (OTP not completed yet)
-                // According to MyFatoorah docs, CallBackUrl should only be called after payment completion
-                // If we get Pending status, it means OTP/3D Secure wasn't completed
-                // We should NOT redirect to confirmation page - instead redirect back to MyFatoorah payment page
-                
-                Log::info('MyFatoorah callback: Payment still pending (OTP not completed)', [
-                    'order_id' => $orderId,
-                    'payment_id' => $paymentId,
-                    'invoice_status' => $data['InvoiceStatus'],
-                    'session_id' => request()->session()->getId()
-                ]);
-                
-                // Update order status but don't mark as confirmed yet
-                $order->update([
-                    'payment_status' => 'pending',
-                    'payment_reference' => $paymentId,
-                    'status' => 'pending',
-                    'notes' => 'في انتظار إتمام الدفع (OTP/3D Secure)'
-                ]);
-                
-                // Build MyFatoorah payment URL to redirect user back to complete OTP
-                // According to MyFatoorah docs, the payment URL format is:
-                // Test: https://demo.myfatoorah.com/En/{vcCode}/PayInvoice/{InvoiceId}
-                // Live: https://portal.myfatoorah.com/pay/{InvoiceId}
-                $isTest = $this->mfConfig['isTest'];
-                $vcCode = $this->mfConfig['vcCode'];
-                $countries = MyFatoorah::getMFCountries();
-                
-                $paymentUrl = null;
-                if (isset($countries[$vcCode])) {
-                    if ($isTest) {
-                        // Test mode: https://demo.myfatoorah.com/En/{vcCode}/PayInvoice/{InvoiceId}
-                        $portalBase = $countries[$vcCode]['testPortal'];
-                        $paymentUrl = rtrim($portalBase, '/') . '/En/' . $vcCode . '/PayInvoice/' . $paymentId;
-                    } else {
-                        // Live mode: https://portal.myfatoorah.com/pay/{InvoiceId}
-                        $portalBase = $countries[$vcCode]['portal'];
-                        $paymentUrl = rtrim($portalBase, '/') . '/pay/' . $paymentId;
-                    }
-                } else {
-                    // Fallback
-                    if ($isTest) {
-                        $paymentUrl = 'https://demo.myfatoorah.com/En/' . $vcCode . '/PayInvoice/' . $paymentId;
-                    } else {
-                        $paymentUrl = 'https://portal.myfatoorah.com/pay/' . $paymentId;
-                    }
-                }
-                
-                Log::info('MyFatoorah callback: Redirecting back to payment page for OTP completion', [
-                    'payment_url' => $paymentUrl,
-                    'payment_id' => $paymentId,
-                    'is_test' => $isTest,
-                    'vc_code' => $vcCode
-                ]);
-                
-                // Redirect user back to MyFatoorah payment page to complete OTP
-                // Note: This will allow user to complete OTP, after which MyFatoorah will call CallBackUrl again
-                return redirect($paymentUrl);
-            }
-                
-        } catch (Exception $ex) {
-            Log::error('MyFatoorah callback error: ' . $ex->getMessage(), [
-                'request_data' => request()->all(),
-                'trace' => $ex->getTraceAsString()
-            ]);
-            
-            return redirect()->route('home')
-                ->with('error', 'حدث خطأ في معالجة الدفع. يرجى التواصل معنا مع رقم الطلب إذا كان متوفراً.');
-        }
-    }
 
     /**
      * Example on how to Display the enabled gateways at your MyFatoorah account to be displayed on the checkout page
