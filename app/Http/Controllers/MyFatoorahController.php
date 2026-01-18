@@ -170,10 +170,15 @@ class MyFatoorahController extends Controller
                     ->with('error', 'فشل في التحقق من حالة الدفع. يرجى التواصل معنا.');
             }
 
+            $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
+            
             Log::info('MyFatoorah callback: Payment status retrieved', [
                 'payment_id' => $paymentId,
-                'invoice_status' => $data['InvoiceStatus'] ?? 'Unknown',
-                'payment_method' => $data['PaymentMethod'] ?? 'Unknown'
+                'invoice_status' => $invoiceStatus,
+                'payment_method' => $data['PaymentMethod'] ?? 'Unknown',
+                'all_data_keys' => array_keys($data),
+                'invoice_status_type' => gettype($invoiceStatus),
+                'invoice_status_lowercase' => strtolower($invoiceStatus)
             ]);
 
             $orderId = $data['UserDefinedField'] ?? null;
@@ -197,15 +202,42 @@ class MyFatoorahController extends Controller
                 return redirect()->route('home')
                     ->with('error', 'لم يتم العثور على الطلب. يرجى التواصل معنا.');
             }
+            
+            // Log order state before update
+            Log::info('MyFatoorah callback: Order state before update', [
+                'order_id' => $orderId,
+                'current_payment_status' => $order->payment_status,
+                'current_payment_method' => $order->payment_method,
+                'current_status' => $order->status
+            ]);
 
             // تحديث حالة الطلب بناءً على حالة الدفع
-            if ($data['InvoiceStatus'] === 'Paid') {
+            // Check for 'Paid' status (case-insensitive)
+            if (strtolower($invoiceStatus) === 'paid') {
+                // Ensure payment_method is set to 'MyFatoorah' if not already set
+                $paymentMethod = $data['PaymentMethod'] ?? 'MyFatoorah';
+                // Normalize payment method name
+                if (stripos($paymentMethod, 'myfatoorah') === false && $paymentMethod !== 'MyFatoorah') {
+                    $paymentMethod = 'MyFatoorah';
+                }
+                
                 $order->update([
                     'payment_status' => 'paid',
-                    'payment_method' => $data['PaymentMethod'] ?? 'MyFatoorah',
+                    'payment_method' => $paymentMethod,
                     'payment_reference' => $paymentId,
                     'status' => 'confirmed',
                     'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
+                ]);
+                
+                // Refresh order to ensure changes are saved
+                $order->refresh();
+                
+                Log::info('MyFatoorah callback: Order updated successfully', [
+                    'order_id' => $orderId,
+                    'payment_status' => $order->payment_status,
+                    'payment_method' => $order->payment_method,
+                    'payment_reference' => $order->payment_reference,
+                    'status' => $order->status
                 ]);
                 
                 // إرسال إيميل للإدارة عند الدفع الناجح
@@ -241,8 +273,40 @@ class MyFatoorahController extends Controller
                     'order_id' => $orderId,
                     'payment_id' => $paymentId,
                     'order_number' => $order->order_number,
+                    'payment_status' => $order->payment_status,
+                    'payment_method' => $order->payment_method,
+                    'order_status' => $order->status,
                     'session_id' => request()->session()->getId()
                 ]);
+                
+                // Double-check that order is visible in admin panel
+                // Order should be visible if: payment_method = 'MyFatoorah' AND payment_status = 'paid'
+                $orderAfterUpdate = Order::find($orderId);
+                if ($orderAfterUpdate) {
+                    $willBeVisible = ($orderAfterUpdate->payment_method === 'MyFatoorah' && $orderAfterUpdate->payment_status === 'paid');
+                    Log::info('MyFatoorah callback: Order visibility check', [
+                        'order_id' => $orderId,
+                        'order_number' => $orderAfterUpdate->order_number,
+                        'payment_method' => $orderAfterUpdate->payment_method,
+                        'payment_status' => $orderAfterUpdate->payment_status,
+                        'status' => $orderAfterUpdate->status,
+                        'will_be_visible' => $willBeVisible,
+                        'payment_method_check' => ($orderAfterUpdate->payment_method === 'MyFatoorah'),
+                        'payment_status_check' => ($orderAfterUpdate->payment_status === 'paid')
+                    ]);
+                    
+                    // If order should be visible but isn't, log warning
+                    if (!$willBeVisible) {
+                        Log::warning('MyFatoorah callback: Order may not be visible in admin panel', [
+                            'order_id' => $orderId,
+                            'order_number' => $orderAfterUpdate->order_number,
+                            'payment_method' => $orderAfterUpdate->payment_method,
+                            'payment_status' => $orderAfterUpdate->payment_status,
+                            'expected_payment_method' => 'MyFatoorah',
+                            'expected_payment_status' => 'paid'
+                        ]);
+                    }
+                }
                 
                 // Ensure session is saved before redirect
                 $session = request()->session();
