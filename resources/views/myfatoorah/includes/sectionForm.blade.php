@@ -155,6 +155,11 @@
     function executePaymentWithSessionId(sessionId, orderId, originalResponse) {
         console.log('Executing payment with sessionId:', sessionId, 'orderId:', orderId);
         
+        // Show loading overlay
+        if (typeof showLoadingOverlay === 'function') {
+            showLoadingOverlay('{{ app()->getLocale() === "ar" ? "جاري إنشاء فاتورة الدفع..." : "Creating payment invoice..." }}');
+        }
+        
         fetch('{{ route("myfatoorah.execute-payment") }}', {
             method: 'POST',
             headers: {
@@ -168,9 +173,16 @@
             })
         })
         .then(async response => {
-            console.log('Execute payment HTTP response:', response);
+            console.log('Execute payment HTTP response received:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok,
+                url: response.url
+            });
+            
             const contentType = response.headers.get('content-type');
             const isJson = contentType && contentType.includes('application/json');
+            console.log('Response content-type:', contentType, 'isJson:', isJson);
             
             if (!response.ok) {
                 // Try to get error message from response
@@ -203,20 +215,40 @@
             }
             
             // Parse JSON response
-            if (isJson) {
-                return response.json();
-            } else {
-                // If not JSON, try to parse as text
-                const text = await response.text();
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من الخادم" : "Invalid response from server" }}');
+            let responseData;
+            try {
+                if (isJson) {
+                    responseData = await response.json();
+                    console.log('Parsed JSON response:', responseData);
+                } else {
+                    // If not JSON, try to parse as text
+                    const text = await response.text();
+                    console.log('Response text (not JSON):', text);
+                    try {
+                        responseData = JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('{{ app()->getLocale() === "ar" ? "استجابة غير صالحة من الخادم" : "Invalid response from server" }}');
+                    }
                 }
+            } catch (parseError) {
+                console.error('Error parsing response:', parseError);
+                throw new Error('{{ app()->getLocale() === "ar" ? "فشل في قراءة استجابة الخادم" : "Failed to read server response" }}');
             }
+            
+            return responseData;
         })
         .then(data => {
-            console.log('Execute payment response:', data);
+            console.log('Execute payment response received:', data);
+            console.log('Execute payment response type:', typeof data);
+            console.log('Execute payment response is null?', data === null);
+            console.log('Execute payment response is undefined?', data === undefined);
+            
+            if (!data) {
+                console.error('Execute payment response is null or undefined!');
+                throw new Error('{{ app()->getLocale() === "ar" ? "لم يتم استلام استجابة من الخادم" : "No response received from server" }}');
+            }
+            
+            console.log('Execute payment response keys:', Object.keys(data || {}));
             console.log('Execute payment response keys:', Object.keys(data || {}));
             console.log('Has invoiceURL:', !!data.invoiceURL);
             console.log('Has keepPolling:', !!data.keepPolling);
@@ -451,7 +483,14 @@
             }
         })
         .catch(error => {
-            console.error('Error executing payment:', error);
+            console.error('Error executing payment - Full error details:', {
+                error: error,
+                message: error?.message,
+                stack: error?.stack,
+                name: error?.name,
+                toString: error?.toString()
+            });
+            
             if (typeof hideLoadingOverlay === 'function') {
                 hideLoadingOverlay();
             }
@@ -469,6 +508,8 @@
                 // Try to get string representation
                 errorMsg = error.toString();
             }
+            
+            console.error('Error message to show user:', errorMsg);
             
             // Show error message - use a more user-friendly alert
             if (errorMsg && errorMsg.trim() !== '') {
