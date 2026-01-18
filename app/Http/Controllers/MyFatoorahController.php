@@ -1019,19 +1019,31 @@ class MyFatoorahController extends Controller
                     ->with('error', 'لم يتم العثور على الطلب.');
             }
 
+            // Validate API key before proceeding
+            if (empty($this->mfConfig['apiKey']) || strlen($this->mfConfig['apiKey']) < 20) {
+                Log::error('MyFatoorah: Invalid API key', [
+                    'api_key_length' => strlen($this->mfConfig['apiKey'] ?? ''),
+                    'api_key_prefix' => substr($this->mfConfig['apiKey'] ?? '', 0, 10)
+                ]);
+                throw new Exception('مفتاح API غير صالح. يرجى التحقق من إعدادات MyFatoorah.');
+            }
+            
+            // Log configuration for debugging
+            Log::info('MyFatoorah checkout: Configuration', [
+                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15) . '...',
+                'api_key_length' => strlen($this->mfConfig['apiKey']),
+                'is_test' => $this->mfConfig['isTest'],
+                'vc_code' => $this->mfConfig['vcCode'],
+                'order_id' => $orderId,
+                'order_total' => $order->total_amount,
+                'config_source' => 'from_env_file'
+            ]);
+            
             // Use standard MyFatoorah PHP library approach
             // Get available payment methods using initiatePayment()
             $mfObj = new MyFatoorahPayment($this->mfConfig);
             
             try {
-                // Log configuration for debugging
-                Log::info('MyFatoorah checkout: Configuration', [
-                    'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 10) . '...',
-                    'is_test' => $this->mfConfig['isTest'],
-                    'vc_code' => $this->mfConfig['vcCode'],
-                    'order_id' => $orderId,
-                    'order_total' => $order->total_amount
-                ]);
                 
                 // Get all available payment methods from MyFatoorah
                 // initiatePayment() can optionally take invoice value and currency
@@ -1088,16 +1100,34 @@ class MyFatoorahController extends Controller
                         $errorMsg .= ' - ' . json_encode($paymentMethods['ValidationErrors']);
                     }
                     
+                    // Check if it's a token validation error
+                    $isTokenError = stripos($errorMsg, 'token') !== false || 
+                                   stripos($errorMsg, 'expired') !== false ||
+                                   stripos($errorMsg, 'invalid') !== false;
+                    
                     Log::error('MyFatoorah initiatePayment failed', [
                         'message' => $errorMsg,
                         'is_success' => $paymentMethods['IsSuccess'] ?? 'not_set',
+                        'is_token_error' => $isTokenError,
                         'response' => $paymentMethods,
                         'config' => [
                             'is_test' => $this->mfConfig['isTest'],
                             'vc_code' => $this->mfConfig['vcCode'],
-                            'api_key_length' => strlen($this->mfConfig['apiKey'])
+                            'api_key_length' => strlen($this->mfConfig['apiKey']),
+                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
+                            'api_key_from_env' => env('MYFATOORAH_API_KEY') ? 'yes' : 'no',
+                            'test_mode_from_env' => env('MYFATOORAH_TEST_MODE')
                         ]
                     ]);
+                    
+                    // Provide more helpful error message for token errors
+                    if ($isTokenError) {
+                        $helpfulMsg = app()->getLocale() === 'ar' 
+                            ? 'مفتاح API غير صالح أو منتهي الصلاحية. يرجى التحقق من: 1) أن المفتاح صحيح في ملف .env 2) أن المفتاح مفعل في حساب MyFatoorah 3) أن وضع الاختبار (test_mode) يطابق نوع المفتاح'
+                            : 'API key is invalid or expired. Please check: 1) The key is correct in .env file 2) The key is active in MyFatoorah account 3) Test mode matches the key type';
+                        throw new Exception($helpfulMsg);
+                    }
+                    
                     throw new Exception($errorMsg);
                 }
                 
