@@ -112,7 +112,9 @@ class MyFatoorahController extends Controller
             $curlData = $this->getPayLoadData($orderId);
 
             $mfObj   = new MyFatoorahPayment($this->mfConfig);
-            $payment = $mfObj->getInvoiceURL($curlData, $paymentId, $orderId, $sessionId);
+            // According to MyFatoorah PHP library docs: getInvoiceURL($postFields, $paymentMethodId)
+            // $paymentMethodId = 0 means redirect to MyFatoorah invoice page
+            $payment = $mfObj->getInvoiceURL($curlData, $paymentId);
 
             // Convert object to array if needed (MyFatoorah may return stdClass objects)
             if (is_object($payment)) {
@@ -226,10 +228,15 @@ class MyFatoorahController extends Controller
             try {
                 $mfObj = new MyFatoorahPayment($this->mfConfig);
                 
-                // Pass sessionId as the 4th parameter to getInvoiceURL
-                // This will create an invoice using the existing session
-                // Note: getInvoiceURL signature is: getInvoiceURL($data, $paymentMethodId, $orderId, $sessionId)
-                $payment = $mfObj->getInvoiceURL($curlData, 0, $orderId, $sessionId);
+                // According to MyFatoorah PHP library docs: getInvoiceURL($postFields, $paymentMethodId)
+                // For embedded payment with sessionId, we need to include sessionId in the postFields
+                // Add sessionId to the payload data
+                if ($sessionId) {
+                    $curlData['SessionId'] = $sessionId;
+                }
+                
+                // $paymentMethodId = 0 means redirect to MyFatoorah invoice page
+                $payment = $mfObj->getInvoiceURL($curlData, 0);
                 
                 // Convert object to array if needed (MyFatoorah may return stdClass objects)
                 if (is_object($payment)) {
@@ -1103,33 +1110,26 @@ class MyFatoorahController extends Controller
                 $invoiceValue = (float)$order->total_amount;
                 $currencyIso = 'SAR';
                 
-                // Try calling initiatePayment() without parameters first (as per documentation)
+                // According to MyFatoorah PHP library documentation:
+                // initiatePayment() can be called without parameters to list all available payment gateways
                 try {
                     $paymentMethods = $mfObj->initiatePayment();
                     Log::info('MyFatoorah: initiatePayment() called without parameters - success');
-                } catch (\Exception $noParamsError) {
-                    Log::warning('MyFatoorah initiatePayment without parameters failed, trying with parameters', [
-                        'error' => $noParamsError->getMessage(),
-                        'code' => $noParamsError->getCode()
+                } catch (\Exception $e) {
+                    Log::error('MyFatoorah initiatePayment failed', [
+                        'error' => $e->getMessage(),
+                        'error_code' => $e->getCode(),
+                        'error_file' => $e->getFile(),
+                        'error_line' => $e->getLine(),
+                        'config' => [
+                            'is_test' => $this->mfConfig['isTest'],
+                            'vc_code' => $this->mfConfig['vcCode'],
+                            'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
+                            'api_key_length' => strlen($this->mfConfig['apiKey'])
+                        ],
+                        'trace' => $e->getTraceAsString()
                     ]);
-                    
-                    // Fallback: try with invoice value and currency
-                    try {
-                        $paymentMethods = $mfObj->initiatePayment($invoiceValue, $currencyIso);
-                        Log::info('MyFatoorah: initiatePayment() called with parameters - success');
-                    } catch (\Exception $withParamsError) {
-                        Log::error('MyFatoorah initiatePayment failed with both methods', [
-                            'without_params_error' => $noParamsError->getMessage(),
-                            'with_params_error' => $withParamsError->getMessage(),
-                            'config' => [
-                                'is_test' => $this->mfConfig['isTest'],
-                                'vc_code' => $this->mfConfig['vcCode'],
-                                'api_key_prefix' => substr($this->mfConfig['apiKey'], 0, 15),
-                                'api_key_length' => strlen($this->mfConfig['apiKey'])
-                            ]
-                        ]);
-                        throw new Exception('Failed to get payment methods: ' . $withParamsError->getMessage());
-                    }
+                    throw new Exception('Failed to get payment methods: ' . $e->getMessage());
                 }
                 
                 // Convert object to array if needed
@@ -1820,7 +1820,9 @@ class MyFatoorahController extends Controller
             ];
             
             $mfObj = new MyFatoorahPayment($this->mfConfig);
-            $payment = $mfObj->getInvoiceURL($paymentData, 0, $order->id);
+            // According to MyFatoorah PHP library docs: getInvoiceURL($postFields, $paymentMethodId)
+            // $paymentMethodId = 0 means redirect to MyFatoorah invoice page
+            $payment = $mfObj->getInvoiceURL($paymentData, 0);
             
             // Convert object to array if needed (MyFatoorah may return stdClass objects)
             if (is_object($payment)) {
