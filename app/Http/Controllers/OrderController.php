@@ -192,11 +192,11 @@ class OrderController extends Controller
                 }
             }
             
-            // إذا كانت طريقة الدفع عبر MyFatoorah، توجيه إلى صفحة الدفع
+            // إذا كانت طريقة الدفع عبر MyFatoorah، توجيه مباشرة إلى صفحة الدفع في MyFatoorah
             if ($request->payment_method === 'myfatoorah') {
                 return response()->json([
                     'success' => true,
-                    'redirect' => route('myfatoorah.checkout', ['oid' => $order->id]),
+                    'redirect' => route('myfatoorah.index', ['oid' => $order->id]),
                     'message' => app()->getLocale() === 'ar' ? 'تم إنشاء الطلب بنجاح! سيتم توجيهك لصفحة الدفع' : 'Order created successfully! You will be redirected to payment page'
                 ]);
             }
