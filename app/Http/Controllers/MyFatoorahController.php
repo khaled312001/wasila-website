@@ -2300,18 +2300,78 @@ class MyFatoorahController extends Controller
                 return back()->with('error', 'لا يوجد رقم مرجع للدفع. لا يمكن تحميل الفاتورة.');
             }
 
-            // Try to download invoice
-            $invoiceId = $order->payment_reference;
-            $invoicePath = self::downloadInvoiceFromMyFatoorah($invoiceId, $order, $this->mfConfig);
+            // Get InvoiceId from MyFatoorah using PaymentId
+            // payment_reference contains PaymentId, we need to get InvoiceId from payment status
+            $paymentId = $order->payment_reference;
+            
+            Log::info('MyFatoorah testDownloadInvoice: Getting payment status', [
+                'order_id' => $order->id,
+                'payment_id' => $paymentId
+            ]);
 
-            if ($invoicePath) {
-                // Update order with invoice path
-                $order->invoice_path = $invoicePath;
-                $order->save();
+            try {
+                $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
+                $paymentStatus = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+                
+                // Convert object to array if needed
+                if (is_object($paymentStatus)) {
+                    $paymentStatus = json_decode(json_encode($paymentStatus), true);
+                }
 
-                return back()->with('success', 'تم تحميل الفاتورة بنجاح! المسار: ' . $invoicePath);
-            } else {
-                return back()->with('error', 'فشل تحميل الفاتورة. تحقق من السجلات لمزيد من التفاصيل.');
+                // Get InvoiceId from payment status response
+                $invoiceId = $paymentStatus['InvoiceId'] ?? $paymentStatus['invoiceId'] ?? $paymentId;
+                
+                Log::info('MyFatoorah testDownloadInvoice: Payment status retrieved', [
+                    'order_id' => $order->id,
+                    'payment_id' => $paymentId,
+                    'invoice_id' => $invoiceId,
+                    'invoice_status' => $paymentStatus['InvoiceStatus'] ?? 'Unknown'
+                ]);
+
+                // Try to download invoice using InvoiceId
+                $invoicePath = self::downloadInvoiceFromMyFatoorah($invoiceId, $order, $this->mfConfig);
+
+                if ($invoicePath) {
+                    // Update order with invoice path
+                    $order->invoice_path = $invoicePath;
+                    $order->save();
+
+                    return back()->with('success', 'تم تحميل الفاتورة بنجاح! المسار: ' . $invoicePath);
+                } else {
+                    // Try with PaymentId as fallback
+                    Log::warning('MyFatoorah testDownloadInvoice: Failed with InvoiceId, trying PaymentId', [
+                        'order_id' => $order->id,
+                        'invoice_id' => $invoiceId,
+                        'payment_id' => $paymentId
+                    ]);
+                    
+                    $invoicePath = self::downloadInvoiceFromMyFatoorah($paymentId, $order, $this->mfConfig);
+                    
+                    if ($invoicePath) {
+                        $order->invoice_path = $invoicePath;
+                        $order->save();
+                        return back()->with('success', 'تم تحميل الفاتورة بنجاح باستخدام PaymentId! المسار: ' . $invoicePath);
+                    } else {
+                        return back()->with('error', 'فشل تحميل الفاتورة. تحقق من السجلات لمزيد من التفاصيل. InvoiceId: ' . $invoiceId);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah testDownloadInvoice: Error getting payment status', [
+                    'order_id' => $order->id,
+                    'payment_id' => $paymentId,
+                    'error' => $e->getMessage()
+                ]);
+                
+                // Try direct download with PaymentId as fallback
+                $invoicePath = self::downloadInvoiceFromMyFatoorah($paymentId, $order, $this->mfConfig);
+                
+                if ($invoicePath) {
+                    $order->invoice_path = $invoicePath;
+                    $order->save();
+                    return back()->with('success', 'تم تحميل الفاتورة بنجاح! المسار: ' . $invoicePath);
+                } else {
+                    return back()->with('error', 'فشل في الحصول على حالة الدفع أو تحميل الفاتورة: ' . $e->getMessage());
+                }
             }
         } catch (\Exception $e) {
             Log::error('Test invoice download error: ' . $e->getMessage(), [

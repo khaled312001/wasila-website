@@ -70,10 +70,50 @@ try {
         if (empty($paidOrder->invoice_path)) {
             echo "4. محاولة تحميل الفاتورة من MyFatoorah...\n";
             try {
-                $invoiceId = $paidOrder->payment_reference;
+                // Get InvoiceId from payment status first
+                $paymentId = $paidOrder->payment_reference;
+                
+                // Create MyFatoorah config
+                $countryIso = config('myfatoorah.country_iso');
+                $vcCodeMap = [
+                    'SA' => 'SAU', 'AE' => 'ARE', 'KW' => 'KWT', 'BH' => 'BHR',
+                    'QA' => 'QAT', 'OM' => 'OMN', 'JO' => 'JOR', 'EG' => 'EGY',
+                ];
+                $vcCode = $vcCodeMap[$countryIso] ?? $countryIso;
+                $apiKey = env('MYFATOORAH_API_KEY') ?: config('myfatoorah.api_key');
+                $testMode = env('MYFATOORAH_TEST_MODE');
+                if ($testMode === null) {
+                    $testMode = config('myfatoorah.test_mode');
+                }
+                if (is_string($testMode)) {
+                    $testMode = strtolower($testMode);
+                    $testMode = !in_array($testMode, ['false', '0', 'no', 'off', '']);
+                }
+                $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
+                $mfConfig = [
+                    'apiKey' => $apiKey,
+                    'isTest' => $testMode,
+                    'countryCode' => $vcCode,
+                    'vcCode' => $vcCode,
+                ];
+                
+                // Get payment status to extract InvoiceId
+                $mfObj = new \MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus($mfConfig);
+                $paymentStatus = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+                
+                if (is_object($paymentStatus)) {
+                    $paymentStatus = json_decode(json_encode($paymentStatus), true);
+                }
+                
+                $invoiceId = $paymentStatus['InvoiceId'] ?? $paymentStatus['invoiceId'] ?? $paymentId;
+                
+                echo "   - PaymentId: {$paymentId}\n";
+                echo "   - InvoiceId: {$invoiceId}\n";
+                
                 $invoicePath = MyFatoorahController::downloadInvoiceFromMyFatoorah(
                     $invoiceId, 
-                    $paidOrder
+                    $paidOrder,
+                    $mfConfig
                 );
                 
                 if ($invoicePath) {
@@ -85,10 +125,28 @@ try {
                     $paidOrder->save();
                     echo "      ✓ تم تحديث الطلب\n\n";
                 } else {
-                    echo "   ✗ فشل تحميل الفاتورة (قد يكون InvoiceId غير صحيح أو الفاتورة غير متاحة)\n\n";
+                    echo "   ✗ فشل تحميل الفاتورة (قد يكون InvoiceId غير صحيح أو الفاتورة غير متاحة)\n";
+                    echo "      حاول استخدام PaymentId مباشرة...\n";
+                    
+                    // Try with PaymentId as fallback
+                    $invoicePath = MyFatoorahController::downloadInvoiceFromMyFatoorah(
+                        $paymentId, 
+                        $paidOrder,
+                        $mfConfig
+                    );
+                    
+                    if ($invoicePath) {
+                        echo "   ✓ تم تحميل الفاتورة باستخدام PaymentId\n";
+                        $paidOrder->invoice_path = $invoicePath;
+                        $paidOrder->save();
+                        echo "      ✓ تم تحديث الطلب\n\n";
+                    } else {
+                        echo "   ✗ فشل تحميل الفاتورة حتى باستخدام PaymentId\n\n";
+                    }
                 }
             } catch (\Exception $e) {
-                echo "   ✗ خطأ في تحميل الفاتورة: " . $e->getMessage() . "\n\n";
+                echo "   ✗ خطأ في تحميل الفاتورة: " . $e->getMessage() . "\n";
+                echo "      Trace: " . substr($e->getTraceAsString(), 0, 200) . "...\n\n";
             }
         } else {
             echo "4. الفاتورة موجودة بالفعل\n";
