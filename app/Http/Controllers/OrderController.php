@@ -367,16 +367,19 @@ class OrderController extends Controller
                     $order = $order->fresh()->load('orderItems.service');
                     $mail = new OrderCreatedMail($order);
                     
-                    // Attach invoice if available
-                    if ($invoicePath && Storage::disk('public')->exists($invoicePath)) {
-                        $mail->attach(
-                            Storage::disk('public')->path($invoicePath),
-                            [
-                                'as' => 'invoice-' . $order->order_number . '.pdf',
-                                'mime' => 'application/pdf',
-                            ]
-                        );
+                    // Attach invoice if available (only if it's a file, not a URL)
+                    if ($invoicePath && strpos($invoicePath, 'invoice_url:') !== 0) {
+                        if (Storage::disk('public')->exists($invoicePath)) {
+                            $mail->attach(
+                                Storage::disk('public')->path($invoicePath),
+                                [
+                                    'as' => 'invoice-' . $order->order_number . '.pdf',
+                                    'mime' => 'application/pdf',
+                                ]
+                            );
+                        }
                     }
+                    // If invoice_path is a URL, we can't attach it, but it will be available in the order
                     
                     Mail::to($adminEmail)->send($mail);
                     Log::info('Order paid email sent successfully to: ' . $adminEmail);
