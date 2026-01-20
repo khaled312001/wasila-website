@@ -128,6 +128,28 @@ class MyFatoorahController extends Controller
             throw new Exception('Order not found');
         }
 
+        // Format phone number for MyFatoorah
+        // MyFatoorah requires: MobileCountryCode without + (e.g., "966" not "+966")
+        // and CustomerMobile should be digits only, without country code
+        $countryCode = $order->country_code ?? '+966';
+        $mobileCountryCode = ltrim($countryCode, '+'); // Remove + sign
+        
+        // Clean phone number: remove all non-digit characters and country code if present
+        $customerPhone = $order->customer_phone ?? '';
+        // Remove spaces, dashes, parentheses
+        $customerPhone = preg_replace('/[\s\-\(\)]/', '', $customerPhone);
+        // Remove country code if it exists at the beginning
+        $countryCodeWithoutPlus = ltrim($countryCode, '+');
+        if (strpos($customerPhone, $countryCode) === 0) {
+            $customerPhone = substr($customerPhone, strlen($countryCode));
+        } elseif (strpos($customerPhone, $countryCodeWithoutPlus) === 0) {
+            $customerPhone = substr($customerPhone, strlen($countryCodeWithoutPlus));
+        }
+        // Remove leading zeros
+        $customerPhone = ltrim($customerPhone, '0');
+        // Ensure it contains only digits
+        $customerPhone = preg_replace('/[^0-9]/', '', $customerPhone);
+
         return [
             'CustomerName'       => $order->customer_name,
             'InvoiceValue'       => $order->total_amount,
@@ -135,8 +157,8 @@ class MyFatoorahController extends Controller
             'CustomerEmail'      => $order->customer_email,
             'CallBackUrl'        => $callbackURL,
             'ErrorUrl'           => $callbackURL,
-            'MobileCountryCode'  => $order->country_code ?? '+966',
-            'CustomerMobile'     => $order->customer_phone,
+            'MobileCountryCode'  => $mobileCountryCode,
+            'CustomerMobile'     => $customerPhone,
             'Language'           => app()->getLocale() === 'ar' ? 'ar' : 'en',
             'CustomerReference'  => $order->order_number,
             'UserDefinedField'   => $order->id,
@@ -171,17 +193,48 @@ class MyFatoorahController extends Controller
             $paymentId = request('paymentId');
 
             if (!$paymentId) {
+                Log::warning('MyFatoorah callback: No paymentId provided', [
+                    'request_data' => request()->all()
+                ]);
                 return redirect()->route('home')
                     ->with('error', 'لم يتم العثور على معرف الدفع.');
             }
 
             $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
-            $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+            
+            try {
+                $data  = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah callback: Failed to get payment status', [
+                    'payment_id' => $paymentId,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return redirect()->route('home')
+                    ->with('error', 'حدث خطأ في التحقق من حالة الدفع. يرجى التواصل معنا مع رقم الطلب.');
+            }
 
             // Convert object to array if needed
             if (is_object($data)) {
                 $data = json_decode(json_encode($data), true);
             }
+
+            // Check if data is valid
+            if (empty($data) || !isset($data['InvoiceStatus'])) {
+                Log::error('MyFatoorah callback: Invalid payment status data', [
+                    'payment_id' => $paymentId,
+                    'data' => $data
+                ]);
+                return redirect()->route('home')
+                    ->with('error', 'حدث خطأ في معالجة حالة الدفع. يرجى التواصل معنا.');
+            }
+
+            // Log payment status for debugging
+            Log::info('MyFatoorah callback: Payment status received', [
+                'payment_id' => $paymentId,
+                'invoice_status' => $data['InvoiceStatus'] ?? 'Unknown',
+                'order_id' => $data['UserDefinedField'] ?? null
+            ]);
 
             $message = $this->getTestMessage($data['InvoiceStatus'] ?? 'Unknown', $data['InvoiceError'] ?? '');
 
@@ -1819,14 +1872,30 @@ class MyFatoorahController extends Controller
                 return back()->with('error', 'هذا الطلب مدفوع بالفعل');
             }
 
+            // Format phone number for MyFatoorah
+            $countryCode = $order->country_code ?? '+966';
+            $mobileCountryCode = ltrim($countryCode, '+'); // Remove + sign
+            
+            // Clean phone number: remove all non-digit characters and country code if present
+            $customerPhone = $order->customer_phone ?? '';
+            $customerPhone = preg_replace('/[\s\-\(\)]/', '', $customerPhone);
+            $countryCodeWithoutPlus = ltrim($countryCode, '+');
+            if (strpos($customerPhone, $countryCode) === 0) {
+                $customerPhone = substr($customerPhone, strlen($countryCode));
+            } elseif (strpos($customerPhone, $countryCodeWithoutPlus) === 0) {
+                $customerPhone = substr($customerPhone, strlen($countryCodeWithoutPlus));
+            }
+            $customerPhone = ltrim($customerPhone, '0');
+            $customerPhone = preg_replace('/[^0-9]/', '', $customerPhone);
+
             // Create new payment session
             $paymentData = [
                 'CustomerName' => $order->customer_name,
                 'CustomerEmail' => $order->customer_email,
-                'CustomerMobile' => $order->customer_phone,
+                'CustomerMobile' => $customerPhone,
                 'InvoiceValue' => $order->total_amount,
                 'DisplayCurrencyIso' => 'SAR',
-                'MobileCountryCode' => '+966',
+                'MobileCountryCode' => $mobileCountryCode,
                 'CustomerAddress' => [
                     'Address' => $order->customer_address,
                     'City' => 'الرياض',
