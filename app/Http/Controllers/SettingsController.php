@@ -28,9 +28,11 @@ class SettingsController extends Controller
             'address' => $address,
             'address_ar' => $addressAr ?: $address,
             'logo' => Setting::get('logo', 'logo-footer.png'),
-            'myfatoorah_api_key' => Setting::get('myfatoorah_api_key', config('myfatoorah.api_key')),
-            'myfatoorah_is_test' => Setting::get('myfatoorah_is_test', config('myfatoorah.is_test')),
-            'myfatoorah_currency' => Setting::get('myfatoorah_currency', config('myfatoorah.currency', 'SAR')),
+            // Read MyFatoorah settings directly from .env file
+            'myfatoorah_api_key' => env('MYFATOORAH_API_KEY', '') ?: config('myfatoorah.api_key', ''),
+            'myfatoorah_is_test' => env('MYFATOORAH_TEST_MODE', 'false') === 'true' || env('MYFATOORAH_TEST_MODE', 'false') === '1',
+            'myfatoorah_currency' => env('MYFATOORAH_CURRENCY', 'SAR') ?: config('myfatoorah.currency', 'SAR'),
+            'myfatoorah_country_iso' => env('MYFATOORAH_COUNTRY_ISO', 'SA') ?: config('myfatoorah.country_iso', 'SA'),
         ];
 
         return view('admin.settings.index', compact('settings'));

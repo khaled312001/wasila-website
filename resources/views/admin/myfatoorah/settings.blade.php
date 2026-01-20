@@ -10,8 +10,14 @@
         <p class="text-gray-600 mt-2">قم بتكوين إعدادات بوابة الدفع للتحكم في عمليات الدفع</p>
     </div>
     
-    <form action="{{ route('admin.myfatoorah.settings.update') }}" method="POST" class="p-6">
-        @csrf
+    <div class="p-6">
+        <!-- Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle ml-1"></i>
+                <strong>ملاحظة:</strong> هذه الإعدادات تُقرأ مباشرة من ملف <code>.env</code>. لتعديلها، قم بتعديل الملف مباشرة على السيرفر ثم قم بتشغيل <code>php artisan config:clear</code>
+            </p>
+        </div>
         
         <!-- API Configuration -->
         <div class="mb-8">
@@ -24,37 +30,22 @@
                     </label>
                     <input type="text" 
                            id="api_key" 
-                           name="api_key" 
                            value="{{ $config['api_key'] ?? '' }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent"
-                           placeholder="أدخل مفتاح API الخاص بك"
-                           required>
-                    @error('api_key')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                           readonly
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                    <p class="text-xs text-gray-500 mt-1">من ملف .env: MYFATOORAH_API_KEY</p>
                 </div>
                 
                 <div>
                     <label for="country_iso" class="block text-sm font-medium text-gray-700 mb-2">
                         رمز البلد
                     </label>
-                    <select id="country_iso" 
-                            name="country_iso" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent"
-                            required>
-                        <option value="SA" {{ ($config['country_iso'] ?? '') == 'SA' ? 'selected' : '' }}>السعودية (SA)</option>
-                        <option value="AE" {{ ($config['country_iso'] ?? '') == 'AE' ? 'selected' : '' }}>الإمارات (AE)</option>
-                        <option value="KW" {{ ($config['country_iso'] ?? '') == 'KW' ? 'selected' : '' }}>الكويت (KW)</option>
-                        <option value="BH" {{ ($config['country_iso'] ?? '') == 'BH' ? 'selected' : '' }}>البحرين (BH)</option>
-                        <option value="QA" {{ ($config['country_iso'] ?? '') == 'QA' ? 'selected' : '' }}>قطر (QA)</option>
-                        <option value="OM" {{ ($config['country_iso'] ?? '') == 'OM' ? 'selected' : '' }}>عمان (OM)</option>
-                        <option value="JO" {{ ($config['country_iso'] ?? '') == 'JO' ? 'selected' : '' }}>الأردن (JO)</option>
-                        <option value="LB" {{ ($config['country_iso'] ?? '') == 'LB' ? 'selected' : '' }}>لبنان (LB)</option>
-                        <option value="EG" {{ ($config['country_iso'] ?? '') == 'EG' ? 'selected' : '' }}>مصر (EG)</option>
-                    </select>
-                    @error('country_iso')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <input type="text" 
+                           id="country_iso" 
+                           value="{{ $config['country_iso'] ?? 'SA' }}"
+                           readonly
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                    <p class="text-xs text-gray-500 mt-1">من ملف .env: MYFATOORAH_COUNTRY_ISO</p>
                 </div>
             </div>
             
@@ -63,36 +54,24 @@
                     <label for="currency_iso" class="block text-sm font-medium text-gray-700 mb-2">
                         رمز العملة
                     </label>
-                    <select id="currency_iso" 
-                            name="currency_iso" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-medium focus:border-transparent"
-                            required>
-                        <option value="SAR" {{ ($config['currency_iso'] ?? '') == 'SAR' ? 'selected' : '' }}>الريال السعودي (SAR)</option>
-                        <option value="AED" {{ ($config['currency_iso'] ?? '') == 'AED' ? 'selected' : '' }}>الدرهم الإماراتي (AED)</option>
-                        <option value="KWD" {{ ($config['currency_iso'] ?? '') == 'KWD' ? 'selected' : '' }}>الدينار الكويتي (KWD)</option>
-                        <option value="BHD" {{ ($config['currency_iso'] ?? '') == 'BHD' ? 'selected' : '' }}>الدينار البحريني (BHD)</option>
-                        <option value="QAR" {{ ($config['currency_iso'] ?? '') == 'QAR' ? 'selected' : '' }}>الريال القطري (QAR)</option>
-                        <option value="OMR" {{ ($config['currency_iso'] ?? '') == 'OMR' ? 'selected' : '' }}>الريال العماني (OMR)</option>
-                        <option value="JOD" {{ ($config['currency_iso'] ?? '') == 'JOD' ? 'selected' : '' }}>الدينار الأردني (JOD)</option>
-                        <option value="LBP" {{ ($config['currency_iso'] ?? '') == 'LBP' ? 'selected' : '' }}>الليرة اللبنانية (LBP)</option>
-                        <option value="EGP" {{ ($config['currency_iso'] ?? '') == 'EGP' ? 'selected' : '' }}>الجنيه المصري (EGP)</option>
-                        <option value="USD" {{ ($config['currency_iso'] ?? '') == 'USD' ? 'selected' : '' }}>الدولار الأمريكي (USD)</option>
-                    </select>
-                    @error('currency_iso')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <input type="text" 
+                           id="currency_iso" 
+                           value="{{ $config['currency_iso'] ?? 'SAR' }}"
+                           readonly
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                    <p class="text-xs text-gray-500 mt-1">من ملف .env: MYFATOORAH_CURRENCY</p>
                 </div>
                 
                 <div class="flex items-center">
                     <div class="flex items-center">
                         <input type="checkbox" 
                                id="is_test" 
-                               name="is_test" 
-                               value="1"
                                {{ ($config['is_test'] ?? false) ? 'checked' : '' }}
-                               class="h-4 w-4 text-primary-medium focus:ring-primary-medium border-gray-300 rounded">
+                               disabled
+                               class="h-4 w-4 text-primary-medium focus:ring-primary-medium border-gray-300 rounded bg-gray-50">
                         <label for="is_test" class="mr-2 block text-sm text-gray-700">
                             وضع الاختبار
+                            <span class="text-xs text-gray-500 block">من ملف .env: MYFATOORAH_TEST_MODE={{ ($config['is_test'] ?? false) ? 'true' : 'false' }}</span>
                         </label>
                     </div>
                 </div>
@@ -125,11 +104,11 @@
                     </label>
                     <div class="flex">
                         <input type="text" 
-                               value="{{ route('payment.callback') }}" 
+                               value="{{ route('myfatoorah.callback') }}" 
                                readonly
                                class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-100 text-gray-600">
                         <button type="button" 
-                                onclick="copyToClipboard('{{ route('payment.callback') }}')"
+                                onclick="copyToClipboard('{{ route('myfatoorah.callback') }}')"
                                 class="px-4 py-2 bg-primary-medium text-white rounded-r-lg hover:bg-primary-dark transition duration-300">
                             نسخ
                         </button>
@@ -142,11 +121,11 @@
                     </label>
                     <div class="flex">
                         <input type="text" 
-                               value="{{ route('payment.error') }}" 
+                               value="{{ route('myfatoorah.callback') }}" 
                                readonly
                                class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg bg-gray-100 text-gray-600">
                         <button type="button" 
-                                onclick="copyToClipboard('{{ route('payment.error') }}')"
+                                onclick="copyToClipboard('{{ route('myfatoorah.callback') }}')"
                                 class="px-4 py-2 bg-primary-medium text-white rounded-r-lg hover:bg-primary-dark transition duration-300">
                             نسخ
                         </button>
@@ -155,14 +134,14 @@
             </div>
         </div>
         
-        <!-- Save Button -->
-        <div class="flex justify-end">
-            <button type="submit" 
-                    class="bg-primary-medium text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition duration-300">
-                حفظ الإعدادات
-            </button>
+        <!-- Warning -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-sm text-yellow-800">
+                <i class="fas fa-exclamation-triangle ml-1"></i>
+                <strong>تعديل الإعدادات:</strong> لتعديل هذه الإعدادات، قم بتعديل ملف <code>.env</code> على السيرفر ثم قم بتشغيل <code>php artisan config:clear</code>
+            </p>
         </div>
-    </form>
+    </div>
 </div>
 
 <!-- Debug Information -->

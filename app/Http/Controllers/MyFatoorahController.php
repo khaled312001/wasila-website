@@ -2091,11 +2091,12 @@ class MyFatoorahController extends Controller
 
     public function settings()
     {
+        // Read settings directly from .env file
         $config = [
-            'api_key' => SettingsHelper::get('myfatoorah_api_key', ''),
-            'is_test' => SettingsHelper::get('myfatoorah_is_test', '1') == '1',
-            'country_iso' => SettingsHelper::get('myfatoorah_country_iso', 'SA'),
-            'currency_iso' => SettingsHelper::get('myfatoorah_currency', 'SAR'),
+            'api_key' => env('MYFATOORAH_API_KEY', '') ?: config('myfatoorah.api_key', ''),
+            'is_test' => env('MYFATOORAH_TEST_MODE', 'false') === 'true' || env('MYFATOORAH_TEST_MODE', 'false') === '1',
+            'country_iso' => env('MYFATOORAH_COUNTRY_ISO', 'SA') ?: config('myfatoorah.country_iso', 'SA'),
+            'currency_iso' => env('MYFATOORAH_CURRENCY', 'SAR') ?: config('myfatoorah.currency', 'SAR'),
         ];
         
         // Add debug information
