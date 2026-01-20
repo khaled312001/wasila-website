@@ -2284,4 +2284,42 @@ class MyFatoorahController extends Controller
             return back()->with('error', 'حدث خطأ أثناء إعادة محاولة الدفع: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Test invoice download for a specific order
+     * This is a test route to manually download invoice for existing paid orders
+     */
+    public function testDownloadInvoice(Order $order)
+    {
+        try {
+            if ($order->payment_status !== 'paid') {
+                return back()->with('error', 'هذا الطلب غير مدفوع. لا يمكن تحميل الفاتورة.');
+            }
+
+            if (empty($order->payment_reference)) {
+                return back()->with('error', 'لا يوجد رقم مرجع للدفع. لا يمكن تحميل الفاتورة.');
+            }
+
+            // Try to download invoice
+            $invoiceId = $order->payment_reference;
+            $invoicePath = self::downloadInvoiceFromMyFatoorah($invoiceId, $order, $this->mfConfig);
+
+            if ($invoicePath) {
+                // Update order with invoice path
+                $order->invoice_path = $invoicePath;
+                $order->save();
+
+                return back()->with('success', 'تم تحميل الفاتورة بنجاح! المسار: ' . $invoicePath);
+            } else {
+                return back()->with('error', 'فشل تحميل الفاتورة. تحقق من السجلات لمزيد من التفاصيل.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Test invoice download error: ' . $e->getMessage(), [
+                'order_id' => $order->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'حدث خطأ أثناء تحميل الفاتورة: ' . $e->getMessage());
+        }
+    }
 }

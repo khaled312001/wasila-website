@@ -299,6 +299,15 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700">مرجع الدفع:</label>
                 <p class="mt-1 text-gray-900">{{ $order->payment_reference }}</p>
+                @if($order->payment_status === 'paid' && empty($order->invoice_path))
+                <form method="POST" action="{{ route('admin.myfatoorah.test-invoice', $order) }}" class="mt-2">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                        <i class="fas fa-download ml-1"></i>
+                        تحميل الفاتورة من MyFatoorah
+                    </button>
+                </form>
+                @endif
             </div>
             @endif
         </div>

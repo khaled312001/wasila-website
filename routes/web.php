@@ -182,6 +182,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // MyFatoorah Management
         Route::prefix('myfatoorah')->name('myfatoorah.')->group(function () {
             Route::get('/', [App\Http\Controllers\MyFatoorahController::class, 'adminIndex'])->name('index');
+            Route::get('/test-invoice/{order}', [App\Http\Controllers\MyFatoorahController::class, 'testDownloadInvoice'])->name('test-invoice');
             Route::get('/transactions', [App\Http\Controllers\MyFatoorahController::class, 'transactions'])->name('transactions');
             Route::get('/transactions/{order}', [App\Http\Controllers\MyFatoorahController::class, 'show'])->name('show');
             Route::post('/test-connection', [App\Http\Controllers\MyFatoorahController::class, 'testConnection'])->name('test-connection');
