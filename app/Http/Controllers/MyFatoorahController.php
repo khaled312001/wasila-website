@@ -134,21 +134,69 @@ class MyFatoorahController extends Controller
         $countryCode = $order->country_code ?? '+966';
         $mobileCountryCode = ltrim($countryCode, '+'); // Remove + sign
         
-        // Clean phone number: remove all non-digit characters and country code if present
+        // Clean customer phone number: remove all non-digit characters and country code if present
         $customerPhone = $order->customer_phone ?? '';
-        // Remove spaces, dashes, parentheses
-        $customerPhone = preg_replace('/[\s\-\(\)]/', '', $customerPhone);
-        // Remove country code if it exists at the beginning
-        $countryCodeWithoutPlus = ltrim($countryCode, '+');
-        if (strpos($customerPhone, $countryCode) === 0) {
-            $customerPhone = substr($customerPhone, strlen($countryCode));
-        } elseif (strpos($customerPhone, $countryCodeWithoutPlus) === 0) {
-            $customerPhone = substr($customerPhone, strlen($countryCodeWithoutPlus));
+        $originalPhone = $customerPhone;
+        $customerPhone = $this->cleanPhoneNumber($customerPhone, $countryCode);
+        
+        // Validate phone number
+        $isValidPhone = $this->isValidPhoneNumber($customerPhone, $countryCode);
+        
+        // Log phone number processing
+        Log::info('MyFatoorah: Processing phone number', [
+            'order_id' => $orderId,
+            'original_phone' => $originalPhone,
+            'cleaned_phone' => $customerPhone,
+            'phone_length' => strlen($customerPhone),
+            'is_valid' => $isValidPhone,
+            'country_code' => $countryCode,
+            'mobile_country_code' => $mobileCountryCode
+        ]);
+        
+        // If customer phone is empty or invalid, use company phone as fallback
+        if (!$isValidPhone || empty($customerPhone) || strlen($customerPhone) < 8) {
+            $companyPhone = SettingsHelper::contactPhone();
+            $customerPhone = $this->cleanPhoneNumber($companyPhone, '+966');
+            $isValidPhone = $this->isValidPhoneNumber($customerPhone, '+966');
+            
+            // Log the fallback for debugging
+            Log::info('MyFatoorah: Using company phone as fallback', [
+                'order_id' => $orderId,
+                'original_customer_phone' => $originalPhone,
+                'company_phone_raw' => SettingsHelper::contactPhone(),
+                'cleaned_company_phone' => $customerPhone,
+                'is_valid' => $isValidPhone
+            ]);
         }
-        // Remove leading zeros
-        $customerPhone = ltrim($customerPhone, '0');
-        // Ensure it contains only digits
-        $customerPhone = preg_replace('/[^0-9]/', '', $customerPhone);
+        
+        // Final validation: ensure phone is not empty and valid
+        if (empty($customerPhone) || !$isValidPhone || strlen($customerPhone) < 8) {
+            // Use a default valid Saudi phone number if all else fails
+            $customerPhone = '559229980'; // Default company phone without country code (9 digits, starts with 5)
+            Log::warning('MyFatoorah: Using hardcoded default phone number', [
+                'order_id' => $orderId,
+                'original_phone' => $originalPhone,
+                'final_phone' => $customerPhone
+            ]);
+        }
+        
+        // Final check: ensure phone length is correct (8-9 digits for Saudi)
+        if (strlen($customerPhone) < 8) {
+            // Pad with leading 5 if too short (Saudi mobile format)
+            $customerPhone = '5' . str_pad($customerPhone, 8, '0', STR_PAD_LEFT);
+            Log::warning('MyFatoorah: Phone number was too short, padded it', [
+                'order_id' => $orderId,
+                'final_phone' => $customerPhone
+            ]);
+        }
+        
+        // Log final phone number being sent
+        Log::info('MyFatoorah: Final phone number to send', [
+            'order_id' => $orderId,
+            'customer_mobile' => $customerPhone,
+            'mobile_country_code' => $mobileCountryCode,
+            'phone_length' => strlen($customerPhone)
+        ]);
 
         return [
             'CustomerName'       => $order->customer_name,
@@ -1392,6 +1440,97 @@ class MyFatoorahController extends Controller
         return 'Payment status: ' . $status;
     }
 
+    /**
+     * Clean phone number for MyFatoorah
+     * Removes country code, spaces, and non-digit characters
+     * Validates and ensures proper format for Saudi Arabia (9 digits)
+     * 
+     * @param string $phoneNumber
+     * @param string $countryCode
+     * @return string Cleaned phone number (digits only, 8-9 digits for Saudi)
+     */
+    private function cleanPhoneNumber($phoneNumber, $countryCode = '+966') {
+        if (empty($phoneNumber)) {
+            return '';
+        }
+
+        // Remove all non-digit characters except + at the beginning
+        $phoneNumber = trim($phoneNumber);
+        
+        // Remove spaces, dashes, parentheses, dots, and other special characters
+        $phoneNumber = preg_replace('/[\s\-\(\)\.\/]/', '', $phoneNumber);
+        
+        // Remove country code if it exists at the beginning
+        $countryCodeWithoutPlus = ltrim($countryCode, '+');
+        
+        // Check for different country code formats
+        if (strpos($phoneNumber, $countryCode) === 0) {
+            $phoneNumber = substr($phoneNumber, strlen($countryCode));
+        } elseif (strpos($phoneNumber, $countryCodeWithoutPlus) === 0) {
+            $phoneNumber = substr($phoneNumber, strlen($countryCodeWithoutPlus));
+        } elseif (strpos($phoneNumber, '00' . $countryCodeWithoutPlus) === 0) {
+            // Handle 00966 format
+            $phoneNumber = substr($phoneNumber, strlen('00' . $countryCodeWithoutPlus));
+        } elseif (preg_match('/^\+?966/', $phoneNumber)) {
+            // Handle any variation of +966 or 966
+            $phoneNumber = preg_replace('/^\+?966/', '', $phoneNumber);
+        }
+        
+        // Remove leading zeros
+        $phoneNumber = ltrim($phoneNumber, '0');
+        
+        // Ensure it contains only digits
+        $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+        
+        // For Saudi Arabia: validate length (should be 9 digits)
+        // MyFatoorah typically requires 8-9 digits for Saudi numbers
+        if (strlen($phoneNumber) > 9) {
+            // If longer than 9, take last 9 digits
+            $phoneNumber = substr($phoneNumber, -9);
+        }
+        
+        return $phoneNumber;
+    }
+    
+    /**
+     * Validate phone number for MyFatoorah
+     * Ensures phone number meets MyFatoorah requirements
+     * Note: This function expects an already cleaned phone number
+     * 
+     * @param string $cleanedPhoneNumber Already cleaned phone number (digits only)
+     * @param string $countryCode
+     * @return bool
+     */
+    private function isValidPhoneNumber($cleanedPhoneNumber, $countryCode = '+966') {
+        if (empty($cleanedPhoneNumber)) {
+            return false;
+        }
+        
+        // For Saudi Arabia: phone should be 8-9 digits
+        // MyFatoorah requires minimum 8 digits
+        $length = strlen($cleanedPhoneNumber);
+        
+        if ($length < 8 || $length > 9) {
+            return false;
+        }
+        
+        // Check if it's all digits
+        if (!ctype_digit($cleanedPhoneNumber)) {
+            return false;
+        }
+        
+        // Saudi mobile numbers typically start with 5
+        // But we'll allow other formats for flexibility
+        if ($countryCode === '+966' && !preg_match('/^5/', $cleanedPhoneNumber)) {
+            // Log warning but don't fail validation
+            Log::info('MyFatoorah: Phone number does not start with 5 (Saudi mobile format)', [
+                'phone' => $cleanedPhoneNumber
+            ]);
+        }
+        
+        return true;
+    }
+
     // Admin Dashboard Methods
     public function adminIndex()
     {
@@ -1876,17 +2015,43 @@ class MyFatoorahController extends Controller
             $countryCode = $order->country_code ?? '+966';
             $mobileCountryCode = ltrim($countryCode, '+'); // Remove + sign
             
-            // Clean phone number: remove all non-digit characters and country code if present
-            $customerPhone = $order->customer_phone ?? '';
-            $customerPhone = preg_replace('/[\s\-\(\)]/', '', $customerPhone);
-            $countryCodeWithoutPlus = ltrim($countryCode, '+');
-            if (strpos($customerPhone, $countryCode) === 0) {
-                $customerPhone = substr($customerPhone, strlen($countryCode));
-            } elseif (strpos($customerPhone, $countryCodeWithoutPlus) === 0) {
-                $customerPhone = substr($customerPhone, strlen($countryCodeWithoutPlus));
+            // Clean customer phone number
+            $originalPhone = $order->customer_phone ?? '';
+            $customerPhone = $this->cleanPhoneNumber($originalPhone, $countryCode);
+            $isValidPhone = $this->isValidPhoneNumber($customerPhone, $countryCode);
+            
+            // If customer phone is empty or invalid, use company phone as fallback
+            if (!$isValidPhone || empty($customerPhone) || strlen($customerPhone) < 8) {
+                $companyPhone = SettingsHelper::contactPhone();
+                $customerPhone = $this->cleanPhoneNumber($companyPhone, '+966');
+                $isValidPhone = $this->isValidPhoneNumber($customerPhone, '+966');
+                
+                Log::info('MyFatoorah retry: Using company phone as fallback', [
+                    'order_id' => $order->id,
+                    'original_customer_phone' => $originalPhone,
+                    'company_phone_raw' => SettingsHelper::contactPhone(),
+                    'cleaned_company_phone' => $customerPhone,
+                    'is_valid' => $isValidPhone
+                ]);
             }
-            $customerPhone = ltrim($customerPhone, '0');
-            $customerPhone = preg_replace('/[^0-9]/', '', $customerPhone);
+            
+            // Final validation: ensure phone is not empty and valid
+            if (empty($customerPhone) || !$isValidPhone || strlen($customerPhone) < 8) {
+                $customerPhone = '559229980'; // Default company phone without country code
+                Log::warning('MyFatoorah retry: Using hardcoded default phone number', [
+                    'order_id' => $order->id,
+                    'original_phone' => $originalPhone
+                ]);
+            }
+            
+            // Final check: ensure phone length is correct (8-9 digits for Saudi)
+            if (strlen($customerPhone) < 8) {
+                $customerPhone = '5' . str_pad($customerPhone, 8, '0', STR_PAD_LEFT);
+                Log::warning('MyFatoorah retry: Phone number was too short, padded it', [
+                    'order_id' => $order->id,
+                    'final_phone' => $customerPhone
+                ]);
+            }
 
             // Create new payment session
             $paymentData = [
