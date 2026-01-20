@@ -24,6 +24,7 @@ class Order extends Model
         'payment_method',
         'payment_details',
         'payment_reference',
+        'invoice_path',
         'refund_amount',
         'refund_reason',
         'refund_reference',
