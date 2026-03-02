@@ -221,14 +221,10 @@
     <!-- Hero Section -->
     <section id="home" class="hero-section" style="margin-top: 70px;">
         <div class="hero-video-container">
-            <iframe 
-                id="heroVideo"
-                src="https://www.youtube.com/embed/gPfaDls9eno?autoplay=1&mute=1&loop=1&playlist=gPfaDls9eno&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&fs=0&disablekb=1&start=0&end=60&playsinline=1"
-                frameborder="0"
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowfullscreen
-                style="border: none;">
-            </iframe>
+            @php $heroVideoSrc = \App\Models\Setting::get('hero_video', asset('videos/hero-video.mp4')); @endphp
+            <video autoplay muted loop playsinline>
+                <source src="{{ $heroVideoSrc ?: asset('videos/hero-video.mp4') }}" type="video/mp4">
+            </video>
         </div>
         <div class="hero-overlay"></div>
         <div class="hero-content" data-aos="fade-up">
