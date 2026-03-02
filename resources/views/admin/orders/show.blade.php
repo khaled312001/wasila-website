@@ -299,10 +299,78 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700">مرجع الدفع:</label>
                 <p class="mt-1 text-gray-900">{{ $order->payment_reference }}</p>
+                @if($order->payment_status === 'paid' && empty($order->invoice_path))
+                <form method="POST" action="{{ route('admin.myfatoorah.test-invoice', $order) }}" class="mt-2">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                        <i class="fas fa-download ml-1"></i>
+                        تحميل الفاتورة من MyFatoorah
+                    </button>
+                </form>
+                @endif
             </div>
             @endif
         </div>
     </div>
+    
+    <!-- Invoice Section -->
+    @if($order->payment_status === 'paid' && $order->invoice_path)
+    <div class="bg-white rounded-lg shadow-lg card-shadow p-6 mt-6">
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">الفاتورة</h2>
+        
+        @if(strpos($order->invoice_path, 'invoice_url:') === 0)
+            {{-- Invoice URL (not downloaded file) --}}
+            @php
+                $invoiceUrl = str_replace('invoice_url:', '', $order->invoice_path);
+            @endphp
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 mb-2">رابط الفاتورة من MyFatoorah</p>
+                    <p class="text-sm text-gray-500">يمكنك عرض الفاتورة مباشرة من MyFatoorah</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ $invoiceUrl }}" target="_blank" 
+                       class="inline-flex items-center px-4 py-2 bg-primary-medium text-white rounded-lg hover:bg-primary-dark transition-colors">
+                        <i class="fas fa-external-link-alt ml-2"></i>
+                        عرض الفاتورة في MyFatoorah
+                    </a>
+                </div>
+            </div>
+        @else
+            {{-- Downloaded PDF file --}}
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 mb-2">تم تحميل الفاتورة من MyFatoorah</p>
+                    <p class="text-sm text-gray-500">يمكنك عرض أو تحميل الفاتورة من الرابط أدناه</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="{{ asset('storage/' . $order->invoice_path) }}" target="_blank" 
+                       class="inline-flex items-center px-4 py-2 bg-primary-medium text-white rounded-lg hover:bg-primary-dark transition-colors">
+                        <i class="fas fa-eye ml-2"></i>
+                        عرض الفاتورة
+                    </a>
+                    <a href="{{ asset('storage/' . $order->invoice_path) }}" download 
+                       class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-download ml-2"></i>
+                        تحميل الفاتورة
+                    </a>
+                </div>
+            </div>
+        @endif
+    </div>
+    @elseif($order->payment_status === 'paid' && $order->payment_reference)
+    <div class="bg-white rounded-lg shadow-lg card-shadow p-6 mt-6">
+        <h2 class="text-xl font-semibold text-primary-dark mb-4">الفاتورة</h2>
+        
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-yellow-800">
+                <i class="fas fa-exclamation-triangle ml-2"></i>
+                الفاتورة غير متوفرة محلياً. يمكنك الحصول عليها من MyFatoorah باستخدام رقم المرجع: 
+                <strong>{{ $order->payment_reference }}</strong>
+            </p>
+        </div>
+    </div>
+    @endif
     
     <!-- Customer Information Update -->
     <div class="bg-white rounded-lg shadow-lg card-shadow p-6 mt-6">

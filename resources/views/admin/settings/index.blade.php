@@ -70,20 +70,60 @@
     <!-- MyFatoorah Settings -->
     <div class="bg-white rounded-lg shadow-lg card-shadow p-4 md:p-6 mobile-card mt-6">
         <h3 class="text-lg font-semibold text-primary-dark mb-4">إعدادات بوابة الدفع MyFatoorah</h3>
-        <form action="{{ route('admin.settings.update-myfatoorah') }}" method="POST">
-            @csrf
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">مفتاح API</label>
-                    <input type="text" name="myfatoorah_api_key" value="{{ $settings['myfatoorah_api_key'] }}" required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-medium">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">العملة</label>
-                    <select name="myfatoorah_currency" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-medium">
-                        <option value="SAR" {{ $settings['myfatoorah_currency'] == 'SAR' ? 'selected' : '' }}>ريال سعودي (SAR)</option>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle ml-1"></i>
+                <strong>ملاحظة:</strong> هذه الإعدادات تُقرأ مباشرة من ملف <code>.env</code>. لتعديلها، قم بتعديل الملف مباشرة على السيرفر.
+            </p>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">مفتاح API</label>
+                <input type="text" 
+                       value="{{ $settings['myfatoorah_api_key'] }}" 
+                       readonly
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                <p class="text-xs text-gray-500 mt-1">من ملف .env: MYFATOORAH_API_KEY</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">العملة</label>
+                <input type="text" 
+                       value="{{ $settings['myfatoorah_currency'] }} ({{ $settings['myfatoorah_currency'] == 'SAR' ? 'ريال سعودي' : $settings['myfatoorah_currency'] }})" 
+                       readonly
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                <p class="text-xs text-gray-500 mt-1">من ملف .env: MYFATOORAH_CURRENCY</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">رمز البلد</label>
+                <input type="text" 
+                       value="{{ $settings['myfatoorah_country_iso'] ?? 'SA' }}" 
+                       readonly
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                <p class="text-xs text-gray-500 mt-1">من ملف .env: MYFATOORAH_COUNTRY_ISO</p>
+            </div>
+            
+            <div class="flex items-center">
+                <input type="checkbox" 
+                       {{ $settings['myfatoorah_is_test'] ? 'checked' : '' }}
+                       disabled
+                       class="h-4 w-4 text-primary-medium focus:ring-primary-medium border-gray-300 rounded bg-gray-50">
+                <label class="mr-2 block text-sm text-gray-700">
+                    وضع الاختبار
+                    <span class="text-xs text-gray-500 block">من ملف .env: MYFATOORAH_TEST_MODE={{ $settings['myfatoorah_is_test'] ? 'true' : 'false' }}</span>
+                </label>
+            </div>
+            
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
+                <p class="text-sm text-yellow-800">
+                    <i class="fas fa-exclamation-triangle ml-1"></i>
+                    <strong>تعديل الإعدادات:</strong> لتعديل هذه الإعدادات، قم بتعديل ملف <code>.env</code> على السيرفر ثم قم بتشغيل <code>php artisan config:clear</code>
+                </p>
+            </div>
+        </div>
                         <option value="KWD" {{ $settings['myfatoorah_currency'] == 'KWD' ? 'selected' : '' }}>دينار كويتي (KWD)</option>
                         <option value="AED" {{ $settings['myfatoorah_currency'] == 'AED' ? 'selected' : '' }}>درهم إماراتي (AED)</option>
                         <option value="EGP" {{ $settings['myfatoorah_currency'] == 'EGP' ? 'selected' : '' }}>جنيه مصري (EGP)</option>

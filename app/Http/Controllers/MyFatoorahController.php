@@ -14,6 +14,8 @@ use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 use App\Mail\OrderCreatedMail;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -295,17 +297,39 @@ class MyFatoorahController extends Controller
                     $invoiceStatus = $data['InvoiceStatus'] ?? 'Unknown';
                     
                     if (strtolower($invoiceStatus) === 'paid') {
+                        // Download invoice from MyFatoorah
+                        $invoiceId = $data['InvoiceId'] ?? $paymentId;
+                        $invoicePath = self::downloadInvoiceFromMyFatoorah($invoiceId, $order, $this->mfConfig);
+                        
                         $order->update([
                             'payment_status' => 'paid',
                             'payment_method' => $data['PaymentMethod'] ?? 'MyFatoorah',
                             'payment_reference' => $paymentId,
-                            'status' => 'confirmed'
+                            'status' => 'confirmed',
+                            'invoice_path' => $invoicePath
                         ]);
                         
-                        // Send email to admin
+                        // Send email to admin with invoice attachment
                         try {
                             $adminEmail = SettingsHelper::contactEmail();
-                            Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
+                            $order = $order->fresh()->load('orderItems.service');
+                            $mail = new OrderCreatedMail($order);
+                            
+                        // Attach invoice if available (only if it's a file, not a URL)
+                        if ($invoicePath && strpos($invoicePath, 'invoice_url:') !== 0) {
+                            if (Storage::disk('public')->exists($invoicePath)) {
+                                $mail->attach(
+                                    Storage::disk('public')->path($invoicePath),
+                                    [
+                                        'as' => 'invoice-' . $order->order_number . '.pdf',
+                                        'mime' => 'application/pdf',
+                                    ]
+                                );
+                            }
+                        }
+                        // If invoice_path is a URL, we can't attach it, but it will be available in the order
+                            
+                            Mail::to($adminEmail)->send($mail);
                         } catch (\Exception $e) {
                             Log::error('Failed to send order email: ' . $e->getMessage());
                         }
@@ -1098,18 +1122,63 @@ class MyFatoorahController extends Controller
                         $paymentMethod = 'MyFatoorah';
                     }
                     
+                    // Download invoice from MyFatoorah
+                    $invoiceId = $data['InvoiceId'] ?? $paymentId;
+                    // Create MyFatoorah config (same as constructor)
+                    $countryIso = config('myfatoorah.country_iso');
+                    $vcCodeMap = [
+                        'SA' => 'SAU', 'AE' => 'ARE', 'KW' => 'KWT', 'BH' => 'BHR',
+                        'QA' => 'QAT', 'OM' => 'OMN', 'JO' => 'JOR', 'EG' => 'EGY',
+                    ];
+                    $vcCode = $vcCodeMap[$countryIso] ?? $countryIso;
+                    $apiKey = env('MYFATOORAH_API_KEY') ?: config('myfatoorah.api_key');
+                    $testMode = env('MYFATOORAH_TEST_MODE');
+                    if ($testMode === null) {
+                        $testMode = config('myfatoorah.test_mode');
+                    }
+                    if (is_string($testMode)) {
+                        $testMode = strtolower($testMode);
+                        $testMode = !in_array($testMode, ['false', '0', 'no', 'off', '']);
+                    }
+                    $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
+                    $mfConfig = [
+                        'apiKey' => $apiKey,
+                        'isTest' => $testMode,
+                        'countryCode' => $vcCode,
+                        'vcCode' => $vcCode,
+                    ];
+                    $invoicePath = self::downloadInvoiceFromMyFatoorah($invoiceId, $order, $mfConfig);
+                    
                     $order->update([
                         'payment_status' => 'paid',
                         'payment_method' => $paymentMethod,
                         'payment_reference' => $paymentId,
                         'status' => 'confirmed',
-                        'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
+                        'notes' => 'تم الدفع بنجاح عبر ماي فاتورة',
+                        'invoice_path' => $invoicePath
                     ]);
 
-                    // Send email to admin
+                    // Send email to admin with invoice attachment
                     try {
                         $adminEmail = SettingsHelper::contactEmail();
-                        Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()->load('orderItems.service')));
+                        $order = $order->fresh()->load('orderItems.service');
+                        $mail = new OrderCreatedMail($order);
+                        
+                        // Attach invoice if available (only if it's a file, not a URL)
+                        if ($invoicePath && strpos($invoicePath, 'invoice_url:') !== 0) {
+                            if (Storage::disk('public')->exists($invoicePath)) {
+                                $mail->attach(
+                                    Storage::disk('public')->path($invoicePath),
+                                    [
+                                        'as' => 'invoice-' . $order->order_number . '.pdf',
+                                        'mime' => 'application/pdf',
+                                    ]
+                                );
+                            }
+                        }
+                        // If invoice_path is a URL, we can't attach it, but it will be available in the order
+                        
+                        Mail::to($adminEmail)->send($mail);
                         Log::info('Order paid email sent successfully to: ' . $adminEmail);
                     } catch (\Exception $emailException) {
                         Log::error('Failed to send order paid email: ' . $emailException->getMessage());
@@ -1531,6 +1600,223 @@ class MyFatoorahController extends Controller
         return true;
     }
 
+    /**
+     * Download invoice PDF from MyFatoorah
+     * 
+     * @param string $invoiceId The MyFatoorah Invoice ID
+     * @param Order $order The order to save invoice for
+     * @param array|null $mfConfig Optional MyFatoorah config (uses instance config if not provided)
+     * @return string|null Path to saved invoice file or null on failure
+     */
+    public static function downloadInvoiceFromMyFatoorah($invoiceId, $order, $mfConfig = null)
+    {
+        try {
+            if (empty($invoiceId)) {
+                Log::warning('MyFatoorah: Cannot download invoice - InvoiceId is empty', [
+                    'order_id' => $order->id
+                ]);
+                return null;
+            }
+
+            // Helper function to get default config
+            $getDefaultConfig = function() {
+                $countryIso = config('myfatoorah.country_iso');
+                $vcCodeMap = [
+                    'SA' => 'SAU', 'AE' => 'ARE', 'KW' => 'KWT', 'BH' => 'BHR',
+                    'QA' => 'QAT', 'OM' => 'OMN', 'JO' => 'JOR', 'EG' => 'EGY',
+                ];
+                $vcCode = $vcCodeMap[$countryIso] ?? $countryIso;
+                $apiKey = env('MYFATOORAH_API_KEY') ?: config('myfatoorah.api_key');
+                $testMode = env('MYFATOORAH_TEST_MODE');
+                if ($testMode === null) {
+                    $testMode = config('myfatoorah.test_mode');
+                }
+                if (is_string($testMode)) {
+                    $testMode = strtolower($testMode);
+                    $testMode = !in_array($testMode, ['false', '0', 'no', 'off', '']);
+                }
+                $testMode = filter_var($testMode, FILTER_VALIDATE_BOOLEAN);
+                return [
+                    'apiKey' => $apiKey,
+                    'isTest' => $testMode,
+                    'countryCode' => $vcCode,
+                    'vcCode' => $vcCode,
+                ];
+            };
+            
+            // Use provided config or create default config
+            if ($mfConfig === null) {
+                $mfConfig = $getDefaultConfig();
+            }
+
+            // Try to use MyFatoorah API first to get invoice data
+            // This helps us understand the invoice structure
+            try {
+                $mfStatusObj = new MyFatoorahPaymentStatus($mfConfig);
+                $invoiceData = $mfStatusObj->getPaymentStatus($invoiceId, 'InvoiceId');
+                
+                if (is_object($invoiceData)) {
+                    $invoiceData = json_decode(json_encode($invoiceData), true);
+                }
+                
+                // Log invoice data for debugging
+                Log::info('MyFatoorah: Invoice data retrieved from API', [
+                    'invoice_id' => $invoiceId,
+                    'invoice_status' => $invoiceData['InvoiceStatus'] ?? 'Unknown',
+                    'has_invoice_url' => isset($invoiceData['InvoiceURL']) || isset($invoiceData['InvoiceUrl']),
+                    'invoice_keys' => array_keys($invoiceData ?? [])
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('MyFatoorah: Could not get invoice data from API, will try direct URL', [
+                    'invoice_id' => $invoiceId,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            // Get portal URL based on test/production mode
+            $isTest = $mfConfig['isTest'];
+            $vcCode = $mfConfig['vcCode'] ?? $mfConfig['countryCode'] ?? 'SAU';
+            $countries = MyFatoorah::getMFCountries();
+            
+            $portalBase = null;
+            if (isset($countries[$vcCode])) {
+                $portalBase = $isTest ? $countries[$vcCode]['testPortal'] : $countries[$vcCode]['portal'];
+            } else {
+                // Fallback URLs
+                $portalBase = $isTest ? 'https://test.myfatoorah.com' : 'https://portal.myfatoorah.com';
+            }
+
+            // Try multiple URL formats for invoice download
+            // Format 1: {portal}/invoice/{InvoiceId}/pdf
+            // Format 2: {portal}/invoices/{InvoiceId}/pdf
+            // Format 3: {portal}/api/v2/Invoices/{InvoiceId}/pdf (API endpoint)
+            
+            $invoiceUrls = [
+                rtrim($portalBase, '/') . '/invoice/' . $invoiceId . '/pdf',
+                rtrim($portalBase, '/') . '/invoices/' . $invoiceId . '/pdf',
+                rtrim($portalBase, '/') . '/api/v2/Invoices/' . $invoiceId . '/pdf',
+            ];
+
+            Log::info('MyFatoorah: Downloading invoice', [
+                'invoice_id' => $invoiceId,
+                'invoice_urls' => $invoiceUrls,
+                'order_id' => $order->id,
+                'is_test' => $isTest
+            ]);
+
+            $response = null;
+            $successfulUrl = null;
+            
+            // Try each URL format
+            foreach ($invoiceUrls as $invoiceUrl) {
+                try {
+                    // Try with API key in header first (for API endpoint)
+                    $response = Http::timeout(30)
+                        ->withHeaders([
+                            'Authorization' => 'Bearer ' . $mfConfig['apiKey'],
+                            'Accept' => 'application/pdf',
+                        ])
+                        ->get($invoiceUrl);
+                    
+                    if ($response->successful()) {
+                        $successfulUrl = $invoiceUrl;
+                        break;
+                    }
+                    
+                    // If that fails, try without auth (for public URL)
+                    $response = Http::timeout(30)->get($invoiceUrl);
+                    
+                    if ($response->successful()) {
+                        $successfulUrl = $invoiceUrl;
+                        break;
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('MyFatoorah: Failed to download from URL', [
+                        'invoice_id' => $invoiceId,
+                        'url' => $invoiceUrl,
+                        'error' => $e->getMessage()
+                    ]);
+                    continue;
+                }
+            }
+
+            if (!$response || !$response->successful()) {
+                $statusCode = $response ? $response->status() : 'No response';
+                $responseBody = $response ? substr($response->body(), 0, 500) : 'No response';
+                
+                Log::error('MyFatoorah: Failed to download invoice from all URLs', [
+                    'invoice_id' => $invoiceId,
+                    'status_code' => $statusCode,
+                    'response_body' => $responseBody,
+                    'tried_urls' => $invoiceUrls
+                ]);
+                
+                // Log the actual invoice URL that should work (for manual check)
+                $manualUrl = rtrim($portalBase, '/') . '/invoice/' . $invoiceId;
+                Log::info('MyFatoorah: Manual invoice URL (for browser check)', [
+                    'invoice_id' => $invoiceId,
+                    'manual_url' => $manualUrl
+                ]);
+                
+                // As fallback, save the invoice URL instead of downloading
+                // This allows users to access the invoice directly from MyFatoorah
+                $invoiceUrlPath = 'invoice_url:' . $manualUrl;
+                Log::info('MyFatoorah: Saving invoice URL as fallback', [
+                    'invoice_id' => $invoiceId,
+                    'invoice_url_path' => $invoiceUrlPath
+                ]);
+                
+                // Return URL path (prefixed with 'invoice_url:' to distinguish from file paths)
+                return $invoiceUrlPath;
+            }
+
+
+            // Check if response is actually a PDF before saving
+            $contentType = $response->header('Content-Type');
+            $body = $response->body();
+
+            if (strpos($contentType, 'application/pdf') === false && 
+                substr($body, 0, 4) !== '%PDF') {
+                Log::warning('MyFatoorah: Response is not a PDF', [
+                    'invoice_id' => $invoiceId,
+                    'content_type' => $contentType,
+                    'body_preview' => substr($body, 0, 100),
+                    'url' => $successfulUrl
+                ]);
+                
+                // If not PDF, save URL instead
+                $manualUrl = rtrim($portalBase, '/') . '/invoice/' . $invoiceId;
+                return 'invoice_url:' . $manualUrl;
+            }
+
+            // Save invoice to storage
+            $invoiceFileName = 'invoice-' . $order->order_number . '-' . $invoiceId . '.pdf';
+            $invoicePath = 'invoices/' . date('Y/m') . '/' . $invoiceFileName;
+            
+            // Ensure directory exists
+            Storage::disk('public')->put($invoicePath, $body);
+
+            Log::info('MyFatoorah: Invoice downloaded and saved successfully', [
+                'invoice_id' => $invoiceId,
+                'invoice_path' => $invoicePath,
+                'invoice_url' => $successfulUrl,
+                'order_id' => $order->id,
+                'file_size' => strlen($body) . ' bytes'
+            ]);
+
+            return $invoicePath;
+
+        } catch (\Exception $e) {
+            Log::error('MyFatoorah: Error downloading invoice', [
+                'invoice_id' => $invoiceId ?? 'unknown',
+                'order_id' => $order->id ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return null;
+        }
+    }
+
     // Admin Dashboard Methods
     public function adminIndex()
     {
@@ -1805,11 +2091,12 @@ class MyFatoorahController extends Controller
 
     public function settings()
     {
+        // Read settings directly from .env file
         $config = [
-            'api_key' => SettingsHelper::get('myfatoorah_api_key', ''),
-            'is_test' => SettingsHelper::get('myfatoorah_is_test', '1') == '1',
-            'country_iso' => SettingsHelper::get('myfatoorah_country_iso', 'SA'),
-            'currency_iso' => SettingsHelper::get('myfatoorah_currency', 'SAR'),
+            'api_key' => env('MYFATOORAH_API_KEY', '') ?: config('myfatoorah.api_key', ''),
+            'is_test' => env('MYFATOORAH_TEST_MODE', 'false') === 'true' || env('MYFATOORAH_TEST_MODE', 'false') === '1',
+            'country_iso' => env('MYFATOORAH_COUNTRY_ISO', 'SA') ?: config('myfatoorah.country_iso', 'SA'),
+            'currency_iso' => env('MYFATOORAH_CURRENCY', 'SAR') ?: config('myfatoorah.currency', 'SAR'),
         ];
         
         // Add debug information
@@ -2100,6 +2387,104 @@ class MyFatoorahController extends Controller
                 
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء إعادة محاولة الدفع: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Test invoice download for a specific order
+     * This is a test route to manually download invoice for existing paid orders
+     */
+    public function testDownloadInvoice(Order $order)
+    {
+        try {
+            if ($order->payment_status !== 'paid') {
+                return back()->with('error', 'هذا الطلب غير مدفوع. لا يمكن تحميل الفاتورة.');
+            }
+
+            if (empty($order->payment_reference)) {
+                return back()->with('error', 'لا يوجد رقم مرجع للدفع. لا يمكن تحميل الفاتورة.');
+            }
+
+            // Get InvoiceId from MyFatoorah using PaymentId
+            // payment_reference contains PaymentId, we need to get InvoiceId from payment status
+            $paymentId = $order->payment_reference;
+            
+            Log::info('MyFatoorah testDownloadInvoice: Getting payment status', [
+                'order_id' => $order->id,
+                'payment_id' => $paymentId
+            ]);
+
+            try {
+                $mfObj = new MyFatoorahPaymentStatus($this->mfConfig);
+                $paymentStatus = $mfObj->getPaymentStatus($paymentId, 'PaymentId');
+                
+                // Convert object to array if needed
+                if (is_object($paymentStatus)) {
+                    $paymentStatus = json_decode(json_encode($paymentStatus), true);
+                }
+
+                // Get InvoiceId from payment status response
+                $invoiceId = $paymentStatus['InvoiceId'] ?? $paymentStatus['invoiceId'] ?? $paymentId;
+                
+                Log::info('MyFatoorah testDownloadInvoice: Payment status retrieved', [
+                    'order_id' => $order->id,
+                    'payment_id' => $paymentId,
+                    'invoice_id' => $invoiceId,
+                    'invoice_status' => $paymentStatus['InvoiceStatus'] ?? 'Unknown'
+                ]);
+
+                // Try to download invoice using InvoiceId
+                $invoicePath = self::downloadInvoiceFromMyFatoorah($invoiceId, $order, $this->mfConfig);
+
+                if ($invoicePath) {
+                    // Update order with invoice path
+                    $order->invoice_path = $invoicePath;
+                    $order->save();
+
+                    return back()->with('success', 'تم تحميل الفاتورة بنجاح! المسار: ' . $invoicePath);
+                } else {
+                    // Try with PaymentId as fallback
+                    Log::warning('MyFatoorah testDownloadInvoice: Failed with InvoiceId, trying PaymentId', [
+                        'order_id' => $order->id,
+                        'invoice_id' => $invoiceId,
+                        'payment_id' => $paymentId
+                    ]);
+                    
+                    $invoicePath = self::downloadInvoiceFromMyFatoorah($paymentId, $order, $this->mfConfig);
+                    
+                    if ($invoicePath) {
+                        $order->invoice_path = $invoicePath;
+                        $order->save();
+                        return back()->with('success', 'تم تحميل الفاتورة بنجاح باستخدام PaymentId! المسار: ' . $invoicePath);
+                    } else {
+                        return back()->with('error', 'فشل تحميل الفاتورة. تحقق من السجلات لمزيد من التفاصيل. InvoiceId: ' . $invoiceId);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('MyFatoorah testDownloadInvoice: Error getting payment status', [
+                    'order_id' => $order->id,
+                    'payment_id' => $paymentId,
+                    'error' => $e->getMessage()
+                ]);
+                
+                // Try direct download with PaymentId as fallback
+                $invoicePath = self::downloadInvoiceFromMyFatoorah($paymentId, $order, $this->mfConfig);
+                
+                if ($invoicePath) {
+                    $order->invoice_path = $invoicePath;
+                    $order->save();
+                    return back()->with('success', 'تم تحميل الفاتورة بنجاح! المسار: ' . $invoicePath);
+                } else {
+                    return back()->with('error', 'فشل في الحصول على حالة الدفع أو تحميل الفاتورة: ' . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Test invoice download error: ' . $e->getMessage(), [
+                'order_id' => $order->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'حدث خطأ أثناء تحميل الفاتورة: ' . $e->getMessage());
         }
     }
 }

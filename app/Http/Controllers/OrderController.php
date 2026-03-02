@@ -10,7 +10,9 @@ use App\Helpers\SettingsHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\OrderCreatedMail;
+use App\Http\Controllers\MyFatoorahController;
 use MyFatoorah\Library\MyFatoorah;
 use MyFatoorah\Library\API\Payment\MyFatoorahPayment;
 use MyFatoorah\Library\API\Payment\MyFatoorahPaymentStatus;
@@ -346,18 +348,40 @@ class OrderController extends Controller
             
             // تحديث حالة الطلب بناءً على حالة الدفع
             if ($paymentStatus['InvoiceStatus'] === 'Paid') {
+                // Download invoice from MyFatoorah
+                $invoiceId = $paymentStatus['InvoiceId'] ?? $paymentId;
+                $invoicePath = MyFatoorahController::downloadInvoiceFromMyFatoorah($invoiceId, $order);
+                
                 $order->update([
                     'payment_status' => 'paid',
                     'payment_method' => $paymentStatus['PaymentMethod'] ?? 'MyFatoorah',
                     'payment_reference' => $paymentId,
                     'status' => 'confirmed',
-                    'notes' => 'تم الدفع بنجاح عبر ماي فاتورة'
+                    'notes' => 'تم الدفع بنجاح عبر ماي فاتورة',
+                    'invoice_path' => $invoicePath
                 ]);
                 
-                // إرسال إيميل للإدارة عند الدفع الناجح
+                // إرسال إيميل للإدارة عند الدفع الناجح مع الفاتورة
                 try {
                     $adminEmail = SettingsHelper::contactEmail();
-                    Mail::to($adminEmail)->send(new OrderCreatedMail($order->fresh()));
+                    $order = $order->fresh()->load('orderItems.service');
+                    $mail = new OrderCreatedMail($order);
+                    
+                    // Attach invoice if available (only if it's a file, not a URL)
+                    if ($invoicePath && strpos($invoicePath, 'invoice_url:') !== 0) {
+                        if (Storage::disk('public')->exists($invoicePath)) {
+                            $mail->attach(
+                                Storage::disk('public')->path($invoicePath),
+                                [
+                                    'as' => 'invoice-' . $order->order_number . '.pdf',
+                                    'mime' => 'application/pdf',
+                                ]
+                            );
+                        }
+                    }
+                    // If invoice_path is a URL, we can't attach it, but it will be available in the order
+                    
+                    Mail::to($adminEmail)->send($mail);
                     Log::info('Order paid email sent successfully to: ' . $adminEmail);
                 } catch (\Exception $emailException) {
                     Log::error('Failed to send order paid email: ' . $emailException->getMessage());
