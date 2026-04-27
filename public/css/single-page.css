@@ -654,188 +654,7 @@ body.loaded {
    Our Work Section - Infinite Scroll Animation
    ============================================ */
 
-.our-work-section {
-    background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
-    padding: 4rem 0;
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-}
-
-.our-work-scroll-wrapper {
-    width: 100% !important;
-    overflow: hidden !important;
-    position: relative;
-    padding: 2rem 0;
-    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
-    display: block !important;
-    contain: layout style paint; /* Performance optimization */
-}
-
-.our-work-scroll-track {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 1.5rem;
-    width: max-content !important;
-    animation: scroll-infinite-horizontal 80s linear infinite;
-    will-change: transform;
-    flex-wrap: nowrap !important;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    transform: translateZ(0); /* Hardware acceleration */
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-.our-work-scroll-wrapper {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-.our-work-card-item {
-    flex: 0 0 380px !important;
-    width: 380px !important;
-    height: 380px !important;
-    min-width: 380px !important;
-    max-width: 380px !important;
-    position: relative;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
-    background: #fff;
-    cursor: pointer;
-    display: block !important;
-    float: none !important;
-    transform: translateZ(0); /* Hardware acceleration */
-    will-change: transform;
-}
-
-.our-work-card-item:hover {
-    transform: translateY(-15px) scale(1.05);
-    box-shadow: 0 25px 50px rgba(8, 120, 139, 0.4);
-    z-index: 10;
-}
-
-.our-work-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #f1f5f9;
-}
-
-.our-work-card-inner img,
-.our-work-card-inner video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    background: #f8f9fa;
-    transform: translateZ(0); /* Hardware acceleration */
-}
-
-.our-work-card-inner video {
-    background: #000;
-}
-
-.our-work-card-item:hover .our-work-card-inner img,
-.our-work-card-item:hover .our-work-card-inner video {
-    transform: scale(1.1);
-}
-
-.our-work-card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(8, 120, 139, 0.95) 0%, rgba(2, 84, 105, 0.95) 100%);
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    opacity: 0;
-    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 1.5rem;
-    backdrop-filter: blur(2px);
-}
-
-.our-work-card-item:hover .our-work-card-overlay {
-    opacity: 1;
-}
-
-.our-work-card-info {
-    color: #fff;
-    width: 100%;
-}
-
-.our-work-card-info h4 {
-    color: #fff;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    line-height: 1.3;
-}
-
-.our-work-card-info p {
-    display: none !important;
-}
-
-@keyframes scroll-infinite-horizontal {
-    0% {
-        transform: translateX(0) translateZ(0);
-    }
-    100% {
-        transform: translateX(calc(-50%)) translateZ(0);
-    }
-}
-
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .our-work-card-item {
-        flex: 0 0 320px;
-        width: 320px;
-        height: 320px;
-    }
-    
-    .our-work-scroll-track {
-        gap: 1.25rem;
-        animation-duration: 50s;
-    }
-    
-    .our-work-section {
-        padding: 3rem 0;
-    }
-}
-
-@media (max-width: 576px) {
-    .our-work-card-item {
-        flex: 0 0 280px;
-        width: 280px;
-        height: 280px;
-    }
-    
-    .our-work-scroll-track {
-        gap: 1rem;
-        animation-duration: 45s;
-    }
-    
-    .our-work-card-info h4 {
-        font-size: 1.1rem;
-    }
-    
-    .our-work-card-info p {
-        font-size: 0.85rem;
-    }
-}
+/* Our Work — moved to /css/our-work.css (.wowar-* / .wowen-*) */
 
 /* Gallery Grid (for backward compatibility) */
 .gallery-grid {
@@ -1458,27 +1277,6 @@ body.loaded {
         padding-right: 0.5rem;
         flex: 0 0 auto;
         width: 100%;
-    }
-    
-    /* Ensure our-work-scroll-track is not affected by row styles */
-    .our-work-scroll-track,
-    .our-work-scroll-track > * {
-        width: auto !important;
-        flex: none !important;
-        display: block !important;
-    }
-    
-    .our-work-scroll-track {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }
-    
-    .our-work-card-item {
-        flex: 0 0 380px !important;
-        width: 380px !important;
-        min-width: 380px !important;
-        max-width: 380px !important;
     }
     
     /* Ensure all service cards are visible */
@@ -2270,7 +2068,8 @@ body.loaded {
     }
     
     /* Fix specific sections */
-    .our-work-section,
+    .wowar-section,
+    .wowen-section,
     .gallery-section,
     .services-section,
     .features-section,
@@ -2278,14 +2077,6 @@ body.loaded {
     .contact-section {
         padding-left: 0 !important;
         padding-right: 0 !important;
-    }
-    
-    /* Fix our work container */
-    .our-work-container {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
     }
     
     /* Fix hero section */

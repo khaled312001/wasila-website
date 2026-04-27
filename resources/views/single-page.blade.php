@@ -47,6 +47,7 @@
     <link rel="stylesheet" href="{{ asset('css/wasila-header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/wasila-footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/our-work.css') }}">
     <script>
         // Ensure body is visible immediately - no waiting for page load
         (function() {
@@ -426,88 +427,137 @@
         </div>
     </section>
 
-    <!-- Our Work Section -->
-    <section class="section our-work-section">
+    {{-- ============================================================
+         OUR WORK SECTION — completely separate AR vs EN markup
+         ============================================================ --}}
+    @php
+        $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $isAr = app()->getLocale() === 'ar';
+        $titleAr = \App\Models\Setting::get('our_work_title_ar') ?: __('messages.our_work');
+        $titleEn = \App\Models\Setting::get('our_work_title_en') ?: __('messages.our_work');
+        $descAr  = \App\Models\Setting::get('our_work_description_ar') ?: __('messages.discover_images_from_activities');
+        $descEn  = \App\Models\Setting::get('our_work_description_en') ?: __('messages.discover_images_from_activities');
+        $placeholder = asset('images/placeholder-portfolio.png');
+
+        // Resolve image URLs once
+        $resolvedItems = $portfolioItems->map(function ($item) use ($placeholder) {
+            $cleanPath = $item->normalized_file_path;
+            $url = $cleanPath ? asset('storage/' . $cleanPath) : ($item->file_url ?? $placeholder);
+            return (object) [
+                'type' => $item->type,
+                'url' => $url,
+                'title_ar' => $item->title_ar,
+                'title_en' => $item->title_en ?: $item->title_ar,
+            ];
+        });
+    @endphp
+
+    @if($isAr)
+    {{-- ============== ARABIC: right → left, marquee-style ============== --}}
+    <section class="section wowar-section" dir="rtl">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="section-title">
-                    @php
-                        $ourWorkTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'our_work_title_ar' : 'our_work_title_en', __('messages.our_work'));
-                        echo $ourWorkTitle ?: __('messages.our_work');
-                    @endphp
-                </h2>
-                <p class="section-subtitle">
-                    @php
-                        $ourWorkDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'our_work_description_ar' : 'our_work_description_en', __('messages.discover_images_from_activities'));
-                        echo $ourWorkDesc ?: __('messages.discover_images_from_activities');
-                    @endphp
-                </p>
+                <h2 class="section-title">{{ $titleAr }}</h2>
+                <p class="section-subtitle">{{ $descAr }}</p>
             </div>
-            
-            @php
-                // Get ALL active portfolio items
-                $portfolioItems = \App\Models\PortfolioItem::where('is_active', true)
-                    ->orderBy('sort_order', 'asc')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-                
-                // Duplicate items for seamless infinite scroll
-                // Reduce duplicates for better performance
-                $itemCount = $portfolioItems->count();
-                $duplicates = $itemCount < 4 ? 3 : 2; // Reduced from 4 to 3
-                $allItems = collect();
-                for ($i = 0; $i < $duplicates; $i++) {
-                    $allItems = $allItems->merge($portfolioItems);
-                }
-            @endphp
-            
-            @if($portfolioItems->count() > 0)
-            <div class="our-work-scroll-wrapper" style="width: 100% !important; overflow: hidden !important;">
-                <div class="our-work-scroll-track" id="ourWorkScrollTrack" style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; width: max-content !important; gap: 1.5rem !important;">
-                    @foreach($allItems as $index => $item)
-                        @php
-                            // Optimized: Use model's file_url method instead of checking file existence
-                            // This is much faster as it doesn't check file system on every iteration
-                            $cleanFilePath = $item->normalized_file_path;
-                            
-                            // Get file URL - simplified for performance
-                            if ($cleanFilePath) {
-                                $fileUrl = asset('storage/' . $cleanFilePath);
-                            } else {
-                                $fileUrl = $item->file_url ?? asset('images/placeholder-portfolio.png');
-                            }
-                        @endphp
-                        <div class="our-work-card-item" style="flex: 0 0 380px !important; width: 380px !important; min-width: 380px !important; max-width: 380px !important; height: 380px !important; display: block !important;">
-                            <div class="our-work-card-inner">
-                                @if($item->type === 'image')
-                                    <img src="{{ $fileUrl }}" alt="{{ $item->title_ar }}" 
-                                         loading="lazy"
-                                         decoding="async"
-                                         fetchpriority="{{ $loop->index < 3 ? 'high' : 'low' }}"
-                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder-portfolio.png') }}';">
-                                @else
-                                    <video muted loop playsinline preload="none">
-                                        <source src="{{ $fileUrl }}" type="video/mp4">
-                                        <source src="{{ $fileUrl }}" type="video/webm">
-                                    </video>
-                                @endif
-                                <div class="our-work-card-overlay">
-                                    <div class="our-work-card-info">
-                                        <h4>{{ $item->title_ar }}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            @else
-            <div class="text-center py-5">
-                <p class="text-muted">{{ __('messages.no_portfolio_items') ?? 'لا توجد أعمال متاحة حالياً' }}</p>
-            </div>
-            @endif
         </div>
+
+        @if($resolvedItems->count() > 0)
+        <div class="wowar-marquee" aria-label="معرض الأعمال">
+            <div class="wowar-track">
+                {{-- First copy --}}
+                @foreach($resolvedItems as $item)
+                    <div class="wowar-card">
+                        @if($item->type === 'image')
+                            <img src="{{ $item->url }}" alt="{{ $item->title_ar }}"
+                                 loading="lazy" decoding="async"
+                                 onerror="this.onerror=null;this.src='{{ $placeholder }}';">
+                        @else
+                            <video muted loop playsinline preload="none">
+                                <source src="{{ $item->url }}" type="video/mp4">
+                            </video>
+                        @endif
+                        <div class="wowar-card-overlay">
+                            <h4>{{ $item->title_ar }}</h4>
+                        </div>
+                    </div>
+                @endforeach
+                {{-- Second copy (identical, for seamless wrap) --}}
+                @foreach($resolvedItems as $item)
+                    <div class="wowar-card" aria-hidden="true">
+                        @if($item->type === 'image')
+                            <img src="{{ $item->url }}" alt=""
+                                 loading="lazy" decoding="async"
+                                 onerror="this.onerror=null;this.src='{{ $placeholder }}';">
+                        @else
+                            <video muted loop playsinline preload="none">
+                                <source src="{{ $item->url }}" type="video/mp4">
+                            </video>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @else
+        <div class="container text-center py-5">
+            <p class="text-muted">{{ __('messages.no_portfolio_items') ?? 'لا توجد أعمال متاحة حالياً' }}</p>
+        </div>
+        @endif
     </section>
+    @else
+    {{-- ============== ENGLISH: left → right, marquee-style ============== --}}
+    <section class="section wowen-section" dir="ltr">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="section-title">{{ $titleEn }}</h2>
+                <p class="section-subtitle">{{ $descEn }}</p>
+            </div>
+        </div>
+
+        @if($resolvedItems->count() > 0)
+        <div class="wowen-marquee" aria-label="Our work gallery">
+            <div class="wowen-track">
+                @foreach($resolvedItems as $item)
+                    <div class="wowen-card">
+                        @if($item->type === 'image')
+                            <img src="{{ $item->url }}" alt="{{ $item->title_en }}"
+                                 loading="lazy" decoding="async"
+                                 onerror="this.onerror=null;this.src='{{ $placeholder }}';">
+                        @else
+                            <video muted loop playsinline preload="none">
+                                <source src="{{ $item->url }}" type="video/mp4">
+                            </video>
+                        @endif
+                        <div class="wowen-card-overlay">
+                            <h4>{{ $item->title_en }}</h4>
+                        </div>
+                    </div>
+                @endforeach
+                @foreach($resolvedItems as $item)
+                    <div class="wowen-card" aria-hidden="true">
+                        @if($item->type === 'image')
+                            <img src="{{ $item->url }}" alt=""
+                                 loading="lazy" decoding="async"
+                                 onerror="this.onerror=null;this.src='{{ $placeholder }}';">
+                        @else
+                            <video muted loop playsinline preload="none">
+                                <source src="{{ $item->url }}" type="video/mp4">
+                            </video>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @else
+        <div class="container text-center py-5">
+            <p class="text-muted">No portfolio items available yet</p>
+        </div>
+        @endif
+    </section>
+    @endif
     
     <!-- Contact Section -->
     <section id="contact" class="section contact-section">
@@ -870,110 +920,8 @@
             });
         }
 
-        // Our Work Infinite Scroll with Drag Functionality - Optimized
-        const ourWorkTrack = document.getElementById('ourWorkScrollTrack');
-        const ourWorkWrapper = document.querySelector('.our-work-scroll-wrapper');
-        
-        if (ourWorkTrack && ourWorkWrapper) {
-            let isDragging = false;
-            let startX = 0;
-            let scrollLeft = 0;
-            let currentTranslate = 0;
-            let rafId = null;
-            
-            // Use CSS animation for better performance
-            const trackWidth = ourWorkTrack.scrollWidth;
-            const moveDistance = trackWidth / 2;
-            
-            // Mouse drag functionality - optimized
-            function handleDrag(e) {
-                if (!isDragging) return;
-                
-                if (rafId) {
-                    cancelAnimationFrame(rafId);
-                }
-                
-                rafId = requestAnimationFrame(() => {
-                    const walk = (e.pageX - startX) * 1.5;
-                    currentTranslate = scrollLeft + walk;
-                    ourWorkTrack.style.transform = `translateX(${currentTranslate}px)`;
-                    ourWorkTrack.style.animationPlayState = 'paused';
-                });
-            }
-            
-            ourWorkWrapper.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                startX = e.pageX;
-                scrollLeft = currentTranslate;
-                ourWorkWrapper.style.cursor = 'grabbing';
-                ourWorkWrapper.style.userSelect = 'none';
-                ourWorkTrack.style.animationPlayState = 'paused';
-            });
-            
-            const handleMouseUp = () => {
-                if (isDragging) {
-                    isDragging = false;
-                    ourWorkWrapper.style.cursor = 'grab';
-                    ourWorkWrapper.style.userSelect = '';
-                    ourWorkTrack.style.animationPlayState = 'running';
-                }
-            };
-            
-            document.addEventListener('mouseup', handleMouseUp);
-            document.addEventListener('mouseleave', handleMouseUp);
-            
-            document.addEventListener('mousemove', handleDrag, { passive: true });
-            
-            // Touch support - optimized
-            let touchStartX = 0;
-            let touchScrollLeft = 0;
-            
-            ourWorkWrapper.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                touchStartX = e.touches[0].pageX;
-                touchScrollLeft = currentTranslate;
-                ourWorkTrack.style.animationPlayState = 'paused';
-            }, { passive: true });
-            
-            const handleTouchEnd = () => {
-                if (isDragging) {
-                    isDragging = false;
-                    ourWorkTrack.style.animationPlayState = 'running';
-                }
-            };
-            
-            document.addEventListener('touchend', handleTouchEnd, { passive: true });
-            
-            ourWorkWrapper.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                
-                if (rafId) {
-                    cancelAnimationFrame(rafId);
-                }
-                
-                rafId = requestAnimationFrame(() => {
-                    const walk = (e.touches[0].pageX - touchStartX) * 1.5;
-                    currentTranslate = touchScrollLeft + walk;
-                    ourWorkTrack.style.transform = `translateX(${currentTranslate}px)`;
-                });
-            }, { passive: true });
-            
-            // Set initial cursor
-            ourWorkWrapper.style.cursor = 'grab';
-            
-            // Pause animation on hover for better UX
-            ourWorkWrapper.addEventListener('mouseenter', () => {
-                if (!isDragging) {
-                    ourWorkTrack.style.animationPlayState = 'paused';
-                }
-            });
-            
-            ourWorkWrapper.addEventListener('mouseleave', () => {
-                if (!isDragging) {
-                    ourWorkTrack.style.animationPlayState = 'running';
-                }
-            });
-        }
+        /* Our Work scroller is pure CSS — no JS needed. Hover-pause is handled
+           via the :hover pseudo-class in /css/our-work.css. */
         
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

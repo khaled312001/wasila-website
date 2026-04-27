@@ -1,0 +1,190 @@
+/* ================================================================
+   Our Work — completely independent component
+   - .wowar-*  → Arabic version (right → left)
+   - .wowen-*  → English version (left → right)
+   Each side has its own variables, classes and keyframes so they
+   never collide and never affect each other.
+   ================================================================ */
+
+/* -------- shared section padding (visual parity, no animation) ---- */
+.wowar-section,
+.wowen-section {
+    padding: 5rem 0;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    overflow: hidden;
+}
+
+.wowar-section .section-title,
+.wowen-section .section-title {
+    color: #025469;
+    font-weight: 800;
+    margin-bottom: .75rem;
+}
+.wowar-section .section-subtitle,
+.wowen-section .section-subtitle {
+    color: #475569;
+}
+
+/* ============================================================
+   ARABIC version  →  RIGHT → LEFT
+   ============================================================ */
+.wowar-marquee {
+    --wowar-card-w: 380px;
+    --wowar-gap: 24px;
+    --wowar-count: 40;            /* number of unique cards */
+    --wowar-cycle: calc((var(--wowar-card-w) + var(--wowar-gap)) * var(--wowar-count));
+    --wowar-speed: 80s;
+
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    direction: ltr; /* lock layout direction so flex math is predictable */
+}
+
+.wowar-track {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    gap: var(--wowar-gap);
+    /* Track moves LEFT continuously → cards travel RIGHT → LEFT */
+    animation: wowar-slide var(--wowar-speed) linear infinite;
+    will-change: transform;
+}
+
+.wowar-marquee:hover .wowar-track { animation-play-state: paused; }
+
+.wowar-card {
+    flex: 0 0 var(--wowar-card-w);
+    width: var(--wowar-card-w);
+    height: var(--wowar-card-w);
+    border-radius: 24px;
+    overflow: hidden;
+    background: #f1f5f9;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .12);
+    position: relative;
+    transition: transform .35s ease;
+}
+
+.wowar-card:hover { transform: translateY(-8px); }
+
+.wowar-card img,
+.wowar-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.wowar-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(2,84,105,.85) 100%);
+    display: flex; align-items: flex-end;
+    padding: 1.25rem;
+    opacity: 0; transition: opacity .35s ease;
+}
+.wowar-card:hover .wowar-card-overlay { opacity: 1; }
+.wowar-card-overlay h4 {
+    color: #fff; font-weight: 700; font-size: 1.1rem; margin: 0;
+}
+
+/* The KEY rule for AR: track translates from 0 to -CYCLE,
+   shifting LEFT by exactly one full set width.
+   The duplicated set lands precisely on the original's spot
+   → seamless infinite loop, RIGHT → LEFT motion. */
+@keyframes wowar-slide {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(calc(var(--wowar-cycle) * -1), 0, 0); }
+}
+
+/* ============================================================
+   ENGLISH version  →  LEFT → RIGHT
+   ============================================================ */
+.wowen-marquee {
+    --wowen-card-w: 380px;
+    --wowen-gap: 24px;
+    --wowen-count: 40;
+    --wowen-cycle: calc((var(--wowen-card-w) + var(--wowen-gap)) * var(--wowen-count));
+    --wowen-speed: 80s;
+
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%);
+    direction: ltr;
+}
+
+.wowen-track {
+    display: flex;
+    flex-wrap: nowrap;
+    width: max-content;
+    gap: var(--wowen-gap);
+    /* Track moves RIGHT continuously → cards travel LEFT → RIGHT */
+    animation: wowen-slide var(--wowen-speed) linear infinite;
+    will-change: transform;
+}
+
+.wowen-marquee:hover .wowen-track { animation-play-state: paused; }
+
+.wowen-card {
+    flex: 0 0 var(--wowen-card-w);
+    width: var(--wowen-card-w);
+    height: var(--wowen-card-w);
+    border-radius: 24px;
+    overflow: hidden;
+    background: #f1f5f9;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .12);
+    position: relative;
+    transition: transform .35s ease;
+}
+
+.wowen-card:hover { transform: translateY(-8px); }
+
+.wowen-card img,
+.wowen-card video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.wowen-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(2,84,105,.85) 100%);
+    display: flex; align-items: flex-end;
+    padding: 1.25rem;
+    opacity: 0; transition: opacity .35s ease;
+}
+.wowen-card:hover .wowen-card-overlay { opacity: 1; }
+.wowen-card-overlay h4 {
+    color: #fff; font-weight: 700; font-size: 1.1rem; margin: 0;
+}
+
+/* For EN: the track is initially shifted LEFT by one full set
+   (so the "duplicate" copy is in view), then animates back to 0.
+   That makes cards visually flow LEFT → RIGHT seamlessly. */
+@keyframes wowen-slide {
+    from { transform: translate3d(calc(var(--wowen-cycle) * -1), 0, 0); }
+    to   { transform: translate3d(0, 0, 0); }
+}
+
+/* ============================================================
+   Responsive — recalc card sizes (variables drive the cycle math)
+   ============================================================ */
+@media (max-width: 768px) {
+    .wowar-marquee { --wowar-card-w: 280px; --wowar-gap: 18px; --wowar-speed: 60s; }
+    .wowen-marquee { --wowen-card-w: 280px; --wowen-gap: 18px; --wowen-speed: 60s; }
+}
+@media (max-width: 480px) {
+    .wowar-marquee { --wowar-card-w: 240px; --wowar-gap: 14px; --wowar-speed: 50s; }
+    .wowen-marquee { --wowen-card-w: 240px; --wowen-gap: 14px; --wowen-speed: 50s; }
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .wowar-track, .wowen-track { animation-duration: 200s; }
+}
