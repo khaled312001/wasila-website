@@ -48,6 +48,7 @@
     <link rel="stylesheet" href="{{ asset('css/wasila-footer.css') }}">
     <link rel="stylesheet" href="{{ asset('css/single-page.css') }}">
     <link rel="stylesheet" href="{{ asset('css/our-work.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/site-polish.css') }}">
     <script>
         // Ensure body is visible immediately - no waiting for page load
         (function() {
@@ -68,7 +69,7 @@
     <header class="wasila-header">
         <div class="wasila-header-container">
             <div class="wasila-header-logo">
-                <a href="{{ url('/') }}#home" class="wasila-logo-link">
+                <a href="#home" class="wasila-logo-link">
                     <img src="{{ asset('images/logo-arabic.png') }}" alt="وسيلة" class="wasila-logo-img">
                 </a>
             </div>
@@ -76,25 +77,25 @@
             <nav class="wasila-header-nav">
                 <ul class="wasila-nav-list">
                     <li class="wasila-nav-item">
-                        <a href="{{ url('/') }}#home" class="wasila-nav-link">
+                        <a href="#home" class="wasila-nav-link">
                             <i class="wasila-nav-icon fas fa-home"></i>
                             <span>{{ __('messages.home') }}</span>
                         </a>
                     </li>
                     <li class="wasila-nav-item">
-                        <a href="{{ url('/') }}#services" class="wasila-nav-link">
+                        <a href="#services" class="wasila-nav-link">
                             <i class="wasila-nav-icon fas fa-kaaba"></i>
                             <span>{{ __('messages.services') }}</span>
                         </a>
                     </li>
                     <li class="wasila-nav-item">
-                        <a href="{{ url('/') }}#about" class="wasila-nav-link">
+                        <a href="#about" class="wasila-nav-link">
                             <i class="wasila-nav-icon fas fa-info-circle"></i>
                             <span>{{ __('messages.about') }}</span>
                         </a>
                     </li>
                     <li class="wasila-nav-item">
-                        <a href="{{ url('/') }}#contact" class="wasila-nav-link">
+                        <a href="#contact" class="wasila-nav-link">
                             <i class="wasila-nav-icon fas fa-envelope"></i>
                             <span>{{ __('messages.contact') }}</span>
                         </a>
@@ -178,10 +179,10 @@
         <!-- Mobile Menu -->
         <div class="wasila-mobile-menu" id="wasilaMobileMenu">
             <ul class="wasila-mobile-nav-list">
-                <li><a href="{{ url('/') }}#home"><i class="fas fa-home"></i> {{ __('messages.home') }}</a></li>
-                <li><a href="{{ url('/') }}#services"><i class="fas fa-kaaba"></i> {{ __('messages.services') }}</a></li>
-                <li><a href="{{ url('/') }}#about"><i class="fas fa-info-circle"></i> {{ __('messages.about') }}</a></li>
-                <li><a href="{{ url('/') }}#contact"><i class="fas fa-envelope"></i> {{ __('messages.contact') }}</a></li>
+                <li><a href="#home"><i class="fas fa-home"></i> {{ __('messages.home') }}</a></li>
+                <li><a href="#services"><i class="fas fa-kaaba"></i> {{ __('messages.services') }}</a></li>
+                <li><a href="#about"><i class="fas fa-info-circle"></i> {{ __('messages.about') }}</a></li>
+                <li><a href="#contact"><i class="fas fa-envelope"></i> {{ __('messages.contact') }}</a></li>
                 <li class="wasila-mobile-divider"></li>
                 @guest('customer')
                 <li><a href="{{ route('customer.login') }}"><i class="fas fa-sign-in-alt"></i> {{ __('messages.login') }}</a></li>
@@ -268,14 +269,14 @@
                 @endphp
             </p>
             <div class="hero-buttons">
-                <a href="{{ url('/') }}#services" class="btn btn-hero btn-hero-primary">
+                <a href="#services" class="btn btn-hero btn-hero-primary">
                     <i class="fas fa-list me-2"></i>
                     @php
                         $browseServicesText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'browse_services_button_text_ar' : 'browse_services_button_text_en', __('messages.browse_services'));
                         echo $browseServicesText ?: __('messages.browse_services');
                     @endphp
                 </a>
-                <a href="{{ url('/') }}#about" class="btn btn-hero btn-hero-secondary">
+                <a href="#about" class="btn btn-hero btn-hero-secondary">
                     <i class="fas fa-info-circle me-2"></i>
                     @php
                         $learnMoreText = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'learn_more_button_text_ar' : 'learn_more_button_text_en', __('messages.learn_more'));
@@ -672,10 +673,10 @@
                         {{ __('messages.quick_links_footer') }}
                     </h4>
                     <ul class="wasila-footer-list">
-                        <li><a href="{{ url('/') }}#home"><i class="fas fa-chevron-left"></i> {{ __('messages.home_link') }}</a></li>
-                        <li><a href="{{ url('/') }}#services"><i class="fas fa-chevron-left"></i> {{ __('messages.services_link') }}</a></li>
-                        <li><a href="{{ url('/') }}#about"><i class="fas fa-chevron-left"></i> {{ __('messages.about_link') }}</a></li>
-                        <li><a href="{{ url('/') }}#contact"><i class="fas fa-chevron-left"></i> {{ __('messages.contact_link') }}</a></li>
+                        <li><a href="#home"><i class="fas fa-chevron-left"></i> {{ __('messages.home_link') }}</a></li>
+                        <li><a href="#services"><i class="fas fa-chevron-left"></i> {{ __('messages.services_link') }}</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-left"></i> {{ __('messages.about_link') }}</a></li>
+                        <li><a href="#contact"><i class="fas fa-chevron-left"></i> {{ __('messages.contact_link') }}</a></li>
                     </ul>
                 </div>
                 
