@@ -727,20 +727,19 @@ body.loaded {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: linear-gradient(135deg, #08788B 0%, #025469 100%);
+    background: #f1f5f9;
 }
 
 .our-work-card-inner img,
 .our-work-card-inner video {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center;
     display: block;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     background: #f8f9fa;
     transform: translateZ(0); /* Hardware acceleration */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
 }
 
 .our-work-card-inner video {

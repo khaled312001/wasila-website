@@ -214,7 +214,7 @@
 </div>
 
 <!-- Stats Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6 mb-8">
     <!-- Total Orders -->
     <div class="stat-card-modern fade-in" style="animation-delay: 0.1s">
         <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, #025469 0%, #08788B 100%);">
@@ -289,6 +289,19 @@
         <div class="flex items-center gap-1 mt-2 text-xs text-blue-600">
             <i class="fas fa-check-circle"></i>
             <span>نشط</span>
+        </div>
+    </div>
+
+    <!-- Total Customers -->
+    <div class="stat-card-modern fade-in" style="animation-delay: 0.7s">
+        <div class="stat-icon-wrapper" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);">
+            <i class="fas fa-user-friends text-white text-xl"></i>
+        </div>
+        <p class="stat-label">إجمالي العملاء</p>
+        <p class="stat-value" style="background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ $stats['total_customers'] ?? 0 }}</p>
+        <div class="flex items-center gap-1 mt-2 text-xs" style="color:#0d9488;">
+            <i class="fas fa-users"></i>
+            <span>مسجل</span>
         </div>
     </div>
 </div>
@@ -446,19 +459,21 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Chart data from server
-const completedOrders = {{ $stats['completed_orders'] ?? 0 }};
-const pendingOrders = {{ $stats['pending_orders'] ?? 0 }};
+// Real chart data from server
+const chartLabels = @json($chartData['labels']);
+const chartOrders = @json($chartData['orders']);
+const chartRevenue = @json($chartData['revenue']);
+const chartPayment = @json($chartData['payment_status']);
 
 // Orders Chart
 const ordersCtx = document.getElementById('ordersChart').getContext('2d');
 new Chart(ordersCtx, {
     type: 'line',
     data: {
-        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        labels: chartLabels,
         datasets: [{
             label: 'الطلبات',
-            data: [12, 19, 3, 5, 2, 3],
+            data: chartOrders,
             borderColor: '#08788B',
             backgroundColor: 'rgba(8, 120, 139, 0.1)',
             tension: 0.4,
@@ -472,23 +487,10 @@ new Chart(ordersCtx, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-            y: {
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                }
-            },
-            x: {
-                grid: {
-                    display: false
-                }
-            }
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
         }
     }
 });
@@ -498,10 +500,10 @@ const revenueCtx = document.getElementById('revenueChart').getContext('2d');
 new Chart(revenueCtx, {
     type: 'bar',
     data: {
-        labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+        labels: chartLabels,
         datasets: [{
             label: 'الإيرادات (ريال)',
-            data: [12000, 19000, 3000, 5000, 2000, 3000],
+            data: chartRevenue,
             backgroundColor: 'rgba(223, 163, 64, 0.8)',
             borderColor: '#DFA340',
             borderWidth: 2,
@@ -511,23 +513,10 @@ new Chart(revenueCtx, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-            y: {
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                }
-            },
-            x: {
-                grid: {
-                    display: false
-                }
-            }
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { grid: { display: false } }
         }
     }
 });
@@ -539,25 +528,20 @@ new Chart(paymentCtx, {
     data: {
         labels: ['مدفوع', 'في الانتظار', 'فشل'],
         datasets: [{
-            data: [completedOrders, pendingOrders, 0],
+            data: [chartPayment.paid, chartPayment.pending, chartPayment.failed],
             backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
             borderWidth: 0,
-            hoverOffset: 4
+            hoverOffset: 8
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
+        cutout: '62%',
         plugins: {
             legend: {
                 position: 'bottom',
-                labels: {
-                    padding: 15,
-                    font: {
-                        size: 12,
-                        weight: 'bold'
-                    }
-                }
+                labels: { padding: 15, font: { size: 12, weight: 'bold' } }
             }
         }
     }

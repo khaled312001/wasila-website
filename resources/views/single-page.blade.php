@@ -221,10 +221,28 @@
     <!-- Hero Section -->
     <section id="home" class="hero-section" style="margin-top: 70px;">
         <div class="hero-video-container">
-            @php $heroVideoSrc = \App\Models\Setting::get('hero_video', asset('videos/hero-video.mp4')); @endphp
-            <video autoplay muted loop playsinline>
-                <source src="{{ $heroVideoSrc ?: asset('videos/hero-video.mp4') }}" type="video/mp4">
-            </video>
+            @php
+                $heroVideoType = \App\Models\Setting::get('hero_video_type', 'file');
+                $heroVideoYoutube = \App\Models\Setting::get('hero_video_youtube', '');
+                $heroVideoFile = \App\Models\Setting::get('hero_video', '');
+                $youtubeId = '';
+                if ($heroVideoType === 'youtube' && $heroVideoYoutube) {
+                    if (preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|v/|shorts/))([A-Za-z0-9_-]{6,})~', $heroVideoYoutube, $m)) {
+                        $youtubeId = $m[1];
+                    }
+                }
+            @endphp
+            @if($heroVideoType === 'youtube' && $youtubeId)
+                <iframe class="hero-youtube"
+                        src="https://www.youtube.com/embed/{{ $youtubeId }}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&modestbranding=1&playlist={{ $youtubeId }}&playsinline=1&iv_load_policy=3"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media"
+                        allowfullscreen></iframe>
+            @else
+                <video autoplay muted loop playsinline>
+                    <source src="{{ $heroVideoFile ?: asset('videos/hero-video.mp4') }}" type="video/mp4">
+                </video>
+            @endif
         </div>
         <div class="hero-overlay"></div>
         <div class="hero-content" data-aos="fade-up">
@@ -412,8 +430,18 @@
     <section class="section our-work-section">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
-                <h2 class="section-title">{{ __('messages.our_work') }}</h2>
-                <p class="section-subtitle">{{ __('messages.discover_images_from_activities') }}</p>
+                <h2 class="section-title">
+                    @php
+                        $ourWorkTitle = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'our_work_title_ar' : 'our_work_title_en', __('messages.our_work'));
+                        echo $ourWorkTitle ?: __('messages.our_work');
+                    @endphp
+                </h2>
+                <p class="section-subtitle">
+                    @php
+                        $ourWorkDesc = \App\Models\Setting::get(app()->getLocale() === 'ar' ? 'our_work_description_ar' : 'our_work_description_en', __('messages.discover_images_from_activities'));
+                        echo $ourWorkDesc ?: __('messages.discover_images_from_activities');
+                    @endphp
+                </p>
             </div>
             
             @php

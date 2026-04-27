@@ -28,6 +28,8 @@ class ContentManagementController extends Controller
             'hero_title_en' => 'required|string|max:255',
             'hero_description_ar' => 'required|string|max:1000',
             'hero_description_en' => 'required|string|max:1000',
+            'hero_video_type' => 'nullable|in:file,youtube',
+            'hero_video_youtube' => 'nullable|string|max:500',
             'hero_video' => 'nullable|file|mimes:mp4,avi,mov,wmv|max:102400',
 
             // Contact Info
@@ -73,6 +75,12 @@ class ContentManagementController extends Controller
             'learn_more_button_text_ar' => 'nullable|string|max:100',
             'learn_more_button_text_en' => 'nullable|string|max:100',
 
+            // Our Work Section
+            'our_work_title_ar' => 'nullable|string|max:255',
+            'our_work_title_en' => 'nullable|string|max:255',
+            'our_work_description_ar' => 'nullable|string',
+            'our_work_description_en' => 'nullable|string',
+
             // Contact Section Texts
             'contact_us_title_ar' => 'nullable|string|max:255',
             'contact_us_title_en' => 'nullable|string|max:255',
@@ -95,6 +103,7 @@ class ContentManagementController extends Controller
             // Hero Section
             'hero_title_ar', 'hero_title_en',
             'hero_description_ar', 'hero_description_en',
+            'hero_video_type', 'hero_video_youtube',
 
             // Contact Info
             'contact_email', 'contact_phone', 'whatsapp_link',
@@ -119,6 +128,10 @@ class ContentManagementController extends Controller
             'browse_services_button_text_ar', 'browse_services_button_text_en',
             'learn_more_button_text_ar', 'learn_more_button_text_en',
 
+            // Our Work
+            'our_work_title_ar', 'our_work_title_en',
+            'our_work_description_ar', 'our_work_description_en',
+
             // Contact Section Texts
             'contact_us_title_ar', 'contact_us_title_en',
             'contact_us_description_ar', 'contact_us_description_en',
@@ -135,6 +148,9 @@ class ContentManagementController extends Controller
         // معالجة الملفات
         $this->handleFileUploads($request);
 
+        // Clear all settings cache so the home page reflects updates immediately
+        Setting::clearCache();
+
         return redirect()->route('admin.content-management.index')
             ->with('success', 'تم تحديث المحتوى بنجاح');
     }
@@ -149,6 +165,8 @@ class ContentManagementController extends Controller
             $filename = 'hero-video.' . $file->getClientOriginalExtension();
             $file->move(public_path('videos'), $filename);
             Setting::set('hero_video', asset('videos/' . $filename));
+            // Switch type to file once a file is uploaded
+            Setting::set('hero_video_type', 'file');
         }
     }
 
@@ -160,11 +178,11 @@ class ContentManagementController extends Controller
         $field = $request->input('field');
 
         if ($field === 'hero_video') {
-            $videoPath = public_path('videos/hero-video.mp4');
             // Don't delete the actual file, just clear the setting so the default is used
         }
 
         Setting::set($field, '');
+        Setting::clearCache();
 
         return response()->json(['success' => true]);
     }

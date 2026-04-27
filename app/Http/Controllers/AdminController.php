@@ -57,11 +57,12 @@ class AdminController extends Controller
             'completed_orders' => Order::where('status', 'completed')->count(),
             'total_services' => Service::count(),
             'active_services' => Service::where('is_active', true)->count(),
+            'total_customers' => Customer::count(),
             'total_revenue' => Order::where('payment_status', 'paid')->sum('total_amount'),
             'total_messages' => CustomerMessage::count(),
             'unread_messages' => CustomerMessage::where('is_read', false)->where('sender_type', 'customer')->count(),
         ];
-        
+
         // إخفاء الطلبات غير المدفوعة من MyFatoorah (لا تظهر للإدارة حتى يتم الدفع)
         $recent_orders = Order::with('orderItems.service')
             ->where(function($q) {
@@ -74,15 +75,47 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
-            
+
         // Top Services
         $topServices = Service::withCount(['orderItems as orders_count'])
             ->withSum('orderItems as total_revenue', 'total_price')
             ->orderBy('orders_count', 'desc')
             ->take(5)
             ->get();
-            
-        return view('admin.dashboard', compact('stats', 'recent_orders', 'topServices'));
+
+        // Build last-6-months chart data (orders count + paid revenue)
+        $monthlyOrders = [];
+        $monthlyRevenue = [];
+        $monthlyLabels = [];
+        $arabicMonths = [
+            1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
+            5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
+            9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر',
+        ];
+        for ($i = 5; $i >= 0; $i--) {
+            $start = now()->copy()->subMonths($i)->startOfMonth();
+            $end   = now()->copy()->subMonths($i)->endOfMonth();
+            $monthlyLabels[] = $arabicMonths[(int) $start->format('n')];
+            $monthlyOrders[]  = (int) Order::whereBetween('created_at', [$start, $end])->count();
+            $monthlyRevenue[] = (float) Order::whereBetween('created_at', [$start, $end])
+                ->where('payment_status', 'paid')
+                ->sum('total_amount');
+        }
+
+        $paymentStatus = [
+            'paid'    => (int) Order::where('payment_status', 'paid')->count(),
+            'pending' => (int) Order::where('payment_status', 'pending')->count(),
+            'failed'  => (int) Order::where('payment_status', 'failed')->count(),
+        ];
+
+        $chartData = [
+            'labels'         => $monthlyLabels,
+            'orders'         => $monthlyOrders,
+            'revenue'        => $monthlyRevenue,
+            'payment_status' => $paymentStatus,
+        ];
+
+        return view('admin.dashboard', compact('stats', 'recent_orders', 'topServices', 'chartData'));
     }
     
     // Upload Order Documentation Video
