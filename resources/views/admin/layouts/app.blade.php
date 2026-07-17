@@ -26,9 +26,12 @@
     
     <!-- Admin Mobile CSS -->
     <link href="{{ asset('css/admin-mobile.css') }}" rel="stylesheet">
-    
+
     <!-- Custom Admin CSS -->
     @stack('styles')
+
+    <!-- WordPress-style polish (loaded last so it takes precedence) -->
+    <link href="{{ asset('css/admin-wp.css') }}?v={{ @filemtime(public_path('css/admin-wp.css')) ?: time() }}" rel="stylesheet">
     
     <!-- Custom CSS -->
     <style>
@@ -774,123 +777,105 @@
                 <p class="sidebar-logo-text sidebar-text text-white/80 text-sm mt-2 text-center">لوحة تحكم الإدارة</p>
             </div>
             
-            <!-- Navigation -->
-            <nav class="mt-4 px-3">
-                <div>
-                    <!-- Dashboard -->
-                    <a href="{{ route('admin.dashboard') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">لوحة التحكم</span>
-                    </a>
-                    
-                    <!-- Orders -->
-                    <a href="{{ route('admin.orders.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">الطلبات</span>
-                    </a>
-                    
-                    <!-- Customers -->
-                    <a href="{{ route('admin.customers.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">العملاء</span>
-                    </a>
-                    
-                    <!-- Services -->
-                    <a href="{{ route('admin.services.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">الخدمات</span>
-                    </a>
-                    
-                    <!-- Content Management -->
-                    <a href="{{ route('admin.content-management.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.content-management.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">إدارة المحتوى</span>
-                    </a>
-                    
-                    <!-- Portfolio -->
-                    <a href="{{ route('admin.portfolio.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.portfolio.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">معرض الأعمال</span>
-                    </a>
-                    
-                    <!-- Contact Messages -->
-                    <a href="{{ route('admin.contact-messages.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm flex-1">رسائل التواصل</span>
-                        <span id="unread-count" class="sidebar-text bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 min-w-[20px] text-center hidden">0</span>
-                    </a>
-                    
-                    <!-- Customer Messages -->
-                    <a href="{{ route('admin.customer.messages') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.customer.messages') || request()->routeIs('admin.customer.messages.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
-                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">رسائل العملاء</span>
-                    </a>
-                    
-                    <!-- MyFatoorah Management -->
-                    <a href="{{ route('admin.myfatoorah.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.myfatoorah.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">إدارة المدفوعات</span>
-                    </a>
-                    
-                    <!-- Analytics -->
-                    <a href="{{ route('admin.analytics.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">التقارير والإحصائيات</span>
-                    </a>
-                    
-                    <!-- Settings -->
-                    <a href="{{ route('admin.settings.index') }}" 
-                       class="sidebar-item flex items-center px-4 py-3 {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">الإعدادات</span>
-                    </a>
-                    
-                    <!-- Divider -->
-                    <div class="border-t border-white/20 my-4"></div>
-                    
-                    <!-- Website -->
-                    <a href="{{ route('home') }}" target="_blank"
-                       class="sidebar-item flex items-center px-4 py-3">
-                        <svg class="w-6 h-6 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                        </svg>
-                        <span class="sidebar-text text-sm">الموقع الرئيسي</span>
-                    </a>
-                </div>
+            <!-- Navigation (WP-admin-style sections) -->
+            <nav class="mt-2 px-3">
+                <p class="sidebar-group-label sidebar-text">نظرة عامة</p>
+                <a href="{{ route('admin.dashboard') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    </svg>
+                    <span class="sidebar-text">لوحة التحكم</span>
+                </a>
+                <a href="{{ route('admin.analytics.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.analytics.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                    </svg>
+                    <span class="sidebar-text">التقارير</span>
+                </a>
+
+                <p class="sidebar-group-label sidebar-text">المتجر</p>
+                <a href="{{ route('admin.orders.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                    </svg>
+                    <span class="sidebar-text">الطلبات</span>
+                </a>
+                <a href="{{ route('admin.services.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.services.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="sidebar-text">الخدمات</span>
+                </a>
+                <a href="{{ route('admin.customers.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                    <span class="sidebar-text">العملاء</span>
+                </a>
+                <a href="{{ route('admin.myfatoorah.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.myfatoorah.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                    </svg>
+                    <span class="sidebar-text">المدفوعات</span>
+                </a>
+
+                <p class="sidebar-group-label sidebar-text">المحتوى</p>
+                <a href="{{ route('admin.content-management.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.content-management.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                    </svg>
+                    <span class="sidebar-text">إدارة المحتوى</span>
+                </a>
+                <a href="{{ route('admin.portfolio.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.portfolio.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                    </svg>
+                    <span class="sidebar-text">معرض الأعمال</span>
+                </a>
+
+                <p class="sidebar-group-label sidebar-text">المراسلات</p>
+                <a href="{{ route('admin.contact-messages.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                    </svg>
+                    <span class="sidebar-text flex-1">رسائل التواصل</span>
+                    <span id="unread-count" class="sidebar-text bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 min-w-[20px] text-center hidden">0</span>
+                </a>
+                <a href="{{ route('admin.customer.messages') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.customer.messages') || request()->routeIs('admin.customer.messages.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+                        <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+                    </svg>
+                    <span class="sidebar-text">رسائل العملاء</span>
+                </a>
+
+                <p class="sidebar-group-label sidebar-text">إعدادات</p>
+                <a href="{{ route('admin.settings.index') }}"
+                   class="sidebar-item flex items-center {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="sidebar-text">الإعدادات</span>
+                </a>
+                <a href="{{ route('home') }}" target="_blank"
+                   class="sidebar-item flex items-center">
+                    <svg class="w-5 h-5 ml-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/>
+                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/>
+                    </svg>
+                    <span class="sidebar-text">عرض الموقع</span>
+                </a>
             </nav>
         </div>
         
@@ -915,13 +900,35 @@
                         <h1 class="text-lg md:text-2xl font-bold text-primary-dark">@yield('page-title', 'لوحة التحكم')</h1>
                     </div>
                     
-                    <div class="flex items-center gap-2 md:gap-4 flex-row-reverse">
+                    <div class="flex items-center gap-2 md:gap-3 flex-row-reverse">
+                        {{-- Quick add (services) --}}
+                        @if(Route::has('admin.services.create'))
+                            <a href="{{ route('admin.services.create') }}" class="wp-quick-add hidden sm:inline-flex">
+                                <i class="fas fa-plus"></i>
+                                <span>إضافة خدمة</span>
+                            </a>
+                        @endif
+
+                        {{-- View site --}}
+                        <a href="{{ route('home') }}" target="_blank" class="wp-bell hidden sm:inline-flex" title="عرض الموقع">
+                            <i class="fas fa-globe"></i>
+                        </a>
+
+                        {{-- Notification bell --}}
+                        <a href="{{ route('admin.contact-messages.index') }}" class="wp-bell" title="رسائل التواصل">
+                            <i class="fas fa-bell"></i>
+                            <span id="header-unread-bell" class="dot hidden">0</span>
+                        </a>
+
+                        {{-- User welcome chip --}}
                         <div class="hidden sm:flex items-center bg-gradient-to-l from-primary-medium/10 to-primary-light/10 rounded-full px-3 md:px-4 py-2 shadow-md border border-primary-medium/20">
                             <svg class="w-5 h-5 md:w-6 md:h-6 text-primary-medium ml-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
                             </svg>
-                            <span class="text-xs md:text-sm font-semibold text-primary-dark">مرحباً، {{ Auth::guard('admin')->user()->name }}</span>
+                            <span class="text-xs md:text-sm font-semibold text-primary-dark">{{ Auth::guard('admin')->user()->name }}</span>
                         </div>
+
+                        {{-- Logout --}}
                         <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="flex items-center gap-1 md:gap-2 text-white bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 rounded-full px-3 md:px-4 py-2 shadow-md hover:shadow-lg transform hover:scale-105" title="تسجيل الخروج">
@@ -934,6 +941,18 @@
                     </div>
                 </div>
             </header>
+
+            {{-- Breadcrumb / sub-bar (WordPress-style) --}}
+            <div class="wp-breadcrumb">
+                <a href="{{ route('admin.dashboard') }}"><i class="fas fa-home"></i> لوحة التحكم</a>
+                @hasSection('breadcrumb')
+                    <span class="sep">/</span>
+                    @yield('breadcrumb')
+                @else
+                    <span class="sep">/</span>
+                    <span class="cur">@yield('page-title', 'لوحة التحكم')</span>
+                @endif
+            </div>
             
             <!-- Page Content -->
             <main class="p-3 md:p-6">
@@ -1048,18 +1067,23 @@
             });
         }, 5000);
         
-        // Update unread messages count
+        // Update unread messages count (sidebar + header bell)
         function updateUnreadCount() {
             fetch('{{ route("admin.contact-messages.unread-count") }}')
                 .then(response => response.json())
                 .then(data => {
-                    const unreadCountElement = document.getElementById('unread-count');
-                    if (data.count > 0) {
-                        unreadCountElement.textContent = data.count;
-                        unreadCountElement.classList.remove('hidden');
-                    } else {
-                        unreadCountElement.classList.add('hidden');
-                    }
+                    const sideEl = document.getElementById('unread-count');
+                    const bellEl = document.getElementById('header-unread-bell');
+                    const count = parseInt(data.count || 0, 10);
+                    [sideEl, bellEl].forEach(el => {
+                        if (!el) return;
+                        if (count > 0) {
+                            el.textContent = count > 99 ? '99+' : count;
+                            el.classList.remove('hidden');
+                        } else {
+                            el.classList.add('hidden');
+                        }
+                    });
                 })
                 .catch(error => console.error('Error fetching unread count:', error));
         }

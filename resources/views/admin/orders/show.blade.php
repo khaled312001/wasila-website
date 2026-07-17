@@ -83,6 +83,9 @@
                 </div>
                 <div class="doc-files-grid-new">
                     @foreach($order->documentation as $doc)
+                    @php
+                        $customerShareUrl = \Illuminate\Support\Facades\URL::signedRoute('documentation.share', ['documentation' => $doc->id]);
+                    @endphp
                     <div class="doc-file-card-new">
                         <div class="doc-file-header-new">
                             <div class="doc-file-info-new">
@@ -116,6 +119,9 @@
                                 <a href="{{ $doc->video_url }}" target="_blank" class="doc-action-btn-new doc-action-view-new" title="عرض">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                <a href="{{ $customerShareUrl }}" target="_blank" class="doc-action-btn-new doc-action-view-new" title="فتح رابط العميل">
+                                    <i class="fas fa-link"></i>
+                                </a>
                                 <form method="POST" action="{{ route('admin.documentation.delete', $doc) }}" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -127,6 +133,22 @@
                             </div>
                         </div>
                         @if($doc->video_path)
+                        <div class="mb-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <label class="block text-sm font-semibold text-blue-900 mb-2">
+                                <i class="fas fa-share-alt ml-1"></i>
+                                رابط مشاركة خاص بالعميل
+                            </label>
+                            <div class="flex flex-col md:flex-row gap-2">
+                                <input type="text" readonly value="{{ $customerShareUrl }}" class="doc-share-input flex-1 px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white" onclick="this.select()">
+                                <button type="button" class="copy-doc-link inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700" data-link="{{ $customerShareUrl }}">
+                                    <i class="fas fa-copy ml-1"></i>
+                                    نسخ الرابط
+                                </button>
+                            </div>
+                            <p class="text-xs text-blue-700 mt-2">
+                                هذا الرابط يفتح للعميل بدون حساب. نبه العميل: لا تشارك هذا الرابط مع عملاء آخرين.
+                            </p>
+                        </div>
                         <div class="doc-video-wrapper-new">
                             <video controls class="doc-video-new" preload="metadata" playsinline webkit-playsinline>
                                 <source src="{{ $doc->video_url }}" type="video/mp4">
@@ -515,6 +537,26 @@
                 const loadingDiv = video.parentElement.querySelector('#loading-' + video.id);
                 if (loadingDiv) {
                     loadingDiv.remove();
+                }
+            });
+        });
+
+        document.querySelectorAll('.copy-doc-link').forEach(button => {
+            button.addEventListener('click', async function() {
+                const link = this.dataset.link;
+                try {
+                    await navigator.clipboard.writeText(link);
+                    const original = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check ml-1"></i> تم النسخ';
+                    setTimeout(() => {
+                        this.innerHTML = original;
+                    }, 1800);
+                } catch (error) {
+                    const input = this.closest('div').querySelector('.doc-share-input');
+                    if (input) {
+                        input.select();
+                        document.execCommand('copy');
+                    }
                 }
             });
         });

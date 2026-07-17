@@ -131,6 +131,11 @@ Route::post('/manual-storage-fix/create-sample-portfolio', [App\Http\Controllers
 Route::post('/manual-storage-fix/activate-portfolio', [App\Http\Controllers\ManualStorageFixController::class, 'activatePortfolioItems'])->name('manual.storage.fix.activate.portfolio');
 Route::post('/manual-storage-fix/fix-portfolio-paths', [App\Http\Controllers\ManualStorageFixController::class, 'fixPortfolioPaths'])->name('manual.storage.fix.portfolio.paths');
 
+// Public signed documentation links for customers
+Route::get('/documentation/share/{documentation}', [App\Http\Controllers\DocumentationShareController::class, 'show'])
+    ->middleware('signed')
+    ->name('documentation.share');
+
 // Sitemap and Robots
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\RobotsController::class, 'index'])->name('robots');

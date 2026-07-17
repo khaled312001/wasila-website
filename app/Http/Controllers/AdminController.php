@@ -201,31 +201,17 @@ class AdminController extends Controller
     {
         $query = Order::with(['orderItems.service', 'customer']);
         
-        // التحقق من وجود أي فلتر مطبق
-        $hasAnyFilter = $request->filled('order_number') || 
-                       $request->filled('customer_name') || 
-                       $request->filled('customer_email') || 
-                       $request->filled('status') || 
-                       $request->filled('payment_status') || 
-                       $request->filled('payment_method') || 
-                       $request->filled('date_from') || 
-                       $request->filled('date_to') || 
-                       $request->filled('amount_min') || 
-                       $request->filled('amount_max');
-        
-        // إخفاء الطلبات غير المدفوعة من MyFatoorah فقط عند تطبيق أي فلتر
-        // إذا لم يكن هناك أي فلتر، اظهر جميع الطلبات
-        if ($hasAnyFilter) {
-            $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
-            if (!$hasPaymentFilter) {
-                $query->where(function($q) {
-                    $q->where('payment_method', '!=', 'MyFatoorah')
-                      ->orWhere(function($subQ) {
-                          $subQ->where('payment_method', 'MyFatoorah')
-                               ->where('payment_status', 'paid');
-                      });
-                });
-            }
+        // إخفاء طلبات MyFatoorah غير المدفوعة افتراضياً؛ تظهر فقط عند طلب فلتر دفع صريح.
+        $hasPaymentFilter = $request->filled('payment_method') || $request->filled('payment_status');
+        if (!$hasPaymentFilter) {
+            $query->where(function($q) {
+                $q->where('payment_method', '!=', 'MyFatoorah')
+                  ->orWhereNull('payment_method')
+                  ->orWhere(function($subQ) {
+                      $subQ->where('payment_method', 'MyFatoorah')
+                           ->where('payment_status', 'paid');
+                  });
+            });
         }
         
         // Apply same filters as index
